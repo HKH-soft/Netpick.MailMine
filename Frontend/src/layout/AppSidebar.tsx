@@ -1,15 +1,19 @@
 "use client";
-import React, { useEffect, useRef, useState, useCallback } from "react";
+import React, { useEffect, useRef, useState, useCallback, useMemo } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { usePathname } from "next/navigation";
 import { useSidebar } from "../context/SidebarContext";
+import AuthService from "../services/authService";
 import {
   ChevronDownIcon,
   GridIcon,
   HorizontaLDots,
-  ListIcon,
+  PieChartIcon,
   UserCircleIcon,
+  SettingsIcon,
+  GroupIcon,
+    PageIcon,
 
 } from "../icons/index";
 // import SidebarWidget from "./SidebarWidget";
@@ -39,7 +43,7 @@ const navItems: NavItem[] = [
 
   {
     name: "Scrape",
-    icon: <ListIcon />,
+    icon: <PageIcon />,
     subItems: [
       { name: "Api keys", path: "/scrape/api-keys", pro: false },
       { name: "Search Querys", path: "/scrape/search-querys", pro: false },
@@ -49,21 +53,20 @@ const navItems: NavItem[] = [
   },
   {
     name: "Access",
-    icon: <UserCircleIcon />,
+    icon: <GroupIcon />,
     subItems: [
-      { name: "Users", path: "/users", pro: false },
-      { name: "Admins", path: "/admins", pro: false }
+      { name: "Users", path: "/users", pro: false }
     ],
   },
 
   {
-    icon: <UserCircleIcon />,
+    icon: <PieChartIcon />,
     name: "Statistics",
     path: "/statistics",
   },
 
   {
-    icon: <UserCircleIcon />,
+    icon: <SettingsIcon />,
     name: "Settings",
     path: "/settings",
   },
@@ -123,6 +126,42 @@ const navItems: NavItem[] = [
 const AppSidebar: React.FC = () => {
   const { isExpanded, isMobileOpen, isHovered, setIsHovered } = useSidebar();
   const pathname = usePathname();
+  const [userRole, setUserRole] = useState<string | null>(null);
+
+  // Get user role from token
+  useEffect(() => {
+    const token = AuthService.getToken();
+    if (token) {
+      try {
+        const payload = JSON.parse(atob(token.split('.')[1]));
+        // Based on your token structure: {scopes: ["SUPER_ADMIN"], sub: '...', iss: '...', iat: ..., exp: ...}
+        // The role is in the scopes array
+        if (payload.scopes && Array.isArray(payload.scopes) && payload.scopes.length > 0) {
+          setUserRole(payload.scopes[0]);
+        } else {
+          setUserRole(payload.role || null);
+        }
+      } catch (e) {
+        console.error("Error parsing token", e);
+      }
+    }
+  }, []);
+
+  // Filter navigation items based on user role
+  const filteredNavItems = useMemo(() => {
+    return navItems.filter(item => {
+      // Hide Access tab for users who are not SUPER_ADMIN or ADMIN
+      if (item.name === "Access") {
+        // Show Access tab only for SUPER_ADMIN or ADMIN roles
+        if (userRole === "SUPER_ADMIN" || userRole === "ADMIN") {
+          return true;
+        }
+        // Hide for all other roles (including null/undefined or USER)
+        return false;
+      }
+      return true;
+    });
+  }, [userRole]);
 
   const renderMenuItems = (
     navItems: NavItem[],
@@ -258,7 +297,7 @@ const AppSidebar: React.FC = () => {
     let submenuMatched = false;
     ["main", "others"].forEach((menuType) => {
       // const items = menuType === "main" ? navItems : othersItems;
-      const items = navItems;
+      const items = filteredNavItems;
       items.forEach((nav, index) => {
         if (nav.subItems) {
           nav.subItems.forEach((subItem) => {
@@ -278,7 +317,7 @@ const AppSidebar: React.FC = () => {
     if (!submenuMatched) {
       setOpenSubmenu(null);
     }
-  }, [pathname, isActive]);
+  }, [pathname, isActive, filteredNavItems]);
 
   useEffect(() => {
     // Set the height of the submenu items when the submenu is opened
@@ -368,7 +407,7 @@ const AppSidebar: React.FC = () => {
                   <HorizontaLDots />
                 )}
               </h2>
-              {renderMenuItems(navItems, "main")}
+              {renderMenuItems(filteredNavItems, "main")}
             </div>
 
             {/* <div className="">

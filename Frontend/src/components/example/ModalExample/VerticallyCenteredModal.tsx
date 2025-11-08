@@ -19,7 +19,7 @@ export default function VerticallyCenteredModal() {
       </Button>
       <Modal
         isOpen={isOpen}
-        onClose={closeModal}
+        onCloseAction={closeModal}
         showCloseButton={false}
         className="max-w-[507px] p-6 lg:p-10"
       >

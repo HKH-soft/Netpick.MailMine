@@ -120,7 +120,7 @@ export default function MonthlySalesChart() {
           </button>
           <Dropdown
             isOpen={isOpen}
-            onClose={closeDropdown}
+            onCloseAction={closeDropdown}
             className="w-40 p-2"
           >
             <DropdownItem

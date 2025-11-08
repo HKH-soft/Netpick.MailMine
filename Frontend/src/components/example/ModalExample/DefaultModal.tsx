@@ -21,7 +21,7 @@ export default function DefaultModal() {
         </Button>
         <Modal
           isOpen={isOpen}
-          onClose={closeModal}
+          onCloseAction={closeModal}
           className="max-w-[600px] p-5 lg:p-10"
         >
           <h4 className="font-semibold text-gray-800 mb-7 text-title-sm dark:text-white/90">

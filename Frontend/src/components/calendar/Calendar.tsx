@@ -147,7 +147,7 @@ const Calendar: React.FC = () => {
       </div>
       <Modal
         isOpen={isOpen}
-        onClose={closeModal}
+        onCloseAction={closeModal}
         className="max-w-[700px] p-6 lg:p-10"
       >
         <div className="flex flex-col px-2 overflow-y-auto custom-scrollbar">

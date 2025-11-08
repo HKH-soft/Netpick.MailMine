@@ -23,7 +23,7 @@ export default function FullScreenModal() {
       </Button>
       <Modal
         isOpen={isFullscreenModalOpen}
-        onClose={closeFullscreenModal}
+        onCloseAction={closeFullscreenModal}
         isFullscreen={true}
         showCloseButton={true}
       >

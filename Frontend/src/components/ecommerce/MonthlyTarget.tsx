@@ -90,7 +90,7 @@ export default function MonthlyTarget() {
             </button>
             <Dropdown
               isOpen={isOpen}
-              onClose={closeDropdown}
+              onCloseAction={closeDropdown}
               className="w-40 p-2"
             >
               <DropdownItem

@@ -21,7 +21,7 @@ export default function FormInModal() {
       </Button>
       <Modal
         isOpen={isOpen}
-        onClose={closeModal}
+        onCloseAction={closeModal}
         className="max-w-[584px] p-5 lg:p-10"
       >
         <form className="">

@@ -4,14 +4,14 @@ import { useEffect, useRef } from "react";
 
 interface DropdownProps {
   isOpen: boolean;
-  onClose: () => void;
+  onCloseAction: () => void;
   children: React.ReactNode;
   className?: string;
 }
 
 export const Dropdown: React.FC<DropdownProps> = ({
   isOpen,
-  onClose,
+  onCloseAction,
   children,
   className = "",
 }) => {
@@ -24,7 +24,7 @@ export const Dropdown: React.FC<DropdownProps> = ({
       !dropdownRef.current.contains(event.target as Node) &&
       !(event.target as HTMLElement).closest('.dropdown-toggle')
     ) {
-      onClose();
+      onCloseAction();
     }
   };
 
@@ -32,7 +32,7 @@ export const Dropdown: React.FC<DropdownProps> = ({
   return () => {
     document.removeEventListener("mousedown", handleClickOutside);
   };
-}, [onClose]);
+}, [onCloseAction]);
 
 
   if (!isOpen) return null;

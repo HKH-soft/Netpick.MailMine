@@ -1,4 +1,5 @@
 // DynamicTable.tsx
+"use client";
 import React from "react";
 import Image from "next/image";
 import Badge from "../ui/badge/Badge";
@@ -25,14 +26,14 @@ export interface ColumnConfig {
     key: string;
     header: string;
     type: ColumnType;
-    render?: (value: any, row: any) => React.ReactNode;
+    render?: (value: unknown, row: Record<string, unknown>) => React.ReactNode;
 }
 
 interface DynamicTableProps {
     columns: ColumnConfig[];
-    data: any[];
-    onEdit?: (row: any) => void;
-    onDelete?: (row: any) => void;
+    data: Record<string, unknown>[];
+    onEdit?: (row: Record<string, unknown>) => void;
+    onDelete?: (row: Record<string, unknown>) => void;
 }
 
 /* ---------- Component ---------- */
@@ -42,40 +43,44 @@ export default function DynamicTable({
     onEdit,
     onDelete,
 }: DynamicTableProps) {
-    const getCellContent = (type: ColumnType, value: any, row: any) => {
+    const getCellContent = (type: ColumnType, value: unknown, row: Record<string, unknown>) => {
         switch (type) {
             case "profile":
+                // Type assertion to handle the unknown type
+                const profileValue = value as { image?: string; name?: string; email?: string } | null | undefined;
                 return (
                     <div className="flex items-center gap-3">
                         <div className="w-10 h-10 overflow-hidden rounded-full">
                             <Image
                                 width={40}
                                 height={40}
-                                src={value?.image}
-                                alt={value?.name}
+                                src={profileValue?.image || "/images/avatars/avatar-default.png"}
+                                alt={profileValue?.name || "Profile"}
                             />
                         </div>
                         <div>
                             <span className="block font-medium text-gray-800 text-theme-sm dark:text-white/90">
-                                {value?.name}
+                                {profileValue?.name}
                             </span>
                             <span className="block text-gray-500 text-theme-xs dark:text-gray-400">
-                                {value?.email}
+                                {profileValue?.email}
                             </span>
                         </div>
                     </div>
                 );
 
             case "status": {
+                // Convert value to string for comparison and display
+                const valueStr = String(value);
                 const color =
-                    value === "Active"
+                    valueStr === "Active"
                         ? "success"
-                        : value === "Pending"
+                        : valueStr === "Pending"
                             ? "warning"
                             : "error";
                 return (
                     <Badge size="sm" color={color}>
-                        {value}
+                        {valueStr}
                     </Badge>
                 );
             }
@@ -83,7 +88,7 @@ export default function DynamicTable({
             case "text":
                 return (
                     <span className="text-gray-500 text-theme-sm dark:text-gray-400">
-                        {value}
+                        {String(value)}
                     </span>
                 );
 
@@ -113,7 +118,8 @@ export default function DynamicTable({
 
             case "custom":
             default:
-                return value;
+                // Convert value to string to ensure it's a valid ReactNode
+                return String(value);
         }
     };
 

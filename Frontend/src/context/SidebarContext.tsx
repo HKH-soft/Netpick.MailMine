@@ -12,6 +12,7 @@ type SidebarContextType = {
   setIsHovered: (isHovered: boolean) => void;
   setActiveItem: (item: string | null) => void;
   toggleSubmenu: (item: string) => void;
+  isInitialized: boolean;
 };
 
 const SidebarContext = createContext<SidebarContextType | undefined>(undefined);
@@ -33,6 +34,7 @@ export const SidebarProvider: React.FC<{ children: React.ReactNode }> = ({
   const [isHovered, setIsHovered] = useState(false);
   const [activeItem, setActiveItem] = useState<string | null>(null);
   const [openSubmenu, setOpenSubmenu] = useState<string | null>(null);
+  const [isInitialized, setIsInitialized] = useState(false);
 
   useEffect(() => {
     const handleResize = () => {
@@ -45,11 +47,17 @@ export const SidebarProvider: React.FC<{ children: React.ReactNode }> = ({
 
     handleResize();
     window.addEventListener("resize", handleResize);
+    setIsInitialized(true);
 
     return () => {
       window.removeEventListener("resize", handleResize);
     };
   }, []);
+
+  // Don't render children until sidebar state is initialized to prevent hydration errors
+  if (!isInitialized) {
+    return null;
+  }
 
   const toggleSidebar = () => {
     setIsExpanded((prev) => !prev);
@@ -76,6 +84,7 @@ export const SidebarProvider: React.FC<{ children: React.ReactNode }> = ({
         setIsHovered,
         setActiveItem,
         toggleSubmenu,
+        isInitialized
       }}
     >
       {children}

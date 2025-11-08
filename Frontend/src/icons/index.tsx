@@ -3,7 +3,6 @@ import CloseIcon from "./close.svg";
 import BoxIcon from "./box.svg";
 import CheckCircleIcon from "./check-circle.svg";
 import AlertIcon from "./alert.svg";
-import InfoIcon from "./info.svg";
 import ErrorIcon from "./info-hexa.svg";
 import BoltIcon from "./bolt.svg";
 import ArrowUpIcon from "./arrow-up.svg";
@@ -52,6 +51,28 @@ import ChatIcon from "./chat.svg";
 import MoreDotIcon from "./more-dot.svg";
 import BellIcon from "./bell.svg";
 
+// Newly extracted icons
+import SunIcon from "./sun.svg";
+import MoonIcon from "./moon.svg";
+import FilterIcon from "./filter.svg";
+import CheckCircleSuccessIcon from "./check-circle-success.svg";
+import InfoCircleIcon from "./info-circle.svg";
+import WarningCircleIcon from "./warning-circle.svg";
+import ErrorCircleIcon from "./error-circle.svg";
+import CloseCircleIcon from "./close-circle.svg";
+import CreditCardIcon from "./credit-card.svg";
+import UploadIcon from "./upload.svg";
+import GoogleIcon from "./google.svg";
+import TwitterIcon from "./twitter.svg";
+import ChevronDownSmIcon from "./chevron-down-sm.svg";
+import UserProfileIcon from "./user-profile.svg";
+import SettingsIcon from "./settings.svg";
+import SupportIcon from "./info.svg";
+import SignoutIcon from "./signout.svg";
+import MenuToggleIcon from "./menu-toggle.svg";
+import DotsHorizontalIcon from "./dots-horizontal.svg";
+import SearchIcon from "./search.svg";
+
 export {
   DownloadIcon,
   BellIcon,
@@ -66,7 +87,6 @@ export {
   CloseIcon,
   CheckCircleIcon,
   AlertIcon,
-  InfoIcon,
   ErrorIcon,
   ArrowUpIcon,
   FolderIcon,
@@ -106,4 +126,28 @@ export {
   HorizontaLDots,
   ChevronUpIcon,
   ChatIcon,
+  
+  // Newly extracted icons
+  SunIcon,
+  MoonIcon,
+  FilterIcon,
+  CheckCircleSuccessIcon,
+  InfoCircleIcon,
+  WarningCircleIcon,
+  ErrorCircleIcon,
+  CloseCircleIcon,
+  CreditCardIcon,
+  UploadIcon,
+  GoogleIcon,
+  TwitterIcon,
+  ChevronDownSmIcon,
+  UserProfileIcon,
+  SettingsIcon,
+  SupportIcon,
+  SignoutIcon,
+  MenuToggleIcon,
+  // 删除了重复的 CloseIcon 导出
+  DotsHorizontalIcon,
+  SearchIcon,
+  // 删除了重复的 BellIcon 导出
 };

@@ -3,7 +3,7 @@ import React, { useRef, useEffect } from "react";
 
 interface ModalProps {
   isOpen: boolean;
-  onClose: () => void;
+  onCloseAction: () => void;
   className?: string;
   children: React.ReactNode;
   showCloseButton?: boolean; // New prop to control close button visibility
@@ -12,7 +12,7 @@ interface ModalProps {
 
 export const Modal: React.FC<ModalProps> = ({
   isOpen,
-  onClose,
+  onCloseAction,
   children,
   className,
   showCloseButton = true, // Default to true for backwards compatibility
@@ -23,7 +23,7 @@ export const Modal: React.FC<ModalProps> = ({
   useEffect(() => {
     const handleEscape = (event: KeyboardEvent) => {
       if (event.key === "Escape") {
-        onClose();
+        onCloseAction();
       }
     };
 
@@ -34,7 +34,7 @@ export const Modal: React.FC<ModalProps> = ({
     return () => {
       document.removeEventListener("keydown", handleEscape);
     };
-  }, [isOpen, onClose]);
+  }, [isOpen, onCloseAction]);
 
   useEffect(() => {
     if (isOpen) {
@@ -59,7 +59,7 @@ export const Modal: React.FC<ModalProps> = ({
       {!isFullscreen && (
         <div
           className="fixed inset-0 h-full w-full bg-gray-400/50 backdrop-blur-[32px]"
-          onClick={onClose}
+          onClick={onCloseAction}
         ></div>
       )}
       <div
@@ -69,7 +69,7 @@ export const Modal: React.FC<ModalProps> = ({
       >
         {showCloseButton && (
           <button
-            onClick={onClose}
+            onClick={onCloseAction}
             className="absolute right-3 top-3 z-999 flex h-9.5 w-9.5 items-center justify-center rounded-full bg-gray-100 text-gray-400 transition-colors hover:bg-gray-200 hover:text-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white sm:right-6 sm:top-6 sm:h-11 sm:w-11"
           >
             <svg
