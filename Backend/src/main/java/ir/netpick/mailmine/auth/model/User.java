@@ -55,7 +55,7 @@ public class User extends BaseEntity implements UserDetails {
     // @Column(name = "state")
     // private UserStateEnum userState;
 
-    @Column(name = "prefrence")
+    @Column(name = "preference")
     private String Prefrence;
 
     @Column(name = "lastLoginAt")

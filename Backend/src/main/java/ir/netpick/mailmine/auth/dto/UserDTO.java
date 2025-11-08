@@ -10,7 +10,7 @@ public record UserDTO(
         String email,
         String name,
         RoleEnum role,
-        String prefrence,
+        String preference,
         UUID profileImageId,
         LocalDateTime created_at,
         LocalDateTime updatedAt,
