@@ -5,6 +5,7 @@ import java.util.Optional;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
+import ir.netpick.mailmine.auth.dto.UserUpdateRequest;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -108,15 +109,34 @@ public class UserService {
         return userRepository.save(user);
     }
 
-    public void updateUser() {
-    };
+    public void updateUser(String email , UserUpdateRequest request) {
+        User user = userRepository.findByEmail(email).orElseThrow(
+                () -> new ResourceNotFoundException("User with email [%s] was not found!".formatted(email)));
+        boolean changed = false;
+        if (request.name() != null && !request.name().equals(user.getName())) {
+            user.setName(request.name());
+            changed = true;
+        }
+        if (request.description() != null && !request.description().equals(user.getDescription())) {
+            user.setDescription(request.description());
+            changed = true;
+        }
+        if(request.preference() != null && !request.preference().equals(user.getPrefrence())){
+            user.setPrefrence(request.preference());
+            changed = true;
+        }
+
+        if(changed){
+            userRepository.save(user);
+        }
+
+    }
 
     public UserDTO getUser(String email) {
         User user = userRepository.findByEmail(email).orElseThrow(
                 () -> new ResourceNotFoundException("User with email [%s] was not found!".formatted(email)));
-        UserDTO userDTO = userDTOMapper.apply(user);
-        return userDTO;
-    };
+        return userDTOMapper.apply(user);
+    }
 
     public AllUsersResponse allUsers(Integer pageNumber) {
         Page<User> page = userRepository
@@ -129,10 +149,10 @@ public class UserService {
                         .collect(Collectors.toList()),
                 page.getTotalPages(),
                 page.getNumber() + 1);
-    };
+    }
 
     public AllUsersResponse allUsers(Integer pageNumber, String sortBy, Direction direction) {
-        Page<User> page = userRepository.findAll(PageRequest.of(pageNumber, pageSize, Sort.by(direction, sortBy)));
+        Page<User> page = userRepository.findAll(PageRequest.of(pageNumber - 1, pageSize, Sort.by(direction, sortBy)));
 
         return new AllUsersResponse(
                 page.getContent()
@@ -141,8 +161,27 @@ public class UserService {
                         .collect(Collectors.toList()),
                 page.getTotalPages(),
                 page.getNumber() + 1);
-    };
+    }
 
-    public void deleteUser() {
-    };
+//    public void deleteUser(String email) {
+//        if (!userRepository.existsUserByDeletedFalseAndEmail(email)) {
+//            throw new ResourceNotFoundException("User with email [%s] was not found!".formatted(email));
+//        }
+//        userRepository.updateDeletedByEmail(true , email);
+//    }
+//
+//    public void restoreUser(String email) {
+//        if (!userRepository.existsUserByEmail(email)) {
+//            throw new ResourceNotFoundException("User with email [%s] was not found!".formatted(email));
+//        }
+//        userRepository.updateDeletedByEmail(false , email);
+//    }
+
+    public void deleteUser(String email) {
+        if (!userRepository.existsUserByEmail(email)) {
+            throw new ResourceNotFoundException("User with email [%s] was not found!".formatted(email));
+        }
+        userRepository.deleteByEmail(email);
+    }
+
 }
