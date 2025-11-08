@@ -2,7 +2,11 @@ package ir.netpick.mailmine.scrape.service;
 
 import java.util.Objects;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
+import ir.netpick.mailmine.common.BasePageRecord;
+import ir.netpick.mailmine.scrape.dto.SearchQueryResponse;
+import ir.netpick.mailmine.scrape.mapper.SearchQueryDTOMapper;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -27,6 +31,7 @@ import lombok.extern.log4j.Log4j2;
 public class SearchQueryService {
 
     private final SearchQueryRepository searchQueryRepository;
+    private final SearchQueryDTOMapper searchQueryDTOMapper;
 
     @Value("${env.page-size:10}")
     private int pageSize;
@@ -35,9 +40,16 @@ public class SearchQueryService {
         return searchQueryRepository.count() == 0;
     }
 
-    public Page<SearchQuery> allSearchQueries(int page) {
-        Pageable pageable = PageRequest.of(page, pageSize, Sort.by("createdAt").descending());
-        return searchQueryRepository.findAll(pageable);
+    public BasePageRecord<SearchQueryResponse> allSearchQueries(int pageNumber) {
+        Pageable pageable = PageRequest.of(pageNumber - 1 , pageSize, Sort.by("createdAt").descending());
+        Page<SearchQuery> page =  searchQueryRepository.findAll(pageable);
+        return new BasePageRecord<>(
+                page.getContent()
+                        .stream()
+                        .map(searchQueryDTOMapper)
+                        .collect(Collectors.toList()),
+                page.getTotalPages(),
+                page.getNumber() + 1);
     }
 
     public SearchQuery getSearchQuery(@NotNull UUID id) {

@@ -2,7 +2,11 @@ package ir.netpick.mailmine.scrape.service;
 
 import java.util.Objects;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
+import ir.netpick.mailmine.common.BasePageRecord;
+import ir.netpick.mailmine.scrape.dto.ApiKeyResponse;
+import ir.netpick.mailmine.scrape.mapper.ApiKeyDTOMapper;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -27,13 +31,22 @@ import lombok.extern.slf4j.Slf4j;
 public class ApiKeyService {
 
     private final ApiKeyRepository apiKeyRepository;
+    private final ApiKeyDTOMapper apiKeyDTOMapper;
 
     @Value("${env.page-size:10}")
     private int pageSize;
 
-    public Page<ApiKey> allKeys(int page) {
-        Pageable pageable = PageRequest.of(page, pageSize, Sort.by("createdAt").descending());
-        return apiKeyRepository.findAll(pageable);
+    public BasePageRecord<ApiKeyResponse> allKeys(int pageNumber) {
+        Pageable pageable = PageRequest.of(pageNumber - 1, pageSize, Sort.by("createdAt").descending());
+        Page<ApiKey> page =  apiKeyRepository.findAll(pageable);
+        return new BasePageRecord<>(
+                page.getContent()
+                        .stream()
+                        .map(apiKeyDTOMapper)
+                        .collect(Collectors.toList()),
+                page.getTotalPages(),
+                page.getNumber() + 1
+        );
     }
 
     public ApiKey getKey(@NotNull UUID id) {
