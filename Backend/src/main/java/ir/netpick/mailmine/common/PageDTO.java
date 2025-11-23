@@ -2,7 +2,7 @@ package ir.netpick.mailmine.common;
 
 import java.util.List;
 
-public record BasePageRecord<T>(
+public record PageDTO<T>(
         List<T> context,
         Integer totalPageCount,
         Integer currentPage) {

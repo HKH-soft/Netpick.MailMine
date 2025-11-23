@@ -14,7 +14,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import ir.netpick.mailmine.scrape.dto.SearchQueryRequest;
-import ir.netpick.mailmine.scrape.service.SearchQueryService;
+import ir.netpick.mailmine.scrape.service.base.SearchQueryService;
 import lombok.RequiredArgsConstructor;
 
 @RestController

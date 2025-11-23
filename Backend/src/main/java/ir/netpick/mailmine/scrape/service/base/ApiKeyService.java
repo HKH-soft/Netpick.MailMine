@@ -1,10 +1,11 @@
-package ir.netpick.mailmine.scrape.service;
+package ir.netpick.mailmine.scrape.service.base;
 
 import java.util.Objects;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
-import ir.netpick.mailmine.common.BasePageRecord;
+import ir.netpick.mailmine.common.PageDTO;
+import ir.netpick.mailmine.common.constants.GeneralConstants;
 import ir.netpick.mailmine.scrape.dto.ApiKeyResponse;
 import ir.netpick.mailmine.scrape.mapper.ApiKeyDTOMapper;
 import org.springframework.beans.factory.annotation.Value;
@@ -33,13 +34,10 @@ public class ApiKeyService {
     private final ApiKeyRepository apiKeyRepository;
     private final ApiKeyDTOMapper apiKeyDTOMapper;
 
-    @Value("${env.page-size:10}")
-    private int pageSize;
-
-    public BasePageRecord<ApiKeyResponse> allKeys(int pageNumber) {
-        Pageable pageable = PageRequest.of(pageNumber - 1, pageSize, Sort.by("createdAt").descending());
+    public PageDTO<ApiKeyResponse> allKeys(int pageNumber) {
+        Pageable pageable = PageRequest.of(pageNumber - 1, GeneralConstants.PAGE_SIZE, Sort.by("createdAt").descending());
         Page<ApiKey> page =  apiKeyRepository.findAll(pageable);
-        return new BasePageRecord<>(
+        return new PageDTO<>(
                 page.getContent()
                         .stream()
                         .map(apiKeyDTOMapper)

@@ -1,8 +1,12 @@
-package ir.netpick.mailmine.scrape.service;
+package ir.netpick.mailmine.scrape.service.orch;
 
 import ir.netpick.mailmine.common.enums.PipelineStageEnum;
 import ir.netpick.mailmine.common.enums.PipelineStateEnum;
 import ir.netpick.mailmine.scrape.model.Pipeline;
+import ir.netpick.mailmine.scrape.service.base.PipelineService;
+import ir.netpick.mailmine.scrape.service.mid.ApiCaller;
+import ir.netpick.mailmine.scrape.service.mid.DataProcessor;
+import ir.netpick.mailmine.scrape.service.mid.Scraper;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 

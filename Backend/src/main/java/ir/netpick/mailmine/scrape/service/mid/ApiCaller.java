@@ -1,8 +1,9 @@
-package ir.netpick.mailmine.scrape.service;
+package ir.netpick.mailmine.scrape.service.mid;
 
 import java.util.List;
 import java.util.Optional;
 
+import ir.netpick.mailmine.scrape.service.base.ScrapeJobService;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;

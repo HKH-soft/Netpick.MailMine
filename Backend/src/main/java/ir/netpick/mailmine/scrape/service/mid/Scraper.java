@@ -1,9 +1,11 @@
-package ir.netpick.mailmine.scrape.service;
+package ir.netpick.mailmine.scrape.service.mid;
 
 import java.time.Duration;
 import java.util.List;
 import java.util.Optional;
 
+import ir.netpick.mailmine.scrape.service.base.ScrapeDataService;
+import ir.netpick.mailmine.scrape.service.base.ScrapeJobService;
 import org.openqa.selenium.SessionNotCreatedException;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.chrome.ChromeDriver;

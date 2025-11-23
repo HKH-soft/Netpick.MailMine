@@ -14,7 +14,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import ir.netpick.mailmine.scrape.dto.ApiKeyRequest;
-import ir.netpick.mailmine.scrape.service.ApiKeyService;
+import ir.netpick.mailmine.scrape.service.base.ApiKeyService;
 import lombok.RequiredArgsConstructor;
 
 @RestController

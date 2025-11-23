@@ -1,12 +1,15 @@
-package ir.netpick.mailmine.scrape.service;
+package ir.netpick.mailmine.scrape.service.base;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.UUID;
 
+import ir.netpick.mailmine.common.PageDTO;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import com.google.api.client.util.Value;
@@ -38,9 +41,18 @@ public class ScrapeDataService {
         return scrapeDataRepository.findAll();
     }
 
-    public List<ScrapeData> allDatas(int page) {
-        Pageable pageable = PageRequest.of(page, pageSize);
-        return scrapeDataRepository.findAll(pageable).getContent();
+    public PageDTO<ScrapeData> allDatas(int page) {
+        Pageable pageable = PageRequest.of(page - 1, pageSize, Sort.by("createdAt").descending());
+        Page<ScrapeData> pageContent = scrapeDataRepository.findAll(pageable);
+        return new PageDTO<>(
+                pageContent.getContent(),
+                pageContent.getTotalPages(),
+                page
+                );
+    }
+    public ScrapeData getData(UUID dataId) {
+        return scrapeDataRepository.findById(dataId).orElseThrow(
+                () -> new ResourceNotFoundException("ScrapeData with id [%s] was not found!".formatted(dataId)));
     }
 
     public void createScrapeData(String pageData, UUID scrapeJobId) {

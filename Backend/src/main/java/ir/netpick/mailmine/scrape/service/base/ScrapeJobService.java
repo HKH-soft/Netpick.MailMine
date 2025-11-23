@@ -1,4 +1,4 @@
-package ir.netpick.mailmine.scrape.service;
+package ir.netpick.mailmine.scrape.service.base;
 
 import java.util.List;
 import java.util.Objects;
@@ -6,6 +6,7 @@ import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
+import ir.netpick.mailmine.common.PageDTO;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -42,9 +43,14 @@ public class ScrapeJobService {
         return scrapeJobRepository.existsByLink(link);
     }
 
-    public Page<ScrapeJob> allJobs(int page) {
-        Pageable pageable = PageRequest.of(page, pageSize, Sort.by("createdAt").descending());
-        return scrapeJobRepository.findAll(pageable);
+    public PageDTO<ScrapeJob> allJobs(int page) {
+        Pageable pageable = PageRequest.of(page - 1, pageSize, Sort.by("createdAt").descending());
+        Page<ScrapeJob> pageContent = scrapeJobRepository.findAll(pageable);
+        return new PageDTO<>(
+                pageContent.getContent(),
+                pageContent.getTotalPages(),
+                page
+        );
     }
 
     public ScrapeJob getScrapeJob(@NotNull UUID id) {
