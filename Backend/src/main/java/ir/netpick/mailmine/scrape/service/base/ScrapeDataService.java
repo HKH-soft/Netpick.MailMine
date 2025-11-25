@@ -28,7 +28,7 @@ public class ScrapeDataService {
 
     private final ScrapeDataRepository scrapeDataRepository;
     private final ScrapeJobRepository scrapeJobRepository;
-    private final FileManagement fileManagment;
+    private final FileManagement fileManagement;
 
     @Value("${env.page-size:10}")
     private int pageSize;
@@ -60,7 +60,7 @@ public class ScrapeDataService {
                 () -> new ResourceNotFoundException("ScrapeJob with id [%s] was not found!".formatted(scrapeJobId)));
         DateTimeFormatter dateFormat = DateTimeFormatter.ofPattern("yyyy.MM.dd_HH.mm");
         String fileName = dateFormat.format(LocalDateTime.now()) + ".txt";
-        fileManagment.CreateAFile(scrapeJobId, scrapeJob.getAttempt(), fileName, pageData);
+        fileManagement.CreateAFile(scrapeJobId, scrapeJob.getAttempt(), fileName, pageData);
         ScrapeData scrapeData = new ScrapeData(fileName, scrapeJob.getAttempt(), scrapeJob);
         scrapeDataRepository.save(scrapeData);
     }
