@@ -21,8 +21,7 @@ public class ScrapeJobController {
                 .body(scrapeJobService.allJobs(page));
     }
 
-    @GetMapping
-    @RequestMapping("{id}")
+    @GetMapping("{id}")
     public ResponseEntity<?> getJob(@PathVariable UUID id){
         return ResponseEntity.ok()
                 .body(scrapeJobService.getJob(id));

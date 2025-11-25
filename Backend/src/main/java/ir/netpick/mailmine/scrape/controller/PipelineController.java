@@ -21,8 +21,7 @@ public class PipelineController {
                 .body(pipelineService.allPipelines(page));
     }
 
-    @GetMapping
-    @RequestMapping("{id}")
+    @GetMapping("{id}")
     public ResponseEntity<?> getPipeline(@PathVariable UUID id){
         return ResponseEntity.ok()
                 .body(pipelineService.getPipeline(id));

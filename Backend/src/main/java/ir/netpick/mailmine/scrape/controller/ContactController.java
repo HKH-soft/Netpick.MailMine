@@ -21,8 +21,7 @@ public class ContactController {
                 .body(contactService.allContacts(page));
     }
 
-    @GetMapping
-    @RequestMapping("{id}")
+    @GetMapping("{id}")
     public ResponseEntity<?> getContact(@PathVariable UUID id){
         return ResponseEntity.ok()
                 .body(contactService.getContact(id));

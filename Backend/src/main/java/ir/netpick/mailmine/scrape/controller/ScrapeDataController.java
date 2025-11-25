@@ -21,8 +21,7 @@ public class ScrapeDataController {
                 .body(scrapeDataService.allData(page));
     }
 
-    @GetMapping
-    @RequestMapping("{id}")
+    @GetMapping("{id}")
     public ResponseEntity<?> getScrapeData(@PathVariable UUID id){
         return ResponseEntity.ok()
                 .body(scrapeDataService.getData(id));
