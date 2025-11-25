@@ -17,47 +17,33 @@ import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-/**
- * Parser for extracting contact information from HTML using Jsoup and regex.
- */
 public class ContactInfoParser {
 
     private static final Logger log = LoggerFactory.getLogger(ContactInfoParser.class);
     private static final EmailValidator EMAIL_VALIDATOR = EmailValidator.getInstance();
 
-    /** Basic email pattern; not fully RFC-compliant but fast for initial match. */
     public static final Pattern EMAIL_PATTERN = Pattern.compile(
             "\\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}\\b",
             Pattern.CASE_INSENSITIVE);
 
-    /** Permissive phone pattern for diverse formats; validate further if needed. */
     public static final Pattern PHONE_PATTERN = Pattern.compile(
             "(?:\\+?\\d{1,3}[-.\\s]?)?\\(?\\d{3}\\)?[-.\\s]?\\d{3}[-.\\s]?\\d{4}" +
                     "|\\+?[0-9][0-9\\s().\\-]{6,}[0-9]");
 
-    /** LinkedIn profile URL pattern. */
     public static final Pattern LINKEDIN_PATTERN = Pattern.compile(
             "(?i)https?://(?:www\\.)?linkedin\\.com/(?:in|pub)/[a-zA-Z0-9\\-_]+/?");
 
-    /** Twitter (X) handle URL pattern. */
     public static final Pattern TWITTER_PATTERN = Pattern.compile(
             "(?i)https?://(?:www\\.)?(?:x|twitter)\\.com/([a-zA-Z0-9_]{1,15})");
 
-    /** GitHub profile URL pattern. */
     public static final Pattern GITHUB_PATTERN = Pattern.compile(
             "(?i)https?://(?:www\\.)?github\\.com/([a-zA-Z0-9\\-_]+)");
 
-    /** Simple Western name pattern; consider NLP for better accuracy. */
     public static final Pattern NAME_PATTERN = Pattern.compile(
             "\\b([A-Z][a-z]+(?:\\s[A-Z][a-z]+){1,3})\\b",
             Pattern.CASE_INSENSITIVE);
 
-    /**
-     * Parses contact info from HTML content.
-     *
-     * @param htmlContent raw HTML string
-     * @return Contact with extracted and validated data
-     */
+
     public static Contact parse(String htmlContent) {
         Contact contact = new Contact();
         if (htmlContent == null || htmlContent.isBlank()) {

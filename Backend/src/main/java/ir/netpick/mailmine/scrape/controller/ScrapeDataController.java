@@ -18,7 +18,7 @@ public class ScrapeDataController {
     @GetMapping
     public ResponseEntity<?> allScrapeData(@RequestParam(defaultValue = "1") int page){
         return ResponseEntity.ok()
-                .body(scrapeDataService.allDatas(page));
+                .body(scrapeDataService.allData(page));
     }
 
     @GetMapping

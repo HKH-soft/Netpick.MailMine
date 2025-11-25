@@ -8,7 +8,6 @@ import ir.netpick.mailmine.common.PageDTO;
 import ir.netpick.mailmine.common.constants.GeneralConstants;
 import ir.netpick.mailmine.scrape.dto.ApiKeyResponse;
 import ir.netpick.mailmine.scrape.mapper.ApiKeyDTOMapper;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;

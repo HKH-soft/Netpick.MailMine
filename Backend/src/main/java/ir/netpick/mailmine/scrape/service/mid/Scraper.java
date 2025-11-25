@@ -39,7 +39,7 @@ public class Scraper {
     private final ScrapeDataService scrapeDataService;
 
     public int getDataCount() {
-        return scrapeDataService.allDatas().size();
+        return scrapeDataService.allData().size();
     }
 
     @Async
@@ -91,7 +91,7 @@ public class Scraper {
 
             // Increment attempt only on success
             scrapeJob.setAttempt(scrapeJob.getAttempt() + 1);
-            scrapeJobService.updateScrapeJob(scrapeJob, scrapeJob.getId());
+            scrapeJobService.updateScrapeJob(scrapeJob.getId(), scrapeJob);
 
             // Clear cookies for next job to avoid session carryover
             driver.manage().deleteAllCookies();

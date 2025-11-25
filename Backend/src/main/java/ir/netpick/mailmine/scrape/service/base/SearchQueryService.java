@@ -77,7 +77,7 @@ public class SearchQueryService {
             changed = true;
         }
 
-        if (Objects.nonNull(request.link_count()) && !Objects.equals(request.link_count(), existing.getLink_count())) {
+        if (!Objects.equals(request.link_count(), existing.getLink_count())) {
             existing.setLink_count(request.link_count());
             changed = true;
         }
@@ -96,6 +96,21 @@ public class SearchQueryService {
         SearchQuery saved = searchQueryRepository.save(existing);
         log.info("Updated SearchQuery with ID: {}", id);
         return saved;
+    }
+
+    public void softDeleteSearchQuery(@NotNull UUID id) {
+        if (!searchQueryRepository.existsById(id)) {
+            throw new ResourceNotFoundException("SearchQuery with ID [%s] not found.".formatted(id));
+        }
+        searchQueryRepository.softDelete(id);
+        log.info("Soft deleted SearchQuery with ID: {}", id);
+    }
+    public void restoreSearchQuery(@NotNull UUID id) {
+        if (!searchQueryRepository.existsById(id)) {
+            throw new ResourceNotFoundException("SearchQuery with ID [%s] not found.".formatted(id));
+        }
+        searchQueryRepository.restore(id);
+        log.info("Soft deleted SearchQuery with ID: {}", id);
     }
 
     public void deleteSearchQuery(@NotNull UUID id) {

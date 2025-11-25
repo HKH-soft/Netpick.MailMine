@@ -6,13 +6,12 @@ import java.util.List;
 import java.util.UUID;
 
 import ir.netpick.mailmine.common.PageDTO;
+import ir.netpick.mailmine.common.constants.GeneralConstants;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
-
-import com.google.api.client.util.Value;
 
 import ir.netpick.mailmine.common.exception.ResourceNotFoundException;
 import ir.netpick.mailmine.scrape.file.FileManagement;
@@ -30,19 +29,20 @@ public class ScrapeDataService {
     private final ScrapeJobRepository scrapeJobRepository;
     private final FileManagement fileManagement;
 
-    @Value("${env.page-size:10}")
-    private int pageSize;
+    public boolean isEmpty(){
+        return scrapeDataRepository.count() == 0;
+    }
 
     public List<ScrapeData> findUnparsed(){
         return scrapeDataRepository.findByParsedFalse();
     }
-
-    public List<ScrapeData> allDatas() {
+    public List<ScrapeData> allData() {
         return scrapeDataRepository.findAll();
     }
 
-    public PageDTO<ScrapeData> allDatas(int page) {
-        Pageable pageable = PageRequest.of(page - 1, pageSize, Sort.by("createdAt").descending());
+
+    public PageDTO<ScrapeData> allData(int page) {
+        Pageable pageable = PageRequest.of(page - 1, GeneralConstants.PAGE_SIZE, Sort.by("createdAt").descending());
         Page<ScrapeData> pageContent = scrapeDataRepository.findAll(pageable);
         return new PageDTO<>(
                 pageContent.getContent(),
@@ -69,8 +69,16 @@ public class ScrapeDataService {
         scrapeDataRepository.save(scrapeData);
     }
 
-    public void deleteScrapeData(UUID scrapeJobId){
-        scrapeDataRepository.deleteById(scrapeJobId);
+    public void softDeleteData(UUID scrapeDataId){
+        scrapeDataRepository.softDelete(scrapeDataId);
+    }
+
+    public void restoreData(UUID scrapeDataId){
+        scrapeDataRepository.softDelete(scrapeDataId);
+    }
+
+    public void deleteData(UUID scrapeDataId){
+        scrapeDataRepository.deleteById(scrapeDataId);
     }
 
 }

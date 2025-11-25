@@ -1,6 +1,5 @@
 package ir.netpick.mailmine.scrape.mapper;
 
-import ir.netpick.mailmine.scrape.dto.ApiKeyResponse;
 import ir.netpick.mailmine.scrape.dto.SearchQueryResponse;
 import ir.netpick.mailmine.scrape.model.SearchQuery;
 import org.springframework.stereotype.Service;

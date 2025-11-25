@@ -7,7 +7,7 @@ import java.util.UUID;
 import java.util.stream.Collectors;
 
 import ir.netpick.mailmine.common.PageDTO;
-import org.springframework.beans.factory.annotation.Value;
+import ir.netpick.mailmine.common.constants.GeneralConstants;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -32,8 +32,9 @@ public class ScrapeJobService {
 
     private final ScrapeJobRepository scrapeJobRepository;
 
-    @Value("${env.page-size:10}")
-    private int pageSize;
+    public boolean isEmpty(){
+        return scrapeJobRepository.count() == 0;
+    }
 
     public boolean scrapeJobExists(@NotNull UUID id) {
         return scrapeJobRepository.existsById(id);
@@ -43,8 +44,8 @@ public class ScrapeJobService {
         return scrapeJobRepository.existsByLink(link);
     }
 
-    public PageDTO<ScrapeJob> allJobs(int page) {
-        Pageable pageable = PageRequest.of(page - 1, pageSize, Sort.by("createdAt").descending());
+    public PageDTO<ScrapeJob> allJobs(@NotNull int page) {
+        Pageable pageable = PageRequest.of(page - 1, GeneralConstants.PAGE_SIZE, Sort.by("createdAt").descending());
         Page<ScrapeJob> pageContent = scrapeJobRepository.findAll(pageable);
         return new PageDTO<>(
                 pageContent.getContent(),
@@ -53,24 +54,28 @@ public class ScrapeJobService {
         );
     }
 
-    public ScrapeJob getScrapeJob(@NotNull UUID id) {
+    public ScrapeJob getJob(@NotNull UUID id) {
         return scrapeJobRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("ScrapeJob with ID [%s] not found.".formatted(id)));
     }
 
-    public ScrapeJob getScrapeJob(@NotNull String link) {
+    public ScrapeJob getJob(@NotNull String link) {
         return scrapeJobRepository.findByLink(link)
                 .orElseThrow(
                         () -> new ResourceNotFoundException("ScrapeJob with link [%s] not found.".formatted(link)));
     }
 
-    public void createScrapeJob(@NotNull String link, String description) {
+    public void createJob(@NotNull @Valid ScrapeJob scrapeJob){
+        scrapeJobRepository.save(scrapeJob);
+    }
+
+    public void createJob(@NotNull String link, String description) {
         ScrapeJob scrapeJob = new ScrapeJob(link, description);
         scrapeJobRepository.save(scrapeJob);
         log.info("Created ScrapeJob for link: {}", link);
     }
 
-    public void createScrapeJobList(@NotNull @Valid List<String> urls, @NotNull @Valid List<String> titles) {
+    public void createJobList(@NotNull @Valid List<String> urls, @NotNull @Valid List<String> titles) {
         if (urls.size() != titles.size()) {
             throw new RequestValidationException("URLs and titles lists must be of equal size.");
         }
@@ -96,7 +101,7 @@ public class ScrapeJobService {
         }
     }
 
-    public void updateScrapeJob(@NotNull ScrapeJob updates, @NotNull UUID jobId) {
+    public void updateScrapeJob(@NotNull UUID jobId, @NotNull ScrapeJob updates) {
         ScrapeJob existing = scrapeJobRepository.findById(jobId)
                 .orElseThrow(() -> new ResourceNotFoundException("ScrapeJob with ID [%s] not found.".formatted(jobId)));
 
@@ -124,4 +129,17 @@ public class ScrapeJobService {
         scrapeJobRepository.save(existing);
         log.info("Updated ScrapeJob with ID: {}", jobId);
     }
+
+    public void softDelete(@NotNull UUID jobId){
+        scrapeJobRepository.softDelete(jobId);
+    }
+
+    public void restore(@NotNull UUID jobId){
+        scrapeJobRepository.restore(jobId);
+    }
+
+    public void deleteJob(@NotNull UUID jobId){
+        scrapeJobRepository.deleteById(jobId);
+    }
+
 }
