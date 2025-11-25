@@ -27,7 +27,7 @@ public class SearchQuery extends BaseEntity {
     private String sentence;
 
     @Column(name = "link_count", nullable = false)
-    private Integer link_count;
+    private Integer linkCount;
 
     @CreationTimestamp
     @Column(updatable = false, name = "created_at")
@@ -40,14 +40,14 @@ public class SearchQuery extends BaseEntity {
     public SearchQuery() {
     }
 
-    public SearchQuery(String sentence, Integer link_count) {
+    public SearchQuery(String sentence, Integer linkCount) {
         this.sentence = sentence;
-        this.link_count = link_count;
+        this.linkCount = linkCount;
     }
 
-    public SearchQuery(String sentence, Integer link_count, String description) {
+    public SearchQuery(String sentence, Integer linkCount, String description) {
         this.sentence = sentence;
-        this.link_count = link_count;
+        this.linkCount = linkCount;
         this.description = description;
     }
 

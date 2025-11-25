@@ -121,10 +121,6 @@ public class Scraper {
             options.addArguments("--headless");
         }
 
-        // Example for download preferences (uncomment and adjust if needed)
-        // Map<String, Object> prefs = new HashMap<>();
-        // prefs.put("download.prompt_for_download", false);
-        // options.setExperimentalOption("prefs", prefs);
 
         try {
             return Optional.of(new ChromeDriver(options));

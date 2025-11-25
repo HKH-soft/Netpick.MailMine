@@ -60,7 +60,7 @@ public class SearchQueryService {
     public SearchQuery createSearchQuery(@Valid @NotNull SearchQueryRequest request) {
         SearchQuery searchQuery = new SearchQuery(
                 request.sentence(),
-                request.link_count(),
+                request.linkCount(),
                 request.description());
         SearchQuery saved = searchQueryRepository.save(searchQuery);
         log.info("Created SearchQuery with ID: {}", saved.getId());
@@ -77,8 +77,8 @@ public class SearchQueryService {
             changed = true;
         }
 
-        if (!Objects.equals(request.link_count(), existing.getLink_count())) {
-            existing.setLink_count(request.link_count());
+        if (!Objects.equals(request.linkCount(), existing.getLinkCount())) {
+            existing.setLinkCount(request.linkCount());
             changed = true;
         }
 

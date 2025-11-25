@@ -51,7 +51,7 @@ public class ApiCaller {
             throw new RuntimeException("No API keys configured");
         }
 
-        List<SearchQuery> queries = searchQueryRepository.findByLink_countLessThan(ScrapeConstants.MAX_QUERY_COUNT);
+        List<SearchQuery> queries = searchQueryRepository.findByLinkCountLessThan(ScrapeConstants.MAX_QUERY_COUNT);
         if (queries.isEmpty()) {
             log.info("No pending search queries found.");
             return;

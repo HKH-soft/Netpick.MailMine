@@ -25,5 +25,5 @@ public interface SearchQueryRepository extends JpaRepository<SearchQuery, UUID> 
     @Query("update SearchQuery s set s.deleted = False where s.deleted = true and s.id = ?1")
     void restore(UUID id);
 
-    List<SearchQuery> findByLink_countLessThan(@NonNull Integer link_count);
+    List<SearchQuery> findByLinkCountLessThan(@NonNull Integer link_count);
 }

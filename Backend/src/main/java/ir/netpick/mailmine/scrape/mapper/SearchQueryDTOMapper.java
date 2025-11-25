@@ -13,7 +13,7 @@ public class SearchQueryDTOMapper implements Function<SearchQuery, SearchQueryRe
     public SearchQueryResponse apply(SearchQuery searchQuery) {
         return new SearchQueryResponse(
                 searchQuery.getSentence(),
-                searchQuery.getLink_count(),
+                searchQuery.getLinkCount(),
                 searchQuery.getDescription(),
                 searchQuery.getCreatedAt(),
                 searchQuery.getUpdatedAt());
