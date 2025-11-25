@@ -3,6 +3,7 @@ package ir.netpick.mailmine.scrape.service.mid;
 import java.util.List;
 import java.util.Optional;
 
+import ir.netpick.mailmine.scrape.ScrapeConstants;
 import ir.netpick.mailmine.scrape.service.base.ScrapeJobService;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Async;
@@ -50,7 +51,7 @@ public class ApiCaller {
             throw new RuntimeException("No API keys configured");
         }
 
-        List<SearchQuery> queries = searchQueryRepository.findAllBelowTenOrderByLinkCount();
+        List<SearchQuery> queries = searchQueryRepository.findByLink_countLessThan(ScrapeConstants.MAX_QUERY_COUNT);
         if (queries.isEmpty()) {
             log.info("No pending search queries found.");
             return;
@@ -88,7 +89,7 @@ public class ApiCaller {
                 List<String> urls = parsedLinks.stream().map(LinkResult::getLink).toList();
                 List<String> titles = parsedLinks.stream().map(LinkResult::getTitle).toList();
 
-                scrapeJobService.createScrapeJobList(urls, titles);
+                scrapeJobService.createJobList(urls, titles);
                 log.info("Created scrape jobs for {} links from query: {} (page {})", urls.size(),
                         query.getSentence(), page);
 
