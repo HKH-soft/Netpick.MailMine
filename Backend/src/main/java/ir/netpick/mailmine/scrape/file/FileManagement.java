@@ -52,17 +52,18 @@ public class FileManagement {
         }
     }
 
-    public void ReadAFile(UUID id, int attemptNumber, String fileName) {
+    public String ReadAFile(UUID id, int attemptNumber, String fileName) {
         Path path = buildFilePath(id, attemptNumber, fileName);
         try {
             String content = Files.readString(path);
             logger.info("File read: {}", path);
-            logger.debug("Content:\n{}", content);
+            return content;
         } catch (NoSuchFileException e) {
             logger.warn("File not found: {}", path);
         } catch (IOException e) {
             logger.error("Error reading file: {}", path, e);
         }
+        return null;
     }
 
     public void UpdateAFile(UUID id, int attemptNumber, String fileName, String newContent) {
