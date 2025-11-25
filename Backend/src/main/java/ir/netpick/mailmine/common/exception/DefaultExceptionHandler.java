@@ -23,7 +23,7 @@ public class DefaultExceptionHandler {
                                 e.getMessage(),
                                 HttpStatus.NOT_FOUND.value(),
                                 LocalDateTime.now());
-                return new ResponseEntity<ApiError>(apiError, HttpStatus.NOT_FOUND);
+                return new ResponseEntity<>(apiError, HttpStatus.NOT_FOUND);
         }
 
         @ExceptionHandler(InsufficientAuthenticationException.class)
@@ -34,7 +34,7 @@ public class DefaultExceptionHandler {
                                 e.getMessage(),
                                 HttpStatus.FORBIDDEN.value(),
                                 LocalDateTime.now());
-                return new ResponseEntity<ApiError>(apiError, HttpStatus.FORBIDDEN);
+                return new ResponseEntity<>(apiError, HttpStatus.FORBIDDEN);
         }
 
         @ExceptionHandler(BadCredentialsException.class)
@@ -45,7 +45,7 @@ public class DefaultExceptionHandler {
                                 e.getMessage(),
                                 HttpStatus.UNAUTHORIZED.value(),
                                 LocalDateTime.now());
-                return new ResponseEntity<ApiError>(apiError, HttpStatus.UNAUTHORIZED);
+                return new ResponseEntity<>(apiError, HttpStatus.UNAUTHORIZED);
         }
 
         @ExceptionHandler(DuplicateResourceException.class)
@@ -56,7 +56,7 @@ public class DefaultExceptionHandler {
                                 e.getMessage(),
                                 HttpStatus.CONFLICT.value(),
                                 LocalDateTime.now());
-                return new ResponseEntity<ApiError>(apiError, HttpStatus.CONFLICT);
+                return new ResponseEntity<>(apiError, HttpStatus.CONFLICT);
         }
 
         @ExceptionHandler(AccessDeniedException.class)
@@ -67,7 +67,7 @@ public class DefaultExceptionHandler {
                                 e.getMessage(),
                                 HttpStatus.FORBIDDEN.value(),
                                 LocalDateTime.now());
-                return new ResponseEntity<ApiError>(apiError, HttpStatus.FORBIDDEN);
+                return new ResponseEntity<>(apiError, HttpStatus.FORBIDDEN);
         }
 
         @ExceptionHandler(UsernameNotFoundException.class)
@@ -78,7 +78,7 @@ public class DefaultExceptionHandler {
                                 e.getMessage(),
                                 HttpStatus.BAD_REQUEST.value(),
                                 LocalDateTime.now());
-                return new ResponseEntity<ApiError>(apiError, HttpStatus.BAD_REQUEST);
+                return new ResponseEntity<>(apiError, HttpStatus.BAD_REQUEST);
         }
 
         @ExceptionHandler(Exception.class)
@@ -89,6 +89,6 @@ public class DefaultExceptionHandler {
                                 e.getMessage(),
                                 HttpStatus.INTERNAL_SERVER_ERROR.value(),
                                 LocalDateTime.now());
-                return new ResponseEntity<ApiError>(apiError, HttpStatus.INTERNAL_SERVER_ERROR);
+                return new ResponseEntity<>(apiError, HttpStatus.INTERNAL_SERVER_ERROR);
         }
 }

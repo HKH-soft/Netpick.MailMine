@@ -45,7 +45,8 @@ public class JWTUtil {
     public String issueToken(
             String subject,
             Map<String, Object> claims) {
-        String token = Jwts
+
+        return Jwts
                 .builder()
                 .claims(claims)
                 .subject(subject)
@@ -54,8 +55,6 @@ public class JWTUtil {
                 .expiration(Date.from(Instant.now().plus(jwtExpiration, DAYS)))
                 .signWith(getSignInKey())
                 .compact();
-
-        return token;
     }
 
     public String getSubject(String token) {
@@ -71,13 +70,12 @@ public class JWTUtil {
     }
 
     private Claims getClaims(String token) {
-        Claims claims = Jwts
+        return Jwts
                 .parser()
                 .verifyWith((SecretKey) getSignInKey())
                 .build()
                 .parseSignedClaims(token)
                 .getPayload();
-        return claims;
     }
 
     private Key getSignInKey() {

@@ -54,7 +54,7 @@ public class UserService {
                 .matches();
     }
 
-    public boolean isRegisterRequestValid(AuthenticationSignupRequest request) {
+    public boolean isRegisterRequestInvalid(AuthenticationSignupRequest request) {
         String email = request.email();
         if (userRepository.existsUserByEmail(email)) {
             throw new DuplicateResourceException("A User with this email already exists.");
@@ -66,12 +66,12 @@ public class UserService {
                 request.name() == null) {
             throw new RequestValidationException("There is an empty parameter.");
         }
-        return true;
+        return false;
     }
 
     public User createAdministrator(AuthenticationSignupRequest request) {
 
-        if (!isRegisterRequestValid(request)) {
+        if (isRegisterRequestInvalid(request)) {
             throw new RequestValidationException("Request is not valid!");
         }
 
@@ -91,7 +91,7 @@ public class UserService {
 
     public User createUser(AuthenticationSignupRequest request) {
 
-        if (!isRegisterRequestValid(request)) {
+        if (isRegisterRequestInvalid(request)) {
             throw new RequestValidationException("Request is not valid!");
         }
 

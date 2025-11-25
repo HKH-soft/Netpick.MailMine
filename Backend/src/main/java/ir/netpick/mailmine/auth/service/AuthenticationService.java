@@ -39,14 +39,12 @@ public class AuthenticationService {
 
     public String signup(AuthenticationSignupRequest request) {
         User user = userService.createUser(request);
-        String token = jwtUtil.issueToken(request.email(), user.getRole().getName().toString());
-        return token;
+        return jwtUtil.issueToken(request.email(), user.getRole().getName().toString());
     }
 
     public String registerAdmin(AuthenticationSignupRequest request) {
         User user = userService.createAdministrator(request);
-        String token = jwtUtil.issueToken(request.email(), user.getRole().getName().toString());
-        return token;
+        return jwtUtil.issueToken(request.email(), user.getRole().getName().toString());
     }
 
 }

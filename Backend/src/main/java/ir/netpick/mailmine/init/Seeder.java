@@ -4,6 +4,7 @@ import java.util.*;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.jetbrains.annotations.NotNull;
 import org.springframework.context.ApplicationListener;
 import org.springframework.context.event.ContextRefreshedEvent;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -30,7 +31,7 @@ public class Seeder implements ApplicationListener<ContextRefreshedEvent> {
   private final PasswordEncoder passwordEncoder;
 
   @Override
-  public void onApplicationEvent(ContextRefreshedEvent contextRefreshedEvent) {
+  public void onApplicationEvent(@NotNull ContextRefreshedEvent contextRefreshedEvent) {
     this.loadRoles();
     this.createSuperAdmin();
     // this.webScrape();

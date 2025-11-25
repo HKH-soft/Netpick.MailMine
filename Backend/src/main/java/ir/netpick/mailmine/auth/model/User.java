@@ -33,7 +33,6 @@ public class User extends BaseEntity implements UserDetails {
         this.passwordHash = passwordHash;
         this.name = name;
         this.role = role;
-        ;
     }
 
     @Column(name = "email", nullable = false)

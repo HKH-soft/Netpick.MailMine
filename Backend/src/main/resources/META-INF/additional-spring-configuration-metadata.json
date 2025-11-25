@@ -2,66 +2,66 @@
   {
     "name": "cors.allowed-origins",
     "type": "java.lang.String",
-    "description": "A description for 'cors.allowed-origins'"
+    "description": "A description for 'cors.allowed-origins'."
   },
   {
     "name": "cors.allowed-methods",
     "type": "java.lang.String",
-    "description": "A description for 'cors.allowed-methods'"
+    "description": "A description for 'cors.allowed-methods'."
   },
   {
     "name": "cors.allowed-headers",
     "type": "java.lang.String",
-    "description": "A description for 'cors.allowed-headers'"
+    "description": "A description for 'cors.allowed-headers'."
   },
   {
     "name": "cors.exposed-headers",
     "type": "java.lang.String",
-    "description": "A description for 'cors.exposed-headers'"
+    "description": "A description for 'cors.exposed-headers'."
   },
   {
     "name": "security.jwt.secret-key",
     "type": "java.lang.String",
-    "description": "A description for 'security.jwt.secret-key'"
+    "description": "A description for 'security.jwt.secret-key'."
   },
   {
     "name": "security.jwt.expiration-time",
     "type": "java.lang.String",
-    "description": "A description for 'security.jwt.expiration-time'"
+    "description": "A description for 'security.jwt.expiration-time'."
   },
   {
     "name": "security.jwt.issuer",
     "type": "java.lang.String",
-    "description": "A description for 'security.jwt.issuer'"
+    "description": "A description for 'security.jwt.issuer'."
   },
   {
     "name": "env.page-size",
     "type": "java.lang.String",
-    "description": "A description for 'env.page-size'"
+    "description": "A description for 'env.page-size'."
   },
   {
     "name": "web.driver-location",
     "type": "java.lang.String",
-    "description": "A description for 'web.driver-location'"
+    "description": "A description for 'web.driver-location'."
   },
   {
     "name": "selenium.chrome.binary.path",
     "type": "java.lang.String",
-    "description": "A description for 'selenium.chrome.binary.path'"
+    "description": "A description for 'selenium.chrome.binary.path'."
   },
   {
     "name": "selenium.chrome.driver.path",
     "type": "java.lang.String",
-    "description": "A description for 'selenium.chrome.driver.path'"
+    "description": "A description for 'selenium.chrome.driver.path'."
   },
   {
     "name": "google.search.results-per-page",
     "type": "java.lang.String",
-    "description": "A description for 'google.search.results-per-page'"
+    "description": "A description for 'google.search.results-per-page'."
   },
   {
     "name": "google.search.max-pages",
     "type": "java.lang.String",
-    "description": "A description for 'google.search.max-pages'"
+    "description": "A description for 'google.search.max-pages'."
   }
 ]}
