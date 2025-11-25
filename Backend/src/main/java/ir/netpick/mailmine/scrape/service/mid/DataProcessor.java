@@ -10,9 +10,6 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.stereotype.Service;
 
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
 import java.util.List;
 
 @Log4j2
@@ -40,25 +37,17 @@ public class DataProcessor {
 
     private void processSingleFile(ScrapeData scrapeData) {
         try {
-            Path filePath = fileManagement.getFilePath(
-                    scrapeData.getScrapeJob().getId(),
+
+            String content = fileManagement.ReadAFile(scrapeData.getScrapeJob().getId(),
                     scrapeData.getAttemptNumber(),
                     scrapeData.getFileName());
-
-            if (!Files.exists(filePath)) {
-                log.warn("Missing file for ScrapeData ID: {}", scrapeData.getId());
-                return;
-            }
-
-            String content = Files.readString(filePath);
 
             contactService.createContact(ContactInfoParser.parse(content));
 
             scrapeData.setParsed(true);
-            scrapeDataService.updateScrapeData(scrapeData); // ✅ goes through service layer
+
+            scrapeDataService.updateScrapeData(scrapeData);
             log.info("Successfully parsed and updated ScrapeData ID: {}", scrapeData.getId());
-        } catch (IOException e) {
-            log.error("I/O error reading file for ScrapeData ID: {}", scrapeData.getId(), e);
         } catch (Exception e) {
             log.error("Unexpected error while processing ScrapeData ID: {}", scrapeData.getId(), e);
         }
