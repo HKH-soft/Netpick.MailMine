@@ -1,18 +1,20 @@
 package ir.netpick.mailmine.auth.model;
 
+import io.hypersistence.utils.hibernate.type.json.JsonBinaryType;
+import ir.netpick.mailmine.auth.PreferencesEnum;
+import ir.netpick.mailmine.common.BaseEntity;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
+import org.hibernate.annotations.Type;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
-import ir.netpick.mailmine.common.BaseEntity;
-
 import java.time.LocalDateTime;
 import java.util.Collection;
 import java.util.List;
-import java.util.UUID;
+import java.util.Map;
 
 @Getter
 @Setter
@@ -35,30 +37,36 @@ public class User extends BaseEntity implements UserDetails {
         this.role = role;
     }
 
-    @Column(name = "email", nullable = false)
+    @Column
+    private String name;
+
+    @Column(nullable = false)
     private String email;
 
     @Column(name = "password_hash", length = Integer.MAX_VALUE)
     private String passwordHash;
 
-    @Column(name = "name")
-    private String name;
+    @Column(name = "profile_image_key")
+    private String profileImageKey;
 
     @ManyToOne(cascade = CascadeType.REMOVE)
     @JoinColumn(name = "role_id", referencedColumnName = "id", nullable = false)
     private Role role;
 
-    @Column(name = "profileImageId")
-    private UUID profileImageId;
+    @Type(JsonBinaryType.class)
+    @Column(columnDefinition = "jsonb")
+    @Enumerated(EnumType.STRING)
+    private Map<PreferencesEnum,String> preferences;
 
-    // @Column(name = "state")
-    // private UserStateEnum userState;
-
-    @Column(name = "preference")
-    private String Prefrence;
-
-    @Column(name = "lastLoginAt")
+    @Column(name = "last_login_at")
     private LocalDateTime lastLoginAt;
+
+    @Embedded
+    private Verification verification;
+
+    @Column(name = "is_verified", nullable = false)
+    private Boolean isVerified = false;
+
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
