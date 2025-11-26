@@ -2,12 +2,28 @@ server:
   port: 8080
 spring:
   profiles:
-    active:
+    active: dev
   application:
     name: scrape
+  mail:
+    host: smtp.gmail.com
+    port: 587
+    username: ${GMAIL_USERNAME}
+    password: ${GMAIL_PASSWORD}
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
+          ssl:
+            enable: false
+          connectiontimeout: 5000
+          timeout: 5000
+          writetimeout: 5000
   datasource:
     driver-class-name: org.postgresql.Driver
-    url: jdbc:postgresql://localhost:5432/mailmine
+    url: jdbc:postgresql://localhost:5432/auth
     username: postgres
     password: password
     hikari:
