@@ -1,15 +1,10 @@
 package ir.netpick.mailmine.auth.model;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
-import jakarta.persistence.Table;
-import lombok.Getter;
-import lombok.Setter;
-
 import ir.netpick.mailmine.common.BaseEntity;
 import ir.netpick.mailmine.common.enums.RoleEnum;
+import jakarta.persistence.*;
+import lombok.Getter;
+import lombok.Setter;
 
 @Getter
 @Setter

@@ -1,12 +1,11 @@
 package ir.netpick.mailmine.common.result;
 
 
-
+import ir.netpick.mailmine.common.result.error.Error;
 import ir.netpick.mailmine.common.result.success.Created;
 import ir.netpick.mailmine.common.result.success.Deleted;
 import ir.netpick.mailmine.common.result.success.Success;
 import ir.netpick.mailmine.common.result.success.Updated;
-import ir.netpick.mailmine.common.result.error.Error;
 
 import java.util.Collections;
 import java.util.List;

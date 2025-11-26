@@ -1,11 +1,10 @@
 package ir.netpick.mailmine.auth.mapper;
 
-import java.util.function.Function;
-
-import org.springframework.stereotype.Service;
-
 import ir.netpick.mailmine.auth.dto.UserDTO;
 import ir.netpick.mailmine.auth.model.User;
+import org.springframework.stereotype.Service;
+
+import java.util.function.Function;
 
 @Service
 public class UserDTOMapper implements Function<User, UserDTO> {
@@ -17,8 +16,7 @@ public class UserDTOMapper implements Function<User, UserDTO> {
                 user.getEmail(),
                 user.getName(),
                 user.getRole().getName(),
-                user.getPrefrence(),
-                user.getProfileImageId(),
+                user.getIsVerified(),
                 user.getCreatedAt(),
                 user.getUpdatedAt(),
                 user.getLastLoginAt());

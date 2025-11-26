@@ -1,27 +1,26 @@
 package ir.netpick.mailmine.scrape.service.mid;
 
-import java.time.Duration;
-import java.util.List;
-import java.util.Optional;
-
+import ir.netpick.mailmine.scrape.ScrapeConstants;
+import ir.netpick.mailmine.scrape.model.ScrapeJob;
+import ir.netpick.mailmine.scrape.repository.ScrapeJobRepository;
 import ir.netpick.mailmine.scrape.service.base.ScrapeDataService;
 import ir.netpick.mailmine.scrape.service.base.ScrapeJobService;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.log4j.Log4j2;
+import org.openqa.selenium.By;
 import org.openqa.selenium.SessionNotCreatedException;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.chrome.ChromeOptions;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
-import org.openqa.selenium.By;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
-import ir.netpick.mailmine.scrape.ScrapeConstants;
-import ir.netpick.mailmine.scrape.model.ScrapeJob;
-import ir.netpick.mailmine.scrape.repository.ScrapeJobRepository;
-import lombok.RequiredArgsConstructor;
-import lombok.extern.log4j.Log4j2;
+import java.time.Duration;
+import java.util.List;
+import java.util.Optional;
 
 @Log4j2
 @Service

@@ -1,7 +1,12 @@
 package ir.netpick.mailmine.init;
 
-import java.util.*;
-
+import ir.netpick.mailmine.auth.dto.AuthenticationSignupRequest;
+import ir.netpick.mailmine.auth.model.Role;
+import ir.netpick.mailmine.auth.model.User;
+import ir.netpick.mailmine.auth.repository.RoleRepository;
+import ir.netpick.mailmine.auth.repository.UserRepository;
+import ir.netpick.mailmine.common.enums.RoleEnum;
+import lombok.RequiredArgsConstructor;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jetbrains.annotations.NotNull;
@@ -10,13 +15,9 @@ import org.springframework.context.event.ContextRefreshedEvent;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 
-import ir.netpick.mailmine.auth.dto.AuthenticationSignupRequest;
-import ir.netpick.mailmine.auth.model.Role;
-import ir.netpick.mailmine.auth.model.User;
-import ir.netpick.mailmine.auth.repository.RoleRepository;
-import ir.netpick.mailmine.auth.repository.UserRepository;
-import ir.netpick.mailmine.common.enums.RoleEnum;
-import lombok.RequiredArgsConstructor;
+import java.util.Arrays;
+import java.util.Map;
+import java.util.Optional;
 
 @Component
 @RequiredArgsConstructor
@@ -51,6 +52,9 @@ public class Seeder implements ApplicationListener<ContextRefreshedEvent> {
 
     User user = new User(request.email(), passwordEncoder.encode(request.password()), request.name(),
         optionalRole.get());
+    
+    // Mark super admin as verified by default
+    user.setIsVerified(true);
 
     userRepository.save(user);
     logger.info("superuser was created");

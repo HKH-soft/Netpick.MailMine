@@ -1,14 +1,13 @@
 package ir.netpick.mailmine.scrape.repository;
 
-import java.util.UUID;
-
+import ir.netpick.mailmine.scrape.model.ApiKey;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
-
-import ir.netpick.mailmine.scrape.model.ApiKey;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.UUID;
 
 @Repository
 public interface ApiKeyRepository extends JpaRepository<ApiKey, UUID> {

@@ -1,40 +1,37 @@
 package ir.netpick.mailmine.auth.controller;
 
-import ir.netpick.mailmine.auth.dto.AllUsersResponse;
-import ir.netpick.mailmine.auth.service.UserService;
+import ir.netpick.mailmine.auth.dto.AuthenticationSignupRequest;
+import ir.netpick.mailmine.auth.service.AdminService;
+import ir.netpick.mailmine.common.enums.RoleEnum;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
-import ir.netpick.mailmine.auth.dto.AuthenticationSignupRequest;
-import ir.netpick.mailmine.auth.service.AuthenticationService;
-
 @RestController
 @RequestMapping("/admin")
 @RequiredArgsConstructor
-@PreAuthorize("hasAnyRole('ADMIN', 'SUPER_ADMIN')")
+@PreAuthorize("hasRole('SUPER_ADMIN') or hasRole('ADMIN')")
 public class AdminController {
-    private final AuthenticationService authenticationService;
-    private final UserService userService;
 
-    @PostMapping("createAdmin")
-    @PreAuthorize("hasRole('SUPER_ADMIN')")
-    public ResponseEntity<?> createAdministrator(@RequestBody AuthenticationSignupRequest request) {
+    private final AdminService adminService;
 
-        String jwtToken = authenticationService.registerAdmin(request);
-        return ResponseEntity.ok()
-                .header(HttpHeaders.AUTHORIZATION, jwtToken)
-                .build();
-
+    @PostMapping("/users")
+    public ResponseEntity<?> createUser(@RequestBody AuthenticationSignupRequest request) {
+        adminService.createAdminUser(request);
+        return ResponseEntity.ok().build();
     }
     
-    @GetMapping("users")
-    public ResponseEntity<AllUsersResponse> getUsers(@RequestParam(defaultValue = "1") Integer page) {
-        return ResponseEntity.ok()
-                .body(userService.allUsers(page));
+    @PostMapping("/admins")
+    @PreAuthorize("hasRole('SUPER_ADMIN')")
+    public ResponseEntity<?> createAdminUser(@RequestBody AuthenticationSignupRequest request) {
+        adminService.createAdminUser(request, RoleEnum.ADMIN);
+        return ResponseEntity.ok().build();
     }
-
-
+    
+    @PostMapping("/users/{userEmail}/send-verification")
+    public ResponseEntity<?> sendVerificationEmail(@PathVariable String userEmail) {
+        adminService.sendVerificationEmailToUser(userEmail);
+        return ResponseEntity.ok().build();
+    }
 }

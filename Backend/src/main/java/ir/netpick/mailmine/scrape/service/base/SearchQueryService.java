@@ -1,12 +1,16 @@
 package ir.netpick.mailmine.scrape.service.base;
 
-import java.util.Objects;
-import java.util.UUID;
-import java.util.stream.Collectors;
-
 import ir.netpick.mailmine.common.PageDTO;
+import ir.netpick.mailmine.common.exception.ResourceNotFoundException;
+import ir.netpick.mailmine.scrape.dto.SearchQueryRequest;
 import ir.netpick.mailmine.scrape.dto.SearchQueryResponse;
 import ir.netpick.mailmine.scrape.mapper.SearchQueryDTOMapper;
+import ir.netpick.mailmine.scrape.model.SearchQuery;
+import ir.netpick.mailmine.scrape.repository.SearchQueryRepository;
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotNull;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -15,14 +19,9 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.annotation.Validated;
 
-import ir.netpick.mailmine.common.exception.ResourceNotFoundException;
-import ir.netpick.mailmine.scrape.dto.SearchQueryRequest;
-import ir.netpick.mailmine.scrape.model.SearchQuery;
-import ir.netpick.mailmine.scrape.repository.SearchQueryRepository;
-import jakarta.validation.Valid;
-import jakarta.validation.constraints.NotNull;
-import lombok.RequiredArgsConstructor;
-import lombok.extern.log4j.Log4j2;
+import java.util.Objects;
+import java.util.UUID;
+import java.util.stream.Collectors;
 
 @Log4j2
 @Validated

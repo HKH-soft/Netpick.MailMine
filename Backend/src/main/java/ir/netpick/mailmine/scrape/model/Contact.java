@@ -1,10 +1,9 @@
 package ir.netpick.mailmine.scrape.model;
 
+import ir.netpick.mailmine.common.BaseEntity;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
-
-import ir.netpick.mailmine.common.BaseEntity;
 
 import java.util.HashSet;
 import java.util.Set;

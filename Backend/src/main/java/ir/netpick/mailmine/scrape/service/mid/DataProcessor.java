@@ -1,8 +1,8 @@
 package ir.netpick.mailmine.scrape.service.mid;
 
+import ir.netpick.mailmine.scrape.file.FileManagement;
 import ir.netpick.mailmine.scrape.model.ScrapeData;
 import ir.netpick.mailmine.scrape.parser.ContactInfoParser;
-import ir.netpick.mailmine.scrape.file.FileManagement;
 import ir.netpick.mailmine.scrape.service.base.ContactService;
 import ir.netpick.mailmine.scrape.service.base.ScrapeDataService;
 import jakarta.transaction.Transactional;

@@ -1,18 +1,14 @@
 package ir.netpick.mailmine.scrape.model;
 
-import java.time.Duration;
-import java.time.LocalDateTime;
-
 import ir.netpick.mailmine.common.BaseEntity;
 import ir.netpick.mailmine.common.enums.PipelineStageEnum;
 import ir.netpick.mailmine.common.enums.PipelineStateEnum;
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
+
+import java.time.Duration;
+import java.time.LocalDateTime;
 
 @Getter
 @Setter

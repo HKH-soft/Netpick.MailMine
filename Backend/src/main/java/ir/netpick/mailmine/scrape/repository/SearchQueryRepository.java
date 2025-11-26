@@ -1,16 +1,15 @@
 package ir.netpick.mailmine.scrape.repository;
 
-import java.util.List;
-import java.util.UUID;
-
+import ir.netpick.mailmine.scrape.model.SearchQuery;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.lang.NonNull;
 import org.springframework.stereotype.Repository;
-
-import ir.netpick.mailmine.scrape.model.SearchQuery;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
+import java.util.UUID;
 
 @Repository
 public interface SearchQueryRepository extends JpaRepository<SearchQuery, UUID> {

@@ -1,18 +1,7 @@
 package ir.netpick.mailmine.scrape.service.base;
 
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
-import java.util.List;
-import java.util.UUID;
-
 import ir.netpick.mailmine.common.PageDTO;
 import ir.netpick.mailmine.common.constants.GeneralConstants;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
-import org.springframework.stereotype.Service;
-
 import ir.netpick.mailmine.common.exception.ResourceNotFoundException;
 import ir.netpick.mailmine.scrape.file.FileManagement;
 import ir.netpick.mailmine.scrape.model.ScrapeData;
@@ -20,6 +9,16 @@ import ir.netpick.mailmine.scrape.model.ScrapeJob;
 import ir.netpick.mailmine.scrape.repository.ScrapeDataRepository;
 import ir.netpick.mailmine.scrape.repository.ScrapeJobRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.stereotype.Service;
+
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.List;
+import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor

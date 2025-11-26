@@ -1,15 +1,13 @@
 package ir.netpick.mailmine.scrape.parser;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import org.springframework.stereotype.Service;
-
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-
 import ir.netpick.mailmine.scrape.model.LinkResult;
 import lombok.extern.log4j.Log4j2;
+import org.springframework.stereotype.Service;
+
+import java.util.ArrayList;
+import java.util.List;
 
 @Log4j2
 @Service

@@ -1,15 +1,13 @@
 package ir.netpick.mailmine.scrape.controller;
 
-import ir.netpick.mailmine.scrape.service.mid.DataProcessor;
-import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
-
 import ir.netpick.mailmine.scrape.service.mid.ApiCaller;
+import ir.netpick.mailmine.scrape.service.mid.DataProcessor;
 import ir.netpick.mailmine.scrape.service.mid.Scraper;
 import lombok.RequiredArgsConstructor;
-
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequestMapping("/scrape")

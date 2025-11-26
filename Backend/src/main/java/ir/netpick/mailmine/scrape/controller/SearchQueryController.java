@@ -1,14 +1,13 @@
 package ir.netpick.mailmine.scrape.controller;
 
-import java.util.UUID;
-
+import ir.netpick.mailmine.scrape.dto.SearchQueryRequest;
+import ir.netpick.mailmine.scrape.service.base.SearchQueryService;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
-import ir.netpick.mailmine.scrape.dto.SearchQueryRequest;
-import ir.netpick.mailmine.scrape.service.base.SearchQueryService;
-import lombok.RequiredArgsConstructor;
+import java.util.UUID;
 
 @RestController
 @RequiredArgsConstructor

@@ -1,13 +1,17 @@
 package ir.netpick.mailmine.scrape.service.base;
 
-import java.util.Objects;
-import java.util.UUID;
-import java.util.stream.Collectors;
-
 import ir.netpick.mailmine.common.PageDTO;
 import ir.netpick.mailmine.common.constants.GeneralConstants;
+import ir.netpick.mailmine.common.exception.ResourceNotFoundException;
+import ir.netpick.mailmine.scrape.dto.ApiKeyRequest;
 import ir.netpick.mailmine.scrape.dto.ApiKeyResponse;
 import ir.netpick.mailmine.scrape.mapper.ApiKeyDTOMapper;
+import ir.netpick.mailmine.scrape.model.ApiKey;
+import ir.netpick.mailmine.scrape.repository.ApiKeyRepository;
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotNull;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -15,14 +19,9 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.annotation.Validated;
 
-import ir.netpick.mailmine.common.exception.ResourceNotFoundException;
-import ir.netpick.mailmine.scrape.dto.ApiKeyRequest;
-import ir.netpick.mailmine.scrape.model.ApiKey;
-import ir.netpick.mailmine.scrape.repository.ApiKeyRepository;
-import jakarta.validation.Valid;
-import jakarta.validation.constraints.NotNull;
-import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
+import java.util.Objects;
+import java.util.UUID;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Validated

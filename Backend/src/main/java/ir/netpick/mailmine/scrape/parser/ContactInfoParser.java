@@ -1,5 +1,6 @@
 package ir.netpick.mailmine.scrape.parser;
 
+import ir.netpick.mailmine.scrape.model.Contact;
 import org.apache.commons.validator.routines.EmailValidator;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
@@ -7,8 +8,6 @@ import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import ir.netpick.mailmine.scrape.model.Contact;
 
 import java.net.MalformedURLException;
 import java.net.URI;

@@ -1,17 +1,13 @@
 package ir.netpick.mailmine.scrape.model;
 
-import java.time.LocalDateTime;
+import ir.netpick.mailmine.common.BaseEntity;
+import jakarta.persistence.*;
+import lombok.Getter;
+import lombok.Setter;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
-import ir.netpick.mailmine.common.BaseEntity;
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.Index;
-import jakarta.persistence.Table;
-import jakarta.persistence.UniqueConstraint;
-import lombok.Getter;
-import lombok.Setter;
+import java.time.LocalDateTime;
 
 @Getter
 @Setter

@@ -1,5 +1,8 @@
 package ir.netpick.mailmine.auth.security;
 
+import ir.netpick.mailmine.auth.jwt.JWTAuthenticationFilter;
+import ir.netpick.mailmine.common.exception.DelegatedAuthEntryPoint;
+import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
@@ -10,10 +13,6 @@ import org.springframework.security.config.annotation.web.configurers.AbstractHt
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
-
-import ir.netpick.mailmine.auth.jwt.JWTAuthenticationFilter;
-import ir.netpick.mailmine.common.exception.DelegatedAuthEntryPoint;
-import lombok.RequiredArgsConstructor;
 
 @Configuration
 @EnableWebSecurity
@@ -28,7 +27,7 @@ public class SecurityFilterChainConfig {
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http.csrf(AbstractHttpConfigurer::disable);
         http.authorizeHttpRequests(request -> request
-                .requestMatchers(HttpMethod.POST, "/auth/sign-up", "/auth/sign-in")
+                .requestMatchers(HttpMethod.POST, "/auth/sign-up", "/auth/sign-in","/auth/verify", "/auth/resend-verification")
                 .permitAll()
                 .requestMatchers(HttpMethod.GET, "/actuator/**")
                 .permitAll()
