@@ -4,7 +4,7 @@ spring:
   profiles:
     active: dev
   application:
-    name: scrape
+    name: mailmine
   mail:
     host: smtp.gmail.com
     port: 587
@@ -23,14 +23,17 @@ spring:
           writetimeout: 5000
   datasource:
     driver-class-name: org.postgresql.Driver
-    url: jdbc:postgresql://localhost:5432/auth
-    username: postgres
-    password: password
+    url: jdbc:postgresql://${POSTGRES_URL}
+    username: ${POSTGRES_USERNAME}
+    password: ${POSTGRES_PASSWORD}
     hikari:
       maximum-pool-size: 10
       minimum-idle: 2
       idle-timeout: 30000
       max-lifetime: 1800000
+  flyway:
+    baseline-on-migrate: true
+    baseline-version: 1
   jpa:
     open-in-view: false
     hibernate:
@@ -59,9 +62,9 @@ management:
 
 security:
   jwt:
-    secret-key: "$@$&@^*#%(#&(#%^*@&%^!#$^!$#^@%&@$&@$^*@$^&%^@#$%))hkhisREAL!^!#$^!$^"
+    secret-key: ${JWT_SECRET_KEY}
     expiration-time: 3
-    issuer: "https://netpick.ir"
+    issuer: ${JWT_ISSUER}
 
 env:
   page-size: 25
@@ -69,9 +72,9 @@ env:
 selenium:
   chrome:
     binary:
-      path: "F:\\chrome-win64\\chrome-win64\\chrome.exe"
+      path: ${CHROME_BINARY_PATH}
     driver:
-      path: "F:\\chromedriver-win64\\chromedriver.exe"
+      path: ${CHROME_DRIVER_PATH}
 
 google:
   search:

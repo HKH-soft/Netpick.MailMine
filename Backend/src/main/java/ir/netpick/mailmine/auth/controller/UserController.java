@@ -10,11 +10,11 @@ import org.springframework.web.bind.annotation.*;
 @RequiredArgsConstructor
 public class UserController {
 
-private final UserService userService;
+    private final UserService userService;
 
-@PostMapping("/{userEmail}/send-verification")
-    public ResponseEntity<?> sendVerificationEmail(@PathVariable String userEmail) {
-        userService.prepareUserForVerification(userService.getUserEntity(userEmail), true);
-        return ResponseEntity.ok().build();
-    }
+    @PostMapping("/{userEmail}/send-verification")
+        public ResponseEntity<?> sendVerificationEmail(@PathVariable String userEmail) {
+            userService.prepareUserForVerification(userService.getUserEntity(userEmail), true);
+            return ResponseEntity.ok().build();
+        }
 }
