@@ -19,15 +19,17 @@ public class EmailController {
     @PostMapping("/sendMail")
     public ResponseEntity<String> sendMail(@RequestBody EmailDetails details)
     {
+        emailService.sendSimpleMail(details);
         return ResponseEntity.ok()
-                .body(emailService.sendSimpleMail(details));
+                .body("Email sent successfully");
     }
 
     @PostMapping("/sendMailWithCode")
     public ResponseEntity<String> sendMailWithCode(@RequestBody EmailDetails details)
     {
+        emailService.sendVerificationEmailWithTemplate(details.getRecipient(), verificationService.generateVerificationCode());
         return ResponseEntity.ok()
-                .body(emailService.sendVerificationEmailWithTemplate(details.getRecipient(),verificationService.generateVerificationCode()));
+                .body("Email with verification code sent successfully");
     }
 
     // Sending email with attachment
@@ -35,8 +37,8 @@ public class EmailController {
     public ResponseEntity<String> sendMailWithAttachment(
             @RequestBody EmailDetails details)
     {
-
+        emailService.sendMailWithAttachment(details);
         return ResponseEntity.ok()
-                        .body(emailService.sendMailWithAttachment(details));
+                .body("Email with attachment sent successfully");
     }
 }

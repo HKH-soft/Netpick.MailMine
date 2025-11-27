@@ -61,7 +61,7 @@ public class UserService {
         userRepository.updateLastLogin(LocalDateTime.now(), email);
         log.info("Successfully updated last sign-in time for user: {}", email);
     }
-
+    
     /**
      * Validates if an email address has a proper format.
      *
@@ -78,7 +78,7 @@ public class UserService {
         log.debug("Email validation result for {}: {}", email, isValid);
         return isValid;
     }
-
+    
     /**
      * Validates a registration request for required fields and duplicates.
      *
@@ -90,35 +90,35 @@ public class UserService {
     public boolean isRegisterRequestInvalid(AuthenticationSignupRequest request) {
         String email = request.email();
         log.debug("Validating registration request for email: {}", email);
-
+        
         if (userRepository.existsUserByEmail(email)) {
-            log.info("Registration attempt with existing email: {}", email);
+            log.warn("Registration attempt with existing email: {}", email);
             throw new DuplicateResourceException(
-                    "An account with this email address already exists. " +
-                            "Please use a different email or sign in to your existing account."
+                "An account with this email address already exists. " +
+                "Please use a different email or sign in to your existing account."
             );
         }
-
+        
         if (!isEmailValidation(email)) {
-            log.info("Registration attempt with invalid email format: {}", email);
+            log.warn("Registration attempt with invalid email format: {}", email);
             throw new RequestValidationException(
-                    "The email address you provided is not valid. " +
-                            "Please check the format and try again."
+                "The email address you provided is not valid. " +
+                "Please check the format and try again."
             );
         }
-
+        
         if (request.password() == null || request.name() == null) {
-            log.info("Registration attempt with missing required fields for email: {}", email);
+            log.warn("Registration attempt with missing required fields for email: {}", email);
             throw new RequestValidationException(
-                    "Please fill in all required fields. " +
-                            "Both name and password are required to create an account."
+                "Please fill in all required fields. " +
+                "Both name and password are required to create an account."
             );
         }
-
+        
         log.debug("Registration request validation passed for email: {}", email);
         return false;
     }
-
+    
     /**
      * Retrieves a paginated list of all users.
      *
@@ -140,7 +140,7 @@ public class UserService {
         log.info("Successfully fetched {} users for page {}", page.getContent().size(), pageNumber);
         return result;
     }
-
+    
     /**
      * Retrieves a paginated list of all users with custom sorting.
      *
@@ -160,11 +160,11 @@ public class UserService {
                         .collect(Collectors.toList()),
                 page.getTotalPages(),
                 page.getNumber() + 1);
-        log.info("Successfully fetched {} users for page {}, sorted by: {}, direction: {}",
-                page.getContent().size(), pageNumber, sortBy, direction);
+        log.info("Successfully fetched {} users for page {}, sorted by: {}, direction: {}", 
+                 page.getContent().size(), pageNumber, sortBy, direction);
         return result;
     }
-
+    
     /**
      * Retrieves a user by their UUID.
      *
@@ -182,7 +182,7 @@ public class UserService {
         log.info("Successfully fetched user with ID: {}", userId);
         return userDTOMapper.apply(user);
     }
-
+    
     /**
      * Retrieves a user by their email address.
      *
@@ -200,7 +200,7 @@ public class UserService {
         log.info("Successfully fetched user with email: {}", email);
         return userDTOMapper.apply(user);
     }
-
+    
     /**
      * Retrieves a user entity by their email address.
      *
@@ -216,7 +216,7 @@ public class UserService {
                     return new ResourceNotFoundException("User not found");
                 });
     }
-
+    
     /**
      * Retrieves a user entity by their UUID.
      *
@@ -232,7 +232,7 @@ public class UserService {
                     return new ResourceNotFoundException("User not found");
                 });
     }
-
+    
     /**
      * Creates a new administrator user.
      *
@@ -246,8 +246,8 @@ public class UserService {
 
         if (isRegisterRequestInvalid(request)) {
             throw new RequestValidationException(
-                    "Your registration request is not valid. " +
-                            "Please check all fields and try again."
+               "Your registration request is not valid. " +
+                "Please check all fields and try again."
             );
         }
 
@@ -259,22 +259,22 @@ public class UserService {
         }
 
         User user = new User(
-                request.email(),
-                passwordEncoder.encode(request.password()),
-                request.name(),
-                optionalRole.get()
+            request.email(),
+            passwordEncoder.encode(request.password()),
+            request.name(),
+            optionalRole.get()
         );
 
         User savedUser = userRepository.save(user);
-
+        
         // Automatically verify ADMIN users (but not SUPER_ADMIN)
         savedUser.setIsVerified(true);
         userRepository.save(savedUser);
-
+        
         log.info("Successfully created administrator with ID: {} and email: {}", savedUser.getId(), savedUser.getEmail());
         return savedUser;
     }
-
+    
     /**
      * Creates a new unverified user.
      *
@@ -288,8 +288,8 @@ public class UserService {
 
         if (isRegisterRequestInvalid(request)) {
             throw new RequestValidationException(
-                    "Your registration request is not valid. " +
-                            "Please check all fields and try again."
+               "Your registration request is not valid. " +
+                "Please check all fields and try again."
             );
         }
 
@@ -301,10 +301,10 @@ public class UserService {
         }
 
         User user = new User(
-                request.email(),
-                passwordEncoder.encode(request.password()),
-                request.name(),
-                optionalRole.get()
+            request.email(),
+            passwordEncoder.encode(request.password()),
+            request.name(),
+            optionalRole.get()
         );
 
         User savedUser = userRepository.save(user);
@@ -325,8 +325,8 @@ public class UserService {
 
         if (isRegisterRequestInvalid(request)) {
             throw new RequestValidationException(
-                    "Your registration request is not valid. " +
-                            "Please check all fields and try again."
+               "Your registration request is not valid. " +
+                "Please check all fields and try again."
             );
         }
 
@@ -338,10 +338,10 @@ public class UserService {
         }
 
         User user = new User(
-                request.email(),
-                passwordEncoder.encode(request.password()),
-                request.name(),
-                optionalRole.get()
+            request.email(),
+            passwordEncoder.encode(request.password()),
+            request.name(),
+            optionalRole.get()
         );
 
         // SUPER_ADMIN users are automatically verified
@@ -359,8 +359,8 @@ public class UserService {
      * @return The verification code that was created/updated
      */
     public String prepareUserForVerification(User user, boolean sendEmail) {
-        log.debug("Preparing user for verification. User ID: {}, Email: {}, Send Email: {}",
-                user.getId(), user.getEmail(), sendEmail);
+        log.debug("Preparing user for verification. User ID: {}, Email: {}, Send Email: {}", 
+                  user.getId(), user.getEmail(), sendEmail);
         // Delegate to VerificationService
         return verificationService.prepareUserForVerification(user);
     }
@@ -377,22 +377,22 @@ public class UserService {
     public UserDTO updateUser(String email, UserUpdateRequest request) {
         log.info("Updating user with email: {}", email);
         User user = userRepository.findByEmail(email).orElseThrow(
-                () -> {
-                    log.warn("User not found for update with email: {}", email);
-                    return new ResourceNotFoundException(
-                            "No user account found with email: " + email + ". " +
-                                    "Please check the email address or register for a new account."
-                    );
-                }
+            () -> {
+                log.warn("User not found for update with email: {}", email);
+                return new ResourceNotFoundException(
+                    "No user account found with email: " + email + ". " +
+                    "Please check the email address or register for a new account."
+                );
+            }
         );
-
+        
         boolean changed = false;
         if (request.name() != null && !request.name().equals(user.getName())) {
             log.debug("Updating user name from '{}' to '{}'", user.getName(), request.name());
             user.setName(request.name());
             changed = true;
         }
-
+        
         if (request.description() != null && !request.description().equals(user.getDescription())) {
             log.debug("Updating user description from '{}' to '{}'", user.getDescription(), request.description());
             user.setDescription(request.description());
@@ -402,16 +402,16 @@ public class UserService {
         if (!changed) {
             log.warn("No changes detected for user update: {}", email);
             throw new RequestValidationException(
-                    "No changes were detected. " +
-                            "Please make sure you've modified at least one field."
+                "No changes were detected. " +
+                "Please make sure you've modified at least one field."
             );
         }
-
+        
         User savedUser = userRepository.save(user);
         log.info("Successfully updated user with email: {}", email);
         return userDTOMapper.apply(savedUser);
     }
-
+    
     /**
      * Updates a user's information by their UUID.
      *
@@ -424,15 +424,15 @@ public class UserService {
     public UserDTO updateUser(UUID userId, UserUpdateRequest request) {
         log.info("Updating user with ID: {}", userId);
         User user = userRepository.findById(userId).orElseThrow(
-                () -> {
-                    log.warn("User not found for update with ID: {}", userId);
-                    return new ResourceNotFoundException(
-                            "No user account found with ID: " + userId + ". " +
-                                    "Please check the user ID or contact support if you believe this is an error."
-                    );
-                }
+            () -> {
+                log.warn("User not found for update with ID: {}", userId);
+                return new ResourceNotFoundException(
+                    "No user account found with ID: " + userId + ". " +
+                    "Please check the user ID or contact support if you believe this is an error."
+                );
+            }
         );
-
+        
         boolean changed = false;
         if (request.name() != null && !request.name().equals(user.getName())) {
             log.debug("Updating user name from '{}' to '{}'", user.getName(), request.name());
@@ -448,8 +448,8 @@ public class UserService {
         if (!changed) {
             log.warn("No changes detected for user update: {}", userId);
             throw new RequestValidationException(
-                    "No changes were detected. " +
-                            "Please make sure you've modified at least one field."
+                "No changes were detected. " +
+                "Please make sure you've modified at least one field."
             );
         }
 
@@ -457,7 +457,7 @@ public class UserService {
         log.info("Successfully updated user with ID: {}", userId);
         return userDTOMapper.apply(savedUser);
     }
-
+    
     /**
      * Deletes a user by their email address.
      *
@@ -469,14 +469,14 @@ public class UserService {
         if (!userRepository.existsUserByEmail(email)) {
             log.warn("User not found for deletion with email: {}", email);
             throw new ResourceNotFoundException(
-                    "No user account found with email: " + email + ". " +
-                            "Please check the email address or register for a new account."
+                "No user account found with email: " + email + ". " +
+                "Please check the email address or register for a new account."
             );
         }
         userRepository.deleteByEmail(email);
         log.info("Successfully deleted user with email: {}", email);
     }
-
+    
     /**
      * Deletes a user by their UUID.
      *
@@ -488,8 +488,8 @@ public class UserService {
         if (!userRepository.existsById(userId)) {
             log.warn("User not found for deletion with ID: {}", userId);
             throw new ResourceNotFoundException(
-                    "No user account found with ID: " + userId + ". " +
-                            "Please check the user ID or contact support if you believe this is an error."
+                "No user account found with ID: " + userId + ". " +
+                "Please check the user ID or contact support if you believe this is an error."
             );
         }
         userRepository.deleteById(userId);

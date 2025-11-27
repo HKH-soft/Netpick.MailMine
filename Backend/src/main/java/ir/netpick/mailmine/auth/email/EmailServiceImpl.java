@@ -7,11 +7,13 @@ import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
 import jakarta.xml.bind.ValidationException;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.FileSystemResource;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.thymeleaf.TemplateEngine;
 import org.thymeleaf.context.Context;
@@ -20,6 +22,7 @@ import java.io.File;
 
 @RequiredArgsConstructor
 @Service
+@Log4j2
 public class EmailServiceImpl implements EmailService {
 
     private final JavaMailSender javaMailSender;
@@ -29,9 +32,11 @@ public class EmailServiceImpl implements EmailService {
     @Value("${spring.mail.username}")
     private String sender;
 
-    public String sendSimpleMail(EmailDetails details)
+    public void sendSimpleMail(EmailDetails details)
     {
         try {
+            log.info("Sending simple mail to: {}", details.getRecipient());
+            
             // Creating a simple mail message
             SimpleMailMessage simpleMailMessage = new SimpleMailMessage();
 
@@ -43,18 +48,21 @@ public class EmailServiceImpl implements EmailService {
 
             // Sending the mail
             javaMailSender.send(simpleMailMessage);
-            return "Mail Sent Successfully...";
+            log.info("Simple mail sent successfully to: {}", details.getRecipient());
         }
 
         // Catch block to handle the exceptions
         catch (Exception e) {
-            return "Error while Sending Mail";
+            log.error("Error while sending simple mail to: {}", details.getRecipient(), e);
         }
     }
     
     @Override
-    public String sendVerificationEmail(String email) {
+    @Async
+    public void sendVerificationEmail(String email) {
         try {
+            log.info("Sending verification email to: {}", email);
+            
             MimeMessage mimeMessage = javaMailSender.createMimeMessage();
             MimeMessageHelper helper = new MimeMessageHelper(mimeMessage, true);
 
@@ -64,7 +72,8 @@ public class EmailServiceImpl implements EmailService {
 
             User user = userService.getUserEntity(email);
             if(user.getVerification().isExpired()){
-                throw new ValidationException("verification code is expired");
+                log.warn("Verification code expired for user: {}", email);
+                throw new ValidationException("The verification code for your account has expired. A new code will be generated and sent.");
             }
             String code = user.getVerification().getCode();
 
@@ -81,17 +90,19 @@ public class EmailServiceImpl implements EmailService {
 
             // Sending the mail
             javaMailSender.send(mimeMessage);
-            return "Mail sent Successfully";
-
-
+            log.info("Verification email sent successfully to: {}", email);
         }
         catch (Exception e) {
-            throw new RuntimeException(e);
+            log.error("Error sending verification email to: {}", email, e);
+            // Note: Since this is async, we can't throw exceptions back to the caller
+            // In a production environment, you might want to store failed emails for retry
         }
     }
     
-    public String sendVerificationEmailWithTemplate(String recipient, String code) {
+    @Async
+    public void sendVerificationEmailWithTemplate(String recipient, String code) {
         // Creating a mime message
+        log.info("Sending verification email with template to: {}", recipient);
         MimeMessage mimeMessage = javaMailSender.createMimeMessage();
         try {
             // Setting multipart as true for attachments
@@ -111,18 +122,20 @@ public class EmailServiceImpl implements EmailService {
   
             // Sending the mail
             javaMailSender.send(mimeMessage);
-            return "Mail sent Successfully";
+            log.info("Verification email with template sent successfully to: {}", recipient);
         }
         catch (MessagingException e) {
             // Display message when mail sent failed
-            return "Error while sending mail!!!";
+            log.error("Error while sending verification email with template to: {}", recipient, e);
         }
     }
 
     // Method 2
     // To send an email with attachment
-    public String sendMailWithAttachment(EmailDetails details)
+    @Async
+    public void sendMailWithAttachment(EmailDetails details)
     {
+        log.info("Sending email with attachment to: {}", details.getRecipient());
         // Creating a mime message
         MimeMessage mimeMessage = javaMailSender.createMimeMessage();
         try {
@@ -143,11 +156,11 @@ public class EmailServiceImpl implements EmailService {
   
             // Sending the mail
             javaMailSender.send(mimeMessage);
-            return "Mail sent Successfully";
+            log.info("Email with attachment sent successfully to: {}", details.getRecipient());
         }
         catch (MessagingException e) {
             // Display message when mail sent failed
-            return "Error while sending mail!!!";
+            log.error("Error while sending email with attachment to: {}", details.getRecipient(), e);
         }
     }
 }

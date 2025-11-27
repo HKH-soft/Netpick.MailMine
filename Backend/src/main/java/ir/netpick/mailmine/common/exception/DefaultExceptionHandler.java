@@ -1,5 +1,6 @@
 package ir.netpick.mailmine.common.exception;
 
+import ir.netpick.mailmine.auth.exception.*;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -71,6 +72,61 @@ public class DefaultExceptionHandler {
 
         @ExceptionHandler(UsernameNotFoundException.class)
         public ResponseEntity<ApiError> handleException(UsernameNotFoundException e,
+                        HttpServletRequest request) {
+                ApiError apiError = new ApiError(
+                                request.getRequestURI(),
+                                e.getMessage(),
+                                HttpStatus.BAD_REQUEST.value(),
+                                LocalDateTime.now());
+                return new ResponseEntity<>(apiError, HttpStatus.BAD_REQUEST);
+        }
+        
+        @ExceptionHandler(AccountNotVerifiedException.class)
+        public ResponseEntity<ApiError> handleException(AccountNotVerifiedException e,
+                        HttpServletRequest request) {
+                ApiError apiError = new ApiError(
+                                request.getRequestURI(),
+                                e.getMessage(),
+                                HttpStatus.FORBIDDEN.value(),
+                                LocalDateTime.now());
+                return new ResponseEntity<>(apiError, HttpStatus.FORBIDDEN);
+        }
+        
+        @ExceptionHandler(RateLimitExceededException.class)
+        public ResponseEntity<ApiError> handleException(RateLimitExceededException e,
+                        HttpServletRequest request) {
+                ApiError apiError = new ApiError(
+                                request.getRequestURI(),
+                                e.getMessage(),
+                                HttpStatus.TOO_MANY_REQUESTS.value(),
+                                LocalDateTime.now());
+                return new ResponseEntity<>(apiError, HttpStatus.TOO_MANY_REQUESTS);
+        }
+        
+        @ExceptionHandler(UserAlreadyVerifiedException.class)
+        public ResponseEntity<ApiError> handleException(UserAlreadyVerifiedException e,
+                        HttpServletRequest request) {
+                ApiError apiError = new ApiError(
+                                request.getRequestURI(),
+                                e.getMessage(),
+                                HttpStatus.BAD_REQUEST.value(),
+                                LocalDateTime.now());
+                return new ResponseEntity<>(apiError, HttpStatus.BAD_REQUEST);
+        }
+        
+        @ExceptionHandler(UserNotFoundException.class)
+        public ResponseEntity<ApiError> handleException(UserNotFoundException e,
+                        HttpServletRequest request) {
+                ApiError apiError = new ApiError(
+                                request.getRequestURI(),
+                                e.getMessage(),
+                                HttpStatus.NOT_FOUND.value(),
+                                LocalDateTime.now());
+                return new ResponseEntity<>(apiError, HttpStatus.NOT_FOUND);
+        }
+        
+        @ExceptionHandler(VerificationCodeNotFoundException.class)
+        public ResponseEntity<ApiError> handleException(VerificationCodeNotFoundException e,
                         HttpServletRequest request) {
                 ApiError apiError = new ApiError(
                                 request.getRequestURI(),

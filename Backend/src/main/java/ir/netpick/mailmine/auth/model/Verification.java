@@ -64,7 +64,7 @@ public class Verification {
     }
 
     public boolean matches(String inputCode) {
-        return code != null && code.equals(inputCode);
+        return code != null && code.equals(inputCode.toUpperCase());
     }
 
     public void updateLastSent() {

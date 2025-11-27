@@ -4,23 +4,35 @@ import ir.netpick.mailmine.auth.dto.AuthenticationSigninRequest;
 import ir.netpick.mailmine.auth.dto.AuthenticationSignupRequest;
 import ir.netpick.mailmine.auth.dto.UserDTO;
 import ir.netpick.mailmine.auth.dto.VerificationRequest;
+import ir.netpick.mailmine.auth.email.EmailService;
 import ir.netpick.mailmine.auth.email.EmailServiceImpl;
+import ir.netpick.mailmine.auth.exception.AccountNotVerifiedException;
+import ir.netpick.mailmine.auth.exception.RateLimitExceededException;
+import ir.netpick.mailmine.auth.exception.UserAlreadyVerifiedException;
+import ir.netpick.mailmine.auth.exception.UserNotFoundException;
+import ir.netpick.mailmine.auth.exception.VerificationCodeNotFoundException;
+import ir.netpick.mailmine.common.exception.RequestValidationException;
+import ir.netpick.mailmine.common.exception.VerificationException;
 import ir.netpick.mailmine.auth.jwt.JWTUtil;
 import ir.netpick.mailmine.auth.mapper.UserDTOMapper;
 import ir.netpick.mailmine.auth.model.User;
-import ir.netpick.mailmine.auth.model.Verification;
 import ir.netpick.mailmine.auth.repository.UserRepository;
 import ir.netpick.mailmine.common.enums.RoleEnum;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.log4j.Log4j2;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 
-import static ir.netpick.mailmine.common.enums.RoleEnum.USER;
 
+/**
+ * Service class for handling authentication operations.
+ * Provides methods for user sign-in, sign-up, verification, and related operations.
+ */
 @RequiredArgsConstructor
 @Service
+@Log4j2
 public class AuthenticationService {
 
     private final AuthenticationManager authenticationManager;
@@ -29,63 +41,217 @@ public class AuthenticationService {
     private final UserService userService;
     private final UserRepository userRepository;
     private final VerificationService verificationService;
-    private final EmailServiceImpl emailService;
+    private final EmailService emailService;
+    private final RateLimitingService rateLimitingService;
 
+    /**
+     * Authenticates a user and generates a JWT token.
+     *
+     * @param request the sign-in request containing user credentials
+     * @return a JWT token for the authenticated user
+     * @throws AccountNotVerifiedException if the account is not verified (except for SUPER_ADMIN users)
+     */
     public String signIn(AuthenticationSigninRequest request) {
-        Authentication authenticationResponse = authenticationManager
-                .authenticate(new UsernamePasswordAuthenticationToken(request.email(), request.password()));
-        UserDTO user = userDTOMapper.apply((User) authenticationResponse.getPrincipal());
+        log.info("Attempting to sign in user with email: {}", request.email());
         
-        // Check if user is verified (except for SUPER_ADMIN users)
-        if (!user.isVerified() && user.role() != RoleEnum.SUPER_ADMIN) {
-            throw new IllegalStateException("Account not verified. Please verify your email.");
+        try {
+            Authentication authenticationResponse = authenticationManager
+                    .authenticate(new UsernamePasswordAuthenticationToken(request.email(), request.password()));
+            UserDTO user = userDTOMapper.apply((User) authenticationResponse.getPrincipal());
+            
+            // Check if user is verified (except for SUPER_ADMIN users)
+            if (!user.isVerified() && user.role() != RoleEnum.SUPER_ADMIN) {
+                log.warn("Account not verified for user: {}", request.email());
+                throw new AccountNotVerifiedException(
+                    "Your account is not verified. " +
+                    "Please check your email for a verification code and verify your account."
+                );
+            }
+            
+            String token = jwtUtil.issueToken(user.email(), user.role().toString());
+            userService.updateLastSign(request.email());
+            log.info("User successfully signed in: {}", request.email());
+            return token;
+        } catch (AccountNotVerifiedException e) {
+            log.info("Sign in failed due to unverified account: {}", request.email());
+            throw e;
+        } catch (Exception e) {
+            log.error("Authentication failed for user: {}", request.email(), e);
+            throw e;
         }
-        
-        String token = jwtUtil.issueToken(user.email(), user.role().toString());
-        userService.updateLastSign(request.email());
-        return token;
     }
 
+    /**
+     * Registers a new user and sends a verification email.
+     *
+     * @param request the sign-up request containing user details
+     * @throws RequestValidationException if the registration request is invalid
+     */
     public void signUp(AuthenticationSignupRequest request) {
-        User user = userService.createUnverifiedUser(request);
+        log.info("Attempting to register new user with email: {}", request.email());
         
-        // Prepare user for verification and send email
-        userService.prepareUserForVerification(user, true);
-        emailService.sendVerificationEmail(user.getEmail());
+        try {
+            User user = userService.createUnverifiedUser(request);
+            
+            // Skip verification for SUPER_ADMIN users
+            if (user.getRole().getName() == RoleEnum.SUPER_ADMIN) {
+                log.info("Skipping verification for SUPER_ADMIN user: {}", request.email());
+                user.setIsVerified(true);
+                userRepository.save(user);
+            } else {
+                // Prepare user for verification and send email asynchronously
+                userService.prepareUserForVerification(user, true);
+                // Send email asynchronously - this won't block the response
+                emailService.sendVerificationEmail(user.getEmail());
+                log.info("Verification email queued for sending to: {}", user.getEmail());
+            }
+            log.info("User registered successfully: {}", request.email());
+        } catch (Exception e) {
+            log.error("User registration failed for email: {}", request.email(), e);
+            throw e;
+        }
     }
 
+    /**
+     * Verifies a user using a verification code.
+     *
+     * @param request the verification request containing user email and verification code
+     * @throws RateLimitExceededException if the user has exceeded verification attempts
+     * @throws UserNotFoundException if no user exists with the given email
+     * @throws VerificationCodeNotFoundException if no verification code exists for the user
+     * @throws VerificationException if the verification code is invalid, expired, or max attempts reached
+     */
     public void verifyUser(VerificationRequest request) {
-        User user = userService.getUserEntity(request.email());
+        log.info("Attempting to verify user with email: {}", request.email());
+        
+        try {
+            // Check rate limiting
+            if (!rateLimitingService.canAttemptVerification(request.email())) {
+                log.info("Rate limit exceeded for verification attempts: {}", request.email());
+                throw new RateLimitExceededException(
+                    "You've exceeded the maximum number of verification attempts. " +
+                    "Please wait 10 minutes before trying again."
+                );
+            }
+            
+            User user = userService.getUserEntity(request.email());
 
-        if (user == null) {
-            throw new IllegalArgumentException("User not found");
+            if (user == null) {
+                log.info("User not found for verification: {}", request.email());
+                rateLimitingService.recordVerificationAttempt(request.email());
+                throw new UserNotFoundException(
+                    "No account found with this email address. " +
+                    "Please check the email or register for a new account."
+                );
+            }
+            
+            // Skip verification for SUPER_ADMIN users
+            if (user.getRole().getName() == RoleEnum.SUPER_ADMIN) {
+                log.info("Skipping verification for SUPER_ADMIN user: {}", request.email());
+                if (!user.getIsVerified()) {
+                    user.setIsVerified(true);
+                    userRepository.save(user);
+                }
+                return;
+            }
+
+            if (user.getVerification() == null) {
+                log.info("No verification code found for user: {}", request.email());
+                rateLimitingService.recordVerificationAttempt(request.email());
+                throw new VerificationCodeNotFoundException(
+                    "No verification code found for your account. " +
+                    "Please request a new verification code."
+                );
+            }
+
+            try {
+                verificationService.verifyCode(user.getVerification(), request.code());
+                rateLimitingService.clearVerificationAttempts(request.email());
+            } catch (Exception e) {
+                rateLimitingService.recordVerificationAttempt(request.email());
+                throw e;
+            }
+
+            user.setIsVerified(true);
+            user.setVerification(null);
+            userRepository.save(user);
+            log.info("User successfully verified: {}", request.email());
+        } catch (RateLimitExceededException | UserNotFoundException | 
+                 VerificationCodeNotFoundException e) {
+            log.info("User verification failed due to expected condition for email: {}", request.email());
+            throw e;
+        } catch (Exception e) {
+            log.error("User verification failed unexpectedly for email: {}", request.email(), e);
+            throw e;
         }
-
-        if (user.getVerification() == null) {
-            throw new IllegalStateException("No verification code found for this user");
-        }
-
-        verificationService.verifyCode(user.getVerification(), request.code());
-
-        user.setIsVerified(true);
-        user.setVerification(null);
-        userRepository.save(user);
     }
     
+    /**
+     * Resends a verification email to a user.
+     *
+     * @param email the email address of the user to resend verification to
+     * @throws RateLimitExceededException if the user has exceeded resend attempts
+     * @throws UserNotFoundException if no user exists with the given email
+     * @throws UserAlreadyVerifiedException if the user is already verified
+     */
     public void resendVerification(String email) {
-        User user = userService.getUserEntity(email);
+        log.info("Attempting to resend verification for user: {}", email);
         
-        if (user == null) {
-            throw new IllegalArgumentException("User not found");
+        try {
+            // Check rate limiting
+            if (!rateLimitingService.canResendVerification(email)) {
+                log.info("Rate limit exceeded for resend verification attempts: {}", email);
+                throw new RateLimitExceededException(
+                    "You've requested too many verification codes. " +
+                    "Please wait an hour before requesting another one."
+                );
+            }
+            
+            User user = userService.getUserEntity(email);
+            
+            if (user == null) {
+                log.info("User not found for resend verification: {}", email);
+                rateLimitingService.recordResendAttempt(email);
+                throw new UserNotFoundException(
+                    "No account found with this email address. " +
+                    "Please check the email or register for a new account."
+                );
+            }
+            
+            // Skip verification for SUPER_ADMIN users
+            if (user.getRole().getName() == RoleEnum.SUPER_ADMIN) {
+                log.info("Skipping verification resend for SUPER_ADMIN user: {}", email);
+                if (!user.getIsVerified()) {
+                    user.setIsVerified(true);
+                    userRepository.save(user);
+                }
+                rateLimitingService.recordResendAttempt(email);
+                return;
+            }
+            
+            if (Boolean.TRUE.equals(user.getIsVerified())) {
+                log.info("User already verified: {}", email);
+                rateLimitingService.recordResendAttempt(email);
+                throw new UserAlreadyVerifiedException(
+                    "Your account is already verified. " +
+                    "You can sign in directly without verification."
+                );
+            }
+            
+            // Update verification with new code
+            userService.prepareUserForVerification(user, true);
+            // Send email asynchronously - this won't block the response
+            emailService.sendVerificationEmail(email);
+            rateLimitingService.recordResendAttempt(email);
+            log.info("Verification email resent to: {}", email);
+        } catch (RateLimitExceededException | UserNotFoundException | 
+                 UserAlreadyVerifiedException e) {
+            log.info("Resend verification failed due to expected condition for email: {}", email);
+            throw e;
+        } catch (Exception e) {
+            log.error("Resend verification failed unexpectedly for email: {}", email, e);
+            throw e;
         }
-        
-        if (Boolean.TRUE.equals(user.getIsVerified())) {
-            throw new IllegalStateException("User is already verified");
-        }
-        
-        // Update verification with new code
-        userService.prepareUserForVerification(user, true);
-        emailService.sendVerificationEmail(email);
     }
 
 }

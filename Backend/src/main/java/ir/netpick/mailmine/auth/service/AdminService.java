@@ -1,6 +1,7 @@
 package ir.netpick.mailmine.auth.service;
 
 import ir.netpick.mailmine.auth.dto.AuthenticationSignupRequest;
+import ir.netpick.mailmine.auth.email.EmailService;
 import ir.netpick.mailmine.auth.email.EmailServiceImpl;
 import ir.netpick.mailmine.auth.model.User;
 import ir.netpick.mailmine.common.enums.RoleEnum;
@@ -12,7 +13,7 @@ import org.springframework.stereotype.Service;
 public class AdminService {
 
     private final UserService userService;
-    private final EmailServiceImpl emailService;
+    private final EmailService emailService;
 
     /**
      * Creates a user account by admin without immediate verification requirement
