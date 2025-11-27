@@ -1,11 +1,9 @@
 package ir.netpick.mailmine.auth.controller;
 
-import ir.netpick.mailmine.auth.dto.AuthenticationResponse;
 import ir.netpick.mailmine.auth.dto.AuthenticationSigninRequest;
 import ir.netpick.mailmine.auth.dto.AuthenticationSignupRequest;
 import ir.netpick.mailmine.auth.dto.MessageResponse;
 import ir.netpick.mailmine.auth.dto.VerificationRequest;
-import ir.netpick.mailmine.auth.email.EmailDetails;
 import ir.netpick.mailmine.auth.service.AuthenticationService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpHeaders;
@@ -13,7 +11,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/auth")
+@RequestMapping("/api/v1/auth")
 @RequiredArgsConstructor
 public class AuthenticationController {
 

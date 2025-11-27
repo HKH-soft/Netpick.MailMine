@@ -8,7 +8,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@RequestMapping("/ai")
+@RequestMapping("/api/v1/ai")
 public class GeminiController {
     private final GenerateTextFromTextInput gemini;
     private final Gson gson;
