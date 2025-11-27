@@ -5,6 +5,7 @@ import ir.netpick.mailmine.auth.dto.AuthenticationSigninRequest;
 import ir.netpick.mailmine.auth.dto.AuthenticationSignupRequest;
 import ir.netpick.mailmine.auth.dto.MessageResponse;
 import ir.netpick.mailmine.auth.dto.VerificationRequest;
+import ir.netpick.mailmine.auth.email.EmailDetails;
 import ir.netpick.mailmine.auth.service.AuthenticationService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpHeaders;
@@ -37,11 +38,11 @@ public class AuthenticationController {
     }
     
     @PostMapping("sign-in")
-    public ResponseEntity<AuthenticationResponse> signIn(@RequestBody AuthenticationSigninRequest request) {
+    public ResponseEntity<MessageResponse> signIn(@RequestBody AuthenticationSigninRequest request) {
         String jwtToken = authenticationService.signIn(request);
         return ResponseEntity.ok()
                 .header(HttpHeaders.AUTHORIZATION, jwtToken)
-                .body(new AuthenticationResponse(jwtToken));
+                .body(new MessageResponse("Logged in successfully"));
     }
 
 }
