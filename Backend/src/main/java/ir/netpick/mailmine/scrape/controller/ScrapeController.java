@@ -12,7 +12,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.PostMapping;
 
 @RestController
-@RequestMapping("/scrape")
+@RequestMapping("/api/v1/scrape")
 @RequiredArgsConstructor
 @PreAuthorize("hasAnyRole('ADMIN', 'SUPER_ADMIN')")
 public class ScrapeController {
@@ -20,17 +20,17 @@ public class ScrapeController {
     private final Scraper scrape;
     private final ApiCaller apiCaller;
     private final DataProcessor dataProcessor;
-    @PostMapping("start-google")
+    @PostMapping("start_google")
     public void startSearch() {
         apiCaller.callGoogleSearch();
     }
 
-    @PostMapping("start-scrape")
+    @PostMapping("start_scrape")
     public void startScrapping() {
         scrape.scrapePendingJobs(true);
     }
 
-    @PostMapping("start-extract")
+    @PostMapping("start_extract")
     public void startExtract() {
         dataProcessor.processUnparsedFiles();
     }

@@ -10,7 +10,7 @@ import java.util.UUID;
 
 @RequiredArgsConstructor
 @RestController
-@RequestMapping("/scrape/contacts")
+@RequestMapping("/api/v1/scrape/contacts")
 @PreAuthorize("hasAnyRole('ADMIN', 'SUPER_ADMIN')")
 public class ContactController {
     private final ContactService contactService;

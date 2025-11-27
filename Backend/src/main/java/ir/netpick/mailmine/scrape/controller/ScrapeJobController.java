@@ -10,7 +10,7 @@ import java.util.UUID;
 
 @RequiredArgsConstructor
 @RestController
-@RequestMapping("/scrape/scrape-jobs")
+@RequestMapping("/api/v1/scrape/scrape_jobs")
 @PreAuthorize("hasAnyRole('ADMIN', 'SUPER_ADMIN')")
 public class ScrapeJobController {
     private final ScrapeJobService scrapeJobService;

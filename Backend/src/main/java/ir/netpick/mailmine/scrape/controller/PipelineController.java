@@ -10,7 +10,7 @@ import java.util.UUID;
 
 @RequiredArgsConstructor
 @RestController
-@RequestMapping("/scrape/pipelines")
+@RequestMapping("/api/v1/scrape/pipelines")
 @PreAuthorize("hasAnyRole('ADMIN', 'SUPER_ADMIN')")
 public class PipelineController {
     private final PipelineService pipelineService;

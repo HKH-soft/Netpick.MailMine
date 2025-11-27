@@ -12,7 +12,7 @@ import lombok.RequiredArgsConstructor;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/scrape/api_keys")
+@RequestMapping("/api/v1/scrape/api_keys")
 @PreAuthorize("hasAnyRole('ADMIN', 'SUPER_ADMIN')")
 public class ApiKeyController {
 

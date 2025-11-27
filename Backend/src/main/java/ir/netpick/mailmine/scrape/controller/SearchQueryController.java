@@ -12,7 +12,7 @@ import lombok.RequiredArgsConstructor;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/scrape/search_queries")
+@RequestMapping("/api/v1/scrape/search_queries")
 @PreAuthorize("hasAnyRole('ADMIN', 'SUPER_ADMIN')")
 public class SearchQueryController {
 
