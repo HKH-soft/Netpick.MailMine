@@ -11,10 +11,12 @@ spring:
     username: postgres
     password: password
     hikari:
+      pool-name: MailMineHikariPool
       maximum-pool-size: 10
-      minimum-idle: 2
+      minimum-idle: 10
       idle-timeout: 30000
       max-lifetime: 1800000
+      connection-timeout: 20000
   jpa:
     open-in-view: false
     hibernate:
