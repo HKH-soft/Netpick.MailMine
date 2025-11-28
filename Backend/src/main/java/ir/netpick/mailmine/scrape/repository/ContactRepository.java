@@ -1,6 +1,8 @@
 package ir.netpick.mailmine.scrape.repository;
 
 import ir.netpick.mailmine.scrape.model.Contact;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
@@ -11,6 +13,12 @@ import java.util.UUID;
 
 @Repository
 public interface ContactRepository extends JpaRepository<Contact, UUID> {
+
+    // Find all non-deleted contacts with pagination
+    Page<Contact> findByDeletedFalse(Pageable pageable);
+    
+    // Find all deleted contacts with pagination
+    Page<Contact> findByDeletedTrue(Pageable pageable);
 
     @Transactional
     @Modifying

@@ -27,6 +27,26 @@ public class ContactService {
 
     public PageDTO<Contact> allContacts(int pageNumber){
         Pageable pageable = PageRequest.of(pageNumber - 1 , GeneralConstants.PAGE_SIZE, Sort.by("createdAt").descending());
+        Page<Contact> page = contactRepository.findByDeletedFalse(pageable);
+        return new PageDTO<>(
+                page.getContent(),
+                page.getTotalPages(),
+                pageNumber
+        );
+    }
+
+    public PageDTO<Contact> deletedContacts(int pageNumber){
+        Pageable pageable = PageRequest.of(pageNumber - 1 , GeneralConstants.PAGE_SIZE, Sort.by("createdAt").descending());
+        Page<Contact> page = contactRepository.findByDeletedTrue(pageable);
+        return new PageDTO<>(
+                page.getContent(),
+                page.getTotalPages(),
+                pageNumber
+        );
+    }
+
+    public PageDTO<Contact> allContactsIncludingDeleted(int pageNumber){
+        Pageable pageable = PageRequest.of(pageNumber - 1 , GeneralConstants.PAGE_SIZE, Sort.by("createdAt").descending());
         Page<Contact> page = contactRepository.findAll(pageable);
         return new PageDTO<>(
                 page.getContent(),
@@ -37,14 +57,20 @@ public class ContactService {
 
     public PageDTO<Contact> allContacts(int pageNumber, String sortBy , Direction direction){
         Pageable pageable = PageRequest.of(pageNumber - 1 , GeneralConstants.PAGE_SIZE, Sort.by(direction,sortBy) );
-        Page<Contact> page = contactRepository.findAll(pageable);
+        Page<Contact> page = contactRepository.findByDeletedFalse(pageable);
         return new PageDTO<>(
                 page.getContent(),
                 page.getTotalPages(),
                 pageNumber
                 );
     }
+    
     public Contact getContact(UUID contactId){
+        return contactRepository.findById(contactId)
+                .orElseThrow( () -> new ResourceNotFoundException("Contact with id [%s] was not found".formatted(contactId)));
+    }
+    
+    public Contact getContactIncludingDeleted(UUID contactId){
         return contactRepository.findById(contactId)
                 .orElseThrow( () -> new ResourceNotFoundException("Contact with id [%s] was not found".formatted(contactId)));
     }

@@ -20,31 +20,6 @@ public class Contact extends BaseEntity {
     @Column(name = "email")
     private Set<String> emails = new HashSet<>();
 
-    @ElementCollection(fetch = FetchType.EAGER)
-    @CollectionTable(name = "contact_phones", joinColumns = @JoinColumn(name = "contact_id"))
-    @Column(name = "phone_number")
-    private Set<String> phoneNumbers = new HashSet<>();
-
-    @ElementCollection(fetch = FetchType.EAGER)
-    @CollectionTable(name = "contact_linkedin", joinColumns = @JoinColumn(name = "contact_id"))
-    @Column(name = "linkedin_url")
-    private Set<String> linkedInUrls = new HashSet<>();
-
-    @ElementCollection(fetch = FetchType.EAGER)
-    @CollectionTable(name = "contact_twitter", joinColumns = @JoinColumn(name = "contact_id"))
-    @Column(name = "twitter_handle")
-    private Set<String> twitterHandles = new HashSet<>();
-
-    @ElementCollection(fetch = FetchType.EAGER)
-    @CollectionTable(name = "contact_github", joinColumns = @JoinColumn(name = "contact_id"))
-    @Column(name = "github_profile")
-    private Set<String> githubProfiles = new HashSet<>();
-
-    @ElementCollection(fetch = FetchType.EAGER)
-    @CollectionTable(name = "contact_names", joinColumns = @JoinColumn(name = "contact_id"))
-    @Column(name = "name")
-    private Set<String> names = new HashSet<>();
-
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "scrape_data_id")
     private ScrapeData scrapeData;
@@ -57,9 +32,7 @@ public class Contact extends BaseEntity {
     }
 
     public boolean hasContactInfo() {
-        return !(emails.isEmpty() && phoneNumbers.isEmpty() &&
-                linkedInUrls.isEmpty() && twitterHandles.isEmpty() &&
-                githubProfiles.isEmpty() && names.isEmpty());
+        return !(emails.isEmpty());
     }
 
     @Override
@@ -67,11 +40,6 @@ public class Contact extends BaseEntity {
         return "Contact{" +
                 "id=" + id +
                 ", emails=" + emails +
-                ", phones=" + phoneNumbers +
-                ", linkedIn=" + linkedInUrls +
-                ", twitter=" + twitterHandles +
-                ", github=" + githubProfiles +
-                ", names=" + names +
                 '}';
     }
 }
