@@ -89,7 +89,7 @@ public class ApiCaller {
                 List<String> urls = parsedLinks.stream().map(LinkResult::getLink).toList();
                 List<String> titles = parsedLinks.stream().map(LinkResult::getTitle).toList();
 
-                scrapeJobService.createJobList(urls, titles);
+                scrapeJobService.createJobsByList(urls, titles);
                 log.info("Created scrape jobs for {} links from query: {} (page {})", urls.size(),
                         query.getSentence(), page);
 

@@ -75,7 +75,7 @@ public class ScrapeJobService {
         log.info("Created ScrapeJob for link: {}", link);
     }
 
-    public void createJobList(@NotNull @Valid List<String> urls, @NotNull @Valid List<String> titles) {
+    public void createJobsByList(@NotNull @Valid List<String> urls, @NotNull @Valid List<String> titles) {
         if (urls.size() != titles.size()) {
             throw new RequestValidationException("URLs and titles lists must be of equal size.");
         }
