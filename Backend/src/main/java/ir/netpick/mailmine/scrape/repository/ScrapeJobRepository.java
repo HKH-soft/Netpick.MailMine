@@ -5,6 +5,8 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
@@ -22,6 +24,15 @@ public interface ScrapeJobRepository extends JpaRepository<ScrapeJob, UUID> {
     Optional<ScrapeJob> findByLink(String link);
 
     List<ScrapeJob> findByAttemptLessThanEqual(int attempt);
+
+    // Find all non-deleted jobs (this will be the new default)
+    List<ScrapeJob> findByDeletedFalse();
+
+    // Find all non-deleted jobs with pagination
+    Page<ScrapeJob> findByDeletedFalse(Pageable pageable);
+    
+    // Find all deleted jobs with pagination
+    Page<ScrapeJob> findByDeletedTrue(Pageable pageable);
 
     @Transactional
     @Modifying

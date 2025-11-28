@@ -46,6 +46,26 @@ public class ScrapeJobService {
 
     public PageDTO<ScrapeJob> allJobs(@NotNull int page) {
         Pageable pageable = PageRequest.of(page - 1, GeneralConstants.PAGE_SIZE, Sort.by("createdAt").descending());
+        Page<ScrapeJob> pageContent = scrapeJobRepository.findByDeletedFalse(pageable);
+        return new PageDTO<>(
+                pageContent.getContent(),
+                pageContent.getTotalPages(),
+                page
+        );
+    }
+    
+    public PageDTO<ScrapeJob> deletedJobs(@NotNull int page) {
+        Pageable pageable = PageRequest.of(page - 1, GeneralConstants.PAGE_SIZE, Sort.by("createdAt").descending());
+        Page<ScrapeJob> pageContent = scrapeJobRepository.findByDeletedTrue(pageable);
+        return new PageDTO<>(
+                pageContent.getContent(),
+                pageContent.getTotalPages(),
+                page
+        );
+    }
+    
+    public PageDTO<ScrapeJob> allJobsIncludingDeleted(@NotNull int page) {
+        Pageable pageable = PageRequest.of(page - 1, GeneralConstants.PAGE_SIZE, Sort.by("createdAt").descending());
         Page<ScrapeJob> pageContent = scrapeJobRepository.findAll(pageable);
         return new PageDTO<>(
                 pageContent.getContent(),
@@ -55,6 +75,11 @@ public class ScrapeJobService {
     }
 
     public ScrapeJob getJob(@NotNull UUID id) {
+        return scrapeJobRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("ScrapeJob with ID [%s] not found.".formatted(id)));
+    }
+    
+    public ScrapeJob getJobIncludingDeleted(@NotNull UUID id) {
         return scrapeJobRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("ScrapeJob with ID [%s] not found.".formatted(id)));
     }
