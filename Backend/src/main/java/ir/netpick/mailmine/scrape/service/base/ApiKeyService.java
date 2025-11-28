@@ -35,6 +35,32 @@ public class ApiKeyService {
 
     public PageDTO<ApiKeyResponse> allKeys(int pageNumber) {
         Pageable pageable = PageRequest.of(pageNumber - 1, GeneralConstants.PAGE_SIZE, Sort.by("createdAt").descending());
+        Page<ApiKey> page =  apiKeyRepository.findByDeletedFalse(pageable);
+        return new PageDTO<>(
+                page.getContent()
+                        .stream()
+                        .map(apiKeyDTOMapper)
+                        .collect(Collectors.toList()),
+                page.getTotalPages(),
+                page.getNumber() + 1
+        );
+    }
+    
+    public PageDTO<ApiKeyResponse> deletedKeys(int pageNumber) {
+        Pageable pageable = PageRequest.of(pageNumber - 1, GeneralConstants.PAGE_SIZE, Sort.by("createdAt").descending());
+        Page<ApiKey> page =  apiKeyRepository.findByDeletedTrue(pageable);
+        return new PageDTO<>(
+                page.getContent()
+                        .stream()
+                        .map(apiKeyDTOMapper)
+                        .collect(Collectors.toList()),
+                page.getTotalPages(),
+                page.getNumber() + 1
+        );
+    }
+    
+    public PageDTO<ApiKeyResponse> allKeysIncludingDeleted(int pageNumber) {
+        Pageable pageable = PageRequest.of(pageNumber - 1, GeneralConstants.PAGE_SIZE, Sort.by("createdAt").descending());
         Page<ApiKey> page =  apiKeyRepository.findAll(pageable);
         return new PageDTO<>(
                 page.getContent()
@@ -47,6 +73,11 @@ public class ApiKeyService {
     }
 
     public ApiKey getKey(@NotNull UUID id) {
+        return apiKeyRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("ApiKey with ID [%s] not found.".formatted(id)));
+    }
+    
+    public ApiKey getKeyIncludingDeleted(@NotNull UUID id) {
         return apiKeyRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("ApiKey with ID [%s] not found.".formatted(id)));
     }
@@ -85,6 +116,22 @@ public class ApiKeyService {
         ApiKey saved = apiKeyRepository.save(existing);
         log.info("Updated ApiKey with ID: {}", id);
         return saved;
+    }
+    
+    public void softDeleteKey(@NotNull UUID id) {
+        if (!apiKeyRepository.existsById(id)) {
+            throw new ResourceNotFoundException("ApiKey with ID [%s] not found.".formatted(id));
+        }
+        apiKeyRepository.softDelete(id);
+        log.info("Soft deleted ApiKey with ID: {}", id);
+    }
+    
+    public void restoreKey(@NotNull UUID id) {
+        if (!apiKeyRepository.existsById(id)) {
+            throw new ResourceNotFoundException("ApiKey with ID [%s] not found.".formatted(id));
+        }
+        apiKeyRepository.restore(id);
+        log.info("Restored ApiKey with ID: {}", id);
     }
 
     public void deleteKey(@NotNull UUID id) {
