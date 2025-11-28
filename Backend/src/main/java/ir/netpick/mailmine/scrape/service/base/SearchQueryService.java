@@ -7,6 +7,7 @@ import java.util.stream.Collectors;
 import ir.netpick.mailmine.common.PageDTO;
 import ir.netpick.mailmine.scrape.dto.SearchQueryResponse;
 import ir.netpick.mailmine.scrape.mapper.SearchQueryDTOMapper;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -22,9 +23,7 @@ import ir.netpick.mailmine.scrape.repository.SearchQueryRepository;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.log4j.Log4j2;
-
-@Log4j2
+@Slf4j
 @Validated
 @Service
 @RequiredArgsConstructor

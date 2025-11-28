@@ -2,8 +2,7 @@ package ir.netpick.mailmine.init;
 
 import java.util.*;
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.context.ApplicationListener;
 import org.springframework.context.event.ContextRefreshedEvent;
@@ -18,15 +17,13 @@ import ir.netpick.mailmine.auth.repository.UserRepository;
 import ir.netpick.mailmine.common.enums.RoleEnum;
 import lombok.RequiredArgsConstructor;
 
+@Slf4j
 @Component
 @RequiredArgsConstructor
 public class Seeder implements ApplicationListener<ContextRefreshedEvent> {
-  private static final Logger logger = LogManager.getLogger(Seeder.class);
 
   private final RoleRepository roleRepository;
   private final UserRepository userRepository;
-  // private final ScrapeService scrapeService;
-  // private final Scrape scrape;
 
   private final PasswordEncoder passwordEncoder;
 
@@ -34,7 +31,6 @@ public class Seeder implements ApplicationListener<ContextRefreshedEvent> {
   public void onApplicationEvent(@NotNull ContextRefreshedEvent contextRefreshedEvent) {
     this.loadRoles();
     this.createSuperAdmin();
-    // this.webScrape();
   }
 
   private void createSuperAdmin() {
@@ -53,7 +49,7 @@ public class Seeder implements ApplicationListener<ContextRefreshedEvent> {
         optionalRole.get());
 
     userRepository.save(user);
-    logger.info("superuser was created");
+    log.info("superuser was created");
   }
 
   private void loadRoles() {
@@ -77,19 +73,4 @@ public class Seeder implements ApplicationListener<ContextRefreshedEvent> {
 
     });
   }
-
-  // private void webScrape() {
-  // if (!scrapeService.scrapeJobExists("https://netpick.ir")) {
-  // ScrapeJob job = new ScrapeJob("https://netpick.ir", "test");
-  // scrapeService.createScrapeJob(job);
-  // }
-  // if
-  // (!scrapeService.scrapeJobExists("https://en.wikipedia.org/wiki/Main_Page")) {
-  // ScrapeJob job = new ScrapeJob("https://en.wikipedia.org/wiki/Main_Page",
-  // "test");
-  // scrapeService.createScrapeJob(job);
-  // }
-  // logger.info(scrape.getDataCount());
-  // scrape.webGet(); // yeahhhhhh it workssssss
-  // }
 }

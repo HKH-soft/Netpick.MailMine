@@ -5,6 +5,7 @@ import java.util.Optional;
 
 import ir.netpick.mailmine.scrape.ScrapeConstants;
 import ir.netpick.mailmine.scrape.service.base.ScrapeJobService;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
@@ -19,10 +20,9 @@ import ir.netpick.mailmine.scrape.repository.ApiKeyRepository;
 import ir.netpick.mailmine.scrape.repository.SearchQueryRepository;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.log4j.Log4j2;
 import reactor.core.publisher.Mono;
 
-@Log4j2
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class ApiCaller {

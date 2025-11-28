@@ -1,6 +1,6 @@
 package ir.netpick.mailmine.scrape.parser;
 
-import lombok.extern.log4j.Log4j2;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.validator.routines.EmailValidator;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
@@ -13,7 +13,7 @@ import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-@Log4j2
+@Slf4j
 public class ContactInfoParser {
 
     private static final EmailValidator EMAIL_VALIDATOR = EmailValidator.getInstance();

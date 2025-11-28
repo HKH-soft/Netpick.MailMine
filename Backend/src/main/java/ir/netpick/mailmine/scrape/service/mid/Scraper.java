@@ -6,6 +6,7 @@ import java.util.Optional;
 
 import ir.netpick.mailmine.scrape.service.base.ScrapeDataService;
 import ir.netpick.mailmine.scrape.service.base.ScrapeJobService;
+import lombok.extern.slf4j.Slf4j;
 import org.openqa.selenium.SessionNotCreatedException;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.chrome.ChromeDriver;
@@ -21,9 +22,8 @@ import ir.netpick.mailmine.scrape.ScrapeConstants;
 import ir.netpick.mailmine.scrape.model.ScrapeJob;
 import ir.netpick.mailmine.scrape.repository.ScrapeJobRepository;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.log4j.Log4j2;
 
-@Log4j2
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class Scraper {

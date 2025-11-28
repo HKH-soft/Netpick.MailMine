@@ -8,6 +8,7 @@ import java.util.stream.Collectors;
 
 import ir.netpick.mailmine.common.PageDTO;
 import ir.netpick.mailmine.common.constants.GeneralConstants;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -22,9 +23,9 @@ import ir.netpick.mailmine.scrape.repository.ScrapeJobRepository;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.log4j.Log4j2;
 
-@Log4j2
+
+@Slf4j
 @Validated
 @Service
 @RequiredArgsConstructor

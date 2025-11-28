@@ -7,15 +7,15 @@ import ir.netpick.mailmine.scrape.service.base.PipelineService;
 import ir.netpick.mailmine.scrape.service.mid.ApiCaller;
 import ir.netpick.mailmine.scrape.service.mid.DataProcessor;
 import ir.netpick.mailmine.scrape.service.mid.Scraper;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
 import lombok.RequiredArgsConstructor;
-import lombok.extern.log4j.Log4j2;
 
 import java.time.LocalDateTime;
 
-@Log4j2
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class ScrapePipeline {

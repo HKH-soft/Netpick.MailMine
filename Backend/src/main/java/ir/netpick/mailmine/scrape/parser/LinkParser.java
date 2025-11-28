@@ -3,15 +3,15 @@ package ir.netpick.mailmine.scrape.parser;
 import java.util.ArrayList;
 import java.util.List;
 
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import ir.netpick.mailmine.scrape.model.LinkResult;
-import lombok.extern.log4j.Log4j2;
 
-@Log4j2
+@Slf4j
 @Service
 public class LinkParser {
 
