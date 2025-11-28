@@ -16,7 +16,7 @@ public class FileManagement {
     static {
         // OS-specific temp directory
         String tmpDir = System.getProperty("java.io.tmpdir");
-        BASE_DIR = Paths.get(tmpDir, "scraper");
+        BASE_DIR = Paths.get(tmpDir, "mailmine","files");
         try {
             Files.createDirectories(BASE_DIR);
             log.info("Scraper base directory: {}", BASE_DIR.toAbsolutePath());
