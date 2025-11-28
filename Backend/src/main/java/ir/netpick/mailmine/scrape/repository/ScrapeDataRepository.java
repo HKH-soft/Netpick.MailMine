@@ -3,6 +3,8 @@ package ir.netpick.mailmine.scrape.repository;
 import java.util.List;
 import java.util.UUID;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
@@ -16,6 +18,11 @@ import org.springframework.transaction.annotation.Transactional;
 public interface ScrapeDataRepository extends JpaRepository<ScrapeData, UUID> {
     List<ScrapeData> findByParsedFalse();
 
+    // Find all non-deleted data with pagination
+    Page<ScrapeData> findByDeletedFalse(Pageable pageable);
+    
+    // Find all deleted data with pagination
+    Page<ScrapeData> findByDeletedTrue(Pageable pageable);
 
     @Transactional
     @Modifying

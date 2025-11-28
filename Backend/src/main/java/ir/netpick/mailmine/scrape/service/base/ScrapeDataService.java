@@ -36,12 +36,32 @@ public class ScrapeDataService {
     public List<ScrapeData> findUnparsed(){
         return scrapeDataRepository.findByParsedFalse();
     }
+    
     public List<ScrapeData> allData() {
         return scrapeDataRepository.findAll();
     }
 
-
     public PageDTO<ScrapeData> allData(int page) {
+        Pageable pageable = PageRequest.of(page - 1, GeneralConstants.PAGE_SIZE, Sort.by("createdAt").descending());
+        Page<ScrapeData> pageContent = scrapeDataRepository.findByDeletedFalse(pageable);
+        return new PageDTO<>(
+                pageContent.getContent(),
+                pageContent.getTotalPages(),
+                page
+                );
+    }
+    
+    public PageDTO<ScrapeData> deletedData(int page) {
+        Pageable pageable = PageRequest.of(page - 1, GeneralConstants.PAGE_SIZE, Sort.by("createdAt").descending());
+        Page<ScrapeData> pageContent = scrapeDataRepository.findByDeletedTrue(pageable);
+        return new PageDTO<>(
+                pageContent.getContent(),
+                pageContent.getTotalPages(),
+                page
+                );
+    }
+    
+    public PageDTO<ScrapeData> allDataIncludingDeleted(int page) {
         Pageable pageable = PageRequest.of(page - 1, GeneralConstants.PAGE_SIZE, Sort.by("createdAt").descending());
         Page<ScrapeData> pageContent = scrapeDataRepository.findAll(pageable);
         return new PageDTO<>(
@@ -50,7 +70,13 @@ public class ScrapeDataService {
                 page
                 );
     }
+    
     public ScrapeData getData(UUID dataId) {
+        return scrapeDataRepository.findById(dataId).orElseThrow(
+                () -> new ResourceNotFoundException("ScrapeData with id [%s] was not found!".formatted(dataId)));
+    }
+    
+    public ScrapeData getDataIncludingDeleted(UUID dataId) {
         return scrapeDataRepository.findById(dataId).orElseThrow(
                 () -> new ResourceNotFoundException("ScrapeData with id [%s] was not found!".formatted(dataId)));
     }
@@ -74,7 +100,7 @@ public class ScrapeDataService {
     }
 
     public void restoreData(UUID scrapeDataId){
-        scrapeDataRepository.softDelete(scrapeDataId);
+        scrapeDataRepository.restore(scrapeDataId);
     }
 
     public void deleteData(UUID scrapeDataId){
