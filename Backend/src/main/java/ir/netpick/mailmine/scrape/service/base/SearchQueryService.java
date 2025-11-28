@@ -42,6 +42,30 @@ public class SearchQueryService {
 
     public PageDTO<SearchQueryResponse> allSearchQueries(int pageNumber) {
         Pageable pageable = PageRequest.of(pageNumber - 1 , pageSize, Sort.by("createdAt").descending());
+        Page<SearchQuery> page =  searchQueryRepository.findByDeletedFalse(pageable);
+        return new PageDTO<>(
+                page.getContent()
+                        .stream()
+                        .map(searchQueryDTOMapper)
+                        .collect(Collectors.toList()),
+                page.getTotalPages(),
+                page.getNumber() + 1);
+    }
+    
+    public PageDTO<SearchQueryResponse> deletedSearchQueries(int pageNumber) {
+        Pageable pageable = PageRequest.of(pageNumber - 1 , pageSize, Sort.by("createdAt").descending());
+        Page<SearchQuery> page =  searchQueryRepository.findByDeletedTrue(pageable);
+        return new PageDTO<>(
+                page.getContent()
+                        .stream()
+                        .map(searchQueryDTOMapper)
+                        .collect(Collectors.toList()),
+                page.getTotalPages(),
+                page.getNumber() + 1);
+    }
+    
+    public PageDTO<SearchQueryResponse> allSearchQueriesIncludingDeleted(int pageNumber) {
+        Pageable pageable = PageRequest.of(pageNumber - 1 , pageSize, Sort.by("createdAt").descending());
         Page<SearchQuery> page =  searchQueryRepository.findAll(pageable);
         return new PageDTO<>(
                 page.getContent()
@@ -53,6 +77,11 @@ public class SearchQueryService {
     }
 
     public SearchQuery getSearchQuery(@NotNull UUID id) {
+        return searchQueryRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("SearchQuery with ID [%s] not found.".formatted(id)));
+    }
+    
+    public SearchQuery getSearchQueryIncludingDeleted(@NotNull UUID id) {
         return searchQueryRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("SearchQuery with ID [%s] not found.".formatted(id)));
     }
@@ -105,12 +134,13 @@ public class SearchQueryService {
         searchQueryRepository.softDelete(id);
         log.info("Soft deleted SearchQuery with ID: {}", id);
     }
+    
     public void restoreSearchQuery(@NotNull UUID id) {
         if (!searchQueryRepository.existsById(id)) {
             throw new ResourceNotFoundException("SearchQuery with ID [%s] not found.".formatted(id));
         }
         searchQueryRepository.restore(id);
-        log.info("Soft deleted SearchQuery with ID: {}", id);
+        log.info("Restored SearchQuery with ID: {}", id);
     }
 
     public void deleteSearchQuery(@NotNull UUID id) {
