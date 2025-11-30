@@ -1,0 +1,46 @@
+# Test profile configuration
+spring:
+  datasource:
+    driver-class-name: org.h2.Driver
+    url: jdbc:h2:mem:testdb;MODE=PostgreSQL;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE;NON_KEYWORDS=KEY,VALUE;INIT=RUNSCRIPT FROM 'classpath:init.sql'
+    username: sa
+    password: password
+  jpa:
+    database-platform: org.hibernate.dialect.H2Dialect
+    hibernate:
+      ddl-auto: create-drop
+    properties:
+      hibernate:
+        format_sql: true
+        globally_quoted_identifiers: true
+  flyway:
+    enabled: false
+  mail:
+    host: localhost
+    port: 25
+    username: test
+    password: test
+
+security:
+  jwt:
+    secret-key: test-secret-key-that-is-at-least-256-bits-long-for-hmac-sha256-algorithm
+    access-expiration-minutes: 15
+    refresh-expiration-days: 7
+    issuer: test-issuer
+
+cors:
+  allowed-origins: "*"
+  allowed-methods: "*"
+  allowed-headers: "*"
+  exposed-headers: "*"
+
+env:
+  page-size: 10
+
+# Selenium configuration (not used in tests but required to start the app)
+selenium:
+  chrome:
+    driver:
+      path: ${CHROME_DRIVER_PATH:dummy-driver-path}
+    binary:
+      path: ${CHROME_BINARY_PATH:dummy-binary-path}

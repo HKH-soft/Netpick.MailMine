@@ -1,0 +1,3 @@
+-- Create JSONB domain for H2 compatibility with PostgreSQL
+CREATE DOMAIN IF NOT EXISTS "jsonb" AS CLOB;
+CREATE DOMAIN IF NOT EXISTS JSONB AS CLOB;
