@@ -1,21 +1,21 @@
 package ir.netpick.mailmine.scrape.service.mid;
 
-import java.time.Duration;
 import java.util.List;
 import java.util.Optional;
 
+import com.microsoft.playwright.Browser;
+import com.microsoft.playwright.BrowserContext;
+import com.microsoft.playwright.BrowserType;
+import com.microsoft.playwright.Page;
+import com.microsoft.playwright.Playwright;
+import com.microsoft.playwright.PlaywrightException;
+import com.microsoft.playwright.options.Proxy;
+import ir.netpick.mailmine.scrape.service.base.ProxyService;
 import ir.netpick.mailmine.scrape.service.base.ScrapeDataService;
 import ir.netpick.mailmine.scrape.service.base.ScrapeJobService;
+import ir.netpick.mailmine.scrape.service.base.V2RayClientService;
 import lombok.extern.slf4j.Slf4j;
-import org.openqa.selenium.SessionNotCreatedException;
-import org.openqa.selenium.WebDriver;
-import org.openqa.selenium.chrome.ChromeDriver;
-import org.openqa.selenium.chrome.ChromeOptions;
-import org.openqa.selenium.support.ui.ExpectedConditions;
-import org.openqa.selenium.support.ui.WebDriverWait;
-import org.openqa.selenium.By;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
 import ir.netpick.mailmine.scrape.ScrapeConstants;
@@ -28,15 +28,14 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class Scraper {
 
-    @Value("${selenium.chrome.driver.path}")
-    private String driverLocation;
-
-    @Value("${selenium.chrome.binary.path}")
-    private String chromeLocation;
-
     private final ScrapeJobRepository scrapeJobRepository;
     private final ScrapeJobService scrapeJobService;
     private final ScrapeDataService scrapeDataService;
+    private final ProxyService proxyService;
+    private final V2RayClientService v2RayClientService;
+
+    @Value("${scraper.use-proxy:true}")
+    private boolean useProxy;
 
     public int getDataCount() {
         return scrapeDataService.allData().size();
@@ -50,24 +49,18 @@ public class Scraper {
         List<ScrapeJob> scrapeJobs = fetchPendingJobs();
 
         if (scrapeJobs.isEmpty()) {
-            log.error("No Scrape job left");
+            log.info("No Scrape jobs left to process");
             return;
         }
 
-        Optional<WebDriver> driverOpt = instantiateDriver(headless);
-        if (driverOpt.isEmpty()) {
-            log.error("Failed to instantiate WebDriver; aborting scrape.");
-            return;
-        }
+        log.info("Starting to scrape {} pending jobs (useProxy={})", scrapeJobs.size(), useProxy);
 
-        WebDriver driver = driverOpt.get();
-
-        try {
+        try (Playwright playwright = Playwright.create()) {
             for (ScrapeJob scrapeJob : scrapeJobs) {
-                processJob(scrapeJob, driver);
+                processJobWithProxy(scrapeJob, playwright, headless);
             }
-        } finally {
-            cleanupDriver(driver);
+        } catch (PlaywrightException e) {
+            log.error("Failed to initialize Playwright: {}", e.getMessage(), e);
         }
     }
 
@@ -75,66 +68,99 @@ public class Scraper {
         return scrapeJobRepository.findByAttemptLessThanEqual(ScrapeConstants.MAX_ATTEMPTS);
     }
 
-    private void processJob(ScrapeJob scrapeJob, WebDriver driver) {
-        try {
-            // Navigate to the URL
-            driver.get(scrapeJob.getLink());
+    private void processJobWithProxy(ScrapeJob scrapeJob, Playwright playwright, boolean headless) {
+        // Get a proxy for this job
+        Optional<ir.netpick.mailmine.scrape.model.Proxy> proxyOpt = useProxy ? proxyService.getNextProxy()
+                : Optional.empty();
 
-            // Explicit wait for page to load (e.g., body element visible)
-            new WebDriverWait(driver, Duration.ofSeconds(ScrapeConstants.PAGE_LOAD_TIMEOUT_SECONDS))
-                    .until(ExpectedConditions.visibilityOfElementLocated(By.tagName("body")));
-
-            String pageSource = driver.getPageSource();
-            scrapeDataService.createScrapeData(pageSource, scrapeJob.getId());
-
-            // Increment attempt only on success
-            scrapeJob.setAttempt(scrapeJob.getAttempt() + 1);
-            scrapeJobService.updateScrapeJob(scrapeJob.getId(), scrapeJob);
-
-            // Clear cookies for next job to avoid session carryover
-            driver.manage().deleteAllCookies();
-        } catch (Exception e) {
-            scrapeJob.setScrapeFailed(true);
-            log.error("Failed to process scrape job {}: {}", scrapeJob.getId(), e.getMessage(), e);
-        }
-    }
-
-    private Optional<WebDriver> instantiateDriver(boolean headless) {
-        ChromeOptions options = new ChromeOptions();
-        options.setBinary(chromeLocation);
-
-        System.setProperty("webdriver.chrome.driver", driverLocation);
-
-        // Common arguments
-        options.addArguments(
-                "--disable-gpu",
-                "--window-size=1920,1080",
-                "--ignore-certificate-errors",
-                "--disable-extensions",
-                "--no-sandbox",
-                "--disable-dev-shm-usage",
-                "--user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/134.0.0.0 Safari/537.36 Edg/134.0.0.0");
-
-        if (headless) {
-            options.addArguments("--headless");
-        }
-
-
-        try {
-            return Optional.of(new ChromeDriver(options));
-        } catch (SessionNotCreatedException e) {
-            log.error("Driver encountered an issue during initialization: {}", e.getMessage(), e);
-            return Optional.empty();
-        }
-    }
-
-    private void cleanupDriver(WebDriver driver) {
-        if (driver != null) {
-            try {
-                driver.quit();
-            } catch (Exception e) {
-                log.error("Error quitting WebDriver: {}", e.getMessage(), e);
+        // Start V2Ray client if needed
+        ir.netpick.mailmine.scrape.model.Proxy proxyModel = null;
+        if (proxyOpt.isPresent()) {
+            proxyModel = proxyOpt.get();
+            if (proxyModel.isV2RayProtocol()) {
+                try {
+                    v2RayClientService.startProxy(proxyModel);
+                } catch (Exception e) {
+                    log.error("Failed to start V2Ray client for proxy {}: {}", proxyModel.getId(), e.getMessage());
+                    proxyOpt = Optional.empty(); // Fall back to no proxy
+                }
             }
         }
+
+        BrowserType.LaunchOptions launchOptions = new BrowserType.LaunchOptions()
+                .setHeadless(headless)
+                .setArgs(List.of(
+                        "--disable-gpu",
+                        "--no-sandbox",
+                        "--disable-dev-shm-usage"));
+
+        // Apply proxy if available
+        if (proxyOpt.isPresent()) {
+            launchOptions.setProxy(new Proxy(proxyModel.toProxyUrl()));
+            log.debug("Using proxy: {}", proxyModel.toProxyUrl());
+        } else if (useProxy) {
+            log.warn("No active proxy available, scraping without proxy");
+        }
+
+        long startTime = System.currentTimeMillis();
+        final ir.netpick.mailmine.scrape.model.Proxy finalProxyModel = proxyModel;
+
+        try (Browser browser = playwright.chromium().launch(launchOptions)) {
+            try (BrowserContext context = browser.newContext(new Browser.NewContextOptions()
+                    .setUserAgent(
+                            "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36")
+                    .setViewportSize(1920, 1080)
+                    .setIgnoreHTTPSErrors(true))) {
+
+                Page page = context.newPage();
+                page.setDefaultTimeout(ScrapeConstants.PAGE_LOAD_TIMEOUT_SECONDS * 1000);
+
+                // Navigate to URL
+                page.navigate(scrapeJob.getLink());
+
+                // Wait for body
+                page.waitForSelector("body", new Page.WaitForSelectorOptions()
+                        .setTimeout(ScrapeConstants.PAGE_LOAD_TIMEOUT_SECONDS * 1000));
+
+                // Get page content
+                String pageSource = page.content();
+                scrapeDataService.createScrapeData(pageSource, scrapeJob.getId());
+
+                // Record success
+                scrapeJob.setAttempt(scrapeJob.getAttempt() + 1);
+                scrapeJobService.updateScrapeJob(scrapeJob.getId(), scrapeJob);
+
+                // Record proxy success
+                if (proxyOpt.isPresent()) {
+                    long responseTime = System.currentTimeMillis() - startTime;
+                    proxyService.recordProxySuccess(proxyOpt.get().getId(), responseTime);
+                }
+
+                log.debug("Successfully scraped job {}: {}", scrapeJob.getId(), scrapeJob.getLink());
+            }
+        } catch (PlaywrightException e) {
+            handleScrapeFailure(scrapeJob, proxyOpt, e);
+        } catch (Exception e) {
+            handleScrapeFailure(scrapeJob, proxyOpt, e);
+        } finally {
+            // Stop V2Ray client if it was started
+            if (finalProxyModel != null && finalProxyModel.isV2RayProtocol()) {
+                v2RayClientService.stopProxy(finalProxyModel.getId());
+            }
+        }
+    }
+
+    private void handleScrapeFailure(ScrapeJob scrapeJob,
+            Optional<ir.netpick.mailmine.scrape.model.Proxy> proxyOpt,
+            Exception e) {
+        scrapeJob.setScrapeFailed(true);
+        scrapeJobService.updateScrapeJob(scrapeJob.getId(), scrapeJob);
+
+        // Record proxy failure
+        if (proxyOpt.isPresent()) {
+            proxyService.recordProxyFailure(proxyOpt.get().getId());
+        }
+
+        log.error("Failed to process scrape job {}: {}", scrapeJob.getId(), e.getMessage());
     }
 }

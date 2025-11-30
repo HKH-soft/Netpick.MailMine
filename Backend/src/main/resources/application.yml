@@ -63,3 +63,8 @@ google:
   search:
     results-per-page: 10
     max-pages: 3
+  
+v2ray:
+  executable: "E:\\New folder\\Compressed\\v2rayN-windows-64-With-Core\\v2rayN-windows-64-With-Core\\bin\\xray\\xray.exe" 
+  config-dir: ${java.io.tmpdir}/mailmine/v2ray-configs
+  base-port: 20000

@@ -60,12 +60,15 @@ public class ApiCaller {
                 log.error("Query with id {} is blank", query.getId());
                 continue;
             }
-            processQuery(query, keys);
+            int linksCreated = processQuery(query, keys);
+            query.setLinkCount(query.getLinkCount() + linksCreated);
+            searchQueryRepository.save(query);
         }
     }
 
-    private void processQuery(SearchQuery query, List<ApiKey> keys) {
+    private int processQuery(SearchQuery query, List<ApiKey> keys) {
         int keyIndex = 0;
+        int totalLinksCreated = 0;
         for (int page = 0; page < maxPages; page++) {
             ApiKey currentKey = keys.get(keyIndex);
 
@@ -88,6 +91,7 @@ public class ApiCaller {
                 List<String> titles = parsedLinks.stream().map(LinkResult::getTitle).toList();
 
                 scrapeJobService.createJobsByList(urls, titles);
+                totalLinksCreated += urls.size();
                 log.info("Created scrape jobs for {} links from query: {} (page {})", urls.size(),
                         query.getSentence(), page);
 
@@ -106,6 +110,7 @@ public class ApiCaller {
                 break;
             }
         }
+        return totalLinksCreated;
     }
 
     private Mono<String> executeApiCall(String uri) {
