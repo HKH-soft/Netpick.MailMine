@@ -20,48 +20,50 @@ public class PipelineService {
 
     private final PipelineRepository pipelineRepository;
 
-    public boolean isEmpty(){
+    public boolean isEmpty() {
         return pipelineRepository.count() == 0;
     }
-    
+
     public PageDTO<Pipeline> allPipelines(int pageNumber) {
-        Pageable pageable = PageRequest.of(pageNumber - 1 , GeneralConstants.PAGE_SIZE, Sort.by("createdAt").descending());
+        Pageable pageable = PageRequest.of(pageNumber - 1, GeneralConstants.PAGE_SIZE,
+                Sort.by("createdAt").descending());
         Page<Pipeline> page = pipelineRepository.findByDeletedFalse(pageable);
         return new PageDTO<>(
                 page.getContent(),
                 page.getTotalPages(),
-                pageNumber
-        );
+                pageNumber);
     }
-    
+
     public PageDTO<Pipeline> deletedPipelines(int pageNumber) {
-        Pageable pageable = PageRequest.of(pageNumber - 1 , GeneralConstants.PAGE_SIZE, Sort.by("createdAt").descending());
+        Pageable pageable = PageRequest.of(pageNumber - 1, GeneralConstants.PAGE_SIZE,
+                Sort.by("createdAt").descending());
         Page<Pipeline> page = pipelineRepository.findByDeletedTrue(pageable);
         return new PageDTO<>(
                 page.getContent(),
                 page.getTotalPages(),
-                pageNumber
-        );
+                pageNumber);
     }
-    
+
     public PageDTO<Pipeline> allPipelinesIncludingDeleted(int pageNumber) {
-        Pageable pageable = PageRequest.of(pageNumber - 1 , GeneralConstants.PAGE_SIZE, Sort.by("createdAt").descending());
+        Pageable pageable = PageRequest.of(pageNumber - 1, GeneralConstants.PAGE_SIZE,
+                Sort.by("createdAt").descending());
         Page<Pipeline> page = pipelineRepository.findAll(pageable);
         return new PageDTO<>(
                 page.getContent(),
                 page.getTotalPages(),
-                pageNumber
-        );
+                pageNumber);
     }
 
     public Pipeline getPipeline(UUID pipelineId) {
-        return  pipelineRepository.findById(pipelineId)
-                .orElseThrow( () -> new ResourceNotFoundException("Pipeline with id %s was not found".formatted(pipelineId)));
+        return pipelineRepository.findById(pipelineId)
+                .orElseThrow(
+                        () -> new ResourceNotFoundException("Pipeline with id %s was not found".formatted(pipelineId)));
     }
-    
+
     public Pipeline getPipelineIncludingDeleted(UUID pipelineId) {
-        return  pipelineRepository.findById(pipelineId)
-                .orElseThrow( () -> new ResourceNotFoundException("Pipeline with id %s was not found".formatted(pipelineId)));
+        return pipelineRepository.findById(pipelineId)
+                .orElseThrow(
+                        () -> new ResourceNotFoundException("Pipeline with id %s was not found".formatted(pipelineId)));
     }
 
     public Pipeline createPipeline(Pipeline pipeline) {
@@ -71,15 +73,19 @@ public class PipelineService {
     public void updatePipeline(Pipeline pipeline) {
         pipelineRepository.save(pipeline);
     }
-    
-    public void updatePipeline(UUID pipelineId ,Pipeline pipeline) {
+
+    public void updatePipeline(UUID pipelineId, Pipeline pipeline) {
+        if (!pipelineRepository.existsById(pipelineId)) {
+            throw new ResourceNotFoundException("Pipeline with id %s was not found".formatted(pipelineId));
+        }
+        pipeline.setId(pipelineId);
         pipelineRepository.save(pipeline);
     }
 
     public void softDeletePipeline(UUID pipelineId) {
         pipelineRepository.softDelete(pipelineId);
     }
-    
+
     public void restorePipeline(UUID pipelineId) {
         pipelineRepository.restore(pipelineId);
     }

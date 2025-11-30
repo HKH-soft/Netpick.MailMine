@@ -1,15 +1,15 @@
 package ir.netpick.mailmine.scrape.controller;
 
-import ir.netpick.mailmine.scrape.service.mid.DataProcessor;
+import ir.netpick.mailmine.common.enums.PipelineStageEnum;
+import ir.netpick.mailmine.scrape.service.orch.ScrapeOrchestrationService;
+import lombok.RequiredArgsConstructor;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import ir.netpick.mailmine.scrape.service.mid.ApiCaller;
-import ir.netpick.mailmine.scrape.service.mid.Scraper;
-import lombok.RequiredArgsConstructor;
-
-import org.springframework.web.bind.annotation.PostMapping;
+import java.util.Set;
 
 @RestController
 @RequestMapping("/api/v1/scrape")
@@ -17,22 +17,30 @@ import org.springframework.web.bind.annotation.PostMapping;
 @PreAuthorize("hasAnyRole('ADMIN', 'SUPER_ADMIN')")
 public class ScrapeController {
 
-    private final Scraper scrape;
-    private final ApiCaller apiCaller;
-    private final DataProcessor dataProcessor;
+    private final ScrapeOrchestrationService orchestrationService;
     @PostMapping("start_google")
     public void startSearch() {
-        apiCaller.callGoogleSearch();
+        orchestrationService.executeSteps(Set.of(PipelineStageEnum.API_CALLER_STARTED));
     }
 
     @PostMapping("start_scrape")
     public void startScrapping() {
-        scrape.scrapePendingJobs(true);
+        orchestrationService.executeSteps(Set.of(PipelineStageEnum.SCRAPER_STARTED));
     }
 
     @PostMapping("start_extract")
     public void startExtract() {
-        dataProcessor.processUnparsedFiles();
+        orchestrationService.executeSteps(Set.of(PipelineStageEnum.PARSER_STARTED));
+    }
+
+    @PostMapping("execute_steps")
+    public void executeSteps(@RequestBody Set<PipelineStageEnum> steps) {
+        orchestrationService.executeSteps(steps);
+    }
+
+    @PostMapping("execute_all")
+    public void executeAll() {
+        orchestrationService.executeAllSteps();
     }
 
 }

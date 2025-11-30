@@ -42,12 +42,10 @@ public class Scraper {
         return scrapeDataService.allData().size();
     }
 
-    @Async
     public void scrapePendingJobs() {
         scrapePendingJobs(true);
     }
 
-    @Async
     public void scrapePendingJobs(boolean headless) {
         List<ScrapeJob> scrapeJobs = fetchPendingJobs();
 

@@ -7,7 +7,6 @@ import ir.netpick.mailmine.scrape.ScrapeConstants;
 import ir.netpick.mailmine.scrape.service.base.ScrapeJobService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.reactive.function.client.WebClientResponseException;
@@ -43,7 +42,6 @@ public class ApiCaller {
     @Value("${google.search.max-pages:3}")
     private int maxPages;
 
-    @Async
     @Transactional
     public void callGoogleSearch() {
         List<ApiKey> keys = apiKeyRepository.findAll();
