@@ -1,9 +1,9 @@
 package ir.netpick.mailmine.auth.service;
 
+import ir.netpick.mailmine.auth.exception.InvalidTokenException;
 import ir.netpick.mailmine.auth.model.RefreshToken;
 import ir.netpick.mailmine.auth.model.User;
 import ir.netpick.mailmine.auth.repository.RefreshTokenRepository;
-import ir.netpick.mailmine.common.exception.ResourceNotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Value;
@@ -72,7 +72,7 @@ public class RefreshTokenService {
      *
      * @param token the token string
      * @return the RefreshToken if valid
-     * @throws ResourceNotFoundException if token is invalid, expired, or revoked
+     * @throws InvalidTokenException if token is invalid, expired, or revoked
      */
     public RefreshToken verifyRefreshToken(String token) {
         log.debug("Verifying refresh token");
@@ -80,17 +80,17 @@ public class RefreshTokenService {
         RefreshToken refreshToken = refreshTokenRepository.findByToken(token)
                 .orElseThrow(() -> {
                     log.warn("Refresh token not found");
-                    return new ResourceNotFoundException("Invalid refresh token");
+                    return new InvalidTokenException("Invalid refresh token");
                 });
 
         if (refreshToken.isRevoked()) {
             log.warn("Refresh token is revoked for user: {}", refreshToken.getUser().getEmail());
-            throw new ResourceNotFoundException("Refresh token has been revoked");
+            throw new InvalidTokenException("Refresh token has been revoked");
         }
 
         if (refreshToken.isExpired()) {
             log.warn("Refresh token is expired for user: {}", refreshToken.getUser().getEmail());
-            throw new ResourceNotFoundException("Refresh token has expired");
+            throw new InvalidTokenException("Refresh token has expired");
         }
 
         log.debug("Refresh token verified for user: {}", refreshToken.getUser().getEmail());

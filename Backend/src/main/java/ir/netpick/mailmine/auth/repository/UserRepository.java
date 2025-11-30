@@ -38,17 +38,17 @@ public interface UserRepository extends JpaRepository<User, UUID> {
     // ==================== Update Operations ====================
 
     @Transactional
-    @Modifying
+    @Modifying(clearAutomatically = true)
     @Query("UPDATE User u SET u.lastLoginAt = :now WHERE u.email = :email")
     void updateLastLogin(@Param("now") LocalDateTime now, @Param("email") String email);
 
     @Transactional
-    @Modifying
+    @Modifying(clearAutomatically = true)
     @Query("UPDATE User u SET u.deleted = :deleted WHERE u.email = :email")
     int updateDeletedByEmail(@Param("deleted") Boolean deleted, @Param("email") String email);
 
     @Transactional
-    @Modifying
+    @Modifying(clearAutomatically = true)
     @Query("UPDATE User u SET u.deleted = :deleted WHERE u.id = :id")
     int updateDeletedById(@Param("deleted") Boolean deleted, @Param("id") UUID id);
 

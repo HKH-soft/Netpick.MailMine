@@ -131,7 +131,7 @@ public class UserController {
     @PostMapping("/{userEmail}/send-verification")
     @PreAuthorize("hasRole('ADMIN') or hasRole('SUPER_ADMIN')")
     public ResponseEntity<Map<String, String>> sendVerificationEmail(@PathVariable String userEmail) {
-        userService.prepareUserForVerification(userService.getUserEntity(userEmail), true);
+        userService.prepareUserForVerification(userService.getUserEntity(userEmail));
         authEmailService.sendVerificationEmail(userEmail);
         return ResponseEntity.ok(Map.of("message", "Verification email sent"));
     }

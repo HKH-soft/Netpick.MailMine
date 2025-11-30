@@ -192,6 +192,16 @@ public class RateLimitingService {
     }
 
     /**
+     * Clear resend attempts (useful for testing)
+     * 
+     * @param email User's email
+     */
+    public void clearResendAttempts(String email) {
+        resendAttemptCounts.remove(email);
+        log.debug("Cleared resend attempts for user: {}", email);
+    }
+
+    /**
      * Inner class to track verification attempts
      */
     private static class VerificationAttempts {

@@ -15,40 +15,39 @@ public class AdminService {
     private final AuthEmailService authEmailService;
 
     /**
-     * Creates a user account by admin without immediate verification requirement
+     * Creates a user account by admin. The user will need email verification.
      * 
      * @param request The signup request details
-     * @return The created user
+     * @return The created user (unverified, verification code generated)
      */
-    public User createAdminUser(AuthenticationSignupRequest request) {
+    public User createUser(AuthenticationSignupRequest request) {
         User user = userService.createUnverifiedUser(request);
 
         // Prepare user for verification but don't send email automatically
         // Admin can choose when to send verification email
-        userService.prepareUserForVerification(user, false);
+        userService.prepareUserForVerification(user);
 
         return user;
     }
 
     /**
-     * Creates an admin account by super admin without verification requirement
+     * Creates an admin account by super admin. Admins are automatically verified.
      * 
      * @param request The signup request details
-     * @param role    The role to assign to the user
+     * @param role    The role to assign (ADMIN creates verified admin, USER creates
+     *                unverified user)
      * @return The created user
      */
-    public User createAdminUser(AuthenticationSignupRequest request, RoleEnum role) {
+    public User createUserWithRole(AuthenticationSignupRequest request, RoleEnum role) {
         User user;
         if (role == RoleEnum.ADMIN) {
-            user = userService.createUnverifiedAdministrator(request);
+            // Admins are auto-verified, no need for verification
+            user = userService.createAdministrator(request);
         } else {
             user = userService.createUnverifiedUser(request);
+            // Only prepare verification for non-admin users
+            userService.prepareUserForVerification(user);
         }
-
-        // For admin roles, we might want to auto-verify them or leave them unverified
-        // depending on security requirements. For now, we'll prepare verification but
-        // not send email.
-        userService.prepareUserForVerification(user, false);
 
         return user;
     }

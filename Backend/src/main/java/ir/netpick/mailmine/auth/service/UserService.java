@@ -89,6 +89,14 @@ public class UserService {
         String email = request.email();
         log.debug("Validating registration request for email: {}", email);
 
+        // Check for null fields first before any other validation
+        if (email == null || request.password() == null || request.name() == null) {
+            log.info("Registration attempt with missing required fields for email: {}", email);
+            throw new RequestValidationException(
+                    "Please fill in all required fields. " +
+                            "Email, name and password are required to create an account.");
+        }
+
         if (userRepository.existsUserByEmail(email)) {
             log.info("Registration attempt with existing email: {}", email);
             throw new DuplicateResourceException(
@@ -101,13 +109,6 @@ public class UserService {
             throw new RequestValidationException(
                     "The email address you provided is not valid. " +
                             "Please check the format and try again.");
-        }
-
-        if (request.password() == null || request.name() == null) {
-            log.info("Registration attempt with missing required fields for email: {}", email);
-            throw new RequestValidationException(
-                    "Please fill in all required fields. " +
-                            "Both name and password are required to create an account.");
         }
 
         log.debug("Registration request validation passed for email: {}", email);
@@ -235,15 +236,15 @@ public class UserService {
     }
 
     /**
-     * Creates a new administrator user.
+     * Creates a new administrator user who is automatically verified.
      *
      * @param request the signup request containing user details
-     * @return the created User entity
+     * @return the created User entity (verified)
      * @throws RequestValidationException   if the request is invalid
      * @throws SystemConfigurationException if the ADMIN role is not found in the
      *                                      system
      */
-    public User createUnverifiedAdministrator(AuthenticationSignupRequest request) {
+    public User createAdministrator(AuthenticationSignupRequest request) {
         log.info("Creating new administrator with email: {}", request.email());
 
         if (isRegisterRequestInvalid(request)) {
@@ -313,55 +314,14 @@ public class UserService {
     }
 
     /**
-     * Creates a new super administrator user who is automatically verified.
-     *
-     * @param request the signup request containing user details
-     * @return the created User entity
-     * @throws RequestValidationException   if the request is invalid
-     * @throws SystemConfigurationException if the SUPER_ADMIN role is not found in
-     *                                      the system
-     */
-    public User createSuperAdminUser(AuthenticationSignupRequest request) {
-        log.info("Creating new SUPER_ADMIN user with email: {}", request.email());
-
-        if (isRegisterRequestInvalid(request)) {
-            throw new RequestValidationException(
-                    "Your registration request is not valid. " +
-                            "Please check all fields and try again.");
-        }
-
-        Optional<Role> optionalRole = roleRepository.findByName(RoleEnum.SUPER_ADMIN);
-
-        if (optionalRole.isEmpty()) {
-            log.error("Failed to find SUPER_ADMIN role");
-            throw new SystemConfigurationException("System configuration error: SUPER_ADMIN role not found");
-        }
-
-        User user = new User(
-                request.email(),
-                passwordEncoder.encode(request.password()),
-                request.name(),
-                optionalRole.get());
-
-        // SUPER_ADMIN users are automatically verified
-        user.setIsVerified(true);
-        User savedUser = userRepository.save(user);
-        log.info("Successfully created SUPER_ADMIN user with ID: {} and email: {}", savedUser.getId(),
-                savedUser.getEmail());
-        return savedUser;
-    }
-
-    /**
      * Prepares a user for verification by creating or updating verification code.
      *
-     * @param user      The user to prepare for verification
-     * @param sendEmail Whether to send verification email (parameter kept for API
-     *                  compatibility)
+     * @param user The user to prepare for verification
      * @return The verification code that was created/updated
      */
-    public String prepareUserForVerification(User user, boolean sendEmail) {
-        log.debug("Preparing user for verification. User ID: {}, Email: {}, Send Email: {}",
-                user.getId(), user.getEmail(), sendEmail);
+    public String prepareUserForVerification(User user) {
+        log.debug("Preparing user for verification. User ID: {}, Email: {}",
+                user.getId(), user.getEmail());
         // Delegate to VerificationService
         return verificationService.prepareUserForVerification(user);
     }

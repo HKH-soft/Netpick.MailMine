@@ -25,6 +25,7 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 /**
  * Service class for handling authentication operations.
@@ -122,6 +123,7 @@ public class AuthenticationService {
      * @param ipAddress    optional IP address for new refresh token
      * @return a new AuthenticationResponse with new access and refresh tokens
      */
+    @Transactional
     public AuthenticationResponse refreshAccessToken(String refreshToken, String deviceInfo, String ipAddress) {
         log.info("Attempting to refresh access token");
 
@@ -186,18 +188,12 @@ public class AuthenticationService {
         try {
             User user = userService.createUnverifiedUser(request);
 
-            // Skip verification for SUPER_ADMIN users
-            if (user.getRole().getName() == RoleEnum.SUPER_ADMIN) {
-                log.info("Skipping verification for SUPER_ADMIN user: {}", request.email());
-                user.setIsVerified(true);
-                userRepository.save(user);
-            } else {
-                // Prepare user for verification and send email asynchronously
-                userService.prepareUserForVerification(user, true);
-                // Send email asynchronously - this won't block the response
-                authEmailService.sendVerificationEmail(user.getEmail());
-                log.info("Verification email queued for sending to: {}", user.getEmail());
-            }
+            // Prepare user for verification and send email asynchronously
+            userService.prepareUserForVerification(user);
+            // Send email asynchronously - this won't block the response
+            authEmailService.sendVerificationEmail(user.getEmail());
+            log.info("Verification email queued for sending to: {}", user.getEmail());
+
             log.info("User registered successfully: {}", request.email());
         } catch (Exception e) {
             log.error("User registration failed for email: {}", request.email(), e);
@@ -331,7 +327,7 @@ public class AuthenticationService {
             }
 
             // Update verification with new code
-            userService.prepareUserForVerification(user, true);
+            userService.prepareUserForVerification(user);
             // Send email asynchronously - this won't block the response
             authEmailService.sendVerificationEmail(email);
             rateLimitingService.recordResendAttempt(email);

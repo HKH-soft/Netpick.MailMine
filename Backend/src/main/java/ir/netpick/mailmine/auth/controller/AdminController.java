@@ -21,7 +21,7 @@ public class AdminController {
      */
     @PostMapping("/users")
     public ResponseEntity<?> createUser(@RequestBody AuthenticationSignupRequest request) {
-        adminService.createAdminUser(request);
+        adminService.createUser(request);
         return ResponseEntity.ok().build();
     }
 
@@ -30,8 +30,8 @@ public class AdminController {
      */
     @PostMapping("/admins")
     @PreAuthorize("hasRole('SUPER_ADMIN')")
-    public ResponseEntity<?> createAdminUser(@RequestBody AuthenticationSignupRequest request) {
-        adminService.createAdminUser(request, RoleEnum.ADMIN);
+    public ResponseEntity<?> createAdmin(@RequestBody AuthenticationSignupRequest request) {
+        adminService.createUserWithRole(request, RoleEnum.ADMIN);
         return ResponseEntity.ok().build();
     }
 }

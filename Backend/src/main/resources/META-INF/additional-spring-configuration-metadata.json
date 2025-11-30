@@ -63,5 +63,15 @@
     "name": "google.search.max-pages",
     "type": "java.lang.String",
     "description": "A description for 'google.search.max-pages'."
+  },
+  {
+    "name": "security.jwt.access-expiration-minutes",
+    "type": "java.lang.String",
+    "description": "A description for 'security.jwt.access-expiration-minutes'"
+  },
+  {
+    "name": "security.jwt.refresh-expiration-days",
+    "type": "java.lang.String",
+    "description": "A description for 'security.jwt.refresh-expiration-days'"
   }
 ]}
