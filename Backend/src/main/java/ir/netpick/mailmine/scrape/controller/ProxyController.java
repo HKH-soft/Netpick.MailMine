@@ -32,8 +32,8 @@ public class ProxyController {
             @RequestParam(defaultValue = "1") int page) {
         PageDTO<Proxy> proxies = proxyService.allProxies(page);
         return ResponseEntity.ok(new PageDTO<>(
-                proxies.content().stream().map(proxyDTOMapper).collect(Collectors.toList()),
-                proxies.totalPages(),
+                proxies.context().stream().map(proxyDTOMapper).collect(Collectors.toList()),
+                proxies.totalPageCount(),
                 proxies.currentPage()));
     }
 
@@ -42,8 +42,8 @@ public class ProxyController {
             @RequestParam(defaultValue = "1") int page) {
         PageDTO<Proxy> proxies = proxyService.deletedProxies(page);
         return ResponseEntity.ok(new PageDTO<>(
-                proxies.content().stream().map(proxyDTOMapper).collect(Collectors.toList()),
-                proxies.totalPages(),
+                proxies.context().stream().map(proxyDTOMapper).collect(Collectors.toList()),
+                proxies.totalPageCount(),
                 proxies.currentPage()));
     }
 
