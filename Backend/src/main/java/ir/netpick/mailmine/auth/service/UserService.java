@@ -3,11 +3,9 @@ package ir.netpick.mailmine.auth.service;
 import ir.netpick.mailmine.auth.dto.AuthenticationSignupRequest;
 import ir.netpick.mailmine.auth.dto.UserDTO;
 import ir.netpick.mailmine.auth.dto.UserUpdateRequest;
-import ir.netpick.mailmine.auth.exception.UserAlreadyVerifiedException;
 import ir.netpick.mailmine.auth.mapper.UserDTOMapper;
 import ir.netpick.mailmine.auth.model.Role;
 import ir.netpick.mailmine.auth.model.User;
-import ir.netpick.mailmine.auth.model.Verification;
 import ir.netpick.mailmine.auth.repository.RoleRepository;
 import ir.netpick.mailmine.auth.repository.UserRepository;
 import ir.netpick.mailmine.common.PageDTO;
@@ -19,7 +17,6 @@ import ir.netpick.mailmine.common.exception.ResourceNotFoundException;
 import ir.netpick.mailmine.common.exception.SystemConfigurationException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
-import org.openqa.selenium.devtools.RequestFailedException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
@@ -48,7 +45,6 @@ public class UserService {
     private final RoleRepository roleRepository;
     private final UserDTOMapper userDTOMapper;
     private final VerificationService verificationService;
-
 
     /**
      * Updates the last sign-in timestamp for a user.
@@ -84,8 +80,10 @@ public class UserService {
      *
      * @param request the registration request to validate
      * @return false if the request is valid
-     * @throws DuplicateResourceException if a user with the same email already exists
-     * @throws RequestValidationException if the email format is invalid or required fields are missing
+     * @throws DuplicateResourceException if a user with the same email already
+     *                                    exists
+     * @throws RequestValidationException if the email format is invalid or required
+     *                                    fields are missing
      */
     public boolean isRegisterRequestInvalid(AuthenticationSignupRequest request) {
         String email = request.email();
@@ -95,24 +93,21 @@ public class UserService {
             log.info("Registration attempt with existing email: {}", email);
             throw new DuplicateResourceException(
                     "An account with this email address already exists. " +
-                            "Please use a different email or sign in to your existing account."
-            );
+                            "Please use a different email or sign in to your existing account.");
         }
 
         if (!isEmailValidation(email)) {
             log.info("Registration attempt with invalid email format: {}", email);
             throw new RequestValidationException(
                     "The email address you provided is not valid. " +
-                            "Please check the format and try again."
-            );
+                            "Please check the format and try again.");
         }
 
         if (request.password() == null || request.name() == null) {
             log.info("Registration attempt with missing required fields for email: {}", email);
             throw new RequestValidationException(
                     "Please fill in all required fields. " +
-                            "Both name and password are required to create an account."
-            );
+                            "Both name and password are required to create an account.");
         }
 
         log.debug("Registration request validation passed for email: {}", email);
@@ -120,7 +115,7 @@ public class UserService {
     }
 
     /**
-     * Retrieves a paginated list of all users.
+     * Retrieves a paginated list of all active (non-deleted) users.
      *
      * @param pageNumber the page number to retrieve (1-indexed)
      * @return a PageDTO containing the users for the requested page
@@ -128,7 +123,8 @@ public class UserService {
     public PageDTO<UserDTO> allUsers(Integer pageNumber) {
         log.debug("Fetching users page: {}", pageNumber);
         Page<User> page = userRepository
-                .findAll(PageRequest.of(pageNumber - 1, GeneralConstants.PAGE_SIZE, Sort.by(Sort.Direction.ASC, "createdAt")));
+                .findByDeletedFalse(PageRequest.of(pageNumber - 1, GeneralConstants.PAGE_SIZE,
+                        Sort.by(Sort.Direction.ASC, "createdAt")));
 
         PageDTO<UserDTO> result = new PageDTO<>(
                 page.getContent()
@@ -142,16 +138,19 @@ public class UserService {
     }
 
     /**
-     * Retrieves a paginated list of all users with custom sorting.
+     * Retrieves a paginated list of all active (non-deleted) users with custom
+     * sorting.
      *
      * @param pageNumber the page number to retrieve (1-indexed)
-     * @param sortBy the field to sort by
-     * @param direction the sort direction (ASC or DESC)
+     * @param sortBy     the field to sort by
+     * @param direction  the sort direction (ASC or DESC)
      * @return a PageDTO containing the users for the requested page
      */
     public PageDTO<UserDTO> allUsers(Integer pageNumber, String sortBy, Direction direction) {
         log.debug("Fetching users page: {}, sorted by: {}, direction: {}", pageNumber, sortBy, direction);
-        Page<User> page = userRepository.findAll(PageRequest.of(pageNumber - 1, GeneralConstants.PAGE_SIZE, Sort.by(direction, sortBy)));
+        Page<User> page = userRepository
+                .findByDeletedFalse(
+                        PageRequest.of(pageNumber - 1, GeneralConstants.PAGE_SIZE, Sort.by(direction, sortBy)));
 
         PageDTO<UserDTO> result = new PageDTO<>(
                 page.getContent()
@@ -184,15 +183,16 @@ public class UserService {
     }
 
     /**
-     * Retrieves a user by their email address.
+     * Retrieves a user by their email address (excludes soft-deleted users).
      *
      * @param email the email address of the user to retrieve
      * @return the UserDTO representing the user
-     * @throws ResourceNotFoundException if no user exists with the given email
+     * @throws ResourceNotFoundException if no active user exists with the given
+     *                                   email
      */
     public UserDTO getUser(String email) {
         log.debug("Fetching user by email: {}", email);
-        User user = userRepository.findByEmail(email).orElseThrow(
+        User user = userRepository.findByDeletedFalseAndEmail(email).orElseThrow(
                 () -> {
                     log.warn("User not found with email: {}", email);
                     return new ResourceNotFoundException("User with email [%s] was not found!".formatted(email));
@@ -202,15 +202,16 @@ public class UserService {
     }
 
     /**
-     * Retrieves a user entity by their email address.
+     * Retrieves a user entity by their email address (excludes soft-deleted users).
      *
      * @param email the email address of the user to retrieve
      * @return the User entity
-     * @throws ResourceNotFoundException if no user exists with the given email
+     * @throws ResourceNotFoundException if no active user exists with the given
+     *                                   email
      */
     public User getUserEntity(String email) {
         log.debug("Fetching user entity by email: {}", email);
-        return userRepository.findByEmail(email)
+        return userRepository.findByDeletedFalseAndEmail(email)
                 .orElseThrow(() -> {
                     log.warn("User entity not found with email: {}", email);
                     return new ResourceNotFoundException("User not found");
@@ -238,8 +239,9 @@ public class UserService {
      *
      * @param request the signup request containing user details
      * @return the created User entity
-     * @throws RequestValidationException if the request is invalid
-     * @throws SystemConfigurationException if the ADMIN role is not found in the system
+     * @throws RequestValidationException   if the request is invalid
+     * @throws SystemConfigurationException if the ADMIN role is not found in the
+     *                                      system
      */
     public User createUnverifiedAdministrator(AuthenticationSignupRequest request) {
         log.info("Creating new administrator with email: {}", request.email());
@@ -247,8 +249,7 @@ public class UserService {
         if (isRegisterRequestInvalid(request)) {
             throw new RequestValidationException(
                     "Your registration request is not valid. " +
-                            "Please check all fields and try again."
-            );
+                            "Please check all fields and try again.");
         }
 
         Optional<Role> optionalRole = roleRepository.findByName(RoleEnum.ADMIN);
@@ -262,8 +263,7 @@ public class UserService {
                 request.email(),
                 passwordEncoder.encode(request.password()),
                 request.name(),
-                optionalRole.get()
-        );
+                optionalRole.get());
 
         User savedUser = userRepository.save(user);
 
@@ -271,7 +271,8 @@ public class UserService {
         savedUser.setIsVerified(true);
         userRepository.save(savedUser);
 
-        log.info("Successfully created administrator with ID: {} and email: {}", savedUser.getId(), savedUser.getEmail());
+        log.info("Successfully created administrator with ID: {} and email: {}", savedUser.getId(),
+                savedUser.getEmail());
         return savedUser;
     }
 
@@ -280,8 +281,9 @@ public class UserService {
      *
      * @param request the signup request containing user details
      * @return the created User entity
-     * @throws RequestValidationException if the request is invalid
-     * @throws SystemConfigurationException if the USER role is not found in the system
+     * @throws RequestValidationException   if the request is invalid
+     * @throws SystemConfigurationException if the USER role is not found in the
+     *                                      system
      */
     public User createUnverifiedUser(AuthenticationSignupRequest request) {
         log.info("Creating new unverified user with email: {}", request.email());
@@ -289,8 +291,7 @@ public class UserService {
         if (isRegisterRequestInvalid(request)) {
             throw new RequestValidationException(
                     "Your registration request is not valid. " +
-                            "Please check all fields and try again."
-            );
+                            "Please check all fields and try again.");
         }
 
         Optional<Role> optionalRole = roleRepository.findByName(RoleEnum.USER);
@@ -304,8 +305,7 @@ public class UserService {
                 request.email(),
                 passwordEncoder.encode(request.password()),
                 request.name(),
-                optionalRole.get()
-        );
+                optionalRole.get());
 
         User savedUser = userRepository.save(user);
         log.info("Successfully created user with ID: {} and email: {}", savedUser.getId(), savedUser.getEmail());
@@ -317,8 +317,9 @@ public class UserService {
      *
      * @param request the signup request containing user details
      * @return the created User entity
-     * @throws RequestValidationException if the request is invalid
-     * @throws SystemConfigurationException if the SUPER_ADMIN role is not found in the system
+     * @throws RequestValidationException   if the request is invalid
+     * @throws SystemConfigurationException if the SUPER_ADMIN role is not found in
+     *                                      the system
      */
     public User createSuperAdminUser(AuthenticationSignupRequest request) {
         log.info("Creating new SUPER_ADMIN user with email: {}", request.email());
@@ -326,8 +327,7 @@ public class UserService {
         if (isRegisterRequestInvalid(request)) {
             throw new RequestValidationException(
                     "Your registration request is not valid. " +
-                            "Please check all fields and try again."
-            );
+                            "Please check all fields and try again.");
         }
 
         Optional<Role> optionalRole = roleRepository.findByName(RoleEnum.SUPER_ADMIN);
@@ -341,21 +341,22 @@ public class UserService {
                 request.email(),
                 passwordEncoder.encode(request.password()),
                 request.name(),
-                optionalRole.get()
-        );
+                optionalRole.get());
 
         // SUPER_ADMIN users are automatically verified
         user.setIsVerified(true);
         User savedUser = userRepository.save(user);
-        log.info("Successfully created SUPER_ADMIN user with ID: {} and email: {}", savedUser.getId(), savedUser.getEmail());
+        log.info("Successfully created SUPER_ADMIN user with ID: {} and email: {}", savedUser.getId(),
+                savedUser.getEmail());
         return savedUser;
     }
 
     /**
      * Prepares a user for verification by creating or updating verification code.
      *
-     * @param user The user to prepare for verification
-     * @param sendEmail Whether to send verification email (parameter kept for API compatibility)
+     * @param user      The user to prepare for verification
+     * @param sendEmail Whether to send verification email (parameter kept for API
+     *                  compatibility)
      * @return The verification code that was created/updated
      */
     public String prepareUserForVerification(User user, boolean sendEmail) {
@@ -368,23 +369,22 @@ public class UserService {
     /**
      * Updates a user's information by their email address.
      *
-     * @param email the email address of the user to update
+     * @param email   the email address of the user to update
      * @param request the update request containing the new user information
      * @return the updated UserDTO
-     * @throws ResourceNotFoundException if no user exists with the given email
+     * @throws ResourceNotFoundException  if no active user exists with the given
+     *                                    email
      * @throws RequestValidationException if no changes were detected in the request
      */
     public UserDTO updateUser(String email, UserUpdateRequest request) {
         log.info("Updating user with email: {}", email);
-        User user = userRepository.findByEmail(email).orElseThrow(
+        User user = userRepository.findByDeletedFalseAndEmail(email).orElseThrow(
                 () -> {
                     log.warn("User not found for update with email: {}", email);
                     return new ResourceNotFoundException(
                             "No user account found with email: " + email + ". " +
-                                    "Please check the email address or register for a new account."
-                    );
-                }
-        );
+                                    "Please check the email address or register for a new account.");
+                });
 
         boolean changed = false;
         if (request.name() != null && !request.name().equals(user.getName())) {
@@ -403,8 +403,7 @@ public class UserService {
             log.warn("No changes detected for user update: {}", email);
             throw new RequestValidationException(
                     "No changes were detected. " +
-                            "Please make sure you've modified at least one field."
-            );
+                            "Please make sure you've modified at least one field.");
         }
 
         User savedUser = userRepository.save(user);
@@ -415,10 +414,10 @@ public class UserService {
     /**
      * Updates a user's information by their UUID.
      *
-     * @param userId the UUID of the user to update
+     * @param userId  the UUID of the user to update
      * @param request the update request containing the new user information
      * @return the updated UserDTO
-     * @throws ResourceNotFoundException if no user exists with the given UUID
+     * @throws ResourceNotFoundException  if no user exists with the given UUID
      * @throws RequestValidationException if no changes were detected in the request
      */
     public UserDTO updateUser(UUID userId, UserUpdateRequest request) {
@@ -428,10 +427,8 @@ public class UserService {
                     log.warn("User not found for update with ID: {}", userId);
                     return new ResourceNotFoundException(
                             "No user account found with ID: " + userId + ". " +
-                                    "Please check the user ID or contact support if you believe this is an error."
-                    );
-                }
-        );
+                                    "Please check the user ID or contact support if you believe this is an error.");
+                });
 
         boolean changed = false;
         if (request.name() != null && !request.name().equals(user.getName())) {
@@ -449,8 +446,7 @@ public class UserService {
             log.warn("No changes detected for user update: {}", userId);
             throw new RequestValidationException(
                     "No changes were detected. " +
-                            "Please make sure you've modified at least one field."
-            );
+                            "Please make sure you've modified at least one field.");
         }
 
         User savedUser = userRepository.save(user);
@@ -459,41 +455,109 @@ public class UserService {
     }
 
     /**
-     * Deletes a user by their email address.
+     * Soft deletes a user by their email address.
      *
      * @param email the email address of the user to delete
      * @throws ResourceNotFoundException if no user exists with the given email
      */
+    @Transactional
     public void deleteUser(String email) {
-        log.info("Deleting user with email: {}", email);
+        log.info("Soft deleting user with email: {}", email);
         if (!userRepository.existsUserByEmail(email)) {
             log.warn("User not found for deletion with email: {}", email);
             throw new ResourceNotFoundException(
                     "No user account found with email: " + email + ". " +
-                            "Please check the email address or register for a new account."
-            );
+                            "Please check the email address or register for a new account.");
         }
-        userRepository.deleteByEmail(email);
-        log.info("Successfully deleted user with email: {}", email);
+        userRepository.updateDeletedByEmail(true, email);
+        log.info("Successfully soft deleted user with email: {}", email);
     }
 
     /**
-     * Deletes a user by their UUID.
+     * Soft deletes a user by their UUID.
      *
      * @param userId the UUID of the user to delete
      * @throws ResourceNotFoundException if no user exists with the given UUID
      */
+    @Transactional
     public void deleteUser(UUID userId) {
-        log.info("Deleting user with ID: {}", userId);
+        log.info("Soft deleting user with ID: {}", userId);
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> {
+                    log.warn("User not found for deletion with ID: {}", userId);
+                    return new ResourceNotFoundException(
+                            "No user account found with ID: " + userId + ". " +
+                                    "Please check the user ID or contact support if you believe this is an error.");
+                });
+        user.setDeleted(true);
+        userRepository.save(user);
+        log.info("Successfully soft deleted user with ID: {}", userId);
+    }
+
+    /**
+     * Restores a soft-deleted user by their UUID.
+     *
+     * @param userId the UUID of the user to restore
+     * @throws ResourceNotFoundException if no user exists with the given UUID
+     */
+    @Transactional
+    public void restoreUser(UUID userId) {
+        log.info("Restoring user with ID: {}", userId);
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> {
+                    log.warn("User not found for restoration with ID: {}", userId);
+                    return new ResourceNotFoundException(
+                            "No user account found with ID: " + userId + ".");
+                });
+        user.setDeleted(false);
+        userRepository.save(user);
+        log.info("Successfully restored user with ID: {}", userId);
+    }
+
+    /**
+     * Changes a user's password.
+     *
+     * @param email           the email of the user
+     * @param currentPassword the current password for verification
+     * @param newPassword     the new password to set
+     * @throws ResourceNotFoundException  if no user exists with the given email
+     * @throws RequestValidationException if the current password is incorrect
+     */
+    @Transactional
+    public void changePassword(String email, String currentPassword, String newPassword) {
+        log.info("Changing password for user: {}", email);
+        User user = userRepository.findByDeletedFalseAndEmail(email)
+                .orElseThrow(() -> {
+                    log.warn("User not found for password change: {}", email);
+                    return new ResourceNotFoundException("User not found");
+                });
+
+        if (!passwordEncoder.matches(currentPassword, user.getPasswordHash())) {
+            log.warn("Invalid current password provided for user: {}", email);
+            throw new RequestValidationException("Current password is incorrect");
+        }
+
+        user.setPasswordHash(passwordEncoder.encode(newPassword));
+        userRepository.save(user);
+        log.info("Successfully changed password for user: {}", email);
+    }
+
+    /**
+     * Permanently deletes a user (admin only).
+     *
+     * @param userId the UUID of the user to permanently delete
+     * @throws ResourceNotFoundException if no user exists with the given UUID
+     */
+    @Transactional
+    public void permanentlyDeleteUser(UUID userId) {
+        log.info("Permanently deleting user with ID: {}", userId);
         if (!userRepository.existsById(userId)) {
-            log.warn("User not found for deletion with ID: {}", userId);
+            log.warn("User not found for permanent deletion with ID: {}", userId);
             throw new ResourceNotFoundException(
-                    "No user account found with ID: " + userId + ". " +
-                            "Please check the user ID or contact support if you believe this is an error."
-            );
+                    "No user account found with ID: " + userId + ".");
         }
         userRepository.deleteById(userId);
-        log.info("Successfully deleted user with ID: {}", userId);
+        log.info("Successfully permanently deleted user with ID: {}", userId);
     }
 
 }

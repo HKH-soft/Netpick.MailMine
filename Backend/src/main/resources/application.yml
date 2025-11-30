@@ -63,7 +63,8 @@ management:
 security:
   jwt:
     secret-key: ${JWT_SECRET_KEY}
-    expiration-time: 3
+    access-expiration-minutes: 15
+    refresh-expiration-days: 7
     issuer: ${JWT_ISSUER}
 
 env:

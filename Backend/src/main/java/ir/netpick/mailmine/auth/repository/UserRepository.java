@@ -14,24 +14,46 @@ import java.util.Optional;
 import java.util.UUID;
 
 public interface UserRepository extends JpaRepository<User, UUID> {
+
+    // ==================== Find Operations ====================
+
     Optional<User> findByEmail(String email);
+
+    Optional<User> findByDeletedFalseAndEmail(String email);
+
+    Optional<User> findByDeletedFalseAndId(UUID id);
+
+    // ==================== Exists Operations ====================
 
     boolean existsUserByEmail(String email);
 
     boolean existsUserByDeletedFalseAndEmail(String email);
 
-    @Modifying()
-    @Query("UPDATE User u SET u.lastLoginAt = :now WHERE u.email = :email")
-    void updateLastLogin(@Param("now") LocalDateTime now, @Param("email") String email);
-
-    void deleteByEmail(String email);
-
-    @Transactional
-    @Modifying
-    @Query("update User u set u.deleted = ?1 where u.email = ?2")
-    int updateDeletedByEmail(Boolean deleted, String email);
+    // ==================== Pagination ====================
 
     Page<User> findByDeletedFalse(Pageable pageable);
 
-    Optional<User> findByDeletedFalseAndEmail(String email);
+    Page<User> findByDeletedTrue(Pageable pageable);
+
+    // ==================== Update Operations ====================
+
+    @Transactional
+    @Modifying
+    @Query("UPDATE User u SET u.lastLoginAt = :now WHERE u.email = :email")
+    void updateLastLogin(@Param("now") LocalDateTime now, @Param("email") String email);
+
+    @Transactional
+    @Modifying
+    @Query("UPDATE User u SET u.deleted = :deleted WHERE u.email = :email")
+    int updateDeletedByEmail(@Param("deleted") Boolean deleted, @Param("email") String email);
+
+    @Transactional
+    @Modifying
+    @Query("UPDATE User u SET u.deleted = :deleted WHERE u.id = :id")
+    int updateDeletedById(@Param("deleted") Boolean deleted, @Param("id") UUID id);
+
+    // ==================== Delete Operations ====================
+
+    @Transactional
+    void deleteByEmail(String email);
 }

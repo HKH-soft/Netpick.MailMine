@@ -14,7 +14,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
-import static java.time.temporal.ChronoUnit.DAYS;
+import static java.time.temporal.ChronoUnit.MINUTES;
 
 @Service
 public class JWTUtil {
@@ -22,8 +22,8 @@ public class JWTUtil {
     @Value("${security.jwt.secret-key}")
     private String secretKey;
 
-    @Value("${security.jwt.expiration-time}")
-    private long jwtExpiration;
+    @Value("${security.jwt.access-expiration-minutes:15}")
+    private long accessTokenExpirationMinutes;
 
     @Value("${security.jwt.issuer}")
     private String issuer;
@@ -50,7 +50,7 @@ public class JWTUtil {
                 .subject(subject)
                 .issuer(issuer)
                 .issuedAt(Date.from(Instant.now()))
-                .expiration(Date.from(Instant.now().plus(jwtExpiration, DAYS)))
+                .expiration(Date.from(Instant.now().plus(accessTokenExpirationMinutes, MINUTES)))
                 .signWith(getSignInKey())
                 .compact();
     }
@@ -59,8 +59,13 @@ public class JWTUtil {
         return getClaims(token).getSubject();
     }
 
-    public long getExpirationDate(String token) {
-        return jwtExpiration;
+    /**
+     * Get the expiration time in minutes.
+     * 
+     * @return expiration time in minutes
+     */
+    public long getAccessTokenExpirationMinutes() {
+        return accessTokenExpirationMinutes;
     }
 
     private Date extractExpiration(String token) {

@@ -1,6 +1,5 @@
 package ir.netpick.mailmine.auth.service;
 
-import ir.netpick.mailmine.auth.AuthConstants;
 import ir.netpick.mailmine.auth.exception.UserAlreadyVerifiedException;
 import ir.netpick.mailmine.auth.model.User;
 import ir.netpick.mailmine.auth.model.Verification;
@@ -14,11 +13,11 @@ import lombok.extern.log4j.Log4j2;
 import org.springframework.stereotype.Service;
 
 import java.security.SecureRandom;
-import java.time.LocalDateTime;
 
 /**
  * Service class for handling user verification operations.
- * Provides methods for creating, updating, and verifying user verification codes.
+ * Provides methods for creating, updating, and verifying user verification
+ * codes.
  */
 @Service
 @RequiredArgsConstructor
@@ -26,54 +25,56 @@ import java.time.LocalDateTime;
 public class VerificationService {
 
     private final UserRepository userRepository;
-    
+
     private static final SecureRandom secureRandom = new SecureRandom();
 
     /**
      * Verifies a code against the user's verification record.
      *
-     * @param verification the user's verification record
+     * @param user the user whose verification to check
      * @param code the verification code to check
      * @throws VerificationException if the verification fails for any reason
      */
-    public void verifyCode(Verification verification, String code) {
-        log.debug("Attempting to verify code");
-        
+    public void verifyCode(User user, String code) {
+        log.debug("Attempting to verify code for user: {}", user.getEmail());
+
+        Verification verification = user.getVerification();
+
         if (verification == null) {
-            log.warn("No verification pending");
+            log.warn("No verification pending for user: {}", user.getEmail());
             throw new VerificationException(
-                "No verification is currently pending for your account. " +
-                "Please request a new verification code."
-            );
+                    "No verification is currently pending for your account. " +
+                            "Please request a new verification code.");
         }
 
         if (verification.isExpired()) {
-            log.warn("Verification code expired at: {}", verification.getVerificationExpiresAt());
+            log.warn("Verification code expired at: {} for user: {}",
+                    verification.getVerificationExpiresAt(), user.getEmail());
             throw new VerificationException(
-                "Your verification code has expired. " +
-                "Please request a new verification code."
-            );
+                    "Your verification code has expired. " +
+                            "Please request a new verification code.");
         }
 
         if (verification.hasReachedMaxAttempts()) {
-            log.warn("Too many verification attempts. Attempts: {}", verification.getAttempts());
+            log.warn("Too many verification attempts. Attempts: {} for user: {}",
+                    verification.getAttempts(), user.getEmail());
             throw new VerificationException(
-                "You've exceeded the maximum number of verification attempts. " +
-                "Please wait 10 minutes or request a new code."
-            );
+                    "You've exceeded the maximum number of verification attempts. " +
+                            "Please wait 10 minutes or request a new code.");
         }
 
         if (!verification.matches(code)) {
             verification.incrementAttempts();
-            log.warn("Invalid verification code provided. Attempt #{}, Code: {}", 
-                     verification.getAttempts(), code);
+            // Persist the attempt count to database
+            userRepository.save(user);
+            log.warn("Invalid verification code provided. Attempt #{} for user: {}",
+                    verification.getAttempts(), user.getEmail());
             throw new VerificationException(
-                "The verification code you entered is invalid. " +
-                "Please check the code and try again."
-            );
+                    "The verification code you entered is invalid. " +
+                            "Please check the code and try again.");
         }
 
-        log.info("Verification code successfully validated");
+        log.info("Verification code successfully validated for user: {}", user.getEmail());
         // otherwise success
     }
 
@@ -85,7 +86,7 @@ public class VerificationService {
     public Verification createVerification() {
         log.debug("Creating new verification record");
         Verification verification = new Verification(generateVerificationCode());
-        log.info("New verification record created with code: {}", verification.getCode());
+        log.debug("New verification record created");
         return verification;
     }
 
@@ -96,31 +97,31 @@ public class VerificationService {
      */
     public void updateVerification(Verification verification) {
         log.debug("Updating verification record");
-        String oldCode = verification.getCode();
         verification.updateCode(generateVerificationCode());
-        log.info("Verification code updated from {} to {}", oldCode, verification.getCode());
+        log.debug("Verification code updated successfully");
     }
-    
+
     /**
      * Prepares a user for verification by creating or updating verification code.
-     * SUPER_ADMIN users are automatically verified and do not receive verification codes.
+     * SUPER_ADMIN users are automatically verified and do not receive verification
+     * codes.
      *
      * @param user The user to prepare for verification
-     * @return The verification code that was created/updated, or null for SUPER_ADMIN users
+     * @return The verification code that was created/updated, or null for
+     *         SUPER_ADMIN users
      * @throws UserAlreadyVerifiedException if the user is already verified
      */
     public String prepareUserForVerification(User user) {
         log.info("Preparing user for verification: {}", user.getEmail());
-        
+
         // If user already verified, no need to send verification
         if (Boolean.TRUE.equals(user.getIsVerified())) {
             log.warn("User already verified: {}", user.getEmail());
             throw new UserAlreadyVerifiedException(
-                "Your account is already verified. " +
-                "You can sign in directly without verification."
-            );
+                    "Your account is already verified. " +
+                            "You can sign in directly without verification.");
         }
-        
+
         // Skip verification for SUPER_ADMIN users
         if (user.getRole().getName() == RoleEnum.SUPER_ADMIN) {
             log.info("Skipping verification for SUPER_ADMIN user: {}", user.getEmail());
@@ -142,11 +143,11 @@ public class VerificationService {
             // Update with new code
             updateVerification(user.getVerification());
             verificationCode = user.getVerification().getCode();
-            
+
             // Save the updated user
             userRepository.save(user);
         }
-        
+
         log.info("User verification prepared successfully: {}", user.getEmail());
         return verificationCode;
     }
@@ -161,7 +162,7 @@ public class VerificationService {
         String letters = randomLetters(VERIFICATION_CODE_LETTER_COUNT);
         String digits = randomDigits(VERIFICATION_CODE_DIGIT_COUNT);
         String code = letters + digits;
-        log.debug("Generated verification code: {}", code);
+        log.trace("Verification code generated"); // Code intentionally not logged for security
         return code;
     }
 

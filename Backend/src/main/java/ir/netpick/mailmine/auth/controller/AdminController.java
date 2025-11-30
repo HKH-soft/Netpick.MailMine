@@ -16,22 +16,22 @@ public class AdminController {
 
     private final AdminService adminService;
 
+    /**
+     * Create a new user account (admin-initiated, skips normal signup)
+     */
     @PostMapping("/users")
     public ResponseEntity<?> createUser(@RequestBody AuthenticationSignupRequest request) {
         adminService.createAdminUser(request);
         return ResponseEntity.ok().build();
     }
-    
+
+    /**
+     * Create a new admin account (super admin only)
+     */
     @PostMapping("/admins")
     @PreAuthorize("hasRole('SUPER_ADMIN')")
     public ResponseEntity<?> createAdminUser(@RequestBody AuthenticationSignupRequest request) {
         adminService.createAdminUser(request, RoleEnum.ADMIN);
-        return ResponseEntity.ok().build();
-    }
-    
-    @PostMapping("/users/{userEmail}/send-verification")
-    public ResponseEntity<?> sendVerificationEmail(@PathVariable String userEmail) {
-        adminService.sendVerificationEmailToUser(userEmail);
         return ResponseEntity.ok().build();
     }
 }

@@ -27,9 +27,22 @@ public class SecurityFilterChainConfig {
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http.csrf(AbstractHttpConfigurer::disable);
         http.authorizeHttpRequests(request -> request
-                .requestMatchers(HttpMethod.POST, "/auth/sign-up", "/auth/sign-in","/auth/verify", "/auth/resend-verification")
+                .requestMatchers(HttpMethod.POST,
+                        "/api/v1/auth/sign-up",
+                        "/api/v1/auth/sign-in",
+                        "/api/v1/auth/verify",
+                        "/api/v1/auth/resend-verification",
+                        "/api/v1/auth/refresh",
+                        "/api/v1/auth/logout")
                 .permitAll()
                 .requestMatchers(HttpMethod.GET, "/actuator/**")
+                .permitAll()
+                // Swagger UI and OpenAPI docs
+                .requestMatchers(
+                        "/swagger-ui.html",
+                        "/swagger-ui/**",
+                        "/v3/api-docs/**",
+                        "/v3/api-docs.yaml")
                 .permitAll()
                 .anyRequest().authenticated());
         http.sessionManagement(request -> request.sessionCreationPolicy(SessionCreationPolicy.STATELESS));

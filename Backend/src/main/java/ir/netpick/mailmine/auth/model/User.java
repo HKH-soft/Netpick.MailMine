@@ -49,14 +49,14 @@ public class User extends BaseEntity implements UserDetails {
     @Column(name = "profile_image_key")
     private String profileImageKey;
 
-    @ManyToOne(cascade = CascadeType.REMOVE)
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "role_id", referencedColumnName = "id", nullable = false)
     private Role role;
 
     @Type(JsonBinaryType.class)
     @Column(columnDefinition = "jsonb")
     @Enumerated(EnumType.STRING)
-    private Map<PreferencesEnum,String> preferences;
+    private Map<PreferencesEnum, String> preferences;
 
     @Column(name = "last_login_at")
     private LocalDateTime lastLoginAt;
@@ -66,7 +66,6 @@ public class User extends BaseEntity implements UserDetails {
 
     @Column(name = "is_verified", nullable = false)
     private Boolean isVerified = false;
-
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
