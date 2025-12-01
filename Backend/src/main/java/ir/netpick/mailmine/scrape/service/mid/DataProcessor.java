@@ -2,6 +2,7 @@ package ir.netpick.mailmine.scrape.service.mid;
 
 import ir.netpick.mailmine.scrape.model.ScrapeData;
 import ir.netpick.mailmine.scrape.parser.ContactInfoParser;
+import ir.netpick.mailmine.scrape.model.Contact;
 import ir.netpick.mailmine.scrape.file.FileManagement;
 import ir.netpick.mailmine.scrape.service.base.ContactService;
 import ir.netpick.mailmine.scrape.service.base.ScrapeDataService;
@@ -42,7 +43,12 @@ public class DataProcessor {
                     scrapeData.getAttemptNumber(),
                     scrapeData.getFileName());
 
-            contactService.createContact(ContactInfoParser.parse(content));
+            Contact parsedContact = ContactInfoParser.parse(content);
+            if (parsedContact != null && parsedContact.hasContactInfo()) {
+                contactService.createContact(parsedContact);
+            } else {
+                log.info("No contact info found in ScrapeData ID: {} - skipping creation", scrapeData.getId());
+            }
 
             scrapeData.setParsed(true);
 

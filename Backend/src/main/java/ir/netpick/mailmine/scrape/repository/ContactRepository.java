@@ -16,7 +16,7 @@ public interface ContactRepository extends JpaRepository<Contact, UUID> {
 
     // Find all non-deleted contacts with pagination
     Page<Contact> findByDeletedFalse(Pageable pageable);
-    
+
     // Find all deleted contacts with pagination
     Page<Contact> findByDeletedTrue(Pageable pageable);
 
