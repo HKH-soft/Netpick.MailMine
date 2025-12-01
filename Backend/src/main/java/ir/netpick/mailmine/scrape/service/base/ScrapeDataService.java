@@ -14,7 +14,6 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import ir.netpick.mailmine.common.exception.ResourceNotFoundException;
-import ir.netpick.mailmine.scrape.file.FileManagement;
 import ir.netpick.mailmine.scrape.model.ScrapeData;
 import ir.netpick.mailmine.scrape.model.ScrapeJob;
 import ir.netpick.mailmine.scrape.repository.ScrapeDataRepository;
