@@ -65,6 +65,56 @@
     "description": "A description for 'google.search.max-pages'."
   },
   {
+    "name": "google.search.rate-limit-ms",
+    "type": "java.lang.String",
+    "description": "A description for 'google.search.rate-limit-ms'"
+  },
+  {
+    "name": "scraper.use-proxy",
+    "type": "java.lang.String",
+    "description": "A description for 'scraper.use-proxy'"
+  },
+  {
+    "name": "scraper.batch-size",
+    "type": "java.lang.String",
+    "description": "A description for 'scraper.batch-size'"
+  },
+  {
+    "name": "v2ray.executable",
+    "type": "java.lang.String",
+    "description": "A description for 'v2ray.executable'"
+  },
+  {
+    "name": "v2ray.config-dir",
+    "type": "java.lang.String",
+    "description": "A description for 'v2ray.config-dir'"
+  },
+  {
+    "name": "v2ray.base-port",
+    "type": "java.lang.String",
+    "description": "A description for 'v2ray.base-port'"
+  },
+  {
+    "name": "google.search.max-retries-per-page",
+    "type": "java.lang.String",
+    "description": "A description for 'google.search.max-retries-per-page'"
+  },
+  {
+    "name": "google.search.backoff-initial-ms",
+    "type": "java.lang.String",
+    "description": "A description for 'google.search.backoff-initial-ms'"
+  },
+  {
+    "name": "google.search.backoff-multiplier",
+    "type": "java.lang.String",
+    "description": "A description for 'google.search.backoff-multiplier'"
+  },
+  {
+    "name": "google.search.backoff-max-ms",
+    "type": "java.lang.String",
+    "description": "A description for 'google.search.backoff-max-ms'"
+  },
+  {
     "name": "security.jwt.access-expiration-minutes",
     "type": "java.lang.String",
     "description": "A description for 'security.jwt.access-expiration-minutes'"

@@ -1,13 +1,18 @@
 package ir.netpick.mailmine.scrape.model;
 
-import ir.netpick.mailmine.common.BaseEntity;
-import jakarta.persistence.*;
-import lombok.Getter;
-import lombok.Setter;
+import java.time.LocalDateTime;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
-import java.time.LocalDateTime;
+import ir.netpick.mailmine.common.BaseEntity;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.Table;
+import lombok.Getter;
+import lombok.Setter;
 
 @Getter
 @Setter
@@ -21,7 +26,7 @@ public class ScrapeData extends BaseEntity {
     @Column(name = "attempt_number", nullable = false)
     private int attemptNumber;
 
-    @ManyToOne(cascade = CascadeType.REMOVE)
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "job_id", referencedColumnName = "id", nullable = false)
     private ScrapeJob scrapeJob;
 

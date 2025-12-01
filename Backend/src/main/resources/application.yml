@@ -1,10 +1,13 @@
 server:
-  port: 8080
+  port: ${SERVER_PORT:8080}
 spring:
   profiles:
     active: dev
   application:
     name: mailmine
+  output:
+    ansi:
+      enabled: always
   mail:
     host: smtp.gmail.com
     port: 587
@@ -23,14 +26,16 @@ spring:
           writetimeout: 5000
   datasource:
     driver-class-name: org.postgresql.Driver
-    url: jdbc:postgresql://${POSTGRES_URL}
+    url: jdbc:postgresql://${POSTGRES_URL}/${DATABASE_NAME}
     username: ${POSTGRES_USERNAME}
     password: ${POSTGRES_PASSWORD}
     hikari:
+      pool-name: MailMineHikariPool
       maximum-pool-size: 10
-      minimum-idle: 2
+      minimum-idle: 10
       idle-timeout: 30000
       max-lifetime: 1800000
+      connection-timeout: 20000
   flyway:
     baseline-on-migrate: true
     baseline-version: 1
@@ -70,17 +75,15 @@ security:
 env:
   page-size: 25
 
-selenium:
-  chrome:
-    binary:
-      path: ${CHROME_BINARY_PATH}
-    driver:
-      path: ${CHROME_DRIVER_PATH}
-
 google:
   search:
     results-per-page: 10
     max-pages: 3
+    rate-limit-ms: 1000
+    max-retries-per-page: 3
+    backoff-initial-ms: 3000
+    backoff-multiplier: 2.0
+    backoff-max-ms: 20000
 
 springdoc:
   api-docs:
@@ -92,3 +95,12 @@ springdoc:
     try-it-out-enabled: true
     filter: true
     display-request-duration: true
+
+scraper:
+  use-proxy: true
+  batch-size: 100
+
+v2ray:
+  executable: ${XRAY_EXECUTABLE_PATH}
+  config-dir: ${java.io.tmpdir}/mailmine/v2ray-configs
+  base-port: 30000

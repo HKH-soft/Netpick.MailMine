@@ -1,18 +1,27 @@
 package ir.netpick.mailmine.scrape.repository;
 
-import ir.netpick.mailmine.scrape.model.SearchQuery;
+import java.util.List;
+import java.util.UUID;
+
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.lang.NonNull;
 import org.springframework.stereotype.Repository;
-import org.springframework.transaction.annotation.Transactional;
 
-import java.util.List;
-import java.util.UUID;
+import ir.netpick.mailmine.scrape.model.SearchQuery;
+import org.springframework.transaction.annotation.Transactional;
 
 @Repository
 public interface SearchQueryRepository extends JpaRepository<SearchQuery, UUID> {
+
+    // Find all non-deleted search queries with pagination
+    Page<SearchQuery> findByDeletedFalse(Pageable pageable);
+    
+    // Find all deleted search queries with pagination
+    Page<SearchQuery> findByDeletedTrue(Pageable pageable);
 
     @Transactional
     @Modifying

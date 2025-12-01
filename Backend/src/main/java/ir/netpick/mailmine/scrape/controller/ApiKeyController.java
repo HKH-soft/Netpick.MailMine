@@ -11,7 +11,7 @@ import java.util.UUID;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/scrape/api_keys")
+@RequestMapping("/api/v1/scrape/api_keys")
 @PreAuthorize("hasAnyRole('ADMIN', 'SUPER_ADMIN')")
 public class ApiKeyController {
 
@@ -21,10 +21,25 @@ public class ApiKeyController {
     public ResponseEntity<?> getApiKeys(@RequestParam(defaultValue = "1") Integer page) {
         return ResponseEntity.ok().body(ApiKeyService.allKeys(page));
     }
+    
+    @GetMapping("/deleted")
+    public ResponseEntity<?> getDeletedApiKeys(@RequestParam(defaultValue = "1") Integer page) {
+        return ResponseEntity.ok().body(ApiKeyService.deletedKeys(page));
+    }
+    
+    @GetMapping("/all")
+    public ResponseEntity<?> getAllApiKeysIncludingDeleted(@RequestParam(defaultValue = "1") Integer page) {
+        return ResponseEntity.ok().body(ApiKeyService.allKeysIncludingDeleted(page));
+    }
 
     @GetMapping("{id}")
     public ResponseEntity<?> getApiKey(@PathVariable UUID id) {
         return ResponseEntity.ok().body(ApiKeyService.getKey(id));
+    }
+    
+    @GetMapping("/deleted/{id}")
+    public ResponseEntity<?> getDeletedApiKey(@PathVariable UUID id) {
+        return ResponseEntity.ok().body(ApiKeyService.getKeyIncludingDeleted(id));
     }
 
     @PostMapping("")
@@ -36,9 +51,21 @@ public class ApiKeyController {
     public ResponseEntity<?> updateApiKey(@PathVariable UUID id, @RequestBody ApiKeyRequest request) {
         return ResponseEntity.ok().body(ApiKeyService.updateKey(id, request));
     }
+    
+    @PutMapping("{id}/restore")
+    public ResponseEntity<?> restoreApiKey(@PathVariable UUID id) {
+        ApiKeyService.restoreKey(id);
+        return ResponseEntity.ok().build();
+    }
 
     @DeleteMapping("{id}")
     public ResponseEntity<?> deleteApiKey(@PathVariable UUID id) {
+        ApiKeyService.softDeleteKey(id);
+        return ResponseEntity.noContent().build();
+    }
+    
+    @DeleteMapping("{id}/full_delete")
+    public ResponseEntity<?> fullDeleteApiKey(@PathVariable UUID id) {
         ApiKeyService.deleteKey(id);
         return ResponseEntity.noContent().build();
     }

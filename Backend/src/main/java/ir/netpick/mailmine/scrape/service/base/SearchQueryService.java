@@ -1,16 +1,13 @@
 package ir.netpick.mailmine.scrape.service.base;
 
+import java.util.Objects;
+import java.util.UUID;
+import java.util.stream.Collectors;
+
 import ir.netpick.mailmine.common.PageDTO;
-import ir.netpick.mailmine.common.exception.ResourceNotFoundException;
-import ir.netpick.mailmine.scrape.dto.SearchQueryRequest;
 import ir.netpick.mailmine.scrape.dto.SearchQueryResponse;
 import ir.netpick.mailmine.scrape.mapper.SearchQueryDTOMapper;
-import ir.netpick.mailmine.scrape.model.SearchQuery;
-import ir.netpick.mailmine.scrape.repository.SearchQueryRepository;
-import jakarta.validation.Valid;
-import jakarta.validation.constraints.NotNull;
-import lombok.RequiredArgsConstructor;
-import lombok.extern.log4j.Log4j2;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -19,11 +16,14 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.annotation.Validated;
 
-import java.util.Objects;
-import java.util.UUID;
-import java.util.stream.Collectors;
-
-@Log4j2
+import ir.netpick.mailmine.common.exception.ResourceNotFoundException;
+import ir.netpick.mailmine.scrape.dto.SearchQueryRequest;
+import ir.netpick.mailmine.scrape.model.SearchQuery;
+import ir.netpick.mailmine.scrape.repository.SearchQueryRepository;
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotNull;
+import lombok.RequiredArgsConstructor;
+@Slf4j
 @Validated
 @Service
 @RequiredArgsConstructor
@@ -41,6 +41,30 @@ public class SearchQueryService {
 
     public PageDTO<SearchQueryResponse> allSearchQueries(int pageNumber) {
         Pageable pageable = PageRequest.of(pageNumber - 1 , pageSize, Sort.by("createdAt").descending());
+        Page<SearchQuery> page =  searchQueryRepository.findByDeletedFalse(pageable);
+        return new PageDTO<>(
+                page.getContent()
+                        .stream()
+                        .map(searchQueryDTOMapper)
+                        .collect(Collectors.toList()),
+                page.getTotalPages(),
+                page.getNumber() + 1);
+    }
+    
+    public PageDTO<SearchQueryResponse> deletedSearchQueries(int pageNumber) {
+        Pageable pageable = PageRequest.of(pageNumber - 1 , pageSize, Sort.by("createdAt").descending());
+        Page<SearchQuery> page =  searchQueryRepository.findByDeletedTrue(pageable);
+        return new PageDTO<>(
+                page.getContent()
+                        .stream()
+                        .map(searchQueryDTOMapper)
+                        .collect(Collectors.toList()),
+                page.getTotalPages(),
+                page.getNumber() + 1);
+    }
+    
+    public PageDTO<SearchQueryResponse> allSearchQueriesIncludingDeleted(int pageNumber) {
+        Pageable pageable = PageRequest.of(pageNumber - 1 , pageSize, Sort.by("createdAt").descending());
         Page<SearchQuery> page =  searchQueryRepository.findAll(pageable);
         return new PageDTO<>(
                 page.getContent()
@@ -52,6 +76,11 @@ public class SearchQueryService {
     }
 
     public SearchQuery getSearchQuery(@NotNull UUID id) {
+        return searchQueryRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("SearchQuery with ID [%s] not found.".formatted(id)));
+    }
+    
+    public SearchQuery getSearchQueryIncludingDeleted(@NotNull UUID id) {
         return searchQueryRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("SearchQuery with ID [%s] not found.".formatted(id)));
     }
@@ -104,12 +133,13 @@ public class SearchQueryService {
         searchQueryRepository.softDelete(id);
         log.info("Soft deleted SearchQuery with ID: {}", id);
     }
+    
     public void restoreSearchQuery(@NotNull UUID id) {
         if (!searchQueryRepository.existsById(id)) {
             throw new ResourceNotFoundException("SearchQuery with ID [%s] not found.".formatted(id));
         }
         searchQueryRepository.restore(id);
-        log.info("Soft deleted SearchQuery with ID: {}", id);
+        log.info("Restored SearchQuery with ID: {}", id);
     }
 
     public void deleteSearchQuery(@NotNull UUID id) {
