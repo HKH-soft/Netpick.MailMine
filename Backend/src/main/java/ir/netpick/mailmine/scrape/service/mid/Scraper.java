@@ -1,9 +1,15 @@
 package ir.netpick.mailmine.scrape.service.mid;
 
+import java.net.URI;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import com.microsoft.playwright.Browser;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import com.microsoft.playwright.BrowserContext;
 import com.microsoft.playwright.BrowserType;
 import com.microsoft.playwright.Page;
@@ -14,6 +20,7 @@ import ir.netpick.mailmine.scrape.service.base.ProxyService;
 import ir.netpick.mailmine.scrape.service.base.ScrapeDataService;
 import ir.netpick.mailmine.scrape.service.base.ScrapeJobService;
 import ir.netpick.mailmine.scrape.service.base.V2RayClientService;
+import ir.netpick.mailmine.scrape.service.orch.PipelineControlService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -33,12 +40,28 @@ public class Scraper {
     private final ScrapeDataService scrapeDataService;
     private final ProxyService proxyService;
     private final V2RayClientService v2RayClientService;
+    private final PipelineControlService pipelineControlService;
 
     @Value("${scraper.use-proxy:true}")
     private boolean useProxy;
 
+    @Value("${scraper.batch-size:100}")
+    private int scraperBatchSize;
+
+    // Progress tracking
+    private final AtomicInteger processedCount = new AtomicInteger(0);
+    private int totalCount = 0;
+
     public int getDataCount() {
-        return scrapeDataService.allData().size();
+        return (int) scrapeDataService.countAll();
+    }
+
+    public int getProcessedCount() {
+        return processedCount.get();
+    }
+
+    public int getTotalCount() {
+        return totalCount;
     }
 
     public void scrapePendingJobs() {
@@ -46,18 +69,40 @@ public class Scraper {
     }
 
     public void scrapePendingJobs(boolean headless) {
-        List<ScrapeJob> scrapeJobs = fetchPendingJobs();
-
-        if (scrapeJobs.isEmpty()) {
+        long pendingJobs = scrapeJobRepository.countPendingJobs(ScrapeConstants.MAX_ATTEMPTS);
+        if (pendingJobs == 0) {
             log.info("No Scrape jobs left to process");
             return;
         }
 
-        log.info("Starting to scrape {} pending jobs (useProxy={})", scrapeJobs.size(), useProxy);
+        processedCount.set(0);
+        totalCount = (int) pendingJobs;
+
+        log.info("Starting to scrape {} pending jobs (useProxy={}, batchSize={})",
+                totalCount, useProxy, scraperBatchSize);
 
         try (Playwright playwright = Playwright.create()) {
-            for (ScrapeJob scrapeJob : scrapeJobs) {
-                processJobWithProxy(scrapeJob, playwright, headless);
+            while (true) {
+                List<ScrapeJob> scrapeJobs = fetchPendingJobs();
+                if (scrapeJobs.isEmpty()) {
+                    log.debug("No more pending jobs found in current batch");
+                    break;
+                }
+
+                for (ScrapeJob scrapeJob : scrapeJobs) {
+                    try {
+                        if (!pipelineControlService.checkAndWait()) {
+                            log.info("Scraping stopped due to pipeline control (paused/cancelled/skipped)");
+                            return;
+                        }
+                    } catch (InterruptedException e) {
+                        Thread.currentThread().interrupt();
+                        log.info("Scraping interrupted");
+                        return;
+                    }
+
+                    processJobWithProxy(scrapeJob, playwright, headless);
+                }
             }
         } catch (PlaywrightException e) {
             log.error("Failed to initialize Playwright: {}", e.getMessage(), e);
@@ -65,7 +110,27 @@ public class Scraper {
     }
 
     private List<ScrapeJob> fetchPendingJobs() {
-        return scrapeJobRepository.findByAttemptLessThanEqual(ScrapeConstants.MAX_ATTEMPTS);
+        PageRequest pageRequest = PageRequest.of(0, scraperBatchSize, Sort.by("createdAt").ascending());
+        return scrapeJobRepository.findPendingJobs(ScrapeConstants.MAX_ATTEMPTS, pageRequest)
+                .stream()
+                .filter(job -> !isBlockedDomain(job.getLink()))
+                .toList();
+    }
+
+    /**
+     * Check if a URL belongs to a blocked domain
+     */
+    private boolean isBlockedDomain(String url) {
+        try {
+            String host = new URI(url).getHost();
+            if (host == null)
+                return false;
+            return Arrays.stream(ScrapeConstants.BLOCKED_DOMAINS)
+                    .anyMatch(blocked -> host.contains(blocked));
+        } catch (Exception e) {
+            log.warn("Failed to parse URL for domain check: {}", url);
+            return false;
+        }
     }
 
     private void processJobWithProxy(ScrapeJob scrapeJob, Playwright playwright, boolean headless) {
@@ -95,7 +160,7 @@ public class Scraper {
                         "--disable-dev-shm-usage"));
 
         // Apply proxy if available
-        if (proxyOpt.isPresent()) {
+        if (proxyOpt.isPresent() && proxyModel != null) {
             launchOptions.setProxy(new Proxy(proxyModel.toProxyUrl()));
             log.debug("Using proxy: {}", proxyModel.toProxyUrl());
         } else if (useProxy) {
@@ -126,8 +191,10 @@ public class Scraper {
                 String pageSource = page.content();
                 scrapeDataService.createScrapeData(pageSource, scrapeJob.getId());
 
-                // Record success
+                // Record success - MARK AS SCRAPED!
                 scrapeJob.setAttempt(scrapeJob.getAttempt() + 1);
+                scrapeJob.setBeenScraped(true); // Critical fix: mark as scraped
+                scrapeJob.setScrapeFailed(false);
                 scrapeJobService.updateScrapeJob(scrapeJob.getId(), scrapeJob);
 
                 // Record proxy success
@@ -136,7 +203,9 @@ public class Scraper {
                     proxyService.recordProxySuccess(proxyOpt.get().getId(), responseTime);
                 }
 
-                log.debug("Successfully scraped job {}: {}", scrapeJob.getId(), scrapeJob.getLink());
+                // Update progress
+                int processed = processedCount.incrementAndGet();
+                log.info("[{}/{}] Successfully scraped: {}", processed, totalCount, scrapeJob.getLink());
             }
         } catch (PlaywrightException e) {
             handleScrapeFailure(scrapeJob, proxyOpt, e);
@@ -153,7 +222,19 @@ public class Scraper {
     private void handleScrapeFailure(ScrapeJob scrapeJob,
             Optional<ir.netpick.mailmine.scrape.model.Proxy> proxyOpt,
             Exception e) {
-        scrapeJob.setScrapeFailed(true);
+        // Increment attempt count on failure
+        scrapeJob.setAttempt(scrapeJob.getAttempt() + 1);
+
+        // Only mark as permanently failed if max attempts reached
+        if (scrapeJob.getAttempt() >= ScrapeConstants.MAX_ATTEMPTS) {
+            scrapeJob.setScrapeFailed(true);
+            log.error("[FAILED] Max attempts reached for job {}: {}", scrapeJob.getId(), scrapeJob.getLink());
+        } else {
+            log.warn("[RETRY {}/{}] Failed to scrape {}: {}",
+                    scrapeJob.getAttempt(), ScrapeConstants.MAX_ATTEMPTS,
+                    scrapeJob.getLink(), e.getMessage());
+        }
+
         scrapeJobService.updateScrapeJob(scrapeJob.getId(), scrapeJob);
 
         // Record proxy failure
@@ -161,6 +242,7 @@ public class Scraper {
             proxyService.recordProxyFailure(proxyOpt.get().getId());
         }
 
-        log.error("Failed to process scrape job {}: {}", scrapeJob.getId(), e.getMessage());
+        // Update progress
+        processedCount.incrementAndGet();
     }
 }

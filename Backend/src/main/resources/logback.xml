@@ -16,12 +16,10 @@
     <property name="ARCHIVE_PATH" value="${LOG_PATH}/archive" />
 
     <!-- Spring Boot "Vibrant" Console Pattern -->
-    <property name="CONSOLE_PATTERN"
-              value="%clr(%d{HH:mm:ss.SSS}){cyan} %clr(%-5level) %clr([%15.15t]){magenta} %clr(%-40.40logger{36}){blue} %clr(»){faint} %msg%n%wEx" />
+    <property name="CONSOLE_PATTERN" value="%clr(%d{HH:mm:ss.SSS}){cyan} %clr(%-5level) %clr([%15.15t]){magenta} %clr(%-40.40logger{36}){blue} %clr(->){faint} %msg%n%wEx" />
 
     <!-- Clean File Pattern -->
-    <property name="FILE_PATTERN"
-              value="%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n" />
+    <property name="FILE_PATTERN" value="%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n" />
 
     <!-- =================================================================== -->
     <!-- 3. APPENDERS                                                        -->

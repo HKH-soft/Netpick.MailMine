@@ -2,6 +2,8 @@ package ir.netpick.mailmine.scrape.service.mid;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.concurrent.ThreadLocalRandom;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import ir.netpick.mailmine.scrape.ScrapeConstants;
 import ir.netpick.mailmine.scrape.service.base.ScrapeJobService;
@@ -17,6 +19,7 @@ import ir.netpick.mailmine.scrape.model.SearchQuery;
 import ir.netpick.mailmine.scrape.parser.LinkParser;
 import ir.netpick.mailmine.scrape.repository.ApiKeyRepository;
 import ir.netpick.mailmine.scrape.repository.SearchQueryRepository;
+import ir.netpick.mailmine.scrape.service.orch.PipelineControlService;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import reactor.core.publisher.Mono;
@@ -29,11 +32,11 @@ public class ApiCaller {
     private final ApiKeyRepository apiKeyRepository;
     private final ScrapeJobService scrapeJobService;
     private final SearchQueryRepository searchQueryRepository;
+    private final PipelineControlService pipelineControlService;
 
     // Configurable WebClient with timeouts (non-blocking)
     private final WebClient webClient = WebClient.builder()
-            .codecs(configurer -> configurer.defaultCodecs().maxInMemorySize(16 * 1024 * 1024)) // Increase buffer if
-                                                                                                // needed
+            .codecs(configurer -> configurer.defaultCodecs().maxInMemorySize(16 * 1024 * 1024))
             .build();
 
     @Value("${google.search.results-per-page:10}")
@@ -41,6 +44,33 @@ public class ApiCaller {
 
     @Value("${google.search.max-pages:3}")
     private int maxPages;
+
+    @Value("${google.search.rate-limit-ms:1000}")
+    private long rateLimitMs;
+
+    @Value("${google.search.max-retries-per-page:3}")
+    private int maxRetriesPerPage;
+
+    @Value("${google.search.backoff-initial-ms:3000}")
+    private long initialBackoffMs;
+
+    @Value("${google.search.backoff-multiplier:2.0}")
+    private double backoffMultiplier;
+
+    @Value("${google.search.backoff-max-ms:20000}")
+    private long maxBackoffMs;
+
+    // Progress tracking
+    private final AtomicInteger processedCount = new AtomicInteger(0);
+    private int totalCount = 0;
+
+    public int getProcessedCount() {
+        return processedCount.get();
+    }
+
+    public int getTotalCount() {
+        return totalCount;
+    }
 
     @Transactional
     public void callGoogleSearch() {
@@ -55,35 +85,80 @@ public class ApiCaller {
             return;
         }
 
+        // Initialize progress tracking
+        processedCount.set(0);
+        totalCount = queries.size();
+
+        log.info("Processing {} search queries with rate limit of {}ms between API calls",
+                totalCount, rateLimitMs);
+
         for (SearchQuery query : queries) {
+            // Check if pipeline is paused/cancelled/skipped
+            try {
+                if (!pipelineControlService.checkAndWait()) {
+                    log.info("API caller stopped due to pipeline control (paused/cancelled/skipped)");
+                    break;
+                }
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+                log.info("API caller interrupted");
+                break;
+            }
+
             if (query.getSentence().isBlank()) {
                 log.error("Query with id {} is blank", query.getId());
+                processedCount.incrementAndGet();
                 continue;
             }
+
             int linksCreated = processQuery(query, keys);
             query.setLinkCount(query.getLinkCount() + linksCreated);
             searchQueryRepository.save(query);
+
+            int processed = processedCount.incrementAndGet();
+            log.info("[{}/{}] Query '{}' created {} links",
+                    processed, totalCount,
+                    truncate(query.getSentence(), 50), linksCreated);
         }
     }
 
     private int processQuery(SearchQuery query, List<ApiKey> keys) {
-        int keyIndex = 0;
         int totalLinksCreated = 0;
-        for (int page = 0; page < maxPages; page++) {
-            ApiKey currentKey = keys.get(keyIndex);
+        int page = 0;
+        int keyIndex = ThreadLocalRandom.current().nextInt(keys.size());
+        long backoffDelay = initialBackoffMs;
+        int retriesForPage = 0;
 
+        while (page < maxPages) {
+            if (pipelineControlService.shouldStop()) {
+                log.info("Stopping query processing due to pipeline control");
+                break;
+            }
+
+            if ((page > 0 || processedCount.get() > 0) && rateLimitMs > 0) {
+                if (!sleepRespectingPipeline(rateLimitMs)) {
+                    log.info("Rate limit wait interrupted or cancelled");
+                    break;
+                }
+            }
+
+            ApiKey currentKey = keys.get(keyIndex);
             String uri = buildUri(query.getSentence(), page, currentKey);
 
             try {
                 String json = executeApiCall(uri).block();
                 if (json == null || json.isEmpty()) {
-                    log.warn("Empty response for query: {}", query.getSentence());
+                    log.warn("Empty response for query: {}", truncate(query.getSentence(), 50));
+                    page++;
                     continue;
                 }
 
                 List<LinkResult> parsedLinks = LinkParser.parse(json);
                 if (parsedLinks.isEmpty()) {
-                    log.info("No links parsed for query: {} (page {})", query.getSentence(), page);
+                    log.debug("No links parsed for query: {} (page {})",
+                            truncate(query.getSentence(), 50), page);
+                    page++;
+                    keyIndex = (keyIndex + 1) % keys.size();
                     continue;
                 }
 
@@ -92,25 +167,85 @@ public class ApiCaller {
 
                 scrapeJobService.createJobsByList(urls, titles);
                 totalLinksCreated += urls.size();
-                log.info("Created scrape jobs for {} links from query: {} (page {})", urls.size(),
-                        query.getSentence(), page);
+                log.debug("Created {} scrape jobs from query page {}", urls.size(), page);
+
+                // Reset retry/backoff for next page and advance key for load balancing
+                retriesForPage = 0;
+                backoffDelay = initialBackoffMs;
+                page++;
+                keyIndex = (keyIndex + 1) % keys.size();
 
             } catch (WebClientResponseException e) {
-                log.error("API call failed (HTTP {}): {} for query {} (page {})", e.getStatusCode(), e.getMessage(),
-                        query.getSentence(), page, e);
-                keyIndex = (keyIndex + 1) % keys.size(); // Rotate key
-                if (keyIndex == 0) {
-                    log.error("All keys failed for page {}; skipping.", page);
-                    break; // All keys tried, skip remaining pages
+                if (e.getStatusCode().value() == 429) {
+                    retriesForPage++;
+                    if (retriesForPage > maxRetriesPerPage) {
+                        log.error(
+                                "Exceeded retry limit ({} attempts) for query '{}' page {} due to repeated 429 responses.",
+                                maxRetriesPerPage, truncate(query.getSentence(), 40), page);
+                        break;
+                    }
+
+                    long waitMs = withJitter(backoffDelay);
+                    log.warn("Rate limited (429) for query '{}' page {}. Waiting {} ms before retry (attempt {}/{}).",
+                            truncate(query.getSentence(), 40), page, waitMs, retriesForPage, maxRetriesPerPage);
+
+                    if (!sleepRespectingPipeline(waitMs)) {
+                        log.info("Backoff wait interrupted or cancelled");
+                        break;
+                    }
+
+                    backoffDelay = Math.min((long) (backoffDelay * backoffMultiplier), maxBackoffMs);
+                    keyIndex = (keyIndex + 1) % keys.size();
+                    continue; // Retry same page
                 }
-                page--; // Retry same page with next key
+
+                log.error("API call failed (HTTP {}): {} for query {} (page {})",
+                        e.getStatusCode(), e.getMessage(),
+                        truncate(query.getSentence(), 30), page);
+
+                keyIndex = (keyIndex + 1) % keys.size();
+                if (keyIndex == 0) {
+                    log.error("All keys attempted for page {}. Aborting remaining pages.", page);
+                    break;
+                }
+
+                if (!sleepRespectingPipeline(initialBackoffMs)) {
+                    log.info("Backoff wait interrupted or cancelled after HTTP error");
+                    break;
+                }
+
             } catch (Exception e) {
-                log.error("Unexpected error for query {} (page {}): {}", query.getSentence(), page, e.getMessage(),
-                        e);
+                log.error("Unexpected error for query {} (page {}): {}",
+                        truncate(query.getSentence(), 30), page, e.getMessage(), e);
                 break;
             }
         }
         return totalLinksCreated;
+    }
+
+    private boolean sleepRespectingPipeline(long delayMs) {
+        long remaining = delayMs;
+        final long slice = 250L;
+        while (remaining > 0) {
+            if (pipelineControlService.shouldStop()) {
+                return false;
+            }
+            long sleep = Math.min(slice, remaining);
+            try {
+                Thread.sleep(sleep);
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+                return false;
+            }
+            remaining -= sleep;
+        }
+        return true;
+    }
+
+    private long withJitter(long baseDelayMs) {
+        long safeBase = Math.max(baseDelayMs, 1000L);
+        long jitter = ThreadLocalRandom.current().nextLong(Math.max(1L, safeBase / 4));
+        return safeBase + jitter;
     }
 
     private Mono<String> executeApiCall(String uri) {
@@ -133,5 +268,11 @@ public class ApiCaller {
                 .replace("<search_engine_id>", key.getSearchEngineId())
                 .replace("<start_index>", String.valueOf(startIndex))
                 .replace("<count>", String.valueOf(resultsPerPage));
+    }
+
+    private String truncate(String str, int maxLen) {
+        if (str == null)
+            return "";
+        return str.length() <= maxLen ? str : str.substring(0, maxLen) + "...";
     }
 }

@@ -5,6 +5,9 @@ spring:
     active:
   application:
     name: scrape
+  output:
+    ansi:
+      enabled: always
   datasource:
     driver-class-name: org.postgresql.Driver
     url: jdbc:postgresql://localhost:5432/mailmine
@@ -63,8 +66,17 @@ google:
   search:
     results-per-page: 10
     max-pages: 3
+    rate-limit-ms: 1000  
+    max-retries-per-page: 3
+    backoff-initial-ms: 3000
+    backoff-multiplier: 2.0
+    backoff-max-ms: 20000  
+
+scraper:
+  use-proxy: true
+  batch-size: 100
   
 v2ray:
-  executable: "E:\\New folder\\Compressed\\v2rayN-windows-64-With-Core\\v2rayN-windows-64-With-Core\\bin\\xray\\xray.exe" 
+  executable: "E:\\New folder\\Compressed\\v2rayN-windows-64-With-Core\\v2rayN-windows-64-With-Core\\bin\\xrayC\\xray.exe" 
   config-dir: ${java.io.tmpdir}/mailmine/v2ray-configs
-  base-port: 20000
+  base-port: 30000

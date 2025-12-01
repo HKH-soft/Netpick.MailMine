@@ -13,14 +13,26 @@ import org.springframework.stereotype.Repository;
 import ir.netpick.mailmine.scrape.model.ScrapeData;
 import org.springframework.transaction.annotation.Transactional;
 
-
 @Repository
 public interface ScrapeDataRepository extends JpaRepository<ScrapeData, UUID> {
+
+    // DEPRECATED: Use findByParsedFalseAndDeletedFalse with pagination instead
+    @Deprecated
     List<ScrapeData> findByParsedFalse();
+
+    /**
+     * Find unparsed files with pagination to avoid OOM
+     */
+    Page<ScrapeData> findByParsedFalseAndDeletedFalse(Pageable pageable);
+
+    /**
+     * Count unparsed files for progress tracking
+     */
+    long countByParsedFalseAndDeletedFalse();
 
     // Find all non-deleted data with pagination
     Page<ScrapeData> findByDeletedFalse(Pageable pageable);
-    
+
     // Find all deleted data with pagination
     Page<ScrapeData> findByDeletedTrue(Pageable pageable);
 

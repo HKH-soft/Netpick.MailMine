@@ -2,16 +2,18 @@ package ir.netpick.mailmine.scrape.service.base;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import ir.netpick.mailmine.common.enums.ProxyProtocol;
 import ir.netpick.mailmine.scrape.model.Proxy;
 import ir.netpick.mailmine.scrape.repository.ProxyRepository;
+import jakarta.annotation.PostConstruct;
 import jakarta.annotation.PreDestroy;
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
+import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStreamReader;
+import java.net.ServerSocket;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.*;
@@ -25,11 +27,10 @@ import java.util.concurrent.atomic.AtomicInteger;
  */
 @Slf4j
 @Service
-@RequiredArgsConstructor
 public class V2RayClientService {
 
     private final ProxyRepository proxyRepository;
-    private final Gson gson = new GsonBuilder().setPrettyPrinting().create();
+    private Gson gson;
 
     @Value("${v2ray.executable:xray}")
     private String v2rayExecutable;
@@ -41,11 +42,29 @@ public class V2RayClientService {
     private int basePort;
 
     // Running processes: proxyId -> Process
-    private final Map<UUID, Process> runningProcesses = new ConcurrentHashMap<>();
+    private Map<UUID, Process> runningProcesses;
+
+    // Config file paths for cleanup
+    private Map<UUID, Path> configFiles;
 
     // Port allocator
-    private final AtomicInteger portCounter = new AtomicInteger(0);
-    private final Set<Integer> usedPorts = ConcurrentHashMap.newKeySet();
+    private AtomicInteger portCounter;
+    private Set<Integer> usedPorts;
+
+    public V2RayClientService(ProxyRepository proxyRepository) {
+        this.proxyRepository = proxyRepository;
+    }
+
+    @PostConstruct
+    void init() {
+        this.gson = new GsonBuilder().setPrettyPrinting().create();
+        this.runningProcesses = new ConcurrentHashMap<>();
+        this.configFiles = new ConcurrentHashMap<>();
+        this.portCounter = new AtomicInteger(0);
+        this.usedPorts = ConcurrentHashMap.newKeySet();
+        log.info("V2RayClientService initialized. Executable: {}, Config dir: {}, Base port: {}",
+                v2rayExecutable, configDir, basePort);
+    }
 
     /**
      * Start a V2Ray client for the given proxy
@@ -68,31 +87,88 @@ public class V2RayClientService {
         try {
             // Create config file
             Path configPath = createConfigFile(proxy, localPort);
+            configFiles.put(proxy.getId(), configPath);
+
+            // Verify xray executable exists
+            Path execPath = Path.of(v2rayExecutable);
+            if (!Files.exists(execPath)) {
+                throw new RuntimeException("V2Ray executable not found: " + v2rayExecutable);
+            }
+
+            log.info("Starting xray with config: {}", configPath);
+            log.info("Command: {} run -c {}", v2rayExecutable, configPath);
 
             // Start xray process
             ProcessBuilder pb = new ProcessBuilder(v2rayExecutable, "run", "-c", configPath.toString());
             pb.redirectErrorStream(true);
             Process process = pb.start();
 
+            log.info("Xray process started (PID: {}), waiting for initialization...", process.pid());
+
+            // Capture and log process output in background thread
+            startOutputReader(proxy.getId(), process);
+
             runningProcesses.put(proxy.getId(), process);
             proxyRepository.save(proxy);
 
             log.info("Started V2Ray client for proxy {} on port {}", proxy.getId(), localPort);
 
-            // Wait a bit for startup
-            Thread.sleep(500);
+            // Wait for startup and verify process is running
+            Thread.sleep(1000);
 
             if (!process.isAlive()) {
-                throw new RuntimeException("V2Ray process died immediately");
+                runningProcesses.remove(proxy.getId());
+                configFiles.remove(proxy.getId());
+                throw new RuntimeException("V2Ray process died immediately. Check logs for details.");
             }
 
+            // Verify port is actually listening
+            if (!waitForPort(localPort, 5000)) {
+                log.error("V2Ray started but port {} is not listening after 5 seconds", localPort);
+                stopProxy(proxy.getId());
+                throw new RuntimeException("V2Ray process started but port is not listening");
+            }
+
+            log.info("V2Ray proxy {} verified listening on port {}", proxy.getId(), localPort);
             return localPort;
 
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+            usedPorts.remove(localPort);
+            throw new RuntimeException("Interrupted while starting V2Ray client", e);
         } catch (Exception e) {
             usedPorts.remove(localPort);
-            log.error("Failed to start V2Ray client for proxy {}: {}", proxy.getId(), e.getMessage());
+            log.error("Failed to start V2Ray client for proxy {}: {}", proxy.getId(), e.getMessage(), e);
             throw new RuntimeException("Failed to start V2Ray client: " + e.getMessage(), e);
         }
+    }
+
+    /**
+     * Start a background thread to read and log process output
+     */
+    private void startOutputReader(UUID proxyId, Process process) {
+        Thread outputReader = new Thread(() -> {
+            try (BufferedReader reader = new BufferedReader(
+                    new InputStreamReader(process.getInputStream()))) {
+                String line;
+                while ((line = reader.readLine()) != null) {
+                    // Log errors and warnings at appropriate levels
+                    if (line.contains("error") || line.contains("Error") || line.contains("ERROR")) {
+                        log.error("[xray-{}] {}", proxyId, line);
+                    } else if (line.contains("warn") || line.contains("Warn") || line.contains("WARN")) {
+                        log.warn("[xray-{}] {}", proxyId, line);
+                    } else {
+                        log.info("[xray-{}] {}", proxyId, line);
+                    }
+                }
+            } catch (IOException e) {
+                if (process.isAlive()) {
+                    log.warn("Error reading xray output for proxy {}: {}", proxyId, e.getMessage());
+                }
+            }
+        }, "xray-output-" + proxyId);
+        outputReader.setDaemon(true);
+        outputReader.start();
     }
 
     /**
@@ -101,13 +177,39 @@ public class V2RayClientService {
     public void stopProxy(UUID proxyId) {
         Process process = runningProcesses.remove(proxyId);
         if (process != null) {
+            // Try graceful shutdown first
             process.destroy();
-            log.info("Stopped V2Ray client for proxy {}", proxyId);
-
-            Proxy proxy = proxyRepository.findById(proxyId).orElse(null);
-            if (proxy != null && proxy.getLocalPort() != null) {
-                usedPorts.remove(proxy.getLocalPort());
+            try {
+                // Wait up to 3 seconds for graceful shutdown
+                boolean exited = process.waitFor(3, java.util.concurrent.TimeUnit.SECONDS);
+                if (!exited) {
+                    log.warn("Proxy {} did not stop gracefully, forcing...", proxyId);
+                    process.destroyForcibly();
+                }
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+                process.destroyForcibly();
             }
+            log.info("Stopped V2Ray client for proxy {}", proxyId);
+        }
+
+        // Cleanup config file
+        Path configPath = configFiles.remove(proxyId);
+        if (configPath != null) {
+            try {
+                Files.deleteIfExists(configPath);
+                log.debug("Deleted config file: {}", configPath);
+            } catch (IOException e) {
+                log.warn("Failed to delete config file {}: {}", configPath, e.getMessage());
+            }
+        }
+
+        // Release port - check both DB and local tracking
+        Proxy proxy = proxyRepository.findById(proxyId).orElse(null);
+        if (proxy != null && proxy.getLocalPort() != null) {
+            usedPorts.remove(proxy.getLocalPort());
+            proxy.setLocalPort(null);
+            proxyRepository.save(proxy);
         }
     }
 
@@ -139,11 +241,56 @@ public class V2RayClientService {
 
     private int allocatePort() {
         int port;
+        int attempts = 0;
+        final int maxAttempts = 100;
+
         do {
             port = basePort + portCounter.getAndIncrement();
-        } while (usedPorts.contains(port));
+            attempts++;
+            if (attempts > maxAttempts) {
+                throw new RuntimeException(
+                        "Could not find available port after " + maxAttempts + " attempts starting from " + basePort);
+            }
+        } while (usedPorts.contains(port) || !isPortAvailable(port));
+
         usedPorts.add(port);
+        log.info("Allocated port {} for V2Ray proxy", port);
         return port;
+    }
+
+    /**
+     * Check if a port is available on the system
+     */
+    private boolean isPortAvailable(int port) {
+        try (ServerSocket socket = new ServerSocket(port)) {
+            socket.setReuseAddress(true);
+            return true;
+        } catch (IOException e) {
+            log.debug("Port {} is not available: {}", port, e.getMessage());
+            return false;
+        }
+    }
+
+    /**
+     * Wait for a port to become available (something is listening on it)
+     */
+    private boolean waitForPort(int port, int timeoutMs) {
+        long deadline = System.currentTimeMillis() + timeoutMs;
+        while (System.currentTimeMillis() < deadline) {
+            try (java.net.Socket socket = new java.net.Socket()) {
+                socket.connect(new java.net.InetSocketAddress("127.0.0.1", port), 500);
+                return true; // Connection succeeded, port is listening
+            } catch (IOException e) {
+                // Port not ready yet, wait and retry
+                try {
+                    Thread.sleep(200);
+                } catch (InterruptedException ie) {
+                    Thread.currentThread().interrupt();
+                    return false;
+                }
+            }
+        }
+        return false;
     }
 
     private Path createConfigFile(Proxy proxy, int localPort) throws IOException {
@@ -192,7 +339,7 @@ public class V2RayClientService {
                                 "users", List.of(Map.of(
                                         "id", proxy.getUuid(),
                                         "encryption", proxy.getEncryption() != null ? proxy.getEncryption() : "none",
-                                        "flow", ""))))));
+                                        "flow", proxy.getFlow() != null ? proxy.getFlow() : ""))))));
             }
             case VMESS -> {
                 outbound.put("protocol", "vmess");
@@ -207,6 +354,9 @@ public class V2RayClientService {
                                         proxy.getEncryption() != null ? proxy.getEncryption() : "auto"))))));
             }
             case SHADOWSOCKS -> {
+                if (proxy.getEncryption() == null || proxy.getPassword() == null) {
+                    throw new IllegalArgumentException("Shadowsocks requires encryption method and password");
+                }
                 outbound.put("protocol", "shadowsocks");
                 outbound.put("settings", Map.of(
                         "servers", List.of(Map.of(
@@ -216,6 +366,9 @@ public class V2RayClientService {
                                 "password", proxy.getPassword()))));
             }
             case TROJAN -> {
+                if (proxy.getPassword() == null) {
+                    throw new IllegalArgumentException("Trojan requires password");
+                }
                 outbound.put("protocol", "trojan");
                 outbound.put("settings", Map.of(
                         "servers", List.of(Map.of(
@@ -272,6 +425,7 @@ public class V2RayClientService {
                 tlsSettings.put("alpn", List.of(proxy.getAlpn().split(",")));
             if (proxy.getFingerprint() != null)
                 tlsSettings.put("fingerprint", proxy.getFingerprint());
+            tlsSettings.put("allowInsecure", true); // Allow self-signed certs
             stream.put("tlsSettings", tlsSettings);
         } else if ("reality".equals(security)) {
             stream.put("security", "reality");

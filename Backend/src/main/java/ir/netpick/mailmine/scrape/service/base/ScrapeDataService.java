@@ -28,16 +28,39 @@ public class ScrapeDataService {
     private final ScrapeJobRepository scrapeJobRepository;
     private final FileManagement fileManagement;
 
-    public boolean isEmpty(){
+    public boolean isEmpty() {
         return scrapeDataRepository.count() == 0;
     }
 
-    public List<ScrapeData> findUnparsed(){
+    /**
+     * @deprecated Use findUnparsedPaged instead to avoid OOM with large datasets
+     */
+    @Deprecated
+    public List<ScrapeData> findUnparsed() {
         return scrapeDataRepository.findByParsedFalse();
     }
-    
+
+    /**
+     * Find unparsed files with pagination
+     */
+    public Page<ScrapeData> findUnparsedPaged(int page, int size) {
+        Pageable pageable = PageRequest.of(page, size, Sort.by("createdAt").ascending());
+        return scrapeDataRepository.findByParsedFalseAndDeletedFalse(pageable);
+    }
+
+    /**
+     * Count unparsed files for progress tracking
+     */
+    public long countUnparsed() {
+        return scrapeDataRepository.countByParsedFalseAndDeletedFalse();
+    }
+
     public List<ScrapeData> allData() {
         return scrapeDataRepository.findAll();
+    }
+
+    public long countAll() {
+        return scrapeDataRepository.count();
     }
 
     public PageDTO<ScrapeData> allData(int page) {
@@ -46,35 +69,32 @@ public class ScrapeDataService {
         return new PageDTO<>(
                 pageContent.getContent(),
                 pageContent.getTotalPages(),
-                page
-                );
+                page);
     }
-    
+
     public PageDTO<ScrapeData> deletedData(int page) {
         Pageable pageable = PageRequest.of(page - 1, GeneralConstants.PAGE_SIZE, Sort.by("createdAt").descending());
         Page<ScrapeData> pageContent = scrapeDataRepository.findByDeletedTrue(pageable);
         return new PageDTO<>(
                 pageContent.getContent(),
                 pageContent.getTotalPages(),
-                page
-                );
+                page);
     }
-    
+
     public PageDTO<ScrapeData> allDataIncludingDeleted(int page) {
         Pageable pageable = PageRequest.of(page - 1, GeneralConstants.PAGE_SIZE, Sort.by("createdAt").descending());
         Page<ScrapeData> pageContent = scrapeDataRepository.findAll(pageable);
         return new PageDTO<>(
                 pageContent.getContent(),
                 pageContent.getTotalPages(),
-                page
-                );
+                page);
     }
-    
+
     public ScrapeData getData(UUID dataId) {
         return scrapeDataRepository.findById(dataId).orElseThrow(
                 () -> new ResourceNotFoundException("ScrapeData with id [%s] was not found!".formatted(dataId)));
     }
-    
+
     public ScrapeData getDataIncludingDeleted(UUID dataId) {
         return scrapeDataRepository.findById(dataId).orElseThrow(
                 () -> new ResourceNotFoundException("ScrapeData with id [%s] was not found!".formatted(dataId)));
@@ -90,19 +110,19 @@ public class ScrapeDataService {
         scrapeDataRepository.save(scrapeData);
     }
 
-    public void updateScrapeData(ScrapeData scrapeData){
+    public void updateScrapeData(ScrapeData scrapeData) {
         scrapeDataRepository.save(scrapeData);
     }
 
-    public void softDeleteData(UUID scrapeDataId){
+    public void softDeleteData(UUID scrapeDataId) {
         scrapeDataRepository.softDelete(scrapeDataId);
     }
 
-    public void restoreData(UUID scrapeDataId){
+    public void restoreData(UUID scrapeDataId) {
         scrapeDataRepository.restore(scrapeDataId);
     }
 
-    public void deleteData(UUID scrapeDataId){
+    public void deleteData(UUID scrapeDataId) {
         scrapeDataRepository.deleteById(scrapeDataId);
     }
 

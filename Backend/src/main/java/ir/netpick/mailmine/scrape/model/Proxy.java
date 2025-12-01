@@ -130,6 +130,12 @@ public class Proxy extends BaseEntity {
     private Integer alterId;
 
     /**
+     * Flow control for VLESS (e.g., "xtls-rprx-vision")
+     */
+    @Column(name = "flow")
+    private String flow;
+
+    /**
      * Original share link (vless://, vmess://, ss://)
      */
     @Column(name = "original_link", length = 2048)
@@ -167,7 +173,8 @@ public class Proxy extends BaseEntity {
         // V2Ray protocols use local proxy
         if (isV2RayProtocol()) {
             if (localPort == null) {
-                throw new IllegalStateException("V2Ray proxy requires localPort to be set");
+                throw new IllegalStateException(
+                        "V2Ray proxy requires localPort to be set. Call V2RayClientService.startProxy() first.");
             }
             return "socks5://127.0.0.1:" + localPort;
         }
@@ -183,6 +190,20 @@ public class Proxy extends BaseEntity {
             sb.append("@");
         }
         sb.append(host).append(":").append(port);
+        return sb.toString();
+    }
+
+    /**
+     * Returns a display-friendly string for logging.
+     * Unlike toProxyUrl(), this never throws and shows the remote server info.
+     */
+    public String toDisplayString() {
+        StringBuilder sb = new StringBuilder();
+        sb.append(protocol.name()).append(" ");
+        sb.append(host).append(":").append(port);
+        if (description != null && !description.isBlank()) {
+            sb.append(" (").append(description).append(")");
+        }
         return sb.toString();
     }
 
@@ -207,9 +228,12 @@ public class Proxy extends BaseEntity {
      * - vmess://base64encoded
      * - ss://base64encoded#name
      * - trojan://password@host:port?params#name
+     * Also handles messy formats like: ss://...@host:port # [ Comment ] 🔒
      */
     public static Proxy fromUrl(String proxyUrl) {
-        String url = proxyUrl.trim();
+        // Clean up the URL - remove extra spaces, comments, emojis outside the standard
+        // format
+        String url = cleanProxyUrl(proxyUrl);
 
         // V2Ray protocols
         if (url.startsWith("vless://")) {
@@ -224,6 +248,85 @@ public class Proxy extends BaseEntity {
 
         // Standard proxy parsing
         return parseStandardProxy(url);
+    }
+
+    /**
+     * Clean up a proxy URL by removing extra formatting, comments, emojis outside
+     * standard format
+     * Handles cases like: ss://base64@host:port # [ Comment ] 🔒
+     */
+    private static String cleanProxyUrl(String rawUrl) {
+        if (rawUrl == null || rawUrl.isBlank()) {
+            throw new IllegalArgumentException("Proxy URL cannot be empty");
+        }
+
+        String url = rawUrl.trim();
+
+        // For V2Ray protocols, handle space-separated comments
+        // Pattern: protocol://content SPACE extra_stuff
+        // We want to keep only protocol://content and convert space+text to proper
+        // #fragment
+
+        if (url.startsWith("ss://") || url.startsWith("vless://") ||
+                url.startsWith("vmess://") || url.startsWith("trojan://")) {
+
+            // Find the actual protocol content before any space-separated comment
+            // But preserve proper #fragment which is part of the URL standard
+
+            // First, check if there's a space before any # (malformed comment)
+            int spaceIdx = findFirstSpaceNotInFragment(url);
+            if (spaceIdx > 0) {
+                String mainPart = url.substring(0, spaceIdx).trim();
+                String commentPart = url.substring(spaceIdx).trim();
+
+                // If main part doesn't have #, and comment looks like a name, add it
+                if (!mainPart.contains("#") && !commentPart.isEmpty()) {
+                    // Clean the comment - remove leading # or other chars, emojis are ok
+                    commentPart = commentPart.replaceFirst("^[#\\s]+", "").trim();
+                    if (!commentPart.isEmpty()) {
+                        // URL-encode the comment for the fragment
+                        try {
+                            commentPart = java.net.URLEncoder.encode(commentPart, "UTF-8");
+                        } catch (Exception e) {
+                            // Keep as-is if encoding fails
+                        }
+                        url = mainPart + "#" + commentPart;
+                    } else {
+                        url = mainPart;
+                    }
+                } else {
+                    url = mainPart;
+                }
+            }
+        } else {
+            // For standard proxies (http, socks), just take the first part before space
+            int spaceIdx = url.indexOf(' ');
+            if (spaceIdx > 0) {
+                url = url.substring(0, spaceIdx);
+            }
+        }
+
+        return url.trim();
+    }
+
+    /**
+     * Find the first space that's not inside a proper URL fragment
+     */
+    private static int findFirstSpaceNotInFragment(String url) {
+        int hashIdx = url.indexOf('#');
+        int spaceIdx = url.indexOf(' ');
+
+        if (spaceIdx < 0) {
+            return -1; // No space
+        }
+
+        if (hashIdx < 0 || spaceIdx < hashIdx) {
+            // Space comes before # (or no #), this is the malformed case
+            return spaceIdx;
+        }
+
+        // Space is after #, which is inside the fragment - that's valid
+        return -1;
     }
 
     private static Proxy parseStandardProxy(String url) {
@@ -362,24 +465,35 @@ public class Proxy extends BaseEntity {
         try {
             String content = url.substring(5); // Remove ss://
 
-            // Extract name
+            // Extract name (after #)
             if (content.contains("#")) {
                 String[] parts = content.split("#", 2);
                 content = parts[0];
-                proxy.setDescription(java.net.URLDecoder.decode(parts[1], "UTF-8"));
+                try {
+                    proxy.setDescription(java.net.URLDecoder.decode(parts[1], "UTF-8"));
+                } catch (Exception e) {
+                    proxy.setDescription(parts[1]); // Use as-is if decode fails
+                }
             }
 
             // Try SIP002 format: base64@host:port
             if (content.contains("@")) {
                 String[] parts = content.split("@", 2);
-                String decoded = new String(java.util.Base64.getDecoder().decode(parts[0]));
+                String base64Part = parts[0];
+                String hostPortPart = parts[1];
+
+                // Decode the base64 part (method:password)
+                String decoded = new String(java.util.Base64.getDecoder().decode(base64Part));
                 String[] methodPass = decoded.split(":", 2);
                 proxy.setEncryption(methodPass[0]);
                 proxy.setPassword(methodPass[1]);
 
-                String[] hostPort = parts[1].split(":");
-                proxy.setHost(hostPort[0]);
-                proxy.setPort(Integer.parseInt(hostPort[1]));
+                // Parse host:port - extract only digits for port
+                String[] hostPort = hostPortPart.split(":", 2);
+                proxy.setHost(hostPort[0].trim());
+                // Extract only the numeric part of the port (in case of trailing garbage)
+                String portStr = hostPort[1].replaceAll("[^0-9].*$", "");
+                proxy.setPort(Integer.parseInt(portStr));
             } else {
                 // Legacy format: base64(method:password@host:port)
                 String decoded = new String(java.util.Base64.getDecoder().decode(content));
@@ -468,6 +582,7 @@ public class Proxy extends BaseEntity {
                 case "pbk" -> proxy.setPublicKey(value);
                 case "sid" -> proxy.setShortId(value);
                 case "encryption" -> proxy.setEncryption(value);
+                case "flow" -> proxy.setFlow(value);
             }
         }
     }

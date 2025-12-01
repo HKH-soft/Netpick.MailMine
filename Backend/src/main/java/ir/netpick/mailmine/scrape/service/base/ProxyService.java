@@ -215,14 +215,15 @@ public class ProxyService {
     }
 
     private Proxy testAndUpdateProxy(Proxy proxy) {
-        log.debug("Testing proxy: {}", proxy.toProxyUrl());
+        log.info("Testing proxy: {}", proxy.toDisplayString());
 
         // For V2Ray proxies, start the client first
         if (proxy.isV2RayProtocol()) {
             try {
-                v2RayClientService.startProxy(proxy);
+                int localPort = v2RayClientService.startProxy(proxy);
+                log.info("V2Ray client started on local port {} for {}", localPort, proxy.toDisplayString());
             } catch (Exception e) {
-                log.error("Failed to start V2Ray client for proxy {}: {}", proxy.getId(), e.getMessage());
+                log.error("Failed to start V2Ray client for {}: {}", proxy.toDisplayString(), e.getMessage());
                 proxy.setStatus(ProxyStatus.FAILED);
                 proxy.recordFailure();
                 proxy.setLastTestedAt(LocalDateTime.now());
@@ -231,6 +232,8 @@ public class ProxyService {
         }
 
         try (Playwright playwright = Playwright.create()) {
+            log.debug("Playwright created, launching browser with proxy: {}", proxy.toProxyUrl());
+
             BrowserType.LaunchOptions launchOptions = new BrowserType.LaunchOptions()
                     .setHeadless(true)
                     .setProxy(new com.microsoft.playwright.options.Proxy(proxy.toProxyUrl()));
@@ -242,6 +245,7 @@ public class ProxyService {
                     com.microsoft.playwright.Page page = context.newPage();
                     page.setDefaultTimeout(TEST_TIMEOUT_MS);
 
+                    log.debug("Navigating to {}", TEST_URL);
                     page.navigate(TEST_URL);
                     String content = page.content();
 
@@ -250,18 +254,19 @@ public class ProxyService {
                     if (content.contains("origin")) {
                         proxy.setStatus(responseTime > SLOW_THRESHOLD_MS ? ProxyStatus.SLOW : ProxyStatus.ACTIVE);
                         proxy.recordSuccess(responseTime);
-                        log.info("Proxy {} is {} ({}ms)", proxy.toProxyUrl(), proxy.getStatus(), responseTime);
+                        log.info("✓ Proxy {} is {} ({}ms)", proxy.toDisplayString(), proxy.getStatus(), responseTime);
                     } else {
                         proxy.setStatus(ProxyStatus.FAILED);
                         proxy.recordFailure();
-                        log.warn("Proxy {} returned unexpected response", proxy.toProxyUrl());
+                        log.warn("✗ Proxy {} returned unexpected response (no 'origin' in body)",
+                                proxy.toDisplayString());
                     }
                 }
             }
         } catch (Exception e) {
             proxy.setStatus(ProxyStatus.FAILED);
             proxy.recordFailure();
-            log.warn("Proxy {} failed: {}", proxy.toProxyUrl(), e.getMessage());
+            log.warn("✗ Proxy {} failed: {}", proxy.toDisplayString(), e.getMessage());
         } finally {
             // Stop V2Ray client after testing
             if (proxy.isV2RayProtocol()) {

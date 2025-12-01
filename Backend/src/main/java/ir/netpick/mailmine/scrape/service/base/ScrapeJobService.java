@@ -148,6 +148,12 @@ public class ScrapeJobService {
             changed = true;
         }
 
+        if (updates.getBeenScraped() != null
+                && !Objects.equals(updates.getBeenScraped(), existing.getBeenScraped())) {
+            existing.setBeenScraped(updates.getBeenScraped());
+            changed = true;
+        }
+
         if (!changed) {
             log.debug("No changes detected for ScrapeJob with ID: {}", jobId);
             return; // No changes, just return without throwing
