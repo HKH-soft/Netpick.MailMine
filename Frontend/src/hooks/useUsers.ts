@@ -1,7 +1,7 @@
 // useUsers.ts
 "use client";
 import { useState, useEffect, useCallback } from 'react';
-import UserService, { User, AllUsersResponse } from '@/services/userService';
+import UserService, { User, PageDTO } from '@/services/userService';
 
 export const useUsers = (page: number = 1) => {
   const [users, setUsers] = useState<User[]>([]);
@@ -13,8 +13,8 @@ export const useUsers = (page: number = 1) => {
   const fetchUsers = useCallback(async () => {
     try {
       setLoading(true);
-      const response: AllUsersResponse = await UserService.getAllUsers(page);
-      setUsers(response.users);
+      const response: PageDTO<User> = await UserService.getAllUsers(page);
+      setUsers(response.context);
       setTotalPages(response.totalPageCount);
       setCurrentPage(response.currentPage);
       setError(null);
@@ -34,30 +34,30 @@ export const useUsers = (page: number = 1) => {
   return { users, loading, error, totalPages, currentPage, refetch: fetchUsers };
 };
 
-export const useUserProfile = (token: string | null) => {
+export const useUser = (userId: string | null) => {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
 
-  const fetchUserProfile = useCallback(async () => {
-    if (!token) return;
+  const fetchUser = useCallback(async () => {
+    if (!userId) return;
 
     try {
       setLoading(true);
-      const data = await UserService.getUserProfile();
+      const data = await UserService.getUserById(userId);
       setUser(data);
       setError(null);
     } catch (err) {
-      setError('Failed to fetch user profile');
-      console.error('Error fetching user profile:', err);
+      setError('Failed to fetch user');
+      console.error('Error fetching user:', err);
     } finally {
       setLoading(false);
     }
-  }, [token]);
+  }, [userId]);
 
   useEffect(() => {
-    fetchUserProfile();
-  }, [fetchUserProfile]);
+    fetchUser();
+  }, [fetchUser]);
 
-  return { user, loading, error, refetch: fetchUserProfile };
+  return { user, loading, error, refetch: fetchUser };
 };

@@ -2,22 +2,22 @@
 "use client";
 import { useState, useEffect, useCallback } from 'react';
 import ApiKeyService, { ApiKey } from '@/services/apiKeyService';
-import { ApiResponse } from '@/services/api';
+import { PageDTO } from '@/services/userService';
 
 export const useApiKeys = (page: number = 1) => {
   const [apiKeys, setApiKeys] = useState<ApiKey[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
   const [totalPages, setTotalPages] = useState<number>(0);
-  const [totalElements, setTotalElements] = useState<number>(0);
+  const [currentPage, setCurrentPage] = useState<number>(1);
 
   const fetchApiKeys = useCallback(async () => {
     try {
       setLoading(true);
-      const response: ApiResponse<ApiKey[]> = await ApiKeyService.getAllApiKeys(page);
-      setApiKeys(response.content);
-      setTotalPages(response.totalPages);
-      setTotalElements(response.totalElements);
+      const response: PageDTO<ApiKey> = await ApiKeyService.getAllApiKeys(page);
+      setApiKeys(response.context);
+      setTotalPages(response.totalPageCount);
+      setCurrentPage(response.currentPage);
       setError(null);
     } catch (err) {
       setError('Failed to fetch API keys');
@@ -32,7 +32,7 @@ export const useApiKeys = (page: number = 1) => {
   }, [fetchApiKeys]);
 
   // Return fetchApiKeys as refetch function
-  return { apiKeys, loading, error, totalPages, totalElements, refetch: fetchApiKeys };
+  return { apiKeys, loading, error, totalPages, currentPage, refetch: fetchApiKeys };
 };
 
 export const useApiKey = (id: string | null) => {

@@ -3,6 +3,7 @@ import React, { useState, useEffect } from "react";
 import { Dropdown } from "../ui/dropdown/Dropdown";
 import { DropdownItem } from "../ui/dropdown/DropdownItem";
 import AuthService from "@/services/authService";
+import UserService from "@/services/userService";
 import { useAuth } from "@/context/AuthContext";
 import { ChevronDownSmIcon, UserProfileIcon, SettingsIcon, SupportIcon, SignoutIcon } from "@/icons";
 
@@ -10,6 +11,7 @@ import { ChevronDownSmIcon, UserProfileIcon, SettingsIcon, SupportIcon, SignoutI
 interface User {
   name: string;
   email: string;
+  profileImage?: string;
 }
 
 export default function UserDropdown() {
@@ -20,25 +22,32 @@ export default function UserDropdown() {
   useEffect(() => {
     const fetchUserProfile = async () => {
       try {
-        // Get user info from the token
-        const token = AuthService.getToken();
-        if (token) {
-          const payload = JSON.parse(atob(token.split('.')[1]));
-          
-          // For now, we'll just use the info from the token
-          // In a real app, you might want to fetch additional user details from an API
-          setUser({
-            name: payload.name || "User",
-            email: payload.sub || "user@example.com"
-          });
-        }
+        const userProfile = await UserService.getCurrentUser();
+        setUser({
+          name: userProfile.name,
+          email: userProfile.email,
+          // profileImage: userProfile.profileImageKey
+        });
       } catch (error) {
         console.error("Error fetching user profile:", error);
-        // Fallback to default user
-        setUser({
-          name: "User",
-          email: "user@example.com"
-        });
+
+        // Fallback to token info if API fails
+        const token = AuthService.getToken();
+        if (token) {
+          try {
+            const payload = JSON.parse(atob(token.split('.')[1]));
+            setUser({
+              name: payload.name || "User",
+              email: payload.sub || "user@example.com"
+            });
+          } catch (e) {
+            // Fallback to default
+            setUser({
+              name: "User",
+              email: "user@example.com"
+            });
+          }
+        }
       }
     };
 
@@ -62,7 +71,7 @@ export default function UserDropdown() {
   return (
     <div className="relative">
       <button
-        onClick={toggleDropdown} 
+        onClick={toggleDropdown}
         className="flex items-center text-gray-700 dark:text-gray-400 dropdown-toggle"
       >
         <span className="mr-3 overflow-hidden rounded-full h-11 w-11 bg-black dark:bg-white">

@@ -1,5 +1,5 @@
 // scrapeDataService.ts
-import api, { ApiResponse } from './api';
+import api, { PageDTO } from './api';
 
 export interface ScrapeData {
   id: string;
@@ -11,18 +11,62 @@ export interface ScrapeData {
 }
 
 class ScrapeDataService {
-  private basePath = '/scrape_data';
+  private basePath = '/api/v1/scrape/scrape_data';
 
-  public async getAllScrapeData(page: number = 1): Promise<ApiResponse<ScrapeData[]>> {
-    return await api.get<ApiResponse<ScrapeData[]>>(`${this.basePath}?page=${page}`);
+  /**
+   * Get all active scrape data
+   */
+  public async getAllScrapeData(page: number = 1): Promise<PageDTO<ScrapeData>> {
+    return await api.get<PageDTO<ScrapeData>>(`${this.basePath}?page=${page}`);
   }
 
+  /**
+   * Get all deleted scrape data
+   */
+  public async getDeletedScrapeData(page: number = 1): Promise<PageDTO<ScrapeData>> {
+    return await api.get<PageDTO<ScrapeData>>(`${this.basePath}/deleted?page=${page}`);
+  }
+
+  /**
+   * Get all scrape data including deleted
+   */
+  public async getAllScrapeDataIncludingDeleted(page: number = 1): Promise<PageDTO<ScrapeData>> {
+    return await api.get<PageDTO<ScrapeData>>(`${this.basePath}/all?page=${page}`);
+  }
+
+  /**
+   * Get scrape data by ID
+   */
   public async getScrapeDataById(id: string): Promise<ScrapeData> {
     return await api.get<ScrapeData>(`${this.basePath}/${id}`);
   }
 
+  /**
+   * Get deleted scrape data by ID
+   */
+  public async getDeletedScrapeDataById(id: string): Promise<ScrapeData> {
+    return await api.get<ScrapeData>(`${this.basePath}/deleted/${id}`);
+  }
+
+  /**
+   * Restore a soft-deleted scrape data
+   */
+  public async restoreScrapeData(id: string): Promise<void> {
+    await api.put<void>(`${this.basePath}/${id}/restore`, {});
+  }
+
+  /**
+   * Soft delete scrape data
+   */
   public async deleteScrapeData(id: string): Promise<void> {
     await api.delete(`${this.basePath}/${id}`);
+  }
+
+  /**
+   * Permanently delete scrape data
+   */
+  public async fullDeleteScrapeData(id: string): Promise<void> {
+    await api.delete(`${this.basePath}/${id}/full_delete`);
   }
 }
 

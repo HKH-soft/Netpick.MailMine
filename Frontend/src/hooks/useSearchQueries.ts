@@ -2,22 +2,22 @@
 "use client";
 import { useState, useEffect, useCallback } from 'react';
 import SearchQueryService, { SearchQuery } from '@/services/searchQueryService';
-import { ApiResponse } from '@/services/api';
+import { PageDTO } from '@/services/userService';
 
 export const useSearchQueries = (page: number = 1) => {
   const [searchQueries, setSearchQueries] = useState<SearchQuery[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
   const [totalPages, setTotalPages] = useState<number>(0);
-  const [totalElements, setTotalElements] = useState<number>(0);
+  const [currentPage, setCurrentPage] = useState<number>(1);
 
   const fetchSearchQueries = useCallback(async () => {
     try {
       setLoading(true);
-      const response: ApiResponse<SearchQuery[]> = await SearchQueryService.getAllSearchQueries(page);
-      setSearchQueries(response.content);
-      setTotalPages(response.totalPages);
-      setTotalElements(response.totalElements);
+      const response: PageDTO<SearchQuery> = await SearchQueryService.getAllSearchQueries(page);
+      setSearchQueries(response.context);
+      setTotalPages(response.totalPageCount);
+      setCurrentPage(response.currentPage);
       setError(null);
     } catch (err) {
       setError('Failed to fetch search queries');
@@ -32,7 +32,7 @@ export const useSearchQueries = (page: number = 1) => {
   }, [fetchSearchQueries]);
 
   // Return fetchSearchQueries as refetch function
-  return { searchQueries, loading, error, totalPages, totalElements, refetch: fetchSearchQueries };
+  return { searchQueries, loading, error, totalPages, currentPage, refetch: fetchSearchQueries };
 };
 
 export const useSearchQuery = (id: string | null) => {

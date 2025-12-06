@@ -12,9 +12,7 @@ import SearchQueryService from "@/services/searchQueryService";
 import type { SearchQuery } from "@/services/searchQueryService";
 import { useToast } from "@/context/ToastContext";
 
-// Define types for our data
-
-export default function SearchQuery() {
+export default function SearchQueryPage() {
   const [currentPage, setCurrentPage] = useState<number>(1);
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
@@ -36,9 +34,9 @@ export default function SearchQuery() {
     setSelectedItem({
       id: row.id as string,
       sentence: row.sentence as string,
-      link_count: row.link_count as number,
+      linkCount: parseInt(row.linkCount as string) || 0,
       description: row.description as string,
-      createdAt: new Date().toISOString(),
+      created_at: new Date().toISOString(),
       updatedAt: new Date().toISOString()
     });
     setIsEditModalOpen(true);
@@ -48,9 +46,9 @@ export default function SearchQuery() {
     setSelectedItem({
       id: row.id as string,
       sentence: row.sentence as string,
-      link_count: row.link_count as number,
+      linkCount: parseInt(row.linkCount as string) || 0,
       description: row.description as string,
-      createdAt: new Date().toISOString(),
+      created_at: new Date().toISOString(),
       updatedAt: new Date().toISOString()
     });
     setIsDeleteModalOpen(true);
@@ -60,13 +58,11 @@ export default function SearchQuery() {
     try {
       await SearchQueryService.createSearchQuery({
         sentence: data.sentence as string,
-        link_count: parseInt(data.link_count as string) || 0,
+        linkCount: parseInt(data.linkCount as string) || 0,
         description: data.description as string
       });
       addToast("success", "Success", "Search query created successfully");
-      // Close the modal
       setIsCreateModalOpen(false);
-      // Refetch the data
       await refetch();
     } catch (err) {
       console.error("Failed to create search query:", err);
@@ -79,13 +75,11 @@ export default function SearchQuery() {
     try {
       await SearchQueryService.updateSearchQuery(selectedItem.id, {
         sentence: data.sentence as string,
-        link_count: parseInt(data.link_count as string) || 0,
+        linkCount: parseInt(data.linkCount as string) || 0,
         description: data.description as string
       });
       addToast("success", "Success", "Search query updated successfully");
-      // Close the modal
       setIsEditModalOpen(false);
-      // Refetch the data
       await refetch();
     } catch (err) {
       console.error("Failed to update search query:", err);
@@ -98,9 +92,7 @@ export default function SearchQuery() {
     try {
       await SearchQueryService.deleteSearchQuery(selectedItem.id);
       addToast("success", "Success", "Search query deleted successfully");
-      // Close the modal
       setIsDeleteModalOpen(false);
-      // Refetch the data
       await refetch();
     } catch (err) {
       console.error("Failed to delete search query:", err);
@@ -108,55 +100,64 @@ export default function SearchQuery() {
     }
   };
 
-  const columns = [
+  const columns: ColumnConfig[] = [
     { key: "sentence", header: "Query", type: "text" },
-    { key: "link_count", header: "Results", type: "text" },
+    { key: "linkCount", header: "Results", type: "text" },
     { key: "description", header: "Description", type: "text" },
     { key: "edit", header: "Edit", type: "edit" },
     { key: "delete", header: "Delete", type: "delete" },
-  ] as const satisfies ColumnConfig[];
+  ];
 
-  // Transform data to match the table structure
   const data = searchQueries.map(searchQuery => ({
     id: searchQuery.id,
     sentence: searchQuery.sentence,
-    link_count: searchQuery.link_count.toString(),
+    linkCount: (searchQuery.linkCount ?? 0).toString(),
     description: searchQuery.description || "-",
   }));
 
   const createFields = [
     { name: "sentence", label: "Query Sentence", type: "text", required: true },
-    { name: "link_count", label: "Link Count", type: "number" },
     { name: "description", label: "Description", type: "textarea" },
   ];
 
   const editFields = [
     { name: "sentence", label: "Query Sentence", type: "text", required: true },
-    { name: "link_count", label: "Link Count", type: "number" },
     { name: "description", label: "Description", type: "textarea" },
   ];
 
   if (loading) {
-    return <div>Loading...</div>;
+    return <div className="flex items-center justify-center p-8">
+      <div className="text-gray-500 dark:text-gray-400">Loading search queries...</div>
+    </div>;
   }
 
   if (error) {
-    return <div>Error: {error}</div>;
+    return <div className="flex items-center justify-center p-8">
+      <div className="text-red-500 dark:text-red-400">Error: {error}</div>
+    </div>;
   }
 
   return (
-    <>
-      <PageBreadcrumb pageTitle="Search Query" />
-      <div className="mb-4">
-        <Button onClick={handleCreate}>Create Search Query</Button>
-      </div>
-      <DynamicTable columns={columns} data={data} onEdit={handleEdit} onDelete={handleDelete} />
-      <div className="mt-5">
-        <Pagination
-          currentPage={currentPage}
-          totalPages={totalPages}
-          onPageChange={handlePageChange}
-        />
+    <div>
+      <PageBreadcrumb pageTitle="Search Queries" />
+      <div className="space-y-6">
+        <div className="mb-4">
+          <Button onClick={handleCreate}>Create Search Query</Button>
+        </div>
+        {searchQueries.length === 0 ? (
+          <p className="text-gray-500 dark:text-gray-400 text-center py-4">No search queries found. Create one to start scraping.</p>
+        ) : (
+          <>
+            <DynamicTable columns={columns} data={data} onEdit={handleEdit} onDelete={handleDelete} />
+            <div className="mt-5">
+              <Pagination
+                currentPage={currentPage}
+                totalPages={totalPages}
+                onPageChange={handlePageChange}
+              />
+            </div>
+          </>
+        )}
       </div>
 
       <ModalForm
@@ -185,6 +186,6 @@ export default function SearchQuery() {
         title="Delete Search Query"
         message={`Are you sure you want to delete the search query "${selectedItem?.sentence}"?`}
       />
-    </>
+    </div>
   );
 }

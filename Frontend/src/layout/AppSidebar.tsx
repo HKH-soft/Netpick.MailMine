@@ -13,7 +13,7 @@ import {
   UserCircleIcon,
   SettingsIcon,
   GroupIcon,
-    PageIcon,
+  PageIcon,
 
 } from "../icons/index";
 // import SidebarWidget from "./SidebarWidget";
@@ -30,7 +30,7 @@ const navItems: NavItem[] = [
     icon: <GridIcon />,
     name: "Dashboard",
     subItems: [
-      { name: "Ecommerce", path: "/", pro: false }
+      { name: "Overview", path: "/", pro: false }
     ],
   },
 
@@ -45,10 +45,17 @@ const navItems: NavItem[] = [
     name: "Scrape",
     icon: <PageIcon />,
     subItems: [
-      { name: "Api keys", path: "/scrape/api-keys", pro: false },
-      { name: "Search Querys", path: "/scrape/search-querys", pro: false },
+      { name: "Control", path: "/scrape/control", pro: false },
+      { name: "Pipelines", path: "/scrape/pipelines", pro: false },
+      { name: "Jobs", path: "/scrape/jobs", pro: false },
+      { name: "Data", path: "/scrape/data", pro: false },
       { name: "Contacts", path: "/scrape/contacts", pro: false },
-      { name: "Messages", path: "/scrape/messages", pro: false },
+      { name: "Api keys", path: "/scrape/api-keys", pro: false },
+      { name: "Search Queries", path: "/scrape/search-querys", pro: false },
+      { name: "Query Generator", path: "/scrape/query-generator", pro: false, new: true },
+      { name: "Proxies", path: "/scrape/proxies", pro: false },
+      { name: "Email", path: "/scrape/email", pro: false },
+      { name: "AI", path: "/scrape/ai", pro: false, new: true },
     ],
   },
   {
@@ -368,14 +375,14 @@ const AppSidebar: React.FC = () => {
             <>
               <Image
                 className="dark:hidden"
-                src="/images/logo/logo.svg"
+                src="/images/logo/LOGO_BLACK_TEXT.svg"
                 alt="Logo"
                 width={150}
                 height={40}
               />
               <Image
                 className="hidden dark:block"
-                src="/images/logo/logo-dark.svg"
+                src="/images/logo/LOGO_WHITE_TEXT.svg"
                 alt="Logo"
                 width={150}
                 height={40}
@@ -383,7 +390,7 @@ const AppSidebar: React.FC = () => {
             </>
           ) : (
             <Image
-              src="/images/logo/logo-icon.svg"
+              src="/images/logo/LOGO.svg"
               alt="Logo"
               width={32}
               height={32}

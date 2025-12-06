@@ -8,6 +8,7 @@ import { ToastProvider } from '@/context/ToastContext';
 import ThemeProviderWrapper from '@/components/common/ThemeProviderWrapper';
 import AuthProviderWrapper from '@/components/common/AuthProviderWrapper';
 import SidebarProviderWrapper from '@/components/common/SidebarProviderWrapper';
+import InactivityHandler from '@/components/auth/InactivityHandler';
 
 const outfit = Outfit({
   subsets: ["latin"],
@@ -42,6 +43,7 @@ export default function RootLayout({
           <ThemeProvider>
             <ToastProvider>
               <AuthProviderWrapper>
+                <InactivityHandler />
                 <ThemeProviderWrapper>
                   <SidebarProvider>
                     <SidebarProviderWrapper>

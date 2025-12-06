@@ -3,12 +3,11 @@ import Checkbox from "@/components/form/input/Checkbox";
 import Input from "@/components/form/input/InputField";
 import Label from "@/components/form/Label";
 import Button from "@/components/ui/button/Button";
-import { EyeCloseIcon, EyeIcon, GoogleIcon, TwitterIcon } from "@/icons";
+import { EyeCloseIcon, EyeIcon } from "@/icons";
 import Link from "next/link";
 import React, { useState } from "react";
 import { useRouter } from "next/navigation";
 import AuthService, { SignupRequest } from "@/services/authService";
-import { useAuth } from "@/context/AuthContext";
 import { Formik, Form, Field, ErrorMessage } from "formik";
 import * as Yup from "yup";
 
@@ -17,11 +16,9 @@ export default function SignUpForm() {
   const [isChecked, setIsChecked] = useState(false);
   const [error, setError] = useState("");
   const router = useRouter();
-  const { login } = useAuth();
 
   const validationSchema = Yup.object({
-    firstName: Yup.string().required("First name is required"),
-    lastName: Yup.string().required("Last name is required"),
+    name: Yup.string().required("Name is required"),
     email: Yup.string()
       .email("Invalid email address")
       .required("Email is required"),
@@ -31,7 +28,7 @@ export default function SignUpForm() {
   });
 
   const handleSubmit = async (
-    values: { firstName: string; lastName: string; email: string; password: string }, 
+    values: { name: string; email: string; password: string },
     { setSubmitting }: { setSubmitting: (isSubmitting: boolean) => void }
   ) => {
     setError("");
@@ -46,12 +43,11 @@ export default function SignUpForm() {
       const request: SignupRequest = {
         email: values.email,
         password: values.password,
-        name: `${values.firstName} ${values.lastName}`
+        name: values.name
       };
-      const token = await AuthService.signup(request);
-      login(token); // Update auth context
-      router.push("/"); // Redirect to dashboard after successful signup
-      router.refresh(); // Refresh the page to update the auth state
+      await AuthService.signup(request);
+      // Redirect to verification page with email as query param
+      router.push(`/verify?email=${encodeURIComponent(values.email)}`);
     } catch (err) {
       setError("Failed to create account. Please try again.");
       console.error("Sign up error:", err);
@@ -77,28 +73,8 @@ export default function SignUpForm() {
             </p>
           </div>
           <div>
-            <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 sm:gap-5">
-              <button className="inline-flex items-center justify-center gap-3 py-3 text-sm font-normal text-gray-700 transition-colors bg-gray-100 rounded-lg px-7 hover:bg-gray-200 hover:text-gray-800 dark:bg-white/5 dark:text-white/90 dark:hover:bg-white/10">
-                <GoogleIcon />
-                Sign up with Google
-              </button>
-              <button className="inline-flex items-center justify-center gap-3 py-3 text-sm font-normal text-gray-700 transition-colors bg-gray-100 rounded-lg px-7 hover:bg-gray-200 hover:text-gray-800 dark:bg-white/5 dark:text-white/90 dark:hover:bg-white/10">
-                <TwitterIcon width="21" className="fill-current" />
-                Sign up with X
-              </button>
-            </div>
-            <div className="relative py-3 sm:py-5">
-              <div className="absolute inset-0 flex items-center">
-                <div className="w-full border-t border-gray-200 dark:border-gray-800"></div>
-              </div>
-              <div className="relative flex justify-center text-sm">
-                <span className="p-2 text-gray-400 bg-white dark:bg-gray-900 sm:px-5 sm:py-2">
-                  Or
-                </span>
-              </div>
-            </div>
             <Formik
-              initialValues={{ firstName: "", lastName: "", email: "", password: "" }}
+              initialValues={{ name: "", email: "", password: "" }}
               validationSchema={validationSchema}
               onSubmit={handleSubmit}
             >
@@ -108,33 +84,18 @@ export default function SignUpForm() {
                     <div className="mb-4 text-red-500 text-sm">{error}</div>
                   )}
                   <div className="space-y-5">
-                    <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
-                      {/* <!-- First Name --> */}
-                      <div className="sm:col-span-1">
-                        <Label>
-                          First Name<span className="text-error-500">*</span>
-                        </Label>
-                        <Field
-                          name="firstName"
-                          type="text"
-                          placeholder="Enter your first name"
-                          as={Input}
-                        />
-                        <ErrorMessage name="firstName" component="div" className="text-red-500 text-sm mt-1" />
-                      </div>
-                      {/* <!-- Last Name --> */}
-                      <div className="sm:col-span-1">
-                        <Label>
-                          Last Name<span className="text-error-500">*</span>
-                        </Label>
-                        <Field
-                          name="lastName"
-                          type="text"
-                          placeholder="Enter your last name"
-                          as={Input}
-                        />
-                        <ErrorMessage name="lastName" component="div" className="text-red-500 text-sm mt-1" />
-                      </div>
+                    {/* <!-- Name --> */}
+                    <div>
+                      <Label>
+                        Name<span className="text-error-500">*</span>
+                      </Label>
+                      <Field
+                        name="name"
+                        type="text"
+                        placeholder="Enter your name"
+                        as={Input}
+                      />
+                      <ErrorMessage name="name" component="div" className="text-red-500 text-sm mt-1" />
                     </div>
                     {/* <!-- Email --> */}
                     <div>
@@ -194,7 +155,7 @@ export default function SignUpForm() {
                     </div>
                     {/* <!-- Button --> */}
                     <div>
-                      <Button 
+                      <Button
                         type="submit"
                         className="flex items-center justify-center w-full"
                         disabled={isSubmitting || !isValid || !dirty}
