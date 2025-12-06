@@ -25,19 +25,9 @@
     "description": "A description for 'security.jwt.secret-key'."
   },
   {
-    "name": "security.jwt.expiration-time",
-    "type": "java.lang.String",
-    "description": "A description for 'security.jwt.expiration-time'."
-  },
-  {
     "name": "security.jwt.issuer",
     "type": "java.lang.String",
     "description": "A description for 'security.jwt.issuer'."
-  },
-  {
-    "name": "env.page-size",
-    "type": "java.lang.String",
-    "description": "A description for 'env.page-size'."
   },
   {
     "name": "web.driver-location",

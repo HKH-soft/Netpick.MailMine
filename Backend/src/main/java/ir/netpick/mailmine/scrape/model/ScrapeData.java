@@ -4,6 +4,8 @@ import java.time.LocalDateTime;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import ir.netpick.mailmine.common.BaseEntity;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -26,6 +28,7 @@ public class ScrapeData extends BaseEntity {
     @Column(name = "attempt_number", nullable = false)
     private int attemptNumber;
 
+    @JsonIgnore
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "job_id", referencedColumnName = "id", nullable = false)
     private ScrapeJob scrapeJob;

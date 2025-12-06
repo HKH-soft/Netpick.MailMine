@@ -64,6 +64,10 @@ management:
         include:
         - "health"
         - "info"
+        - "prometheus"
+  metrics:
+    tags:
+      application: mailmine
 
 security:
   jwt:
@@ -71,9 +75,6 @@ security:
     access-expiration-minutes: 15
     refresh-expiration-days: 7
     issuer: ${JWT_ISSUER}
-
-env:
-  page-size: 25
 
 google:
   search:

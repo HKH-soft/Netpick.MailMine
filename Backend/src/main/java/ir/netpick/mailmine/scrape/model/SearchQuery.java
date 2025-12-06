@@ -36,14 +36,14 @@ public class SearchQuery extends BaseEntity {
     public SearchQuery() {
     }
 
-    public SearchQuery(String sentence, Integer linkCount) {
+    public SearchQuery(String sentence) {
         this.sentence = sentence;
-        this.linkCount = linkCount;
+        this.linkCount = 0;
     }
 
-    public SearchQuery(String sentence, Integer linkCount, String description) {
+    public SearchQuery(String sentence, String description) {
         this.sentence = sentence;
-        this.linkCount = linkCount;
+        this.linkCount = 0;
         this.description = description;
     }
 

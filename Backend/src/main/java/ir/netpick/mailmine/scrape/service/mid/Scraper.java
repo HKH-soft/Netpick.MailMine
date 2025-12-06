@@ -22,7 +22,6 @@ import ir.netpick.mailmine.scrape.service.base.ScrapeJobService;
 import ir.netpick.mailmine.scrape.service.base.V2RayClientService;
 import ir.netpick.mailmine.scrape.service.orch.PipelineControlService;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import ir.netpick.mailmine.scrape.ScrapeConstants;

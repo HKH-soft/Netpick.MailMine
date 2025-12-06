@@ -12,6 +12,10 @@ import java.util.concurrent.ConcurrentHashMap;
 @Log4j2
 public class RateLimitingService {
 
+    // Resend rate limiting constants
+    private static final int RESEND_MAX_PER_HOUR = 3;
+    private static final int RESEND_MIN_SECONDS = 30;
+
     // Store rate limiting information for verification attempts
     private final Map<String, VerificationAttempts> verificationAttemptCounts = new ConcurrentHashMap<>();
 
@@ -150,7 +154,7 @@ public class RateLimitingService {
         }
 
         // Limit to 3 resend attempts per hour
-        if (attempts.getAttempts() >= 3) {
+        if (attempts.getAttempts() >= RESEND_MAX_PER_HOUR) {
             // Check if the cooldown period has passed
             if (attempts.getLastAttempt().plusHours(1).isBefore(LocalDateTime.now())) {
                 // Reset the attempts after cooldown
@@ -161,11 +165,19 @@ public class RateLimitingService {
         }
 
         // Also enforce a minimum time between resends (30 seconds)
-        if (attempts.getLastAttempt().plusSeconds(30).isAfter(LocalDateTime.now())) {
+        if (attempts.getLastAttempt().plusSeconds(RESEND_MIN_SECONDS).isAfter(LocalDateTime.now())) {
             return false;
         }
 
         return true;
+    }
+
+    public int getResendMinSeconds() {
+        return RESEND_MIN_SECONDS;
+    }
+
+    public int getResendMaxPerHour() {
+        return RESEND_MAX_PER_HOUR;
     }
 
     /**

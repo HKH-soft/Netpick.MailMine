@@ -81,7 +81,6 @@ public class SearchQueryGenerator {
             try {
                 SearchQueryRequest request = new SearchQueryRequest(
                         query,
-                        0, // linkCount starts at 0
                         "Auto-generated for topic: " + topic);
                 SearchQuery saved = searchQueryService.createSearchQuery(request);
                 savedQueries.add(saved);

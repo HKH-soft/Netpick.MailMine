@@ -48,6 +48,14 @@ public interface ScrapeJobRepository extends JpaRepository<ScrapeJob, UUID> {
     @Query("SELECT COUNT(j) FROM ScrapeJob j WHERE j.beenScraped = false AND j.scrapeFailed = false AND j.attempt < :maxAttempts AND j.deleted = false")
     long countPendingJobs(@Param("maxAttempts") int maxAttempts);
 
+    long countByDeletedFalse();
+
+    long countByBeenScrapedTrueAndDeletedFalse();
+
+    long countByScrapeFailedTrueAndDeletedFalse();
+
+    long countByBeenScrapedFalseAndScrapeFailedFalseAndDeletedFalse();
+
     // Find all non-deleted jobs (this will be the new default)
     List<ScrapeJob> findByDeletedFalse();
 

@@ -5,6 +5,8 @@ import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import java.util.HashSet;
 import java.util.Set;
 
@@ -19,6 +21,7 @@ public class Contact extends BaseEntity {
     @Column(name = "email")
     private Set<String> emails = new HashSet<>();
 
+    @JsonIgnore
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "scrape_data_id")
     private ScrapeData scrapeData;

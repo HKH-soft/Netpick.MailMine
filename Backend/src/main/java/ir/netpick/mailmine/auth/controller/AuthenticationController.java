@@ -7,12 +7,14 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import ir.netpick.mailmine.auth.dto.AuthConfigResponse;
 import ir.netpick.mailmine.auth.dto.AuthenticationResponse;
 import ir.netpick.mailmine.auth.dto.AuthenticationSigninRequest;
 import ir.netpick.mailmine.auth.dto.AuthenticationSignupRequest;
 import ir.netpick.mailmine.auth.dto.MessageResponse;
 import ir.netpick.mailmine.auth.dto.RefreshTokenRequest;
 import ir.netpick.mailmine.auth.dto.VerificationRequest;
+import ir.netpick.mailmine.auth.service.RateLimitingService;
 import ir.netpick.mailmine.auth.service.AuthenticationService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
@@ -29,6 +31,7 @@ import org.springframework.web.bind.annotation.*;
 public class AuthenticationController {
 
     private final AuthenticationService authenticationService;
+    private final RateLimitingService rateLimitingService;
 
     @Operation(summary = "Verify email", description = "Verify user's email address using the verification code sent to their email")
     @ApiResponses(value = {
@@ -41,6 +44,14 @@ public class AuthenticationController {
     public ResponseEntity<MessageResponse> verify(@RequestBody VerificationRequest request) {
         authenticationService.verifyUser(request);
         return ResponseEntity.ok(new MessageResponse("User verified successfully"));
+    }
+
+    @Operation(summary = "Auth rate limits", description = "Expose resend cooldown and max resend per hour")
+    @GetMapping("config")
+    public ResponseEntity<AuthConfigResponse> getAuthConfig() {
+        return ResponseEntity.ok(new AuthConfigResponse(
+                rateLimitingService.getResendMinSeconds(),
+                rateLimitingService.getResendMaxPerHour()));
     }
 
     @Operation(summary = "Resend verification email", description = "Resend a new verification code to the user's email address")

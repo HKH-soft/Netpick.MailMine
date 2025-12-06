@@ -96,4 +96,9 @@ public class ContactService {
     public void deleteContact(UUID contactId) {
         contactRepository.deleteById(contactId);
     }
+
+    public java.util.Map<String, Long> getStats() {
+        return java.util.Map.of(
+                "total", contactRepository.countByDeletedFalse());
+    }
 }

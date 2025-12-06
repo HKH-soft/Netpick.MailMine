@@ -21,12 +21,12 @@ public class SearchQueryController {
     public ResponseEntity<?> getSearchQueries(@RequestParam(defaultValue = "1") Integer page) {
         return ResponseEntity.ok().body(searchQueryService.allSearchQueries(page));
     }
-    
+
     @GetMapping("/deleted")
     public ResponseEntity<?> getDeletedSearchQueries(@RequestParam(defaultValue = "1") Integer page) {
         return ResponseEntity.ok().body(searchQueryService.deletedSearchQueries(page));
     }
-    
+
     @GetMapping("/all")
     public ResponseEntity<?> getAllSearchQueriesIncludingDeleted(@RequestParam(defaultValue = "1") Integer page) {
         return ResponseEntity.ok().body(searchQueryService.allSearchQueriesIncludingDeleted(page));
@@ -36,7 +36,7 @@ public class SearchQueryController {
     public ResponseEntity<?> getSearchQuery(@PathVariable UUID id) {
         return ResponseEntity.ok().body(searchQueryService.getSearchQuery(id));
     }
-    
+
     @GetMapping("/deleted/{id}")
     public ResponseEntity<?> getDeletedSearchQuery(@PathVariable UUID id) {
         return ResponseEntity.ok().body(searchQueryService.getSearchQueryIncludingDeleted(id));
@@ -51,7 +51,7 @@ public class SearchQueryController {
     public ResponseEntity<?> updateSearchQuery(@PathVariable UUID id, @RequestBody SearchQueryRequest searchQuery) {
         return ResponseEntity.ok().body(searchQueryService.updateSearchQuery(id, searchQuery));
     }
-    
+
     @PutMapping("{id}/restore")
     public ResponseEntity<?> restoreSearchQuery(@PathVariable UUID id) {
         searchQueryService.restoreSearchQuery(id);
@@ -63,7 +63,7 @@ public class SearchQueryController {
         searchQueryService.softDeleteSearchQuery(id);
         return ResponseEntity.noContent().build();
     }
-    
+
     @DeleteMapping("{id}/full_delete")
     public ResponseEntity<?> fullDeleteSearchQuery(@PathVariable UUID id) {
         searchQueryService.deleteSearchQuery(id);

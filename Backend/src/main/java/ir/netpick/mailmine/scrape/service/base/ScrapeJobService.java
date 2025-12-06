@@ -175,4 +175,12 @@ public class ScrapeJobService {
         scrapeJobRepository.deleteById(jobId);
     }
 
+    public java.util.Map<String, Long> getStats() {
+        return java.util.Map.of(
+                "total", scrapeJobRepository.countByDeletedFalse(),
+                "completed", scrapeJobRepository.countByBeenScrapedTrueAndDeletedFalse(),
+                "failed", scrapeJobRepository.countByScrapeFailedTrueAndDeletedFalse(),
+                "pending", scrapeJobRepository.countByBeenScrapedFalseAndScrapeFailedFalseAndDeletedFalse());
+    }
+
 }

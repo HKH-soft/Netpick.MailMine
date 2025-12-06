@@ -14,6 +14,8 @@ import java.util.UUID;
 @Repository
 public interface ContactRepository extends JpaRepository<Contact, UUID> {
 
+    long countByDeletedFalse();
+
     // Find all non-deleted contacts with pagination
     Page<Contact> findByDeletedFalse(Pageable pageable);
 

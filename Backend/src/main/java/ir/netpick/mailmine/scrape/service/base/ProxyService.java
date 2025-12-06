@@ -356,9 +356,22 @@ public class ProxyService {
 
     public Map<String, Long> getProxyStats() {
         Map<String, Long> stats = new HashMap<>();
-        for (ProxyStatus status : ProxyStatus.values()) {
-            stats.put(status.name(), proxyRepository.countByStatusAndDeletedFalse(status));
-        }
+        long total = 0;
+
+        long activeCount = proxyRepository.countByStatusAndDeletedFalse(ProxyStatus.ACTIVE);
+        long slowCount = proxyRepository.countByStatusAndDeletedFalse(ProxyStatus.SLOW);
+        long untestedCount = proxyRepository.countByStatusAndDeletedFalse(ProxyStatus.UNTESTED);
+        long failedCount = proxyRepository.countByStatusAndDeletedFalse(ProxyStatus.FAILED);
+        long disabledCount = proxyRepository.countByStatusAndDeletedFalse(ProxyStatus.DISABLED);
+
+        total = activeCount + slowCount + untestedCount + failedCount + disabledCount;
+
+        stats.put("total", total);
+        stats.put("active", activeCount + slowCount);
+        stats.put("untested", untestedCount);
+        stats.put("failed", failedCount);
+        stats.put("inactive", disabledCount);
+
         return stats;
     }
 }

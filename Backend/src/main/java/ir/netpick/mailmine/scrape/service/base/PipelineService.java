@@ -94,4 +94,20 @@ public class PipelineService {
         pipelineRepository.delete(pipeline);
     }
 
+    public java.util.Map<String, Long> getStats() {
+        Long totalContacts = pipelineRepository.sumContactsFound();
+        return java.util.Map.of(
+                "total", pipelineRepository.countByDeletedFalse(),
+                "active",
+                pipelineRepository
+                        .countByStateAndDeletedFalse(ir.netpick.mailmine.common.enums.PipelineStateEnum.RUNNING),
+                "completed",
+                pipelineRepository
+                        .countByStateAndDeletedFalse(ir.netpick.mailmine.common.enums.PipelineStateEnum.COMPLETED),
+                "failed",
+                pipelineRepository
+                        .countByStateAndDeletedFalse(ir.netpick.mailmine.common.enums.PipelineStateEnum.FAILED),
+                "totalContactsFound", totalContacts != null ? totalContacts : 0L);
+    }
+
 }

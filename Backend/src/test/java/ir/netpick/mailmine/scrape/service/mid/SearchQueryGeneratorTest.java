@@ -243,7 +243,6 @@ class SearchQueryGeneratorTest {
             SearchQueryRequest request = requestCaptor.getValue();
 
             assertEquals("my search query", request.sentence());
-            assertEquals(0, request.linkCount());
             assertTrue(request.description().contains("my-topic"));
         }
     }

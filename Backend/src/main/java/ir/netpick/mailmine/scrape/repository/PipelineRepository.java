@@ -1,5 +1,6 @@
 package ir.netpick.mailmine.scrape.repository;
 
+import ir.netpick.mailmine.common.enums.PipelineStateEnum;
 import ir.netpick.mailmine.scrape.model.Pipeline;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -13,9 +14,16 @@ import java.util.UUID;
 
 @Repository
 public interface PipelineRepository extends JpaRepository<Pipeline, UUID> {
+    long countByDeletedFalse();
+
+    long countByStateAndDeletedFalse(PipelineStateEnum state);
+
+    @Query("SELECT SUM(p.contactsFound) FROM Pipeline p WHERE p.deleted = false")
+    Long sumContactsFound();
+
     // Find all non-deleted pipelines with pagination
     Page<Pipeline> findByDeletedFalse(Pageable pageable);
-    
+
     // Find all deleted pipelines with pagination
     Page<Pipeline> findByDeletedTrue(Pageable pageable);
 
