@@ -1,0 +1,161 @@
+name: CI - Build Backend
+
+on:
+  pull_request:
+    branches:
+      - main
+    paths:
+      - Backend/**
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres
+        env:
+          POSTGRES_USER: ${{secrets.POSTGRES_USER}}
+          POSTGRES_PASSWORD: ${{secrets.POSTGRES_PASSWORD}}
+          POSTGRES_DB: ${{secrets.POSTGRES_DATABASE}}
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+    defaults:
+      run:
+        working-directory: Backend
+    steps:
+      - name: Build Started - Message
+        uses: appleboy/telegram-action@master
+        with:
+          to: ${{ secrets.TELEGRAM_TO }}
+          token: ${{ secrets.TELEGRAM_TOKEN }}
+          message: |
+            🧪 *CI Build Started for PR*
+
+            📄 PR Title: `${{ github.event.pull_request.title }}`
+            👤 Author: `${{ github.event.pull_request.user.login }}`
+            🔀 Branch: `${{ github.head_ref }}`
+            📦 Repo: `${{ github.repository }}`
+            🔗 [View PR](https://github.com/${{ github.repository }}/pull/${{ github.event.pull_request.number }})
+
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Setup Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: "temurin"
+          java-version: "21"
+          cache: "maven"
+
+      - name: Build and run Integration Tests with Maven
+        env:
+          # Database
+          POSTGRES_URL: localhost:5432
+          POSTGRES_USERNAME: ${{ secrets.POSTGRES_USER }}
+          POSTGRES_PASSWORD: ${{ secrets.POSTGRES_PASSWORD }}
+
+          # Mail
+          GMAIL_USERNAME: ${{ secrets.GMAIL_USERNAME }}
+          GMAIL_PASSWORD: ${{ secrets.GMAIL_PASSWORD }}
+
+          # Security
+          JWT_SECRET_KEY: ${{ secrets.JWT_SECRET_KEY }}
+          JWT_ISSUER: ${{ secrets.JWT_ISSUER }}
+
+          # Server
+          SERVER_PORT: 8080
+
+          # Docker
+          DOCKER_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
+
+          # Gemini
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+
+        run: mvn -ntp -B verify
+
+      - name: Extract JUnit + Integration Test Summary
+        id: test-summary
+        run: |
+          extract_counts() {
+            local DIR=$1
+            local TOTAL=0 FAILURES=0 ERRORS=0 SKIPPED=0
+
+            for FILE in $DIR/TEST-*.xml; do
+              if [[ -f "$FILE" ]]; then
+                t=$(grep -o 'tests="[0-9]*"' "$FILE" | grep -o '[0-9]*' | paste -sd+ - | bc || echo 0)
+                f=$(grep -o 'failures="[0-9]*"' "$FILE" | grep -o '[0-9]*' | paste -sd+ - | bc || echo 0)
+                e=$(grep -o 'errors="[0-9]*"' "$FILE" | grep -o '[0-9]*' | paste -sd+ - | bc || echo 0)
+                s=$(grep -o 'skipped="[0-9]*"' "$FILE" | grep -o '[0-9]*' | paste -sd+ - | bc || echo 0)
+                TOTAL=$((TOTAL + t))
+                FAILURES=$((FAILURES + f))
+                ERRORS=$((ERRORS + e))
+                SKIPPED=$((SKIPPED + s))
+              fi
+            done
+
+            echo "$TOTAL $FAILURES $ERRORS $SKIPPED"
+          }
+
+          read S_TOTAL S_FAILURES S_ERRORS S_SKIPPED <<< $(extract_counts target/surefire-reports)
+          read F_TOTAL F_FAILURES F_ERRORS F_SKIPPED <<< $(extract_counts target/failsafe-reports)
+
+          TOTAL=$((S_TOTAL + F_TOTAL))
+          FAILURES=$((S_FAILURES + F_FAILURES))
+          ERRORS=$((S_ERRORS + F_ERRORS))
+          SKIPPED=$((S_SKIPPED + F_SKIPPED))
+          PASSED=$((TOTAL - FAILURES - ERRORS - SKIPPED))
+
+          echo "total=$TOTAL" >> $GITHUB_OUTPUT
+          echo "passed=$PASSED" >> $GITHUB_OUTPUT
+          echo "failures=$FAILURES" >> $GITHUB_OUTPUT
+          echo "errors=$ERRORS" >> $GITHUB_OUTPUT
+          echo "skipped=$SKIPPED" >> $GITHUB_OUTPUT
+
+      - name: Notify Telegram on success - Message
+        if: success()
+        uses: appleboy/telegram-action@master
+        with:
+          to: ${{ secrets.TELEGRAM_TO }}
+          token: ${{ secrets.TELEGRAM_TOKEN }}
+          message: |
+            ✅ *CI Passed for Pull Request*
+
+            📄 PR Title: `${{ github.event.pull_request.title }}`
+            👤 Author: `${{ github.event.pull_request.user.login }}`
+            🔀 Branch: `${{ github.head_ref }}`
+
+            🧪 *Test Results*:
+            - Total: `${{ steps.test-summary.outputs.total }}`
+            - Passed: `${{ steps.test-summary.outputs.passed }}`
+            - Failed: `${{ steps.test-summary.outputs.failures }}`
+            - Errors: `${{ steps.test-summary.outputs.errors }}`
+            - Skipped: `${{ steps.test-summary.outputs.skipped }}`
+
+            🔗 [View PR](https://github.com/${{ github.repository }}/pull/${{ github.event.pull_request.number }})
+
+      - name: Notify Telegram on failure - Message
+        if: failure()
+        uses: appleboy/telegram-action@master
+        with:
+          to: ${{ secrets.TELEGRAM_TO }}
+          token: ${{ secrets.TELEGRAM_TOKEN }}
+          message: |
+            ❌ *CI Failed for Pull Request*
+
+            📄 PR Title: `${{ github.event.pull_request.title }}`
+            👤 Author: `${{ github.event.pull_request.user.login }}`
+            🔀 Branch: `${{ github.head_ref }}`
+
+            🧪 *Test Results* (may be incomplete):
+            - Total: `${{ steps.test-summary.outputs.total }}`
+            - Passed: `${{ steps.test-summary.outputs.passed }}`
+            - Failed: `${{ steps.test-summary.outputs.failures }}`
+            - Errors: `${{ steps.test-summary.outputs.errors }}`
+            - Skipped: `${{ steps.test-summary.outputs.skipped }}`
+
+            🛠 Logs: [Run #${{ github.run_number }}](https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }})
