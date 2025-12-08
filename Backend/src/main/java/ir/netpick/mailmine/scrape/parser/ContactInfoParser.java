@@ -29,11 +29,11 @@ public class ContactInfoParser {
             return contact;
         }
 
-        Document doc = Jsoup.parse(htmlContent);
-        String cleanText = doc.text().trim(); // Direct text extraction, no re-clean
+        Document htmlDocument = Jsoup.parse(htmlContent);
+        String cleanText = htmlDocument.text().trim(); // Direct text extraction, no re-clean
 
         extractFromText(cleanText, contact);
-        extractFromLinks(doc, contact);
+        extractFromLinks(htmlDocument, contact);
 
         normalizeAndValidate(contact);
 
@@ -50,8 +50,8 @@ public class ContactInfoParser {
         extract(text, EMAIL_PATTERN, contact.getEmails());
     }
 
-    private static void extractFromLinks(Document doc, Contact contact) {
-        Elements links = doc.select("a[href]");
+    private static void extractFromLinks(Document htmlDocument, Contact contact) {
+        Elements links = htmlDocument.select("a[href]");
         for (Element link : links) {
             String href = link.attr("abs:href").trim();
             if (href.isBlank())
@@ -77,13 +77,13 @@ public class ContactInfoParser {
         contact.getEmails().removeIf(email -> !EMAIL_VALIDATOR.isValid(email));
     }
 
-    private static void extract(String text, Pattern pattern, Set<String> target) {
+    private static void extract(String text, Pattern pattern, Set<String> destinationSet) {
         Matcher matcher = pattern.matcher(text);
         while (matcher.find()) {
-            String val = matcher.groupCount() >= 1 ? matcher.group(1) : matcher.group();
-            if (val != null && !val.trim().isEmpty()) {
-                String candidate = val.trim();
-                target.add(candidate);
+            String extractedValue = matcher.groupCount() >= 1 ? matcher.group(1) : matcher.group();
+            if (extractedValue != null && !extractedValue.trim().isEmpty()) {
+                String candidate = extractedValue.trim();
+                destinationSet.add(candidate);
             }
         }
     }
