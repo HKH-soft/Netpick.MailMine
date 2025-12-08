@@ -160,7 +160,7 @@ This document lists all identified problems and potential issues in the MailMine
 
 20. **Thread.sleep() in Mass Email**
     - **Issue**: Using Thread.sleep(100) for rate limiting
-    - **Problem**: Inefficient, blocks thread pool, not configurable
+    - **Problem**: Inefficient, blocks thread pool, and is not configurable
     - **Severity**: MEDIUM
     - **Line**: 143
 
@@ -628,8 +628,8 @@ This document lists all identified problems and potential issues in the MailMine
 ## Priority Summary
 
 ### CRITICAL (Fix Immediately)
-- Issue #59: Passwords potentially logged
-- Issue #17: Refresh token storage security
+- **Issue #59**: Passwords potentially logged - Request logging might expose passwords in application logs
+- **Issue #17**: Refresh token storage security - Need to verify refresh tokens are hashed, not stored in plaintext
 
 ### HIGH Priority
 - Issue #6: No role-based access control on AI endpoints
@@ -651,7 +651,43 @@ This document lists all identified problems and potential issues in the MailMine
 - Issue #83: No database backup strategy
 
 ### MEDIUM Priority
-- Issues #2, #3, #5, #7, #9, #10, #15, #18, #20, #22, #24, #26, #31, #34, #36, #37, #38, #39, #41, #43, #44, #47, #49, #50, #52, #57, #60, #62, #63, #65, #66, #67, #74, #75, #79, #81, #84
+- **Issue #2**: No rate limiting for Gemini API calls
+- **Issue #3**: No timeout configuration for AI API calls
+- **Issue #5**: No input length validation on AI prompts
+- **Issue #7**: Missing proper DTOs for AI controller
+- **Issue #9**: Password policy not enforced
+- **Issue #10**: No permanent account lockout on repeated verification failures
+- **Issue #15**: No JWT key rotation mechanism
+- **Issue #18**: No email queue/retry mechanism for failed deliveries
+- **Issue #20**: Thread.sleep() used for rate limiting in mass email
+- **Issue #22**: Mass email processing not resilient to crashes
+- **Issue #24**: Playwright instance created per job instead of reused
+- **Issue #26**: Proxies used without health checking
+- **Issue #31**: File read failures silently mark data as parsed
+- **Issue #34**: No caching of AI-generated search queries
+- **Issue #36**: No duplicate detection for generated queries
+- **Issue #37**: Random API key selection without health tracking
+- **Issue #38**: No API key health monitoring
+- **Issue #39**: Blocking calls on reactive WebClient
+- **Issue #41**: No circuit breaker for failing API calls
+- **Issue #43**: No limits on V2Ray process output logging
+- **Issue #44**: Port allocation race condition in V2Ray service
+- **Issue #47**: No health monitoring for V2Ray processes
+- **Issue #49**: Pipelines can run indefinitely without timeout
+- **Issue #50**: Generic exception handler too broad
+- **Issue #52**: Exception details exposed to clients
+- **Issue #57**: CORS configuration needs review
+- **Issue #60**: No API request signing for sensitive operations
+- **Issue #62**: No session fixation protection configured
+- **Issue #63**: No Content Security Policy headers
+- **Issue #65**: Database connection pooling not configured
+- **Issue #66**: No query optimization for large datasets
+- **Issue #67**: No caching strategy implemented
+- **Issue #74**: Integration test coverage needs review
+- **Issue #75**: No load/performance tests
+- **Issue #79**: No distributed tracing
+- **Issue #81**: No alerting configuration
+- **Issue #84**: Soft delete implementation needs review
 
 ### LOW Priority
 - All remaining issues
