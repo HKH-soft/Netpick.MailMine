@@ -1,5 +1,5 @@
 <div align="center">
-  <a href="https://github.com/github_username/repo_name">
+  <a href="https://github.com/HKH-soft/Netpick.MailMine">
     <img src="Frontend/public/images/logo/LOGO_WHITE_TEXT.svg" alt="Logo" width="200" height="80">
   </a>
 
@@ -13,9 +13,9 @@
     <br />
     <a href="#demo">View Demo</a>
     ·
-    <a href="#issues">Report Bug</a>
+    <a href="https://github.com/HKH-soft/Netpick.MailMine/issues">Report Bug</a>
     ·
-    <a href="#issues">Request Feature</a>
+    <a href="https://github.com/HKH-soft/Netpick.MailMine/issues">Request Feature</a>
   </p>
 </div>
 
@@ -46,6 +46,7 @@
         <li><a href="#installation">Installation</a></li>
       </ul>
     </li>
+    <li><a href="#project-structure">Project Structure</a></li>
     <li><a href="#usage">Usage</a></li>
     <li><a href="#roadmap">Roadmap</a></li>
     <li><a href="#contributing">Contributing</a></li>
@@ -94,9 +95,11 @@ To get a local copy up and running, follow these simple steps.
 
 Ensure you have the following installed on your system:
 
-*   **Java JDK 17+**
-*   **Node.js 18+**
+*   **Java JDK 21+** (Backend requirement)
+*   **Node.js 18+** (Frontend requirement)
+*   **PostgreSQL 15+** (Database)
 *   **Maven** (Optional, wrapper provided)
+*   **npm** or **yarn** (Package manager for frontend)
 
 ### Installation
 
@@ -109,18 +112,58 @@ Ensure you have the following installed on your system:
     ```sh
     cd Backend
     # Configure database in src/main/resources/application.yml
+    # Update PostgreSQL connection settings
     ./mvnw spring-boot:run
     ```
+    The backend API will be available at `http://localhost:8080`
 
 3.  **Frontend Setup**
     ```sh
     cd Frontend
     npm install
+    # Configure API endpoint if needed
     npm run dev
     ```
+    The frontend will be available at `http://localhost:3000`
 
-4.  **Access the App**
+4.  **Database Setup**
+    - Create a PostgreSQL database named `mailmine`
+    - Update `Backend/src/main/resources/application.yml` with your database credentials
+    - Flyway migrations will run automatically on startup
+
+5.  **Access the App**
     Open your browser and navigate to `http://localhost:3000`.
+
+<p align="right">(<a href="#readme-top">back to top</a>)</p>
+
+<!-- PROJECT STRUCTURE -->
+## 📁 Project Structure
+
+```
+Netpick.MailMine/
+├── Backend/                 # Spring Boot backend application
+│   ├── src/
+│   │   ├── main/
+│   │   │   ├── java/        # Java source code
+│   │   │   │   └── ir/netpick/mailmine/
+│   │   │   │       ├── auth/           # Authentication & JWT
+│   │   │   │       ├── scrape/         # Web scraping logic
+│   │   │   │       ├── email/          # Email handling
+│   │   │   │       └── ai/             # AI integration (Gemini)
+│   │   │   └── resources/
+│   │   │       ├── application.yml     # Configuration
+│   │   │       └── db/migration/       # Flyway migrations
+│   │   └── test/             # Unit and integration tests
+│   └── pom.xml              # Maven dependencies
+├── Frontend/                # Next.js frontend application
+│   ├── src/
+│   │   ├── app/             # Next.js 15 app directory
+│   │   ├── components/      # React components
+│   │   └── types/           # TypeScript type definitions
+│   ├── public/              # Static assets
+│   └── package.json         # npm dependencies
+└── README.md               # This file
+```
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
@@ -149,7 +192,7 @@ Access your dashboard securely. The system supports persistent login sessions.
 - [ ] API Access for 3rd Party Apps
 - [ ] Cloud Deployment Scripts (Docker)
 
-See the [open issues](https://github.com/github_username/repo_name/issues) for a full list of proposed features (and known issues).
+See the [open issues](https://github.com/HKH-soft/Netpick.MailMine/issues) for a full list of proposed features (and known issues).
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
