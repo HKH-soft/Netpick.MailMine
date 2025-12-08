@@ -3,6 +3,12 @@
 
 ### Todo
 
+- [ ] **Backend Issues**: Review and fix the 84 documented issues in `Backend/BACKEND_ISSUES.md`
+  - [ ] CRITICAL: Fix password logging risk and refresh token security (2 issues)
+  - [ ] HIGH: Address security, rate limiting, and process management (18 issues)
+  - [ ] MEDIUM: Improve performance, error handling, and monitoring (36 issues)
+  - [ ] LOW: Code quality and maintainability improvements (28 issues)
+
 - [ ] Add a service to the frontend so that it can interact with the backend.
 
 - [ ] Add state management for the scrape job and scrape data.
