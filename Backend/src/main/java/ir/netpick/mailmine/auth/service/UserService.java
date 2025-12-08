@@ -335,7 +335,9 @@ public class UserService {
      * @throws ResourceNotFoundException  if no active user exists with the given
      *                                    email
      * @throws RequestValidationException if no changes were detected in the request
+     *                                    or
      */
+
     public UserDTO updateUser(String email, UserUpdateRequest request) {
         log.info("Updating user with email: {}", email);
         User user = userRepository.findByDeletedFalseAndEmail(email).orElseThrow(
@@ -345,6 +347,11 @@ public class UserService {
                             "No user account found with email: " + email + ". " +
                                     "Please check the email address or register for a new account.");
                 });
+
+        if (user.getRole().getName() == RoleEnum.SUPER_ADMIN) {
+            log.warn("Super Admin cannot be changed.");
+            throw new RequestValidationException("Super Admin cannot be changed.");
+        }
 
         boolean changed = false;
         if (request.name() != null && !request.name().equals(user.getName())) {
@@ -379,6 +386,7 @@ public class UserService {
      * @return the updated UserDTO
      * @throws ResourceNotFoundException  if no user exists with the given UUID
      * @throws RequestValidationException if no changes were detected in the request
+     *                                    or if the user is a super admin
      */
     public UserDTO updateUser(UUID userId, UserUpdateRequest request) {
         log.info("Updating user with ID: {}", userId);
@@ -389,6 +397,11 @@ public class UserService {
                             "No user account found with ID: " + userId + ". " +
                                     "Please check the user ID or contact support if you believe this is an error.");
                 });
+
+        if (user.getRole().getName() == RoleEnum.SUPER_ADMIN) {
+            log.warn("Super Admin cannot be changed.");
+            throw new RequestValidationException("Super Admin cannot be changed.");
+        }
 
         boolean changed = false;
         if (request.name() != null && !request.name().equals(user.getName())) {
@@ -418,16 +431,21 @@ public class UserService {
      * Soft deletes a user by their email address.
      *
      * @param email the email address of the user to delete
-     * @throws ResourceNotFoundException if no user exists with the given email
+     * @throws ResourceNotFoundException  if no user exists with the given email
+     * @throws RequestValidationException if the user is a super admin
      */
     @Transactional
     public void deleteUser(String email) {
         log.info("Soft deleting user with email: {}", email);
-        if (!userRepository.existsUserByEmail(email)) {
+        User user = userRepository.findByEmail(email).orElseThrow(() -> {
             log.warn("User not found for deletion with email: {}", email);
             throw new ResourceNotFoundException(
                     "No user account found with email: " + email + ". " +
                             "Please check the email address or register for a new account.");
+        });
+        if (user.getRole().getName() == RoleEnum.SUPER_ADMIN) {
+            log.warn("Super Admin cannot be changed.");
+            throw new RequestValidationException("Super Admin cannot be changed.");
         }
         userRepository.updateDeletedByEmail(true, email);
         log.info("Successfully soft deleted user with email: {}", email);
@@ -437,7 +455,8 @@ public class UserService {
      * Soft deletes a user by their UUID.
      *
      * @param userId the UUID of the user to delete
-     * @throws ResourceNotFoundException if no user exists with the given UUID
+     * @throws ResourceNotFoundException  if no user exists with the given UUID
+     * @throws RequestValidationException if the user is a super admin
      */
     @Transactional
     public void deleteUser(UUID userId) {
@@ -449,6 +468,11 @@ public class UserService {
                             "No user account found with ID: " + userId + ". " +
                                     "Please check the user ID or contact support if you believe this is an error.");
                 });
+
+        if (user.getRole().getName() == RoleEnum.SUPER_ADMIN) {
+            log.warn("Super Admin cannot be changed.");
+            throw new RequestValidationException("Super Admin cannot be changed.");
+        }
         user.setDeleted(true);
         userRepository.save(user);
         log.info("Successfully soft deleted user with ID: {}", userId);
@@ -458,7 +482,8 @@ public class UserService {
      * Restores a soft-deleted user by their UUID.
      *
      * @param userId the UUID of the user to restore
-     * @throws ResourceNotFoundException if no user exists with the given UUID
+     * @throws ResourceNotFoundException  if no user exists with the given UUID
+     * @throws RequestValidationException if the user is a super admin
      */
     @Transactional
     public void restoreUser(UUID userId) {
@@ -469,6 +494,11 @@ public class UserService {
                     return new ResourceNotFoundException(
                             "No user account found with ID: " + userId + ".");
                 });
+
+        if (user.getRole().getName() == RoleEnum.SUPER_ADMIN) {
+            log.warn("Super Admin cannot be changed.");
+            throw new RequestValidationException("Super Admin cannot be changed.");
+        }
         user.setDeleted(false);
         userRepository.save(user);
         log.info("Successfully restored user with ID: {}", userId);
@@ -481,7 +511,8 @@ public class UserService {
      * @param currentPassword the current password for verification
      * @param newPassword     the new password to set
      * @throws ResourceNotFoundException  if no user exists with the given email
-     * @throws RequestValidationException if the current password is incorrect
+     * @throws RequestValidationException if the current password is incorrect or
+     *                                    the user is super admin
      */
     @Transactional
     public void changePassword(String email, String currentPassword, String newPassword) {
@@ -491,6 +522,11 @@ public class UserService {
                     log.warn("User not found for password change: {}", email);
                     return new ResourceNotFoundException("User not found");
                 });
+
+        if (user.getRole().getName() == RoleEnum.SUPER_ADMIN) {
+            log.warn("Super Admin cannot be changed.");
+            throw new RequestValidationException("Super Admin cannot be changed.");
+        }
 
         if (!passwordEncoder.matches(currentPassword, user.getPasswordHash())) {
             log.warn("Invalid current password provided for user: {}", email);
@@ -506,15 +542,20 @@ public class UserService {
      * Permanently deletes a user (admin only).
      *
      * @param userId the UUID of the user to permanently delete
-     * @throws ResourceNotFoundException if no user exists with the given UUID
+     * @throws ResourceNotFoundException  if no user exists with the given UUID
+     * @throws RequestValidationException if the user is a super admin
      */
     @Transactional
     public void permanentlyDeleteUser(UUID userId) {
         log.info("Permanently deleting user with ID: {}", userId);
-        if (!userRepository.existsById(userId)) {
+        User user = userRepository.findById(userId).orElseThrow(() -> {
             log.warn("User not found for permanent deletion with ID: {}", userId);
             throw new ResourceNotFoundException(
                     "No user account found with ID: " + userId + ".");
+        });
+        if (user.getRole().getName() == RoleEnum.SUPER_ADMIN) {
+            log.warn("Super Admin cannot be deleted.");
+            throw new RequestValidationException("Super Admin cannot be deleted.");
         }
         userRepository.deleteById(userId);
         log.info("Successfully permanently deleted user with ID: {}", userId);
