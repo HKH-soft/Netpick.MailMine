@@ -21,7 +21,7 @@
 
 <!-- BADGES -->
 <div align="center">
-  <img src="https://img.shields.io/badge/Java-17-orange?style=for-the-badge&logo=java" alt="Java" />
+  <img src="https://img.shields.io/badge/Java-21-orange?style=for-the-badge&logo=openjdk" alt="Java" />
   <img src="https://img.shields.io/badge/Spring_Boot-3.0-green?style=for-the-badge&logo=spring-boot" alt="Spring Boot" />
   <img src="https://img.shields.io/badge/Next.js-15-black?style=for-the-badge&logo=next.js" alt="Next.js" />
   <img src="https://img.shields.io/badge/TypeScript-5.0-blue?style=for-the-badge&logo=typescript" alt="TypeScript" />
