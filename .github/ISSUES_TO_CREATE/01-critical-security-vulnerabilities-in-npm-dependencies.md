@@ -32,9 +32,16 @@ Multiple critical and moderate security vulnerabilities have been identified in 
 ## Solution
 ```bash
 cd Frontend
+# First try safe fixes
 npm audit fix
-npm audit fix --force  # For breaking changes in Next.js
+
+# For critical Next.js update (may have breaking changes):
+# Test in development environment first, then run:
+npm audit fix --force
+# Review and test all changes before committing
 ```
+
+**⚠️ Note**: The `--force` flag may introduce breaking changes. Test thoroughly in development before deploying.
 
 Expected updates:
 - Next.js: 15.2.3 → 15.5.7+

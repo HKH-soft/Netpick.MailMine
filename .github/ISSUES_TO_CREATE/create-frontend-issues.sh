@@ -1,14 +1,16 @@
 #!/bin/bash
 # Script to create GitHub issues from the frontend analysis
-# Usage: bash create-frontend-issues.sh
+# Usage: bash create-frontend-issues.sh [repository]
+# Example: bash create-frontend-issues.sh HKH-soft/Netpick.MailMine
 
 # Note: This script requires GitHub CLI (gh) to be installed and authenticated
 # Install: https://cli.github.com/
 # Authenticate: gh auth login
 
-set -e
+set -euo pipefail
 
-REPO="HKH-soft/Netpick.MailMine"
+# Allow repository to be passed as argument, default to HKH-soft/Netpick.MailMine
+REPO="${1:-HKH-soft/Netpick.MailMine}"
 
 echo "Creating frontend issues for $REPO..."
 echo ""
@@ -31,9 +33,16 @@ Multiple critical and moderate security vulnerabilities have been identified in 
 ## Solution
 \`\`\`bash
 cd Frontend
+# First try safe fixes
 npm audit fix
+
+# For critical Next.js update (breaking changes possible):
+# Test in development environment first, then run:
 npm audit fix --force
+# Review and test all changes before committing
 \`\`\`
+
+**Note**: The --force flag may introduce breaking changes. Test thoroughly after updating.
 
 ## Priority
 **CRITICAL** - Fix immediately before production deployment.
