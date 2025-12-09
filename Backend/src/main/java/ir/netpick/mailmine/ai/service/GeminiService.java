@@ -4,6 +4,9 @@ import com.google.genai.Client;
 import com.google.genai.types.GenerateContentResponse;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.retry.annotation.Backoff;
+import org.springframework.retry.annotation.Recover;
+import org.springframework.retry.annotation.Retryable;
 import org.springframework.stereotype.Service;
 
 import java.net.UnknownHostException;
@@ -16,10 +19,18 @@ public class GeminiService {
     private String model;
 
     /**
-     * Generate text from a prompt using Gemini
+     * Generate text from a prompt using Gemini with retry logic
+     * Retries up to 3 times with exponential backoff on RuntimeException
      */
+    @Retryable(
+            retryFor = { RuntimeException.class },
+            maxAttempts = 3,
+            backoff = @Backoff(delay = 1000, multiplier = 2.0, maxDelay = 10000),
+            recover = "recoverGenerateText"
+    )
     public String generateText(String prompt) {
         try (Client client = new Client()) {
+            log.debug("Attempting to generate text with Gemini API");
             GenerateContentResponse response = client.models.generateContent(model, prompt, null);
             return response.text();
         } catch (Exception e) {
@@ -35,6 +46,16 @@ public class GeminiService {
             log.error("Failed to generate text with Gemini: {}", e.getMessage(), e);
             throw new RuntimeException("Gemini API call failed: " + e.getMessage(), e);
         }
+    }
+
+    /**
+     * Fallback method when all retry attempts fail
+     */
+    @Recover
+    public String recoverGenerateText(RuntimeException e, String prompt) {
+        log.error("All retry attempts exhausted for Gemini API call. Prompt: {}", 
+                prompt.substring(0, Math.min(100, prompt.length())));
+        throw new RuntimeException("Gemini API call failed after retries: " + e.getMessage(), e);
     }
 
     /**
