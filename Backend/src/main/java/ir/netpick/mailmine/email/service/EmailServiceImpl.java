@@ -16,6 +16,9 @@ import org.thymeleaf.TemplateEngine;
 import org.thymeleaf.context.Context;
 
 import java.io.File;
+import java.io.IOException;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.time.Year;
 import java.util.Map;
 
@@ -65,20 +68,33 @@ public class EmailServiceImpl implements EmailService {
             if (request.getAttachment() != null && !request.getAttachment().isEmpty()) {
                 // Validate attachment path to prevent path traversal attacks
                 String attachmentPath = request.getAttachment();
-                if (attachmentPath.contains("..") || attachmentPath.contains("~")) {
-                    log.warn("Potential path traversal attempt detected in attachment path: {}", attachmentPath);
-                    throw new IllegalArgumentException("Invalid attachment path");
-                }
                 
-                File file = new File(attachmentPath);
-                // Additional validation: ensure file exists and is a file (not directory)
-                if (!file.exists() || !file.isFile()) {
-                    log.warn("Attachment file does not exist or is not a file: {}", attachmentPath);
-                    throw new IllegalArgumentException("Attachment file not found");
+                try {
+                    // Normalize the path to resolve any relative components
+                    Path requestedPath = Paths.get(attachmentPath).normalize().toAbsolutePath();
+                    File file = requestedPath.toFile();
+                    
+                    // Ensure file exists and is a regular file (not directory)
+                    if (!file.exists() || !file.isFile()) {
+                        log.warn("Attachment file does not exist or is not a file: {}", attachmentPath);
+                        throw new IllegalArgumentException("Attachment file not found");
+                    }
+                    
+                    // Additional check: ensure the canonical path matches to prevent symlink attacks
+                    String canonicalPath = file.getCanonicalPath();
+                    String normalizedPath = requestedPath.toString();
+                    if (!canonicalPath.equals(normalizedPath)) {
+                        log.warn("Potential path manipulation detected. Canonical: {}, Normalized: {}", 
+                                canonicalPath, normalizedPath);
+                        throw new IllegalArgumentException("Invalid attachment path");
+                    }
+                    
+                    FileSystemResource fileResource = new FileSystemResource(file);
+                    helper.addAttachment(fileResource.getFilename(), fileResource);
+                } catch (IOException e) {
+                    log.error("Error resolving attachment path: {}", attachmentPath, e);
+                    throw new IllegalArgumentException("Invalid attachment path", e);
                 }
-                
-                FileSystemResource fileResource = new FileSystemResource(file);
-                helper.addAttachment(fileResource.getFilename(), fileResource);
             }
 
             javaMailSender.send(mimeMessage);
