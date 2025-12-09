@@ -64,7 +64,7 @@ const MultiSelect: React.FC<MultiSelectProps> = ({
                 {selectedValuesText.length > 0 ? (
                   selectedValuesText.map((text, index) => (
                     <div
-                      key={index}
+                      key={`${text}-${index}`}
                       className="group flex items-center justify-center rounded-full border-[0.7px] border-transparent bg-gray-100 py-1 pl-2.5 pr-2 text-sm text-gray-800 hover:border-gray-200 dark:bg-gray-800 dark:text-white/90 dark:hover:border-gray-800"
                     >
                       <span className="flex-initial max-w-full">{text}</span>
@@ -107,8 +107,8 @@ const MultiSelect: React.FC<MultiSelectProps> = ({
               onClick={(e) => e.stopPropagation()}
             >
               <div className="flex flex-col">
-                {options.map((option, index) => (
-                  <div key={index}>
+                {options.map((option) => (
+                  <div key={option.value}>
                     <div
                       className={`hover:bg-primary/5 w-full cursor-pointer rounded-t border-b border-gray-200 dark:border-gray-800`}
                       onClick={() => handleSelect(option.value)}
