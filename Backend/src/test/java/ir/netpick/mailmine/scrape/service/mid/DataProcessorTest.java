@@ -90,13 +90,13 @@ class DataProcessorTest {
             when(scrapeDataService.countUnparsed()).thenReturn(1L);
             when(scrapeDataService.findUnparsedPaged(0, 100))
                     .thenReturn(new PageImpl<>(List.of(scrapeData)));
-            when(fileManagement.ReadAFile(scrapeJobId, 1, "test.html")).thenReturn(htmlWithEmail);
+            when(fileManagement.readFile(scrapeJobId, 1, "test.html")).thenReturn(htmlWithEmail);
             when(pipelineControlService.checkAndWait()).thenReturn(true);
 
             dataProcessor.processUnparsedFiles();
 
             verify(scrapeDataService).countUnparsed();
-            verify(fileManagement).ReadAFile(scrapeJobId, 1, "test.html");
+            verify(fileManagement).readFile(scrapeJobId, 1, "test.html");
             verify(contactService).createContact(any(Contact.class));
             verify(scrapeDataService).updateScrapeData(scrapeData);
             assertTrue(scrapeData.isParsed());
@@ -110,13 +110,13 @@ class DataProcessorTest {
             when(scrapeDataService.countUnparsed()).thenReturn(1L);
             when(scrapeDataService.findUnparsedPaged(0, 100))
                     .thenReturn(new PageImpl<>(List.of(scrapeData)));
-            when(fileManagement.ReadAFile(scrapeJobId, 1, "test.html")).thenReturn(htmlWithoutEmail);
+            when(fileManagement.readFile(scrapeJobId, 1, "test.html")).thenReturn(htmlWithoutEmail);
             when(pipelineControlService.checkAndWait()).thenReturn(true);
 
             dataProcessor.processUnparsedFiles();
 
             verify(scrapeDataService).countUnparsed();
-            verify(fileManagement).ReadAFile(scrapeJobId, 1, "test.html");
+            verify(fileManagement).readFile(scrapeJobId, 1, "test.html");
             verify(contactService, never()).createContact(any(Contact.class));
             verify(scrapeDataService).updateScrapeData(scrapeData);
             assertTrue(scrapeData.isParsed());
@@ -130,7 +130,7 @@ class DataProcessorTest {
             when(scrapeDataService.countUnparsed()).thenReturn(1L);
             when(scrapeDataService.findUnparsedPaged(0, 100))
                     .thenReturn(new PageImpl<>(List.of(scrapeData)));
-            when(fileManagement.ReadAFile(scrapeJobId, 1, "test.html")).thenReturn(emptyHtml);
+            when(fileManagement.readFile(scrapeJobId, 1, "test.html")).thenReturn(emptyHtml);
             when(pipelineControlService.checkAndWait()).thenReturn(true);
 
             dataProcessor.processUnparsedFiles();
@@ -145,7 +145,7 @@ class DataProcessorTest {
             when(scrapeDataService.countUnparsed()).thenReturn(1L);
             when(scrapeDataService.findUnparsedPaged(0, 100))
                     .thenReturn(new PageImpl<>(List.of(scrapeData)));
-            when(fileManagement.ReadAFile(scrapeJobId, 1, "test.html")).thenReturn(null);
+            when(fileManagement.readFile(scrapeJobId, 1, "test.html")).thenReturn(null);
             when(pipelineControlService.checkAndWait()).thenReturn(true);
 
             // Should not throw exception
@@ -164,7 +164,7 @@ class DataProcessorTest {
             when(scrapeDataService.countUnparsed()).thenReturn(1L);
             when(scrapeDataService.findUnparsedPaged(0, 100))
                     .thenReturn(new PageImpl<>(List.of(scrapeData)));
-            when(fileManagement.ReadAFile(scrapeJobId, 1, "test.html")).thenReturn(htmlWithEmail);
+            when(fileManagement.readFile(scrapeJobId, 1, "test.html")).thenReturn(htmlWithEmail);
             when(pipelineControlService.checkAndWait()).thenReturn(true);
 
             ArgumentCaptor<Contact> contactCaptor = ArgumentCaptor.forClass(Contact.class);
@@ -184,7 +184,7 @@ class DataProcessorTest {
             when(scrapeDataService.countUnparsed()).thenReturn(1L);
             when(scrapeDataService.findUnparsedPaged(0, 100))
                     .thenReturn(new PageImpl<>(List.of(scrapeData)));
-            when(fileManagement.ReadAFile(scrapeJobId, 1, "test.html")).thenReturn(htmlWithEmail);
+            when(fileManagement.readFile(scrapeJobId, 1, "test.html")).thenReturn(htmlWithEmail);
             when(pipelineControlService.checkAndWait()).thenReturn(true);
 
             ArgumentCaptor<Contact> contactCaptor = ArgumentCaptor.forClass(Contact.class);
@@ -206,7 +206,7 @@ class DataProcessorTest {
 
             dataProcessor.processUnparsedFiles();
 
-            verify(fileManagement, never()).ReadAFile(any(), anyInt(), any());
+            verify(fileManagement, never()).readFile(any(), anyInt(), any());
             verify(contactService, never()).createContact(any());
         }
     }

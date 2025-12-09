@@ -26,20 +26,20 @@ public class LinkParser {
         }
 
         try {
-            JsonNode root = objectMapper.readTree(jsonBody);
+            JsonNode jsonRoot = objectMapper.readTree(jsonBody);
 
-            if (!root.has("items") || !root.get("items").isArray()) {
+            if (!jsonRoot.has("items") || !jsonRoot.get("items").isArray()) {
                 log.info("No 'items' field found in Google response");
                 return results;
             }
 
-            for (JsonNode item : root.get("items")) {
-                if (item == null || item.isNull())
+            for (JsonNode searchResultItem : jsonRoot.get("items")) {
+                if (searchResultItem == null || searchResultItem.isNull())
                     continue;
 
-                String link = getSafeText(item, "link");
-                String title = getSafeText(item, "title");
-                String snippet = getSafeText(item, "snippet");
+                String link = getSafeText(searchResultItem, "link");
+                String title = getSafeText(searchResultItem, "title");
+                String snippet = getSafeText(searchResultItem, "snippet");
 
                 if (link != null && !link.isBlank()) {
                     LinkResult result = new LinkResult();

@@ -74,8 +74,8 @@ public class ApiCaller {
 
     @Transactional
     public void callGoogleSearch() {
-        List<ApiKey> keys = apiKeyRepository.findAll();
-        if (keys.isEmpty()) {
+        List<ApiKey> apiKeys = apiKeyRepository.findAll();
+        if (apiKeys.isEmpty()) {
             throw new RuntimeException("No API keys configured");
         }
 
@@ -111,7 +111,7 @@ public class ApiCaller {
                 continue;
             }
 
-            int linksCreated = processQuery(query, keys);
+            int linksCreated = processQuery(query, apiKeys);
             query.setLinkCount(query.getLinkCount() + linksCreated);
             searchQueryRepository.save(query);
 
@@ -122,10 +122,10 @@ public class ApiCaller {
         }
     }
 
-    private int processQuery(SearchQuery query, List<ApiKey> keys) {
+    private int processQuery(SearchQuery query, List<ApiKey> apiKeys) {
         int totalLinksCreated = 0;
         int page = 0;
-        int keyIndex = ThreadLocalRandom.current().nextInt(keys.size());
+        int currentApiKeyIndex = ThreadLocalRandom.current().nextInt(apiKeys.size());
         long backoffDelay = initialBackoffMs;
         int retriesForPage = 0;
 
@@ -142,23 +142,23 @@ public class ApiCaller {
                 }
             }
 
-            ApiKey currentKey = keys.get(keyIndex);
+            ApiKey currentKey = apiKeys.get(currentApiKeyIndex);
             String uri = buildUri(query.getSentence(), page, currentKey);
 
             try {
-                String json = executeApiCall(uri).block();
-                if (json == null || json.isEmpty()) {
+                String apiResponse = executeApiCall(uri).block();
+                if (apiResponse == null || apiResponse.isEmpty()) {
                     log.warn("Empty response for query: {}", truncate(query.getSentence(), 50));
                     page++;
                     continue;
                 }
 
-                List<LinkResult> parsedLinks = LinkParser.parse(json);
+                List<LinkResult> parsedLinks = LinkParser.parse(apiResponse);
                 if (parsedLinks.isEmpty()) {
                     log.debug("No links parsed for query: {} (page {})",
                             truncate(query.getSentence(), 50), page);
                     page++;
-                    keyIndex = (keyIndex + 1) % keys.size();
+                    currentApiKeyIndex = (currentApiKeyIndex + 1) % apiKeys.size();
                     continue;
                 }
 
@@ -173,7 +173,7 @@ public class ApiCaller {
                 retriesForPage = 0;
                 backoffDelay = initialBackoffMs;
                 page++;
-                keyIndex = (keyIndex + 1) % keys.size();
+                currentApiKeyIndex = (currentApiKeyIndex + 1) % apiKeys.size();
 
             } catch (WebClientResponseException e) {
                 if (e.getStatusCode().value() == 429) {
@@ -195,7 +195,7 @@ public class ApiCaller {
                     }
 
                     backoffDelay = Math.min((long) (backoffDelay * backoffMultiplier), maxBackoffMs);
-                    keyIndex = (keyIndex + 1) % keys.size();
+                    currentApiKeyIndex = (currentApiKeyIndex + 1) % apiKeys.size();
                     continue; // Retry same page
                 }
 
@@ -203,8 +203,8 @@ public class ApiCaller {
                         e.getStatusCode(), e.getMessage(),
                         truncate(query.getSentence(), 30), page);
 
-                keyIndex = (keyIndex + 1) % keys.size();
-                if (keyIndex == 0) {
+                currentApiKeyIndex = (currentApiKeyIndex + 1) % apiKeys.size();
+                if (currentApiKeyIndex == 0) {
                     log.error("All keys attempted for page {}. Aborting remaining pages.", page);
                     break;
                 }

@@ -58,13 +58,13 @@ public class DataProcessor {
         log.info("Processing {} unparsed files in batches of {}", totalCount, BATCH_SIZE);
 
         int pageNum = 0;
-        Page<ScrapeData> batch;
+        Page<ScrapeData> scrapeDataBatch;
 
         do {
             // Fetch a batch
-            batch = scrapeDataService.findUnparsedPaged(pageNum, BATCH_SIZE);
+            scrapeDataBatch = scrapeDataService.findUnparsedPaged(pageNum, BATCH_SIZE);
 
-            for (ScrapeData scrapeData : batch.getContent()) {
+            for (ScrapeData scrapeData : scrapeDataBatch.getContent()) {
                 // Check if pipeline is paused/cancelled/skipped
                 try {
                     if (!pipelineControlService.checkAndWait()) {
@@ -83,7 +83,7 @@ public class DataProcessor {
             // Don't increment page number since we're marking items as processed
             // The next batch will automatically get the next unparsed items
 
-        } while (batch.hasNext() && !pipelineControlService.shouldStop());
+        } while (scrapeDataBatch.hasNext() && !pipelineControlService.shouldStop());
 
         log.info("Finished processing. Total processed: {}/{}", processedCount.get(), totalCount);
     }
@@ -95,13 +95,13 @@ public class DataProcessor {
     @Transactional(propagation = Propagation.REQUIRES_NEW)
     public void processSingleFile(ScrapeData scrapeData) {
         try {
-            String content = fileManagement.ReadAFile(
+            String htmlContent = fileManagement.readFile(
                     scrapeData.getScrapeJob().getId(),
                     scrapeData.getAttemptNumber(),
                     scrapeData.getFileName());
 
             // Handle null content - file not found or read error
-            if (content == null) {
+            if (htmlContent == null) {
                 log.error("Could not read file for ScrapeData ID: {} - marking as processed to skip",
                         scrapeData.getId());
                 scrapeData.setParsed(true); // Mark as parsed to skip in future
@@ -110,7 +110,7 @@ public class DataProcessor {
                 return;
             }
 
-            Contact parsedContact = ContactInfoParser.parse(content);
+            Contact parsedContact = ContactInfoParser.parse(htmlContent);
             if (parsedContact != null && parsedContact.hasContactInfo()) {
                 // Link contact to scrape data for traceability
                 parsedContact.setScrapeData(scrapeData);

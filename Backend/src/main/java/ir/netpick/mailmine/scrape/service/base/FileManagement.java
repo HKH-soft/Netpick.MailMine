@@ -39,7 +39,7 @@ public class FileManagement {
         return dir.resolve(fileName);
     }
 
-    public void CreateAFile(UUID id, int attemptNumber, String fileName, String content) {
+    public void createFile(UUID id, int attemptNumber, String fileName, String content) {
         Path path = buildFilePath(id, attemptNumber, fileName);
         try {
             Files.write(path, content.getBytes(), StandardOpenOption.CREATE_NEW);
@@ -51,7 +51,7 @@ public class FileManagement {
         }
     }
 
-    public String ReadAFile(UUID id, int attemptNumber, String fileName) {
+    public String readFile(UUID id, int attemptNumber, String fileName) {
         Path path = buildFilePath(id, attemptNumber, fileName);
         try {
             String content = Files.readString(path);
@@ -65,7 +65,7 @@ public class FileManagement {
         return null;
     }
 
-    public void UpdateAFile(UUID id, int attemptNumber, String fileName, String newContent) {
+    public void updateFile(UUID id, int attemptNumber, String fileName, String newContent) {
         Path path = buildFilePath(id, attemptNumber, fileName);
         try {
             Files.write(path, newContent.getBytes(), StandardOpenOption.APPEND);
@@ -77,7 +77,7 @@ public class FileManagement {
         }
     }
 
-    public void DeleteAFile(UUID id, int attemptNumber, String fileName) {
+    public void deleteFile(UUID id, int attemptNumber, String fileName) {
         Path path = buildFilePath(id, attemptNumber, fileName);
         try {
             Files.delete(path);
