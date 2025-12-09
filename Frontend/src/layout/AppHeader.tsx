@@ -3,6 +3,7 @@ import { ThemeToggleButton } from "@/components/common/ThemeToggleButton";
 import NotificationDropdown from "@/components/header/NotificationDropdown";
 import UserDropdown from "@/components/header/UserDropdown";
 import { useSidebar } from "@/context/SidebarContext";
+import { useDebounce } from "@/hooks/useDebounce";
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -41,6 +42,9 @@ const AppHeader: React.FC = () => {
   const [showResults, setShowResults] = useState(false);
   const router = useRouter();
   const searchContainerRef = useRef<HTMLDivElement>(null);
+  
+  // Debounce search query to reduce filtering frequency
+  const debouncedSearchQuery = useDebounce(searchQuery, 300);
 
   const { isMobileOpen, toggleSidebar, toggleMobileSidebar } = useSidebar();
 
@@ -80,22 +84,24 @@ const AppHeader: React.FC = () => {
     };
   }, []);
 
-  const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const query = e.target.value;
-    setSearchQuery(query);
-
-    if (query.trim() === "") {
+  // Perform search when debounced query changes
+  useEffect(() => {
+    if (debouncedSearchQuery.trim() === "") {
       setSearchResults([]);
       setShowResults(false);
       return;
     }
 
     const filtered = searchablePages.filter((page) =>
-      page.title.toLowerCase().includes(query.toLowerCase()) ||
-      page.category.toLowerCase().includes(query.toLowerCase())
+      page.title.toLowerCase().includes(debouncedSearchQuery.toLowerCase()) ||
+      page.category.toLowerCase().includes(debouncedSearchQuery.toLowerCase())
     );
     setSearchResults(filtered);
     setShowResults(true);
+  }, [debouncedSearchQuery]);
+
+  const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setSearchQuery(e.target.value);
   };
 
   const handleResultClick = (path: string) => {
