@@ -40,7 +40,7 @@ export default function UserDropdown() {
               name: payload.name || "User",
               email: payload.sub || "user@example.com"
             });
-          } catch (e) {
+          } catch {
             // Fallback to default
             setUser({
               name: "User",

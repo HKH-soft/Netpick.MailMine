@@ -47,17 +47,6 @@ export default function Proxies() {
         }
     };
 
-    const handleTest = async (row: Record<string, unknown>) => {
-        try {
-            await ProxyService.testProxy(row.id as string);
-            addToast("success", "Success", "Proxy test started");
-            await refetch();
-        } catch (err) {
-            console.error("Failed to test proxy:", err);
-            addToast("error", "Error", "Failed to test proxy");
-        }
-    };
-
     const handleCreateSubmit = async (data: Record<string, unknown>) => {
         try {
             const request: ProxyRequest = {

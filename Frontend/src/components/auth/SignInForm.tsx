@@ -38,7 +38,7 @@ export default function SignInForm() {
         email: values.email,
         password: values.password,
       };
-      const authResponse = await AuthService.signin(request, isChecked); // Pass rememberMe option
+      await AuthService.signin(request, isChecked); // Pass rememberMe option
       login(); // Update auth context
       router.push("/"); // Redirect to dashboard after successful login
       router.refresh(); // Refresh the page to update the auth state
