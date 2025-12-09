@@ -6,6 +6,8 @@ A powerful Spring Boot backend service for web scraping and lead generation, pro
 
 The MailMine backend is built with Spring Boot 3.5.6 and Java 21, leveraging modern technologies for web scraping, authentication, and data management. It provides a robust API layer for the frontend to interact with scraping services, user management, and data processing.
 
+> **📋 Code Review**: A comprehensive backend code review has been completed. See [`BACKEND_ISSUES.md`](./BACKEND_ISSUES.md) for detailed findings (84 issues identified) and [`ISSUES_QUICK_REFERENCE.md`](./ISSUES_QUICK_REFERENCE.md) for a quick reference guide and action plan.
+
 ## 🛠️ Tech Stack
 
 - **Framework**: Spring Boot 3.5.6
