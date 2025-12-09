@@ -63,8 +63,22 @@ public class EmailServiceImpl implements EmailService {
             helper.setText(request.getBody());
 
             if (request.getAttachment() != null && !request.getAttachment().isEmpty()) {
-                FileSystemResource file = new FileSystemResource(new File(request.getAttachment()));
-                helper.addAttachment(file.getFilename(), file);
+                // Validate attachment path to prevent path traversal attacks
+                String attachmentPath = request.getAttachment();
+                if (attachmentPath.contains("..") || attachmentPath.contains("~")) {
+                    log.warn("Potential path traversal attempt detected in attachment path: {}", attachmentPath);
+                    throw new IllegalArgumentException("Invalid attachment path");
+                }
+                
+                File file = new File(attachmentPath);
+                // Additional validation: ensure file exists and is a file (not directory)
+                if (!file.exists() || !file.isFile()) {
+                    log.warn("Attachment file does not exist or is not a file: {}", attachmentPath);
+                    throw new IllegalArgumentException("Attachment file not found");
+                }
+                
+                FileSystemResource fileResource = new FileSystemResource(file);
+                helper.addAttachment(fileResource.getFilename(), fileResource);
             }
 
             javaMailSender.send(mimeMessage);
