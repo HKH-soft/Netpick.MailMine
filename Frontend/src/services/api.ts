@@ -6,9 +6,9 @@ const API_BASE_URL = '';
 
 export class ApiError extends Error {
   status: number;
-  data: any;
+  data: unknown;
 
-  constructor(message: string, status: number, data: any) {
+  constructor(message: string, status: number, data: unknown) {
     super(message);
     this.name = 'ApiError';
     this.status = status;
@@ -129,12 +129,12 @@ class ApiService {
           }
         }
 
-        let errorData: any;
+        let errorData: unknown;
         const contentType = response.headers.get('content-type');
         if (contentType && contentType.includes('application/json')) {
           try {
             errorData = await response.json();
-          } catch (e) {
+          } catch {
             errorData = await response.text();
           }
         } else {

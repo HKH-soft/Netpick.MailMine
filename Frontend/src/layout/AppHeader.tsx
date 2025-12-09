@@ -3,6 +3,7 @@ import { ThemeToggleButton } from "@/components/common/ThemeToggleButton";
 import NotificationDropdown from "@/components/header/NotificationDropdown";
 import UserDropdown from "@/components/header/UserDropdown";
 import { useSidebar } from "@/context/SidebarContext";
+import { useDebounce } from "@/hooks/useDebounce";
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -41,6 +42,9 @@ const AppHeader: React.FC = () => {
   const [showResults, setShowResults] = useState(false);
   const router = useRouter();
   const searchContainerRef = useRef<HTMLDivElement>(null);
+  
+  // Debounce search query to reduce filtering frequency
+  const debouncedSearchQuery = useDebounce(searchQuery, 300);
 
   const { isMobileOpen, toggleSidebar, toggleMobileSidebar } = useSidebar();
 
@@ -80,22 +84,24 @@ const AppHeader: React.FC = () => {
     };
   }, []);
 
-  const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const query = e.target.value;
-    setSearchQuery(query);
-
-    if (query.trim() === "") {
+  // Perform search when debounced query changes
+  useEffect(() => {
+    if (debouncedSearchQuery.trim() === "") {
       setSearchResults([]);
       setShowResults(false);
       return;
     }
 
     const filtered = searchablePages.filter((page) =>
-      page.title.toLowerCase().includes(query.toLowerCase()) ||
-      page.category.toLowerCase().includes(query.toLowerCase())
+      page.title.toLowerCase().includes(debouncedSearchQuery.toLowerCase()) ||
+      page.category.toLowerCase().includes(debouncedSearchQuery.toLowerCase())
     );
     setSearchResults(filtered);
     setShowResults(true);
+  }, [debouncedSearchQuery]);
+
+  const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setSearchQuery(e.target.value);
   };
 
   const handleResultClick = (path: string) => {
@@ -195,7 +201,7 @@ const AppHeader: React.FC = () => {
 
                 {showResults && searchResults.length === 0 && searchQuery.trim() !== "" && (
                   <div className="absolute top-full left-0 w-full mt-2 bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 p-4 text-center text-sm text-gray-500 dark:text-gray-400 z-50">
-                    No results found for "{searchQuery}"
+                    No results found for &quot;{searchQuery}&quot;
                   </div>
                 )}
               </div>

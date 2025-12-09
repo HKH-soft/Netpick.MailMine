@@ -3,6 +3,8 @@ package ir.netpick.mailmine.auth.jwt;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
+import jakarta.annotation.PostConstruct;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
@@ -16,8 +18,11 @@ import java.util.Map;
 
 import static java.time.temporal.ChronoUnit.MINUTES;
 
+@Slf4j
 @Service
 public class JWTUtil {
+
+    private static final int MINIMUM_SECRET_KEY_LENGTH = 32; // 256 bits
 
     @Value("${security.jwt.secret-key}")
     private String secretKey;
@@ -27,6 +32,19 @@ public class JWTUtil {
 
     @Value("${security.jwt.issuer}")
     private String issuer;
+
+    @PostConstruct
+    public void validateSecretKey() {
+        if (secretKey == null || secretKey.trim().isEmpty()) {
+            throw new IllegalStateException("JWT secret key is not configured");
+        }
+        if (secretKey.getBytes().length < MINIMUM_SECRET_KEY_LENGTH) {
+            log.warn("JWT secret key is shorter than recommended minimum length of {} bytes. " +
+                    "Current length: {} bytes. Please use a longer secret key for better security.",
+                    MINIMUM_SECRET_KEY_LENGTH, secretKey.getBytes().length);
+        }
+        log.info("JWT configuration validated successfully");
+    }
 
     public String issueToken(String subject) {
         return issueToken(subject, Map.of());

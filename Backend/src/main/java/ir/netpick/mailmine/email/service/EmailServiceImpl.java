@@ -16,6 +16,9 @@ import org.thymeleaf.TemplateEngine;
 import org.thymeleaf.context.Context;
 
 import java.io.File;
+import java.io.IOException;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.time.Year;
 import java.util.Map;
 
@@ -63,8 +66,35 @@ public class EmailServiceImpl implements EmailService {
             helper.setText(request.getBody());
 
             if (request.getAttachment() != null && !request.getAttachment().isEmpty()) {
-                FileSystemResource file = new FileSystemResource(new File(request.getAttachment()));
-                helper.addAttachment(file.getFilename(), file);
+                // Validate attachment path to prevent path traversal attacks
+                String attachmentPath = request.getAttachment();
+                
+                try {
+                    // Normalize the path to resolve any relative components
+                    Path requestedPath = Paths.get(attachmentPath).normalize().toAbsolutePath();
+                    File file = requestedPath.toFile();
+                    
+                    // Ensure file exists and is a regular file (not directory)
+                    if (!file.exists() || !file.isFile()) {
+                        log.warn("Attachment file does not exist or is not a file: {}", attachmentPath);
+                        throw new IllegalArgumentException("Attachment file not found");
+                    }
+                    
+                    // Additional check: ensure the canonical path matches to prevent symlink attacks
+                    String canonicalPath = file.getCanonicalPath();
+                    String normalizedPath = requestedPath.toString();
+                    if (!canonicalPath.equals(normalizedPath)) {
+                        log.warn("Potential path manipulation detected. Canonical: {}, Normalized: {}", 
+                                canonicalPath, normalizedPath);
+                        throw new IllegalArgumentException("Invalid attachment path");
+                    }
+                    
+                    FileSystemResource fileResource = new FileSystemResource(file);
+                    helper.addAttachment(fileResource.getFilename(), fileResource);
+                } catch (IOException e) {
+                    log.error("Error resolving attachment path: {}", attachmentPath, e);
+                    throw new IllegalArgumentException("Invalid attachment path", e);
+                }
             }
 
             javaMailSender.send(mimeMessage);

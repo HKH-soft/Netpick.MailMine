@@ -41,8 +41,11 @@ public class SecurityFilterChainConfig {
                                                 "/api/v1/auth/refresh",
                                                 "/api/v1/auth/logout")
                                 .permitAll()
-                                .requestMatchers(HttpMethod.GET, "/actuator/**")
+                                // Actuator endpoints require authentication for security (except health checks)
+                                .requestMatchers("/actuator/health", "/actuator/health/**")
                                 .permitAll()
+                                .requestMatchers("/actuator/**")
+                                .authenticated()
                                 // Swagger UI and OpenAPI docs
                                 .requestMatchers(
                                                 "/swagger-ui.html",

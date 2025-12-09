@@ -1,7 +1,6 @@
 import PageBreadcrumb from "@/components/common/PageBreadCrumb";
 import { Metadata } from "next";
 import React from "react";
-import Link from "next/link";
 
 export const metadata: Metadata = {
   title: "Statistics | MailMine",

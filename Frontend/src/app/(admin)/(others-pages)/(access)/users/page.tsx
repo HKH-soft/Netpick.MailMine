@@ -4,12 +4,11 @@ import PageBreadcrumb from "@/components/common/PageBreadCrumb";
 import ProtectedRoute from "@/components/common/ProtectedRoute";
 import DynamicTable, { ColumnConfig } from "@/components/tables/DynamicTable";
 import Pagination from "@/components/tables/Pagination";
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import Button from "@/components/ui/button/Button";
 import ModalForm from "@/components/forms/ModalForm";
 import ConfirmModal from "@/components/forms/ConfirmModal";
 import { useUsers } from "@/hooks/useUsers";
-import AuthService from "@/services/authService";
 import UserService, { User } from "@/services/userService";
 import AdminService from "@/services/adminService";
 import { useToast } from "@/context/ToastContext";
@@ -20,22 +19,8 @@ export default function Users() {
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [selectedItem, setSelectedItem] = useState<User | null>(null);
-  const [isSuperAdmin, setIsSuperAdmin] = useState<boolean>(false);
   const { addToast } = useToast();
   const { users, loading, error, totalPages, refetch } = useUsers(currentPage);
-
-  // Check if current user is super admin
-  useEffect(() => {
-    const token = AuthService.getToken();
-    if (token) {
-      try {
-        const payload = JSON.parse(atob(token.split('.')[1]));
-        setIsSuperAdmin(payload.role === 'SUPER_ADMIN');
-      } catch (e) {
-        console.error("Error parsing token", e);
-      }
-    }
-  }, []);
 
   const handlePageChange = (page: number) => {
     setCurrentPage(page);
@@ -111,27 +96,6 @@ export default function Users() {
     } catch (err) {
       console.error("Failed to delete user:", err);
       addToast("error", "Error", "Failed to delete user");
-    }
-  };
-
-  const handleSendVerification = async (email: string) => {
-    try {
-      await UserService.sendVerificationEmail(email);
-      addToast("success", "Success", "Verification email sent");
-    } catch (err) {
-      console.error("Failed to send verification email:", err);
-      addToast("error", "Error", "Failed to send verification email");
-    }
-  };
-
-  const handleRestoreUser = async (userId: string) => {
-    try {
-      await UserService.restoreUser(userId);
-      addToast("success", "Success", "User restored successfully");
-      await refetch();
-    } catch (err) {
-      console.error("Failed to restore user:", err);
-      addToast("error", "Error", "Failed to restore user");
     }
   };
 

@@ -17,6 +17,7 @@ export default function ScrapeControlPage() {
         startScraping,
         startExtract,
         executeAll,
+        executeSteps,
         pausePipeline,
         resumePipeline,
         skipCurrentStep,
@@ -235,7 +236,6 @@ export default function ScrapeControlPage() {
                             <Button
                                 onClick={async () => {
                                     try {
-                                        const { executeSteps } = useScrapeControls();
                                         await executeSteps(selectedSteps);
                                         addToast("success", "Success", "Selected steps started");
                                         fetchStatus();

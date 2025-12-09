@@ -11,7 +11,6 @@ export default function ResetPasswordForm() {
     const [step, setStep] = useState<"email" | "code" | "newPassword" | "success">("email");
     const [email, setEmail] = useState("");
     const [error, setError] = useState("");
-    const [isSubmitting, setIsSubmitting] = useState(false);
 
     const emailValidationSchema = Yup.object({
         email: Yup.string()

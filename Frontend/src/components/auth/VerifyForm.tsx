@@ -36,7 +36,7 @@ export default function VerifyForm() {
                 if (config?.resendCooldownSeconds && config.resendCooldownSeconds > 0) {
                     effectiveCooldown = config.resendCooldownSeconds;
                 }
-            } catch (err) {
+            } catch {
                 // fallback to default if config endpoint fails
                 effectiveCooldown = RESEND_COOLDOWN_DEFAULT;
             }
@@ -58,7 +58,6 @@ export default function VerifyForm() {
         };
 
         loadConfigAndCooldown();
-        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [cooldownKey]);
 
     // Countdown timer effect

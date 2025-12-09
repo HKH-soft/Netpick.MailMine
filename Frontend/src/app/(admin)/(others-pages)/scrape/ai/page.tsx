@@ -134,9 +134,9 @@ export default function AIPage() {
                             "Write a cold outreach message",
                             "Generate a follow-up email",
                             "Create marketing copy",
-                        ].map((quickPrompt, index) => (
+                        ].map((quickPrompt) => (
                             <button
-                                key={index}
+                                key={quickPrompt}
                                 onClick={() => setPrompt(quickPrompt)}
                                 className="p-3 text-left text-sm rounded-lg border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
                             >
