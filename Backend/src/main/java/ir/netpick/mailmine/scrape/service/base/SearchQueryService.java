@@ -9,6 +9,8 @@ import ir.netpick.mailmine.common.constants.GeneralConstants;
 import ir.netpick.mailmine.scrape.dto.SearchQueryResponse;
 import ir.netpick.mailmine.scrape.mapper.SearchQueryDTOMapper;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -37,6 +39,7 @@ public class SearchQueryService {
         return searchQueryRepository.count() == 0;
     }
 
+    @Cacheable(value = "searchQueries", key = "'page-' + #pageNumber")
     public PageDTO<SearchQueryResponse> allSearchQueries(int pageNumber) {
         Pageable pageable = PageRequest.of(pageNumber - 1, GeneralConstants.PAGE_SIZE,
                 Sort.by("createdAt").descending());
@@ -76,6 +79,7 @@ public class SearchQueryService {
                 page.getNumber() + 1);
     }
 
+    @Cacheable(value = "searchQuery", key = "#id")
     public SearchQuery getSearchQuery(@NotNull UUID id) {
         return searchQueryRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("SearchQuery with ID [%s] not found.".formatted(id)));
@@ -86,6 +90,7 @@ public class SearchQueryService {
                 .orElseThrow(() -> new ResourceNotFoundException("SearchQuery with ID [%s] not found.".formatted(id)));
     }
 
+    @CacheEvict(value = {"searchQuery", "searchQueries"}, allEntries = true)
     public SearchQuery createSearchQuery(@Valid @NotNull SearchQueryRequest request) {
         SearchQuery searchQuery = new SearchQuery(
                 request.sentence(),
@@ -95,6 +100,7 @@ public class SearchQueryService {
         return saved;
     }
 
+    @CacheEvict(value = {"searchQuery", "searchQueries"}, allEntries = true)
     public SearchQuery updateSearchQuery(@NotNull UUID id, @Valid @NotNull SearchQueryRequest request) {
         SearchQuery existing = getSearchQuery(id);
 
@@ -121,6 +127,7 @@ public class SearchQueryService {
         return saved;
     }
 
+    @CacheEvict(value = {"searchQuery", "searchQueries"}, allEntries = true)
     public void softDeleteSearchQuery(@NotNull UUID id) {
         if (!searchQueryRepository.existsById(id)) {
             throw new ResourceNotFoundException("SearchQuery with ID [%s] not found.".formatted(id));
@@ -129,6 +136,7 @@ public class SearchQueryService {
         log.info("Soft deleted SearchQuery with ID: {}", id);
     }
 
+    @CacheEvict(value = {"searchQuery", "searchQueries"}, allEntries = true)
     public void restoreSearchQuery(@NotNull UUID id) {
         if (!searchQueryRepository.existsById(id)) {
             throw new ResourceNotFoundException("SearchQuery with ID [%s] not found.".formatted(id));
@@ -137,6 +145,7 @@ public class SearchQueryService {
         log.info("Restored SearchQuery with ID: {}", id);
     }
 
+    @CacheEvict(value = {"searchQuery", "searchQueries"}, allEntries = true)
     public void deleteSearchQuery(@NotNull UUID id) {
         if (!searchQueryRepository.existsById(id)) {
             throw new ResourceNotFoundException("SearchQuery with ID [%s] not found.".formatted(id));

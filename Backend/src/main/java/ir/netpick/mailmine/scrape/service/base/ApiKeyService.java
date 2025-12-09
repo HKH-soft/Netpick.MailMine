@@ -12,6 +12,8 @@ import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -32,6 +34,7 @@ public class ApiKeyService {
     private final ApiKeyRepository apiKeyRepository;
     private final ApiKeyDTOMapper apiKeyDTOMapper;
 
+    @Cacheable(value = "apiKeys", key = "'page-' + #pageNumber")
     public PageDTO<ApiKeyResponse> allKeys(int pageNumber) {
         Pageable pageable = PageRequest.of(pageNumber - 1, GeneralConstants.PAGE_SIZE, Sort.by("createdAt").descending());
         Page<ApiKey> page =  apiKeyRepository.findByDeletedFalse(pageable);
@@ -71,6 +74,7 @@ public class ApiKeyService {
         );
     }
 
+    @Cacheable(value = "apiKey", key = "#id")
     public ApiKey getKey(@NotNull UUID id) {
         return apiKeyRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("ApiKey with ID [%s] not found.".formatted(id)));
@@ -81,6 +85,7 @@ public class ApiKeyService {
                 .orElseThrow(() -> new ResourceNotFoundException("ApiKey with ID [%s] not found.".formatted(id)));
     }
 
+    @CacheEvict(value = {"apiKey", "apiKeys"}, allEntries = true)
     public ApiKey createKey(@Valid @NotNull ApiKeyRequest apiKeyRequest) {
         ApiKey apiKey = new ApiKey(
                 apiKeyRequest.key(),
@@ -93,6 +98,7 @@ public class ApiKeyService {
         return saved;
     }
 
+    @CacheEvict(value = {"apiKey", "apiKeys"}, allEntries = true)
     public ApiKey updateKey(@NotNull UUID id, @Valid @NotNull ApiKeyRequest updatedApiKey) {
         ApiKey existing = getKey(id);
 
@@ -117,6 +123,7 @@ public class ApiKeyService {
         return saved;
     }
     
+    @CacheEvict(value = {"apiKey", "apiKeys"}, allEntries = true)
     public void softDeleteKey(@NotNull UUID id) {
         if (!apiKeyRepository.existsById(id)) {
             throw new ResourceNotFoundException("ApiKey with ID [%s] not found.".formatted(id));
@@ -125,6 +132,7 @@ public class ApiKeyService {
         log.info("Soft deleted ApiKey with ID: {}", id);
     }
     
+    @CacheEvict(value = {"apiKey", "apiKeys"}, allEntries = true)
     public void restoreKey(@NotNull UUID id) {
         if (!apiKeyRepository.existsById(id)) {
             throw new ResourceNotFoundException("ApiKey with ID [%s] not found.".formatted(id));
@@ -133,6 +141,7 @@ public class ApiKeyService {
         log.info("Restored ApiKey with ID: {}", id);
     }
 
+    @CacheEvict(value = {"apiKey", "apiKeys"}, allEntries = true)
     public void deleteKey(@NotNull UUID id) {
         if (!apiKeyRepository.existsById(id)) {
             throw new ResourceNotFoundException("ApiKey with ID [%s] not found.".formatted(id));

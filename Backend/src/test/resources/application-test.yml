@@ -20,6 +20,13 @@ spring:
     port: 25
     username: test
     password: test
+  # Disable Redis for tests (use in-memory caching instead)
+  cache:
+    type: none
+  data:
+    redis:
+      host: localhost
+      port: 6379
 
 security:
   jwt:
@@ -36,6 +43,10 @@ cors:
 
 env:
   page-size: 10
+
+# Rate limiting configuration for tests (use in-memory)
+rate-limiting:
+  use-redis: false
 
 # Selenium configuration (not used in tests but required to start the app)
 selenium:

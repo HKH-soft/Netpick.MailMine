@@ -2,14 +2,21 @@ package ir.netpick.mailmine.auth.service;
 
 import ir.netpick.mailmine.auth.AuthConstants;
 import lombok.extern.log4j.Log4j2;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
+/**
+ * In-memory rate limiting service for single-instance deployments
+ * For distributed deployments, use RedisRateLimitingService instead
+ * Controlled by property: rate-limiting.use-redis=false (default)
+ */
 @Service
 @Log4j2
+@ConditionalOnProperty(name = "rate-limiting.use-redis", havingValue = "false", matchIfMissing = true)
 public class RateLimitingService {
 
     // Resend rate limiting constants

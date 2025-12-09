@@ -13,7 +13,9 @@ The MailMine backend is built with Spring Boot 3.5.6 and Java 21, leveraging mod
 - **Framework**: Spring Boot 3.5.6
 - **Language**: Java 21
 - **Database**: PostgreSQL 15+ with Flyway migrations
+- **Caching**: Redis (optional, with fallback to in-memory)
 - **Security**: Spring Security with JWT authentication
+- **Resilience**: Spring Retry with exponential backoff
 - **Web Scraping**: 
   - Playwright (browser automation)
   - Jsoup (HTML parsing)
@@ -72,6 +74,7 @@ Backend/
 
 - Java Development Kit (JDK) 21 or higher
 - PostgreSQL 15+ database server
+- Redis 7+ (optional, for distributed caching and rate limiting)
 - Maven 3.x (or use the included Maven wrapper)
 - Playwright browser binaries (installed automatically on first run)
 
@@ -106,8 +109,28 @@ Backend/
    - Email server settings (if using email features)
    - AI service configuration (Google Gemini API key)
    - Proxy settings (if required)
+   - Redis settings (optional, see [Redis Integration Guide](REDIS_INTEGRATION.md))
 
-4. **Build the Project**
+4. **Optional: Setup Redis** (for distributed caching and rate limiting)
+   
+   See the comprehensive [Redis Integration Guide](REDIS_INTEGRATION.md) for:
+   - Redis installation and configuration
+   - Caching setup and benefits
+   - Distributed rate limiting
+   - Performance tuning
+   
+   **Quick Start with Docker**:
+   ```bash
+   docker run -d -p 6379:6379 --name redis redis:7-alpine
+   ```
+   
+   Update environment variables:
+   ```bash
+   export REDIS_HOST=localhost
+   export REDIS_PORT=6379
+   ```
+
+5. **Build the Project**
    ```bash
    # Using Maven wrapper (recommended)
    ./mvnw clean install
@@ -116,14 +139,14 @@ Backend/
    mvn clean install
    ```
 
-5. **Run Database Migrations**
+6. **Run Database Migrations**
    
    Flyway migrations run automatically on application startup. To run manually:
    ```bash
    ./mvnw flyway:migrate
    ```
 
-6. **Run the Application**
+7. **Run the Application**
    ```bash
    # Development mode
    ./mvnw spring-boot:run
@@ -263,6 +286,15 @@ spring.datasource.url=jdbc:postgresql://localhost:5432/mailmine
 spring.datasource.username=postgres
 spring.datasource.password=password
 
+# Redis (optional)
+spring.data.redis.host=localhost
+spring.data.redis.port=6379
+spring.data.redis.password=  # Leave empty if no password
+spring.cache.type=redis  # Set to 'none' to disable caching
+
+# Rate Limiting
+rate-limiting.use-redis=false  # Set to true for distributed rate limiting
+
 # JWT
 jwt.secret=your-secret-key-change-in-production
 jwt.expiration=86400000  # 24 hours in milliseconds
@@ -331,6 +363,23 @@ npx playwright install
 chmod +x mvnw
 ```
 
+### Redis Connection Issues
+If you're using Redis and encounter connection problems:
+```bash
+# Check if Redis is running
+redis-cli ping  # Should return PONG
+
+# Check Redis logs
+docker logs redis  # If using Docker
+
+# Disable Redis temporarily
+# Set in application.yml:
+spring.cache.type: none
+rate-limiting.use-redis: false
+```
+
+For detailed Redis troubleshooting, see [Redis Integration Guide](REDIS_INTEGRATION.md#troubleshooting).
+
 ## 📝 License
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
@@ -342,6 +391,7 @@ For backend-specific issues, please create an issue on GitHub:
 
 ## 🔗 Related Documentation
 
+- [Redis Integration Guide](REDIS_INTEGRATION.md) - Caching, rate limiting, and retry setup
 - [Main Project README](../README.md)
 - [Frontend README](../Frontend/README.md)
 - [Spring Boot Documentation](https://spring.io/projects/spring-boot)
