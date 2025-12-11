@@ -26,3 +26,9 @@ replay_pid*
 # Intellij 
 .idea/
 /.lingma/
+
+# Config
+.Config
+
+### VS Code ###
+.vscode/
