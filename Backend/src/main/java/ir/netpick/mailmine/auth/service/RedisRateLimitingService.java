@@ -18,7 +18,7 @@ import java.util.concurrent.TimeUnit;
 @Log4j2
 @RequiredArgsConstructor
 @ConditionalOnProperty(name = "rate-limiting.use-redis", havingValue = "true", matchIfMissing = false)
-public class RedisRateLimitingService {
+public class RedisRateLimitingService implements RateLimiting {
 
     private final RedisTemplate<String, Object> redisTemplate;
 
@@ -39,6 +39,7 @@ public class RedisRateLimitingService {
     /**
      * Check if a user can attempt login
      */
+    @Override
     public boolean canAttemptLogin(String email) {
         String key = LOGIN_ATTEMPTS_PREFIX + email;
         Integer attempts = (Integer) redisTemplate.opsForValue().get(key);
@@ -53,10 +54,11 @@ public class RedisRateLimitingService {
     /**
      * Record a failed login attempt
      */
+    @Override
     public void recordFailedLoginAttempt(String email) {
         String key = LOGIN_ATTEMPTS_PREFIX + email;
         Long attempts = redisTemplate.opsForValue().increment(key);
-        
+
         if (attempts == 1) {
             // Set expiration on first attempt
             redisTemplate.expire(key, Duration.ofMinutes(LOGIN_LOCKOUT_MINUTES));
@@ -68,6 +70,7 @@ public class RedisRateLimitingService {
     /**
      * Clear login attempts after successful login
      */
+    @Override
     public void clearLoginAttempts(String email) {
         String key = LOGIN_ATTEMPTS_PREFIX + email;
         redisTemplate.delete(key);
@@ -77,10 +80,11 @@ public class RedisRateLimitingService {
     /**
      * Get remaining lockout time in minutes
      */
+    @Override
     public long getRemainingLockoutMinutes(String email) {
         String key = LOGIN_ATTEMPTS_PREFIX + email;
         Integer attempts = (Integer) redisTemplate.opsForValue().get(key);
-        
+
         if (attempts == null || attempts < MAX_LOGIN_ATTEMPTS) {
             return 0;
         }
@@ -92,6 +96,7 @@ public class RedisRateLimitingService {
     /**
      * Check if a user can attempt verification
      */
+    @Override
     public boolean canAttemptVerification(String email) {
         String key = VERIFICATION_ATTEMPTS_PREFIX + email;
         Integer attempts = (Integer) redisTemplate.opsForValue().get(key);
@@ -106,10 +111,11 @@ public class RedisRateLimitingService {
     /**
      * Record a verification attempt
      */
+    @Override
     public void recordVerificationAttempt(String email) {
         String key = VERIFICATION_ATTEMPTS_PREFIX + email;
         Long attempts = redisTemplate.opsForValue().increment(key);
-        
+
         if (attempts == 1) {
             // Set expiration on first attempt (10 minutes cooldown)
             redisTemplate.expire(key, Duration.ofMinutes(10));
@@ -121,10 +127,11 @@ public class RedisRateLimitingService {
     /**
      * Check if a user can resend verification
      */
+    @Override
     public boolean canResendVerification(String email) {
         String attemptsKey = RESEND_ATTEMPTS_PREFIX + email;
         String lastTimeKey = RESEND_LAST_TIME_PREFIX + email;
-        
+
         Integer attempts = (Integer) redisTemplate.opsForValue().get(attemptsKey);
         Long lastTime = (Long) redisTemplate.opsForValue().get(lastTimeKey);
 
@@ -155,17 +162,18 @@ public class RedisRateLimitingService {
     /**
      * Record a resend verification attempt
      */
+    @Override
     public void recordResendAttempt(String email) {
         String attemptsKey = RESEND_ATTEMPTS_PREFIX + email;
         String lastTimeKey = RESEND_LAST_TIME_PREFIX + email;
-        
+
         Long attempts = redisTemplate.opsForValue().increment(attemptsKey);
-        
+
         if (attempts == 1) {
             // Set expiration on first attempt (1 hour)
             redisTemplate.expire(attemptsKey, Duration.ofHours(1));
         }
-        
+
         // Update last resend time
         redisTemplate.opsForValue().set(lastTimeKey, System.currentTimeMillis(), Duration.ofHours(1));
 
@@ -175,6 +183,7 @@ public class RedisRateLimitingService {
     /**
      * Clear verification attempts after successful verification
      */
+    @Override
     public void clearVerificationAttempts(String email) {
         String key = VERIFICATION_ATTEMPTS_PREFIX + email;
         redisTemplate.delete(key);
@@ -184,6 +193,7 @@ public class RedisRateLimitingService {
     /**
      * Clear resend attempts
      */
+    @Override
     public void clearResendAttempts(String email) {
         String attemptsKey = RESEND_ATTEMPTS_PREFIX + email;
         String lastTimeKey = RESEND_LAST_TIME_PREFIX + email;

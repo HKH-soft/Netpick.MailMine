@@ -44,7 +44,7 @@ public class AuthenticationService {
     private final UserRepository userRepository;
     private final VerificationService verificationService;
     private final AuthEmailService authEmailService;
-    private final RateLimitingService rateLimitingService;
+    private final RateLimiting rateLimitingService;
     private final RefreshTokenService refreshTokenService;
 
     /**

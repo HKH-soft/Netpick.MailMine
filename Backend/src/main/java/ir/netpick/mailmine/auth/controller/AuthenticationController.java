@@ -14,8 +14,8 @@ import ir.netpick.mailmine.auth.dto.AuthenticationSignupRequest;
 import ir.netpick.mailmine.auth.dto.MessageResponse;
 import ir.netpick.mailmine.auth.dto.RefreshTokenRequest;
 import ir.netpick.mailmine.auth.dto.VerificationRequest;
-import ir.netpick.mailmine.auth.service.RateLimitingService;
 import ir.netpick.mailmine.auth.service.AuthenticationService;
+import ir.netpick.mailmine.auth.service.RateLimiting;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -31,7 +31,7 @@ import org.springframework.web.bind.annotation.*;
 public class AuthenticationController {
 
     private final AuthenticationService authenticationService;
-    private final RateLimitingService rateLimitingService;
+    private final RateLimiting rateLimitingService;
 
     @Operation(summary = "Verify email", description = "Verify user's email address using the verification code sent to their email")
     @ApiResponses(value = {

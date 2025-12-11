@@ -17,7 +17,7 @@ import java.util.concurrent.ConcurrentHashMap;
 @Service
 @Log4j2
 @ConditionalOnProperty(name = "rate-limiting.use-redis", havingValue = "false", matchIfMissing = true)
-public class RateLimitingService {
+public class RateLimitingService implements RateLimiting {
 
     // Resend rate limiting constants
     private static final int RESEND_MAX_PER_HOUR = 3;
@@ -42,6 +42,7 @@ public class RateLimitingService {
      * @param email User's email
      * @return true if user can attempt login, false otherwise
      */
+    @Override
     public boolean canAttemptLogin(String email) {
         LoginAttempts attempts = loginAttemptCounts.get(email);
 
@@ -68,6 +69,7 @@ public class RateLimitingService {
      * 
      * @param email User's email
      */
+    @Override
     public void recordFailedLoginAttempt(String email) {
         loginAttemptCounts.merge(email,
                 new LoginAttempts(1, LocalDateTime.now()),
@@ -82,6 +84,7 @@ public class RateLimitingService {
      * 
      * @param email User's email
      */
+    @Override
     public void clearLoginAttempts(String email) {
         loginAttemptCounts.remove(email);
         log.debug("Cleared login attempts for user: {}", email);
@@ -93,6 +96,7 @@ public class RateLimitingService {
      * @param email User's email
      * @return remaining minutes, or 0 if not locked out
      */
+    @Override
     public long getRemainingLockoutMinutes(String email) {
         LoginAttempts attempts = loginAttemptCounts.get(email);
         if (attempts == null || attempts.getAttempts() < MAX_LOGIN_ATTEMPTS) {
@@ -113,6 +117,7 @@ public class RateLimitingService {
      * @param email User's email
      * @return true if user can attempt verification, false otherwise
      */
+    @Override
     public boolean canAttemptVerification(String email) {
         VerificationAttempts attempts = verificationAttemptCounts.get(email);
 
@@ -139,6 +144,7 @@ public class RateLimitingService {
      * 
      * @param email User's email
      */
+    @Override
     public void recordVerificationAttempt(String email) {
         verificationAttemptCounts.merge(email,
                 new VerificationAttempts(1, LocalDateTime.now()),
@@ -153,6 +159,7 @@ public class RateLimitingService {
      * @param email User's email
      * @return true if user can resend verification, false otherwise
      */
+    @Override
     public boolean canResendVerification(String email) {
         ResendAttempts attempts = resendAttemptCounts.get(email);
 
@@ -192,6 +199,7 @@ public class RateLimitingService {
      * 
      * @param email User's email
      */
+    @Override
     public void recordResendAttempt(String email) {
         resendAttemptCounts.merge(email,
                 new ResendAttempts(1, LocalDateTime.now()),
@@ -205,6 +213,7 @@ public class RateLimitingService {
      * 
      * @param email User's email
      */
+    @Override
     public void clearVerificationAttempts(String email) {
         verificationAttemptCounts.remove(email);
         log.debug("Cleared verification attempts for user: {}", email);
@@ -215,6 +224,7 @@ public class RateLimitingService {
      * 
      * @param email User's email
      */
+    @Override
     public void clearResendAttempts(String email) {
         resendAttemptCounts.remove(email);
         log.debug("Cleared resend attempts for user: {}", email);

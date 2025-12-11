@@ -113,5 +113,10 @@
     "name": "security.jwt.refresh-expiration-days",
     "type": "java.lang.String",
     "description": "A description for 'security.jwt.refresh-expiration-days'"
+  },
+  {
+    "name": "rate-limiting.use-redis",
+    "type": "java.lang.String",
+    "description": "A description for 'rate-limiting.use-redis'"
   }
 ]}

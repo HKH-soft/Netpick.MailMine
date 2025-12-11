@@ -68,6 +68,9 @@ spring:
       enabled: false
       file: docker-compose.yml
 
+rate-limiting:
+  use-redis: true
+
 cors:
   allowed-origins: ${CORS_ALLOWED_ORIGINS}
   allowed-methods: ${CORS_ALLOWED_METHODS}
