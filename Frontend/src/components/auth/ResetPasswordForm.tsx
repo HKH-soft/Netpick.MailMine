@@ -11,7 +11,7 @@ export default function ResetPasswordForm() {
     const [step, setStep] = useState<"email" | "code" | "newPassword" | "success">("email");
     const [email, setEmail] = useState("");
     const [error, setError] = useState("");
-    const [isSubmitting, setIsSubmitting] = useState(false);
+    // const [isSubmitting, setIsSubmitting] = useState(false); // Uncomment if needed (Formik provides isSubmitting)
 
     const emailValidationSchema = Yup.object({
         email: Yup.string()
@@ -88,7 +88,7 @@ export default function ResetPasswordForm() {
 
     const handleResendCode = async () => {
         setError("");
-        setIsSubmitting(true);
+        // setIsSubmitting(true); // Uncomment if using local isSubmitting state
         try {
             // TODO: Implement resend reset code API call
             // await AuthService.requestPasswordReset(email);
@@ -96,9 +96,10 @@ export default function ResetPasswordForm() {
         } catch (err) {
             setError("Failed to resend code. Please try again.");
             console.error("Resend code error:", err);
-        } finally {
-            setIsSubmitting(false);
         }
+        // finally {
+        //     setIsSubmitting(false);
+        // }
     };
 
     return (

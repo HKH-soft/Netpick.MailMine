@@ -2,7 +2,7 @@
 "use client";
 import { useState, useEffect, useCallback } from 'react';
 import ContactService, { Contact } from '@/services/contactService';
-import { PageDTO } from '@/services/userService';
+import { PageDTO } from '@/services/api';
 
 export const useContacts = (page: number = 1) => {
   const [contacts, setContacts] = useState<Contact[]>([]);

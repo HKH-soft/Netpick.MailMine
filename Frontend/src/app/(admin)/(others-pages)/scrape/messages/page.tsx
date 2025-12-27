@@ -5,8 +5,8 @@ import DynamicTable, { ColumnConfig } from "@/components/tables/DynamicTable";
 import Pagination from "@/components/tables/Pagination";
 import React, { useState } from "react";
 import { useScrapeJobs } from "@/hooks/useScrapeJobs";
-import Button from "@/components/ui/button/Button";
-import ModalForm from "@/components/forms/ModalForm";
+// import Button from "@/components/ui/button/Button"; // Uncomment when create/edit functionality is added
+// import ModalForm from "@/components/forms/ModalForm"; // Uncomment when create/edit functionality is added
 import ConfirmModal from "@/components/forms/ConfirmModal";
 import ScrapeJobService from "@/services/scrapeJobService";
 import { ScrapeJob } from "@/services/scrapeJobService";
@@ -16,8 +16,8 @@ import { useToast } from "@/context/ToastContext";
 
 export default function Messages() {
   const [currentPage, setCurrentPage] = useState<number>(1);
-  const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
-  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  // const [isCreateModalOpen, setIsCreateModalOpen] = useState(false); // Uncomment when create functionality is added
+  // const [isEditModalOpen, setIsEditModalOpen] = useState(false); // Uncomment when edit functionality is added
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [selectedItem, setSelectedItem] = useState<ScrapeJob | null>(null);
   const { addToast } = useToast();
@@ -27,24 +27,24 @@ export default function Messages() {
     setCurrentPage(page);
   };
 
-  const handleCreate = () => {
-    setSelectedItem(null);
-    setIsCreateModalOpen(true);
-  };
+  // const handleCreate = () => {
+  //   setSelectedItem(null);
+  //   setIsCreateModalOpen(true);
+  // }; // Uncomment when create functionality is added
 
-  const handleEdit = (row: Record<string, unknown>) => {
-    setSelectedItem({
-      id: row.id as string,
-      link: row.link as string,
-      attempt: row.attempt as number,
-      beenScraped: row.beenScraped as boolean,
-      scrapeFailed: row.scrapeFailed as boolean,
-      description: row.description as string,
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString()
-    });
-    setIsEditModalOpen(true);
-  };
+  // const handleEdit = (row: Record<string, unknown>) => {
+  //   setSelectedItem({
+  //     id: row.id as string,
+  //     link: row.link as string,
+  //     attempt: row.attempt as number,
+  //     beenScraped: row.beenScraped as boolean,
+  //     scrapeFailed: row.scrapeFailed as boolean,
+  //     description: row.description as string,
+  //     createdAt: new Date().toISOString(),
+  //     updatedAt: new Date().toISOString()
+  //   });
+  //   setIsEditModalOpen(true);
+  // }; // Uncomment when edit functionality is added
 
   const handleDelete = (row: Record<string, unknown>) => {
     setSelectedItem({
@@ -60,37 +60,37 @@ export default function Messages() {
     setIsDeleteModalOpen(true);
   };
 
-  const handleCreateSubmit = async (data: Record<string, unknown>) => {
-    try {
-      await ScrapeJobService.createScrapeJob(data.link as string, data.description as string);
-      addToast("success", "Success", "Scrape job created successfully");
-      // Close the modal
-      setIsCreateModalOpen(false);
-      // Refetch the data
-      await refetch();
-    } catch (err) {
-      console.error("Failed to create scrape job:", err);
-      addToast("error", "Error", "Failed to create scrape job");
-    }
-  };
+  // const handleCreateSubmit = async (data: Record<string, unknown>) => {
+  //   try {
+  //     await ScrapeJobService.createScrapeJob(data.link as string, data.description as string);
+  //     addToast("success", "Success", "Scrape job created successfully");
+  //     // Close the modal
+  //     setIsCreateModalOpen(false);
+  //     // Refetch the data
+  //     await refetch();
+  //   } catch (err) {
+  //     console.error("Failed to create scrape job:", err);
+  //     addToast("error", "Error", "Failed to create scrape job");
+  //   }
+  // };
 
-  const handleEditSubmit = async (data: Record<string, unknown>) => {
-    if (!selectedItem) return;
-    try {
-      await ScrapeJobService.updateScrapeJob(selectedItem.id, {
-        link: data.link as string,
-        description: data.description as string
-      });
-      addToast("success", "Success", "Scrape job updated successfully");
-      // Close the modal
-      setIsEditModalOpen(false);
-      // Refetch the data
-      await refetch();
-    } catch (err) {
-      console.error("Failed to update scrape job:", err);
-      addToast("error", "Error", "Failed to update scrape job");
-    }
-  };
+  // const handleEditSubmit = async (data: Record<string, unknown>) => {
+  //   if (!selectedItem) return;
+  //   try {
+  //     await ScrapeJobService.updateScrapeJob(selectedItem.id, {
+  //       link: data.link as string,
+  //       description: data.description as string
+  //     });
+  //     addToast("success", "Success", "Scrape job updated successfully");
+  //     // Close the modal
+  //     setIsEditModalOpen(false);
+  //     // Refetch the data
+  //     await refetch();
+  //   } catch (err) {
+  //     console.error("Failed to update scrape job:", err);
+  //     addToast("error", "Error", "Failed to update scrape job");
+  //   }
+  // };
 
   const handleDeleteConfirm = async () => {
     if (!selectedItem) return;
@@ -111,7 +111,6 @@ export default function Messages() {
     { key: "link", header: "Link", type: "text" },
     { key: "attempt", header: "Attempts", type: "text" },
     { key: "status", header: "Status", type: "status" },
-    { key: "edit", header: "Edit", type: "edit" },
     { key: "delete", header: "Delete", type: "delete" },
   ] as const satisfies ColumnConfig[];
 
@@ -123,15 +122,15 @@ export default function Messages() {
     status: job.beenScraped ? "Completed" : job.scrapeFailed ? "Failed" : "Pending",
   }));
 
-  const createFields = [
-    { name: "link", label: "Link", type: "text", required: true },
-    { name: "description", label: "Description", type: "textarea" },
-  ];
+  // const createFields = [
+  //   { name: "link", label: "Link", type: "text", required: true },
+  //   { name: "description", label: "Description", type: "textarea" },
+  // ]; // Uncomment when create functionality is added
 
-  const editFields = [
-    { name: "link", label: "Link", type: "text", required: true },
-    { name: "description", label: "Description", type: "textarea" },
-  ];
+  // const editFields = [
+  //   { name: "link", label: "Link", type: "text", required: true },
+  //   { name: "description", label: "Description", type: "textarea" },
+  // ]; // Uncomment when edit functionality is added
 
   if (loading) {
     return <div>Loading...</div>;
@@ -144,10 +143,11 @@ export default function Messages() {
   return (
     <>
       <PageBreadcrumb pageTitle="Messages" />
-      <div className="mb-4">
+      {/* Create button disabled until backend supports creating scrape jobs */}
+      {/* <div className="mb-4">
         <Button onClick={handleCreate}>Create Scrape Job</Button>
-      </div>
-      <DynamicTable columns={columns} data={data} onEdit={handleEdit} onDelete={handleDelete} />
+      </div> */}
+      <DynamicTable columns={columns} data={data} onDelete={handleDelete} />
       <div className="mt-5">
         <Pagination
           currentPage={currentPage}
@@ -156,16 +156,18 @@ export default function Messages() {
         />
       </div>
 
-      <ModalForm
+      {/* Create functionality not available - backend endpoint missing */}
+      {/* <ModalForm
         isOpen={isCreateModalOpen}
         onCloseAction={() => setIsCreateModalOpen(false)}
         onSubmit={handleCreateSubmit}
         title="Create Scrape Job"
         fields={createFields}
         submitButtonText="Create"
-      />
+      /> */}
 
-      <ModalForm
+      {/* Edit functionality not available - backend endpoint missing */}
+      {/* <ModalForm
         isOpen={isEditModalOpen}
         onCloseAction={() => setIsEditModalOpen(false)}
         onSubmit={handleEditSubmit}
@@ -173,7 +175,7 @@ export default function Messages() {
         fields={editFields}
         initialData={selectedItem ? (selectedItem as unknown as Record<string, unknown>) : undefined}
         submitButtonText="Update"
-      />
+      /> */}
 
       <ConfirmModal
         isOpen={isDeleteModalOpen}

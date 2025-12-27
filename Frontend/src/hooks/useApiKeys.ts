@@ -2,7 +2,7 @@
 "use client";
 import { useState, useEffect, useCallback } from 'react';
 import ApiKeyService, { ApiKey } from '@/services/apiKeyService';
-import { PageDTO } from '@/services/userService';
+import { PageDTO } from '@/services/api';
 
 export const useApiKeys = (page: number = 1) => {
   const [apiKeys, setApiKeys] = useState<ApiKey[]>([]);

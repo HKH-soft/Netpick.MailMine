@@ -2,7 +2,7 @@
 "use client";
 import { useState, useEffect, useCallback } from 'react';
 import ScrapeJobService , { ScrapeJob } from '@/services/scrapeJobService';
-import { PageDTO } from '@/services/userService';
+import { PageDTO } from '@/services/api';
 
 export const useScrapeJobs = (page: number = 1) => {
   const [scrapeJobs, setScrapeJobs] = useState<ScrapeJob[]>([]);

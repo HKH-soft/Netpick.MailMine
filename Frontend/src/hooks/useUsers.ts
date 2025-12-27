@@ -1,7 +1,8 @@
 // useUsers.ts
 "use client";
 import { useState, useEffect, useCallback } from 'react';
-import UserService, { User, PageDTO } from '@/services/userService';
+import UserService, { User } from '@/services/userService';
+import { PageDTO } from '@/services/api';
 
 export const useUsers = (page: number = 1) => {
   const [users, setUsers] = useState<User[]>([]);

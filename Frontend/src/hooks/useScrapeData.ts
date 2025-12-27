@@ -2,7 +2,7 @@
 "use client";
 import { useState, useEffect, useCallback } from 'react';
 import ScrapeDataService, { ScrapeData } from '@/services/scrapeDataService';
-import { PageDTO } from '@/services/userService';
+import { PageDTO } from '@/services/api';
 
 
 export const useScrapeDataList = (page: number = 1) => {

@@ -43,6 +43,7 @@ class AuthService {
   private readonly TOKEN_KEY = 'auth_token';
   private readonly REFRESH_TOKEN_KEY = 'refresh_token';
   private readonly REMEMBER_KEY = 'auth_remember';
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   private refreshTimeoutId: any = null;
   private refreshPromise: Promise<AuthenticationResponse> | null = null;
 
@@ -188,12 +189,13 @@ class AuthService {
 
   // Helper to handle response errors
   private async handleResponseError(response: Response): Promise<never> {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     let errorData: any;
     const contentType = response.headers.get('content-type');
     if (contentType && contentType.includes('application/json')) {
       try {
         errorData = await response.json();
-      } catch (e) {
+      } catch {
         errorData = await response.text();
       }
     } else {

@@ -195,7 +195,7 @@ const AppHeader: React.FC = () => {
 
                 {showResults && searchResults.length === 0 && searchQuery.trim() !== "" && (
                   <div className="absolute top-full left-0 w-full mt-2 bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 p-4 text-center text-sm text-gray-500 dark:text-gray-400 z-50">
-                    No results found for "{searchQuery}"
+                    No results found for &quot;{searchQuery}&quot;
                   </div>
                 )}
               </div>

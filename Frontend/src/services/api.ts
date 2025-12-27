@@ -4,6 +4,7 @@ import AuthService from './authService';
 // Use relative URL to go through Next.js proxy
 const API_BASE_URL = '';
 
+/* eslint-disable @typescript-eslint/no-explicit-any */
 export class ApiError extends Error {
   status: number;
   data: any;
@@ -134,7 +135,7 @@ class ApiService {
         if (contentType && contentType.includes('application/json')) {
           try {
             errorData = await response.json();
-          } catch (e) {
+          } catch {
             errorData = await response.text();
           }
         } else {

@@ -2,7 +2,7 @@
 "use client";
 import { useState, useEffect, useCallback } from 'react';
 import SearchQueryService, { SearchQuery } from '@/services/searchQueryService';
-import { PageDTO } from '@/services/userService';
+import { PageDTO } from '@/services/api';
 
 export const useSearchQueries = (page: number = 1) => {
   const [searchQueries, setSearchQueries] = useState<SearchQuery[]>([]);
