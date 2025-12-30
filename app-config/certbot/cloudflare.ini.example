@@ -1,0 +1,19 @@
+# Cloudflare API credentials for DNS-01 challenge
+# IMPORTANT: Keep this file secure! Add it to .gitignore
+
+# Option 1: API Token (Recommended - more secure, scoped permissions)
+# Create at: https://dash.cloudflare.com/profile/api-tokens
+# Required permissions: Zone:DNS:Edit for your domain
+dns_cloudflare_api_token = YOUR_CLOUDFLARE_API_TOKEN_HERE
+
+# Option 2: Global API Key (Less secure, not recommended)
+# dns_cloudflare_email = your-email@example.com
+# dns_cloudflare_api_key = YOUR_GLOBAL_API_KEY_HERE
+
+# Instructions:
+# 1. Go to https://dash.cloudflare.com/profile/api-tokens
+# 2. Click "Create Token"
+# 3. Use "Edit zone DNS" template
+# 4. Select your specific zone (domain)
+# 5. Copy the token and replace YOUR_CLOUDFLARE_API_TOKEN_HERE above
+# 6. Set file permissions: chmod 600 cloudflare.ini

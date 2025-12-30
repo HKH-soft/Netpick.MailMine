@@ -1,0 +1,202 @@
+version: '3.8'
+
+services:
+  # ===== Backend =====
+  backend:
+    image: backend:latest
+    build:
+      context: ./Backend
+      dockerfile: Dockerfile
+    secrets:
+      - ACTUATOR_USERNAME_secret
+      - ACTUATOR_PASSWORD_secret
+      - CORS_ALLOWED_ORIGINS_secret
+      - CORS_ALLOWED_METHODS_secret
+      - CORS_ALLOWED_HEADERS_secret
+      - CORS_EXPOSED_HEADERS_secret
+      - DATABASE_NAME_secret
+      - GEMINI_API_KEY_secret
+      - GMAIL_USERNAME_secret
+      - GMAIL_PASSWORD_secret
+      - JWT_SECRET_KEY_secret
+      - JWT_ISSUER_secret
+      - POSTGRES_USERNAME_secret
+      - POSTGRES_PASSWORD_secret
+      - POSTGRES_URL_secret
+      - REDIS_HOST_secret
+      - REDIS_PORT_secret
+      - REDIS_PASSWORD_secret
+      - SERVER_PORT_secret
+      - XRAY_EXECUTABLE_PATH_secret
+    environment:
+      - ACTUATOR_USERNAME_FILE=/run/secrets/ACTUATOR_USERNAME_secret
+      - ACTUATOR_PASSWORD_FILE=/run/secrets/ACTUATOR_PASSWORD_secret
+    depends_on:
+      - postgres
+      - redis
+    networks:
+      - app-net
+      - monitoring-net
+    deploy:
+      replicas: 1
+      resources:
+        limits:
+          cpus: '2'
+          memory: 1G
+        reservations:
+          cpus: '0.5'
+          memory: 512M
+      restart_policy:
+        condition: on-failure
+
+  # ===== Frontend =====
+  frontend:
+    image: frontend:latest
+    build:
+      context: ./Frontend
+      dockerfile: Dockerfile
+    environment:
+      - NEXT_PUBLIC_API_URL=https://netpick.ir/api
+      - NODE_ENV=production
+    networks:
+      - app-net
+    deploy:
+      replicas: 1
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 256M
+        reservations:
+          cpus: '0.1'
+          memory: 64M
+
+  # ===== PostgreSQL =====
+  postgres:
+    image: postgres:18.1-alpine
+    secrets:
+      - POSTGRES_USER_secret
+      - POSTGRES_PASSWORD_secret
+      - POSTGRES_DB_secret
+      - PGDATA_secret
+    environment:
+      - POSTGRES_USER_FILE=/run/secrets/POSTGRES_USER_secret
+      - POSTGRES_PASSWORD_FILE=/run/secrets/POSTGRES_PASSWORD_secret
+      - POSTGRES_DB_FILE=/run/secrets/POSTGRES_DB_secret
+      - PGDATA_FILE=/run/secrets/PGDATA_secret
+    volumes:
+      - pgdata:/var/lib/postgresql/data/pgdata
+    networks:
+      - app-net
+    deploy:
+      replicas: 1
+      resources:
+        limits:
+          cpus: '1'
+          memory: 512M
+        reservations:
+          cpus: '0.25'
+          memory: 256M
+
+  # ===== Redis =====
+  redis:
+    image: redis:8.4-alpine
+    secrets:
+      - REDIS_PASSWORD_secret
+    command: sh -c 'redis-server --requirepass "$$(cat /run/secrets/REDIS_PASSWORD_secret)" --appendonly yes --maxmemory 512mb --maxmemory-policy volatile-lru'
+    volumes:
+      - redis-data:/data
+    networks:
+      - app-net
+    deploy:
+      replicas: 1
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 512M
+        reservations:
+          cpus: '0.1'
+          memory: 256M
+
+  # ===== NGINX =====
+  nginx:
+    image: nginx:1.29-alpine
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./app-config/nginx/conf.d:/etc/nginx/conf.d:ro
+      - certbot-certs:/etc/nginx/certs:ro
+      - certbot-webroot:/var/www/certbot:ro
+    environment:
+      - APP_ENV=production
+    depends_on:
+      - frontend
+      - backend
+    networks:
+      - app-net
+    deploy:
+      replicas: 1
+
+# Define secrets
+secrets:
+  ACTUATOR_USERNAME_secret:
+    external: true
+  ACTUATOR_PASSWORD_secret:
+    external: true
+  CORS_ALLOWED_ORIGINS_secret:
+    external: true
+  CORS_ALLOWED_METHODS_secret:
+    external: true
+  CORS_ALLOWED_HEADERS_secret:
+    external: true
+  CORS_EXPOSED_HEADERS_secret:
+    external: true
+  DATABASE_NAME_secret:
+    external: true
+  GEMINI_API_KEY_secret:
+    external: true
+  GMAIL_USERNAME_secret:
+    external: true
+  GMAIL_PASSWORD_secret:
+    external: true
+  JWT_SECRET_KEY_secret:
+    external: true
+  JWT_ISSUER_secret:
+    external: true
+  POSTGRES_USERNAME_secret:
+    external: true
+  POSTGRES_PASSWORD_secret:
+    external: true
+  POSTGRES_URL_secret:
+    external: true
+  POSTGRES_USER_secret:
+    external: true
+  POSTGRES_DB_secret:
+    external: true
+  PGDATA_secret:
+    external: true
+  REDIS_HOST_secret:
+    external: true
+  REDIS_PORT_secret:
+    external: true
+  REDIS_PASSWORD_secret:
+    external: true
+  SERVER_PORT_secret:
+    external: true
+  XRAY_EXECUTABLE_PATH_secret:
+    external: true
+
+volumes:
+  pgdata:
+  redis-data:
+  prom-data:
+  grafana-data:
+  certbot-certs:
+  certbot-webroot:
+  alertmanager-data:
+
+networks:
+  app-net:
+    driver: overlay
+  monitoring-net:
+    driver: overlay

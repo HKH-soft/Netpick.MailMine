@@ -1,0 +1,75 @@
+server {
+    listen 443 ssl http2;
+    server_name _ *.netpick.ir netpick.ir;
+
+    # TLS cert + key paths (Let's Encrypt standard location)
+    ssl_certificate /etc/letsencrypt/live/netpick.ir/fullchain.pem;
+    ssl_certificate_key /etc/letsencrypt/live/netpick.ir/privkey.pem;
+
+    # Strong TLS security settings
+    ssl_session_timeout 1d;
+    ssl_session_cache shared:SSL:10m;
+    ssl_session_tickets off;
+    ssl_protocols TLSv1.2 TLSv1.3;
+    ssl_prefer_server_ciphers on;
+    ssl_ciphers 'ECDHE-ECDSA-AES128-GCM-SHA256:ECDHE-RSA-AES128-GCM-SHA256:ECDHE-ECDSA-AES256-GCM-SHA384:ECDHE-RSA-AES256-GCM-SHA384:ECDHE-ECDSA-CHACHA20-POLY1305:ECDHE-RSA-CHACHA20-POLY1305';
+
+    root /usr/share/nginx/html;
+    index index.html;
+
+    # Hardened headers
+    add_header Strict-Transport-Security $hsts_header always;
+    add_header X-Frame-Options "DENY" always;
+    add_header X-Content-Type-Options "nosniff" always;
+    add_header X-XSS-Protection "1; mode=block" always;
+    add_header Referrer-Policy "no-referrer-when-downgrade" always;
+    add_header Permissions-Policy "geolocation=(), microphone=(), camera=()" always;
+    add_header Content-Security-Policy "default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; font-src 'self' data:; connect-src 'self' https://backend; frame-ancestors 'none';" always;
+
+    # Anti-abuse and connection limits
+    limit_req zone=api_rate burst=20 nodelay;
+    limit_conn conn_limit_per_ip 20;
+    client_body_timeout 10s;
+    client_header_timeout 10s;
+    keepalive_timeout 65s;
+    send_timeout 10s;
+
+    # Cache control for static assets
+    location ~* \.(?:js|css|png|jpg|jpeg|gif|svg|ico|woff2?)$ {
+        expires 7d;
+        add_header Cache-Control "public, max-age=604800, immutable" always;
+        try_files $uri =404;
+    }
+
+    # SPA fallback routing
+    location / {
+        try_files $uri $uri/ /index.html;
+    }
+
+    # Backend API routing (Spring Boot)
+    location /api/ {
+        proxy_pass http://backend:8080/;
+        proxy_http_version 1.1;
+
+        proxy_set_header Host $host;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-Proto $scheme;
+        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Connection $connection_upgrade;
+
+        # CORS
+        if ($request_method = OPTIONS) {
+            add_header Access-Control-Allow-Origin $cors_allow_origin always;
+            add_header Access-Control-Allow-Credentials true always;
+            add_header Access-Control-Allow-Methods "GET, POST, PUT, PATCH, DELETE, OPTIONS" always;
+            add_header Access-Control-Allow-Headers "Authorization,Content-Type,X-Requested-With" always;
+            add_header Access-Control-Max-Age 3600;
+            return 204;
+        }
+
+        add_header Access-Control-Allow-Origin $cors_allow_origin always;
+        add_header Access-Control-Allow-Credentials true always;
+        add_header Access-Control-Expose-Headers "Content-Length,Content-Type" always;
+    }
+}

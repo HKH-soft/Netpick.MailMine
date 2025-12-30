@@ -1,0 +1,83 @@
+groups:
+  - name: backend_alerts
+    interval: 30s
+    rules:
+      # Backend service down
+      - alert: BackendDown
+        expr: up{job="backend"} == 0
+        for: 1m
+        labels:
+          severity: critical
+          service: backend
+        annotations:
+          summary: "Backend service is down"
+          description: "Backend ({{ $labels.instance }}) has been down for more than 1 minute."
+
+      # High error rate
+      - alert: HighErrorRate
+        expr: rate(http_server_requests_seconds_count{status=~"5.."}[5m]) > 0.05
+        for: 5m
+        labels:
+          severity: warning
+          service: backend
+        annotations:
+          summary: "High 5xx error rate detected"
+          description: "Backend is experiencing {{ $value | humanizePercentage }} error rate."
+
+      # High response time
+      - alert: HighResponseTime
+        expr: histogram_quantile(0.95, rate(http_server_requests_seconds_bucket[5m])) > 2
+        for: 5m
+        labels:
+          severity: warning
+          service: backend
+        annotations:
+          summary: "High response time detected"
+          description: "95th percentile response time is {{ $value }}s (threshold: 2s)."
+
+      # High memory usage
+      - alert: HighMemoryUsage
+        expr: (jvm_memory_used_bytes{area="heap"} / jvm_memory_max_bytes{area="heap"}) > 0.85
+        for: 5m
+        labels:
+          severity: warning
+          service: backend
+        annotations:
+          summary: "High JVM heap memory usage"
+          description: "JVM heap memory usage is {{ $value | humanizePercentage }} (threshold: 85%)."
+
+      # Too many database connections
+      - alert: HighDatabaseConnections
+        expr: hikaricp_connections_active > 8
+        for: 5m
+        labels:
+          severity: warning
+          service: backend
+        annotations:
+          summary: "High number of active database connections"
+          description: "Active DB connections: {{ $value }} (check for connection leaks)."
+
+      # Redis connection issues (if using Lettuce/Jedis metrics)
+      - alert: RedisConnectionFailure
+        expr: rate(lettuce_command_completion_seconds_count{status="failed"}[5m]) > 0
+        for: 2m
+        labels:
+          severity: critical
+          service: backend
+        annotations:
+          summary: "Redis connection failures detected"
+          description: "Backend is experiencing Redis connection failures."
+
+  - name: prometheus_alerts
+    interval: 30s
+    rules:
+      # Prometheus scrape failures
+      - alert: PrometheusScrapeFailed
+        expr: up{job="backend"} == 0
+        for: 5m
+        labels:
+          severity: warning
+          service: prometheus
+        annotations:
+          summary: "Prometheus cannot scrape backend"
+          description: "Prometheus failed to scrape {{ $labels.job }} for 5 minutes."

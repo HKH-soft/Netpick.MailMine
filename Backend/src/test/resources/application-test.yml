@@ -41,17 +41,5 @@ cors:
   allowed-headers: "*"
   exposed-headers: "*"
 
-env:
-  page-size: 10
-
-# Rate limiting configuration for tests (use in-memory)
 rate-limiting:
   use-redis: false
-
-# Selenium configuration (not used in tests but required to start the app)
-selenium:
-  chrome:
-    driver:
-      path: ${CHROME_DRIVER_PATH:dummy-driver-path}
-    binary:
-      path: ${CHROME_BINARY_PATH:dummy-binary-path}

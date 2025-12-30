@@ -1,0 +1,350 @@
+services:
+  # ===== Backend =====
+  backend:
+    build:
+      context: ./Backend
+      dockerfile: Dockerfile
+    container_name: backend
+    restart: always
+    env_file:
+      - ./.config/docker/backend.env
+    environment:
+      # Override with secrets if they exist
+      - GMAIL_USERNAME=${GMAIL_USERNAME}
+      - GMAIL_PASSWORD=${GMAIL_PASSWORD}
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    networks:
+      - app-net
+      - monitoring-net
+    healthcheck:
+      test:
+        [
+          "CMD-SHELL",
+          "wget -qO- http://localhost:8080/actuator/health || exit 1",
+        ]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 40s
+    deploy:
+      resources:
+        limits:
+          cpus: "2"
+          memory: 1G
+        reservations:
+          cpus: "0.5"
+          memory: 512M
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+  # ===== Frontend =====
+  frontend:
+    build:
+      context: ./Frontend
+      dockerfile: Dockerfile
+    env_file:
+      - ./.config/docker/frontend.env
+    container_name: frontend
+    restart: always
+    networks:
+      - app-net
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO- http://localhost:3000/ || exit 1"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+    deploy:
+      resources:
+        limits:
+          cpus: "0.5"
+          memory: 256M
+        reservations:
+          cpus: "0.1"
+          memory: 64M
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+  # ===== PostgreSQL =====
+  postgres:
+    image: postgres:18.1-alpine
+    container_name: postgres
+    restart: always
+    env_file:
+      - ./.config/docker/postgres.env
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    networks:
+      - app-net
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+    deploy:
+      resources:
+        limits:
+          cpus: "1"
+          memory: 512M
+        reservations:
+          cpus: "0.25"
+          memory: 256M
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+  # ===== Redis =====
+  redis:
+    image: redis:8.4-alpine
+    container_name: redis
+    restart: always
+    env_file:
+      - ./.config/docker/redis.env
+    command: sh -c 'redis-server --requirepass "$$REDIS_PASSWORD" --appendonly yes --maxmemory 512mb --maxmemory-policy volatile-lru'
+    volumes:
+      - redis-data:/data
+    networks:
+      - app-net
+    healthcheck:
+      test: ["CMD-SHELL", "redis-cli -a $$REDIS_PASSWORD ping | grep PONG"]
+      interval: 30s
+      timeout: 3s
+      retries: 5
+      start_period: 10s
+    deploy:
+      resources:
+        limits:
+          cpus: "0.5"
+          memory: 512M
+        reservations:
+          cpus: "0.1"
+          memory: 256M
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+  # ===== NGINX reverse proxy =====
+  nginx:
+    image: nginx:1.29-alpine
+    container_name: nginx
+    restart: always
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./app-config/nginx/conf.d:/etc/nginx/conf.d:ro
+      - ./app-config/nginx/docker-entrypoint.sh:/docker-entrypoint.sh:ro
+      - certbot-certs:/etc/letsencrypt
+    environment:
+      - APP_ENV=${APP_ENV:-production}
+    entrypoint: ["/bin/sh", "/docker-entrypoint.sh"]
+    depends_on:
+      frontend:
+        condition: service_healthy
+      backend:
+        condition: service_healthy
+    networks:
+      - app-net
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO- https://localhost:443/ || exit 1"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 40s
+    deploy:
+      resources:
+        limits:
+          cpus: "0.5"
+          memory: 256M
+        reservations:
+          cpus: "0.1"
+          memory: 64M
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+  # ===== Prometheus =====
+  prometheus:
+    image: ubuntu/prometheus:3-24.04_stable
+    container_name: prometheus
+    restart: always
+    volumes:
+      - ./app-config/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - ./app-config/prometheus/alert_rules.yml:/etc/prometheus/alert_rules.yml:ro
+      - prom-data:/prometheus
+    environment:
+      - ACTUATOR_USERNAME=${ACTUATOR_USERNAME:-admin}
+      - ACTUATOR_PASSWORD=${ACTUATOR_PASSWORD:-change_this_password}
+    ports:
+      - "9090:9090"
+    networks:
+      - monitoring-net
+    depends_on:
+      backend:
+        condition: service_healthy
+    deploy:
+      resources:
+        limits:
+          cpus: "1"
+          memory: 512M
+        reservations:
+          cpus: "0.25"
+          memory: 256M
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+  # ===== Alertmanager =====
+  alertmanager:
+    image: ubuntu/alertmanager:0.28.0-24.04_stable
+    container_name: alertmanager
+    restart: always
+    env_file:
+      - ./.config/docker/alertmanager.env
+    volumes:
+      - ./app-config/prometheus/alertmanager.yml.tpl:/etc/alertmanager/alertmanager.yml.tpl:ro
+      - ./app-config/prometheus/alertmanager-entrypoint.sh:/usr/local/bin/alertmanager-entrypoint.sh:ro
+      - alertmanager-data:/alertmanager
+    ports:
+      - "9093:9093"
+    entrypoint: ["/bin/sh", "/usr/local/bin/alertmanager-entrypoint.sh"]
+    networks:
+      - monitoring-net
+    deploy:
+      resources:
+        limits:
+          cpus: "0.5"
+          memory: 256M
+        reservations:
+          cpus: "0.1"
+          memory: 64M
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+  # ===== Grafana =====
+  grafana:
+    image: grafana/grafana:12.3.0
+    container_name: grafana
+    restart: always
+    env_file:
+      - ./.config/docker/grafana.env
+    volumes:
+      - grafana-data:/var/lib/grafana
+      - ./app-config/grafana/provisioning:/etc/grafana/provisioning:ro
+    ports:
+      - "3000:3000"
+    networks:
+      - monitoring-net
+    depends_on:
+      - prometheus
+    healthcheck:
+      test:
+        ["CMD-SHELL", "wget -qO- http://localhost:3000/api/health || exit 1"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 10s
+    deploy:
+      resources:
+        limits:
+          cpus: "0.5"
+          memory: 512M
+        reservations:
+          cpus: "0.1"
+          memory: 128M
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+  # ===== Certbot (Auto-renewal with DNS validation) =====
+  certbot:
+    image: certbot/dns-cloudflare:v5.2.2
+    container_name: certbot
+    volumes:
+      - certbot-certs:/etc/letsencrypt
+      - ./app-config/certbot:/scripts:ro
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+    env_file:
+      - ./.config/docker/certbot.env
+    entrypoint: '/bin/sh -c ''trap exit TERM; while :; do certbot renew --dns-cloudflare --dns-cloudflare-credentials /scripts/cloudflare.ini --deploy-hook "docker exec nginx nginx -s reload" --quiet; sleep 12h & wait $${!}; done;'''
+    networks:
+      - app-net
+    depends_on:
+      nginx:
+        condition: service_healthy
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+  # ===== Certbot First-Time Setup (run manually once) =====
+  certbot-init:
+    image: certbot/dns-cloudflare:v5.2.2
+    container_name: certbot-init
+    profiles:
+      - setup
+    volumes:
+      - certbot-certs:/etc/letsencrypt
+      - ./app-config/certbot:/scripts:ro
+    env_file:
+      - ./.config/docker/certbot.env
+    entrypoint: /bin/sh
+    command:
+      - -c
+      - |
+        if [ -f /etc/letsencrypt/live/$${CERTBOT_DOMAIN}/fullchain.pem ]; then
+          echo 'Certificates already exist. Skipping...';
+          exit 0;
+        fi;
+        echo 'Obtaining certificates using DNS-01 challenge...';
+        certbot certonly --dns-cloudflare \
+          --dns-cloudflare-credentials /scripts/cloudflare.ini \
+          --dns-cloudflare-propagation-seconds $${DNS_PROPAGATION_SECONDS:-30} \
+          -d $${CERTBOT_DOMAIN} -d $${CERTBOT_DOMAIN_WWW} \
+          --email $${CERTBOT_EMAIL} \
+          --agree-tos --non-interactive \
+          --rsa-key-size $${RSA_KEY_SIZE:-4096};
+        echo 'Certificates obtained successfully!';
+        echo 'Now enable SSL in nginx configuration and reload nginx.';
+    networks:
+      - app-net
+
+# ===== Volumes =====
+volumes:
+  pgdata:
+  redis-data:
+  prom-data:
+  grafana-data:
+  certbot-certs:
+  alertmanager-data:
+
+# ===== Networks =====
+networks:
+  app-net:
+    driver: bridge
+  monitoring-net:
+    driver: bridge
