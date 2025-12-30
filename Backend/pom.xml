@@ -29,9 +29,6 @@
 	</scm>
 	<properties>
 		<java.version>21</java.version>
-		<docker.username>${env.DOCKER_USERNAME}</docker.username>
-		<docker.image.name>MailMine</docker.image.name>
-		<docker.image.tag/>
 		<jsonwebtoken.version>0.12.6</jsonwebtoken.version>
 		<flyway.version>11.17.1</flyway.version>
 	</properties>
@@ -280,28 +277,6 @@
 						**/*IT.java
 						</include>
 					</excludes>
-				</configuration>
-			</plugin>
-			<plugin>
-				<groupId>com.google.cloud.tools</groupId>
-				<artifactId>jib-maven-plugin</artifactId>
-				<version>3.4.5</version>
-				<configuration>
-					<from>
-						<image>eclipse-temurin:21</image>
-						<platforms>
-							<platform>
-								<architecture>amd64</architecture>
-								<os>linux</os>
-							</platform>
-						</platforms>
-					</from>
-					<to>
-						<image>docker.io/${docker.username}/${docker.image.name}:${docker.image.tag}</image>
-						<tags>
-							<tag>latest</tag>
-						</tags>
-					</to>
 				</configuration>
 			</plugin>
 			<plugin>
