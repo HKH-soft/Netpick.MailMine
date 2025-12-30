@@ -76,6 +76,18 @@ public class UserService {
     }
 
     /**
+     * Converts an email address to the corresponding user ID.
+     *
+     * @param email the email address of the user
+     * @return the UUID of the user associated with the given email
+     */
+    public UUID emailToUserId(String email) {
+        log.debug("Converting email to user ID for email: {}", email);
+        return userRepository.findIdByEmail(email)
+                .orElseThrow(() -> new ResourceNotFoundException("User not found for email: " + email));
+    }
+
+    /**
      * Validates a registration request for required fields and duplicates.
      *
      * @param request the registration request to validate
@@ -122,20 +134,7 @@ public class UserService {
      * @return a PageDTO containing the users for the requested page
      */
     public PageDTO<UserDTO> allUsers(Integer pageNumber) {
-        log.debug("Fetching users page: {}", pageNumber);
-        Page<User> page = userRepository
-                .findByDeletedFalse(PageRequest.of(pageNumber - 1, GeneralConstants.PAGE_SIZE,
-                        Sort.by(Sort.Direction.ASC, "createdAt")));
-
-        PageDTO<UserDTO> result = new PageDTO<>(
-                page.getContent()
-                        .stream()
-                        .map(userDTOMapper)
-                        .collect(Collectors.toList()),
-                page.getTotalPages(),
-                page.getNumber() + 1);
-        log.info("Successfully fetched {} users for page {}", page.getContent().size(), pageNumber);
-        return result;
+        return allUsers(pageNumber, "createdAt", Direction.ASC);
     }
 
     /**
@@ -192,14 +191,8 @@ public class UserService {
      *                                   email
      */
     public UserDTO getUser(String email) {
-        log.debug("Fetching user by email: {}", email);
-        User user = userRepository.findByDeletedFalseAndEmail(email).orElseThrow(
-                () -> {
-                    log.warn("User not found with email: {}", email);
-                    return new ResourceNotFoundException("User with email [%s] was not found!".formatted(email));
-                });
-        log.info("Successfully fetched user with email: {}", email);
-        return userDTOMapper.apply(user);
+        UUID userId = emailToUserId(email);
+        return getUser(userId);
     }
 
     /**
@@ -211,12 +204,8 @@ public class UserService {
      *                                   email
      */
     public User getUserEntity(String email) {
-        log.debug("Fetching user entity by email: {}", email);
-        return userRepository.findByDeletedFalseAndEmail(email)
-                .orElseThrow(() -> {
-                    log.warn("User entity not found with email: {}", email);
-                    return new ResourceNotFoundException("User not found");
-                });
+        UUID userId = emailToUserId(email);
+        return getUserEntity(userId);
     }
 
     /**
@@ -337,45 +326,9 @@ public class UserService {
      * @throws RequestValidationException if no changes were detected in the request
      *                                    or
      */
-
     public UserDTO updateUser(String email, UserUpdateRequest request) {
-        log.info("Updating user with email: {}", email);
-        User user = userRepository.findByDeletedFalseAndEmail(email).orElseThrow(
-                () -> {
-                    log.warn("User not found for update with email: {}", email);
-                    return new ResourceNotFoundException(
-                            "No user account found with email: " + email + ". " +
-                                    "Please check the email address or register for a new account.");
-                });
-
-        if (user.getRole().getName() == RoleEnum.SUPER_ADMIN) {
-            log.warn("Super Admin cannot be changed.");
-            throw new RequestValidationException("Super Admin cannot be changed.");
-        }
-
-        boolean changed = false;
-        if (request.name() != null && !request.name().equals(user.getName())) {
-            log.debug("Updating user name from '{}' to '{}'", user.getName(), request.name());
-            user.setName(request.name());
-            changed = true;
-        }
-
-        if (request.description() != null && !request.description().equals(user.getDescription())) {
-            log.debug("Updating user description from '{}' to '{}'", user.getDescription(), request.description());
-            user.setDescription(request.description());
-            changed = true;
-        }
-
-        if (!changed) {
-            log.warn("No changes detected for user update: {}", email);
-            throw new RequestValidationException(
-                    "No changes were detected. " +
-                            "Please make sure you've modified at least one field.");
-        }
-
-        User savedUser = userRepository.save(user);
-        log.info("Successfully updated user with email: {}", email);
-        return userDTOMapper.apply(savedUser);
+        UUID userId = emailToUserId(email);
+        return updateUser(userId, request);
     }
 
     /**
@@ -436,19 +389,8 @@ public class UserService {
      */
     @Transactional
     public void deleteUser(String email) {
-        log.info("Soft deleting user with email: {}", email);
-        User user = userRepository.findByEmail(email).orElseThrow(() -> {
-            log.warn("User not found for deletion with email: {}", email);
-            throw new ResourceNotFoundException(
-                    "No user account found with email: " + email + ". " +
-                            "Please check the email address or register for a new account.");
-        });
-        if (user.getRole().getName() == RoleEnum.SUPER_ADMIN) {
-            log.warn("Super Admin cannot be changed.");
-            throw new RequestValidationException("Super Admin cannot be changed.");
-        }
-        userRepository.updateDeletedByEmail(true, email);
-        log.info("Successfully soft deleted user with email: {}", email);
+        UUID userId = emailToUserId(email);
+        deleteUser(userId);
     }
 
     /**
