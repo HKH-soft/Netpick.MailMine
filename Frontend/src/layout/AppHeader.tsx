@@ -37,6 +37,7 @@ const searchablePages: SearchResult[] = [
 const AppHeader: React.FC = () => {
   const [isApplicationMenuOpen, setApplicationMenuOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
+  const [debouncedQuery, setDebouncedQuery] = useState("");
   const [searchResults, setSearchResults] = useState<SearchResult[]>([]);
   const [showResults, setShowResults] = useState(false);
   const router = useRouter();
@@ -83,8 +84,18 @@ const AppHeader: React.FC = () => {
   const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
     const query = e.target.value;
     setSearchQuery(query);
+  };
 
-    if (query.trim() === "") {
+  // Debounce the search query to avoid filtering on every keystroke
+  useEffect(() => {
+    const id = setTimeout(() => setDebouncedQuery(searchQuery), 200);
+    return () => clearTimeout(id);
+  }, [searchQuery]);
+
+  useEffect(() => {
+    const query = debouncedQuery.trim();
+
+    if (query === "") {
       setSearchResults([]);
       setShowResults(false);
       return;
@@ -96,7 +107,7 @@ const AppHeader: React.FC = () => {
     );
     setSearchResults(filtered);
     setShowResults(true);
-  };
+  }, [debouncedQuery]);
 
   const handleResultClick = (path: string) => {
     router.push(path);
@@ -171,9 +182,9 @@ const AppHeader: React.FC = () => {
                 {/* Search Results Dropdown */}
                 {showResults && searchResults.length > 0 && (
                   <div className="absolute top-full left-0 w-full mt-2 bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 max-h-96 overflow-y-auto z-50">
-                    {searchResults.map((result, index) => (
+                    {searchResults.map((result) => (
                       <button
-                        key={index}
+                        key={result.path}
                         onClick={() => handleResultClick(result.path)}
                         className="w-full text-left px-4 py-3 hover:bg-gray-50 dark:hover:bg-gray-700/50 flex items-center justify-between group transition-colors"
                       >

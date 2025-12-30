@@ -61,8 +61,8 @@ class UserService {
   /**
    * Get all users (admin only)
    */
-  public async getAllUsers(page: number = 1): Promise<PageDTO<User>> {
-    return await api.get<PageDTO<User>>(`${this.basePath}?page=${page}`);
+  public async getAllUsers(page: number = 1, options: RequestInit = {}): Promise<PageDTO<User>> {
+    return await api.get<PageDTO<User>>(`${this.basePath}?page=${page}`, options);
   }
 
   /**

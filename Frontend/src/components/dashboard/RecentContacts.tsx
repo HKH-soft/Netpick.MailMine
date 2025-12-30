@@ -57,8 +57,8 @@ export default function RecentContacts() {
                             <TableRow key={contact.id}>
                                 <TableCell className="py-3 text-gray-500 text-theme-sm dark:text-gray-400">
                                     <div className="flex flex-col gap-1">
-                                        {contact.emails.slice(0, 3).map((email, idx) => (
-                                            <span key={idx} className="block">{email}</span>
+                                        {contact.emails.slice(0, 3).map((email) => (
+                                            <span key={email} className="block">{email}</span>
                                         ))}
                                         {contact.emails.length > 3 && (
                                             <span className="text-xs text-gray-400">+{contact.emails.length - 3} more</span>

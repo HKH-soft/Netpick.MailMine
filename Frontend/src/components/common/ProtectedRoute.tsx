@@ -9,9 +9,9 @@ interface ProtectedRouteProps {
   allowedRoles?: string[];
 }
 
-const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ 
-  children, 
-  allowedRoles 
+const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
+  children,
+  allowedRoles
 }) => {
   const [isLoading, setIsLoading] = useState(true);
   const [isAuthorized, setIsAuthorized] = useState(false);
@@ -27,10 +27,9 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
     const checkAuthorization = () => {
       // Validate token and check if user is authenticated
       const isValid = AuthService.isAuthenticated();
-      
+
       // If not authenticated, redirect to login
       if (!isValid) {
-        console.log("User not authenticated, redirecting to signin");
         window.location.href = "/signin";
         setIsLoading(false);
         setHasCheckedAuth(true);
@@ -39,7 +38,6 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
 
       // If no specific roles required, just check authentication
       if (!allowedRoles || allowedRoles.length === 0) {
-        console.log("No specific roles required, user authenticated");
         setIsAuthorized(true);
         setIsLoading(false);
         setHasCheckedAuth(true);
@@ -53,22 +51,19 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
           // Parse JWT token
           const base64Url = token.split('.')[1];
           const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
-          const jsonPayload = decodeURIComponent(atob(base64).split('').map(function(c) {
+          const jsonPayload = decodeURIComponent(atob(base64).split('').map(function (c) {
             return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
           }).join(''));
-          
+
           const payload = JSON.parse(jsonPayload);
-          
-          // Only log the token payload once during actual processing
-          console.log("Token payload:", payload);
-          
+
           // Check for role in different possible locations
           let userRole = null;
-          
+
           // Check direct role property
           if (payload.role) {
             userRole = payload.role;
-          } 
+          }
           // Check scopes array - this is where SUPER_ADMIN is located based on your logs
           else if (payload.scopes && Array.isArray(payload.scopes) && payload.scopes.length > 0) {
             // Handle the case where scopes is an array with the role directly
@@ -89,14 +84,13 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
           }
           // Check authorities array (another common pattern)
           else if (payload.authorities && Array.isArray(payload.authorities)) {
-            userRole = payload.authorities.find((auth: string | { [key: string]: unknown }) => 
+            userRole = payload.authorities.find((auth: string | { [key: string]: unknown }) =>
               typeof auth === 'string' && auth.toLowerCase().includes('admin')
             ) || payload.authorities[0];
           }
-          
+
           // Deny access by default when no role is found
           if (!userRole) {
-            console.log("No role found in token, denying access by default");
             setIsAuthorized(false);
             setIsLoading(false);
             setHasCheckedAuth(true);
@@ -104,20 +98,18 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
             window.location.href = "/signin";
             return;
           }
-          
+
           // Check if user role is in allowed roles or if it's an admin role
           if (allowedRoles.includes(userRole) || userRole.toString().toUpperCase().includes('ADMIN')) {
-            console.log("User authorized with role:", userRole);
             setIsAuthorized(true);
           } else {
-            console.log("User not authorized. Role:", userRole, "Allowed roles:", allowedRoles);
             // Redirect to home page
-            window.location.href = "/"; 
+            window.location.href = "/";
           }
         } catch (error) {
           console.error("Error parsing token", error);
           // Deny access when there's an error parsing the token
-          console.log("Denying access due to token parsing error");
+
           setIsAuthorized(false);
           setIsLoading(false);
           setHasCheckedAuth(true);
@@ -126,10 +118,9 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
           return;
         }
       } else {
-        console.log("No token found, redirecting to signin");
         window.location.href = "/signin";
       }
-      
+
       setIsLoading(false);
       setHasCheckedAuth(true);
     };

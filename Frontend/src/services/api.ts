@@ -4,12 +4,11 @@ import AuthService from './authService';
 // Use relative URL to go through Next.js proxy
 const API_BASE_URL = '';
 
-/* eslint-disable @typescript-eslint/no-explicit-any */
-export class ApiError extends Error {
+export class ApiError<T = unknown> extends Error {
   status: number;
-  data: any;
+  data?: T;
 
-  constructor(message: string, status: number, data: any) {
+  constructor(message: string, status: number, data?: T) {
     super(message);
     this.name = 'ApiError';
     this.status = status;
@@ -130,7 +129,7 @@ class ApiService {
           }
         }
 
-        let errorData: any;
+        let errorData: unknown;
         const contentType = response.headers.get('content-type');
         if (contentType && contentType.includes('application/json')) {
           try {
@@ -163,26 +162,41 @@ class ApiService {
     }
   }
 
-  public get<T>(endpoint: string): Promise<T> {
-    return this.request<T>(endpoint, { method: 'GET' });
+  public get<T>(endpoint: string, options: RequestInit = {}): Promise<T> {
+    return this.request<T>(endpoint, { method: 'GET', ...options });
   }
 
-  public post<T>(endpoint: string, data: unknown): Promise<T> {
+  public post<T>(endpoint: string, data: unknown, options: RequestInit = {}): Promise<T> {
     return this.request<T>(endpoint, {
       method: 'POST',
       body: JSON.stringify(data),
+      ...options,
     });
   }
 
-  public put<T>(endpoint: string, data: unknown): Promise<T> {
+  public put<T>(endpoint: string, data: unknown, options: RequestInit = {}): Promise<T> {
     return this.request<T>(endpoint, {
       method: 'PUT',
       body: JSON.stringify(data),
+      ...options,
     });
   }
 
-  public delete<T>(endpoint: string): Promise<T> {
-    return this.request<T>(endpoint, { method: 'DELETE' });
+  public delete<T>(endpoint: string, options: RequestInit = {}): Promise<T> {
+    return this.request<T>(endpoint, { method: 'DELETE', ...options });
+  }
+
+  /**
+   * Create a cancelable request. Returns the promise and a cancel function.
+   */
+  public requestCancelable<T>(endpoint: string, options: RequestInit = {}) {
+    const controller = new AbortController();
+    const signal = controller.signal;
+    const promise = this.request<T>(endpoint, { ...options, signal });
+    return {
+      promise,
+      cancel: () => controller.abort(),
+    };
   }
 }
 

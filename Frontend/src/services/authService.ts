@@ -43,8 +43,7 @@ class AuthService {
   private readonly TOKEN_KEY = 'auth_token';
   private readonly REFRESH_TOKEN_KEY = 'refresh_token';
   private readonly REMEMBER_KEY = 'auth_remember';
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  private refreshTimeoutId: any = null;
+  private refreshTimeoutId: ReturnType<typeof setTimeout> | null = null;
   private refreshPromise: Promise<AuthenticationResponse> | null = null;
 
   constructor() {
@@ -73,7 +72,7 @@ class AuthService {
       const refreshTime = expiresAt - now - (60 * 1000);
 
       if (refreshTime > 0) {
-        console.log(`Scheduling token refresh in ${Math.round(refreshTime / 1000)} seconds`);
+        console.debug(`Scheduling token refresh in ${Math.round(refreshTime / 1000)} seconds`);
         this.refreshTimeoutId = setTimeout(() => {
           this.refreshAccessToken().catch(err => console.error('Scheduled refresh failed', err));
         }, refreshTime);
@@ -189,8 +188,7 @@ class AuthService {
 
   // Helper to handle response errors
   private async handleResponseError(response: Response): Promise<never> {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    let errorData: any;
+    let errorData: unknown;
     const contentType = response.headers.get('content-type');
     if (contentType && contentType.includes('application/json')) {
       try {
@@ -202,10 +200,13 @@ class AuthService {
       errorData = await response.text();
     }
 
-    // If errorData is an object, try to extract a message
-    const message = typeof errorData === 'object' && errorData?.message 
-      ? errorData.message 
-      : (typeof errorData === 'string' ? errorData : `HTTP error! status: ${response.status}`);
+    // If errorData is an object, try to extract a message without using `any`
+    const possibleMessage =
+      typeof errorData === 'object' && errorData !== null && 'message' in (errorData as object)
+        ? (errorData as { message?: string }).message
+        : undefined;
+
+    const message = possibleMessage ?? (typeof errorData === 'string' ? errorData : `HTTP error! status: ${response.status}`);
 
     console.error('Auth request failed:', response.status, errorData);
     throw new Error(message);

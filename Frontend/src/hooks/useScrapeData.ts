@@ -12,15 +12,16 @@ export const useScrapeDataList = (page: number = 1) => {
   const [totalPages, setTotalPages] = useState<number>(0);
   const [currentPage, setCurrentPage] = useState<number>(1);
 
-  const fetchScrapeData = useCallback(async () => {
+  const fetchScrapeData = useCallback(async (signal?: AbortSignal) => {
     try {
       setLoading(true);
-      const response: PageDTO<ScrapeData> = await ScrapeDataService.getAllScrapeData(page);
+      const response: PageDTO<ScrapeData> = await ScrapeDataService.getAllScrapeData(page, { signal });
       setScrapeDataList(response?.context || []);
       setTotalPages(response?.totalPageCount || 0);
       setCurrentPage(response?.currentPage || 1);
       setError(null);
-    } catch (err) {
+    } catch (err: unknown) {
+      if ((err as { name?: string })?.name === 'AbortError') return;
       setError('Failed to fetch scrape data');
       setScrapeDataList([]);
       console.error('Error fetching scrape data:', err);
@@ -30,7 +31,9 @@ export const useScrapeDataList = (page: number = 1) => {
   }, [page]);
 
   useEffect(() => {
-    fetchScrapeData();
+    const controller = new AbortController();
+    fetchScrapeData(controller.signal);
+    return () => controller.abort();
   }, [fetchScrapeData]);
 
   return { scrapeDataList, loading, error, totalPages, currentPage, refetch: fetchScrapeData };

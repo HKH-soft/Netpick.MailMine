@@ -11,15 +11,16 @@ export const useUsers = (page: number = 1) => {
   const [totalPages, setTotalPages] = useState<number>(0);
   const [currentPage, setCurrentPage] = useState<number>(1);
 
-  const fetchUsers = useCallback(async () => {
+  const fetchUsers = useCallback(async (signal?: AbortSignal) => {
     try {
       setLoading(true);
-      const response: PageDTO<User> = await UserService.getAllUsers(page);
+      const response: PageDTO<User> = await UserService.getAllUsers(page, { signal });
       setUsers(response.context);
       setTotalPages(response.totalPageCount);
       setCurrentPage(response.currentPage);
       setError(null);
-    } catch (err) {
+    } catch (err: unknown) {
+      if ((err as { name?: string })?.name === 'AbortError') return; // request was cancelled
       setError('Failed to fetch users');
       console.error('Error fetching users:', err);
     } finally {
@@ -28,10 +29,12 @@ export const useUsers = (page: number = 1) => {
   }, [page]);
 
   useEffect(() => {
-    fetchUsers();
+    const controller = new AbortController();
+    fetchUsers(controller.signal);
+    return () => controller.abort();
   }, [fetchUsers]);
 
-  // Return fetchUsers as refetch function
+  // Return fetchUsers as refetch function (caller can optionally pass a signal)
   return { users, loading, error, totalPages, currentPage, refetch: fetchUsers };
 };
 

@@ -28,7 +28,17 @@ replay_pid*
 /.lingma/
 
 # Config
-.Config
+*.env
+
+# Certbot credentials and certificates (SECURITY SENSITIVE!)
+app-config/certbot/cloudflare.ini
+certbot-certs/
+*.pem
+*.key
 
 ### VS Code ###
 .vscode/
+
+*.pem
+
+mailmine.code-workspace

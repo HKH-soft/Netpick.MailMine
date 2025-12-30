@@ -16,8 +16,8 @@ class ScrapeDataService {
   /**
    * Get all active scrape data
    */
-  public async getAllScrapeData(page: number = 1): Promise<PageDTO<ScrapeData>> {
-    return await api.get<PageDTO<ScrapeData>>(`${this.basePath}?page=${page}`);
+  public async getAllScrapeData(page: number = 1, options: RequestInit = {}): Promise<PageDTO<ScrapeData>> {
+    return await api.get<PageDTO<ScrapeData>>(`${this.basePath}?page=${page}`, options);
   }
 
   /**
@@ -37,8 +37,8 @@ class ScrapeDataService {
   /**
    * Get scrape data by ID
    */
-  public async getScrapeDataById(id: string): Promise<ScrapeData> {
-    return await api.get<ScrapeData>(`${this.basePath}/${id}`);
+  public async getScrapeDataById(id: string, options: RequestInit = {}): Promise<ScrapeData> {
+    return await api.get<ScrapeData>(`${this.basePath}/${id}`, options);
   }
 
   /**

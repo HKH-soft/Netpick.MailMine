@@ -362,9 +362,9 @@ export default function SearchQueryGeneratorPage() {
                         </div>
 
                         <div className="space-y-2 max-h-96 overflow-y-auto">
-                            {generatedQueries.map((query, index) => (
+                            {generatedQueries.map((query) => (
                                 <div
-                                    key={index}
+                                    key={query}
                                     className="p-3 bg-gray-50 dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 flex justify-between items-center"
                                 >
                                     <span className="text-sm text-gray-700 dark:text-gray-300">{query}</span>
