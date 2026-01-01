@@ -13,14 +13,13 @@ import ir.netpick.mailmine.auth.exception.UserNotFoundException;
 import ir.netpick.mailmine.auth.exception.VerificationCodeNotFoundException;
 import ir.netpick.mailmine.auth.model.RefreshToken;
 import ir.netpick.mailmine.common.exception.RequestValidationException;
-import ir.netpick.mailmine.common.exception.VerificationException;
 import ir.netpick.mailmine.auth.jwt.JWTUtil;
 import ir.netpick.mailmine.auth.mapper.UserDTOMapper;
 import ir.netpick.mailmine.auth.model.User;
 import ir.netpick.mailmine.auth.repository.UserRepository;
 import ir.netpick.mailmine.common.enums.RoleEnum;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.log4j.Log4j2;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -34,7 +33,7 @@ import org.springframework.transaction.annotation.Transactional;
  */
 @RequiredArgsConstructor
 @Service
-@Log4j2
+@Slf4j
 public class AuthenticationService {
 
     private final AuthenticationManager authenticationManager;
@@ -212,9 +211,6 @@ public class AuthenticationService {
      *                                           email
      * @throws VerificationCodeNotFoundException if no verification code exists for
      *                                           the user
-     * @throws VerificationException             if the verification code is
-     *                                           invalid, expired, or max attempts
-     *                                           reached
      */
     public void verifyUser(VerificationRequest request) {
         log.info("Attempting to verify user with email: {}", request.email());

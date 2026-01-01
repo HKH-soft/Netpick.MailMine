@@ -2,7 +2,7 @@ package ir.netpick.mailmine.auth.service;
 
 import ir.netpick.mailmine.auth.AuthConstants;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.log4j.Log4j2;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
@@ -15,7 +15,7 @@ import java.util.concurrent.TimeUnit;
  * Uses Redis for storing rate limit information across multiple instances
  */
 @Service
-@Log4j2
+@Slf4j
 @RequiredArgsConstructor
 @ConditionalOnProperty(name = "rate-limiting.use-redis", havingValue = "true", matchIfMissing = false)
 public class RedisRateLimitingService implements RateLimiting {

@@ -1,7 +1,7 @@
 package ir.netpick.mailmine.auth.service;
 
 import ir.netpick.mailmine.auth.AuthConstants;
-import lombok.extern.log4j.Log4j2;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Service;
 
@@ -15,7 +15,7 @@ import java.util.concurrent.ConcurrentHashMap;
  * Controlled by property: rate-limiting.use-redis=false (default)
  */
 @Service
-@Log4j2
+@Slf4j
 @ConditionalOnProperty(name = "rate-limiting.use-redis", havingValue = "false", matchIfMissing = true)
 public class RateLimitingService implements RateLimiting {
 

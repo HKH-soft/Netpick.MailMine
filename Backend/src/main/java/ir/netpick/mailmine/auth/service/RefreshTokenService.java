@@ -5,7 +5,7 @@ import ir.netpick.mailmine.auth.model.RefreshToken;
 import ir.netpick.mailmine.auth.model.User;
 import ir.netpick.mailmine.auth.repository.RefreshTokenRepository;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.log4j.Log4j2;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
@@ -24,7 +24,7 @@ import java.util.UUID;
  */
 @Service
 @RequiredArgsConstructor
-@Log4j2
+@Slf4j
 public class RefreshTokenService {
 
     private final RefreshTokenRepository refreshTokenRepository;

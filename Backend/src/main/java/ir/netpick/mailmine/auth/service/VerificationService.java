@@ -9,7 +9,7 @@ import static ir.netpick.mailmine.auth.AuthConstants.*;
 import ir.netpick.mailmine.common.enums.RoleEnum;
 import ir.netpick.mailmine.common.exception.VerificationException;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.log4j.Log4j2;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.security.SecureRandom;
@@ -21,7 +21,7 @@ import java.security.SecureRandom;
  */
 @Service
 @RequiredArgsConstructor
-@Log4j2
+@Slf4j
 public class VerificationService {
 
     private final UserRepository userRepository;

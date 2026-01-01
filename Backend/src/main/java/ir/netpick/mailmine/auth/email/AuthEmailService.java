@@ -7,7 +7,7 @@ import ir.netpick.mailmine.common.exception.ResourceNotFoundException;
 import ir.netpick.mailmine.common.exception.VerificationException;
 import ir.netpick.mailmine.email.service.EmailService;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.log4j.Log4j2;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 /**
@@ -16,7 +16,7 @@ import org.springframework.stereotype.Service;
  */
 @Service("authEmailService")
 @RequiredArgsConstructor
-@Log4j2
+@Slf4j
 public class AuthEmailService {
 
     private final EmailService emailService;

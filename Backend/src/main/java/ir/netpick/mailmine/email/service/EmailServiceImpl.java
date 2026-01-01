@@ -4,7 +4,7 @@ import ir.netpick.mailmine.email.dto.EmailRequest;
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.log4j.Log4j2;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.FileSystemResource;
 import org.springframework.mail.SimpleMailMessage;
@@ -21,7 +21,7 @@ import java.util.Map;
 
 @RequiredArgsConstructor
 @Service
-@Log4j2
+@Slf4j
 public class EmailServiceImpl implements EmailService {
 
     private final JavaMailSender javaMailSender;

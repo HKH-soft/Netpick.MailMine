@@ -16,7 +16,7 @@ import ir.netpick.mailmine.common.exception.RequestValidationException;
 import ir.netpick.mailmine.common.exception.ResourceNotFoundException;
 import ir.netpick.mailmine.common.exception.SystemConfigurationException;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.log4j.Log4j2;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
@@ -37,7 +37,7 @@ import java.util.stream.Collectors;
  */
 @Service
 @RequiredArgsConstructor
-@Log4j2
+@Slf4j
 public class UserService {
 
     private final UserRepository userRepository;
