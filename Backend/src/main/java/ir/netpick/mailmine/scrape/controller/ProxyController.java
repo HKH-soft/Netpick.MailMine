@@ -2,6 +2,7 @@ package ir.netpick.mailmine.scrape.controller;
 
 import ir.netpick.mailmine.common.PageDTO;
 import ir.netpick.mailmine.common.enums.ProxyProtocol;
+import ir.netpick.mailmine.common.utils.PageDTOMapper;
 import ir.netpick.mailmine.scrape.dto.ProxyRequest;
 import ir.netpick.mailmine.scrape.dto.ProxyResponse;
 import ir.netpick.mailmine.scrape.mapper.ProxyDTOMapper;
@@ -15,7 +16,6 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.util.Map;
 import java.util.UUID;
-import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api/v1/proxies")
@@ -31,20 +31,14 @@ public class ProxyController {
     public ResponseEntity<PageDTO<ProxyResponse>> getAllProxies(
             @RequestParam(defaultValue = "1") int page) {
         PageDTO<Proxy> proxies = proxyService.allProxies(page);
-        return ResponseEntity.ok(new PageDTO<>(
-                proxies.context().stream().map(proxyDTOMapper).collect(Collectors.toList()),
-                proxies.totalPageCount(),
-                proxies.currentPage()));
+        return ResponseEntity.ok(PageDTOMapper.map(proxies, proxyDTOMapper));
     }
 
     @GetMapping("/deleted")
     public ResponseEntity<PageDTO<ProxyResponse>> getDeletedProxies(
             @RequestParam(defaultValue = "1") int page) {
         PageDTO<Proxy> proxies = proxyService.deletedProxies(page);
-        return ResponseEntity.ok(new PageDTO<>(
-                proxies.context().stream().map(proxyDTOMapper).collect(Collectors.toList()),
-                proxies.totalPageCount(),
-                proxies.currentPage()));
+        return ResponseEntity.ok(PageDTOMapper.map(proxies, proxyDTOMapper));
     }
 
     @GetMapping("/{id}")

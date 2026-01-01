@@ -2,8 +2,6 @@ package ir.netpick.mailmine.scrape.service.base;
 
 import java.util.Objects;
 import java.util.UUID;
-import java.util.stream.Collectors;
-
 import ir.netpick.mailmine.common.PageDTO;
 import ir.netpick.mailmine.common.constants.GeneralConstants;
 import ir.netpick.mailmine.scrape.dto.SearchQueryResponse;
@@ -19,6 +17,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.validation.annotation.Validated;
 
 import ir.netpick.mailmine.common.exception.ResourceNotFoundException;
+import ir.netpick.mailmine.common.utils.PageDTOMapper;
 import ir.netpick.mailmine.scrape.dto.SearchQueryRequest;
 import ir.netpick.mailmine.scrape.model.SearchQuery;
 import ir.netpick.mailmine.scrape.repository.SearchQueryRepository;
@@ -44,39 +43,22 @@ public class SearchQueryService {
         Pageable pageable = PageRequest.of(pageNumber - 1, GeneralConstants.PAGE_SIZE,
                 Sort.by("createdAt").descending());
         Page<SearchQuery> page = searchQueryRepository.findByDeletedFalse(pageable);
-        return new PageDTO<>(
-                page.getContent()
-                        .stream()
-                        .map(searchQueryDTOMapper)
-                        .collect(Collectors.toList()),
-                page.getTotalPages(),
-                page.getNumber() + 1);
+        return PageDTOMapper.map(page, searchQueryDTOMapper);
     }
 
     public PageDTO<SearchQueryResponse> deletedSearchQueries(int pageNumber) {
         Pageable pageable = PageRequest.of(pageNumber - 1, GeneralConstants.PAGE_SIZE,
                 Sort.by("createdAt").descending());
         Page<SearchQuery> page = searchQueryRepository.findByDeletedTrue(pageable);
-        return new PageDTO<>(
-                page.getContent()
-                        .stream()
-                        .map(searchQueryDTOMapper)
-                        .collect(Collectors.toList()),
-                page.getTotalPages(),
-                page.getNumber() + 1);
+        return PageDTOMapper.map(page, searchQueryDTOMapper);
+
     }
 
     public PageDTO<SearchQueryResponse> allSearchQueriesIncludingDeleted(int pageNumber) {
         Pageable pageable = PageRequest.of(pageNumber - 1, GeneralConstants.PAGE_SIZE,
                 Sort.by("createdAt").descending());
         Page<SearchQuery> page = searchQueryRepository.findAll(pageable);
-        return new PageDTO<>(
-                page.getContent()
-                        .stream()
-                        .map(searchQueryDTOMapper)
-                        .collect(Collectors.toList()),
-                page.getTotalPages(),
-                page.getNumber() + 1);
+        return PageDTOMapper.map(page, searchQueryDTOMapper);
     }
 
     @Cacheable(value = "searchQuery", key = "#id")
@@ -90,7 +72,7 @@ public class SearchQueryService {
                 .orElseThrow(() -> new ResourceNotFoundException("SearchQuery with ID [%s] not found.".formatted(id)));
     }
 
-    @CacheEvict(value = {"searchQuery", "searchQueries"}, allEntries = true)
+    @CacheEvict(value = { "searchQuery", "searchQueries" }, allEntries = true)
     public SearchQuery createSearchQuery(@Valid @NotNull SearchQueryRequest request) {
         SearchQuery searchQuery = new SearchQuery(
                 request.sentence(),
@@ -100,7 +82,7 @@ public class SearchQueryService {
         return saved;
     }
 
-    @CacheEvict(value = {"searchQuery", "searchQueries"}, allEntries = true)
+    @CacheEvict(value = { "searchQuery", "searchQueries" }, allEntries = true)
     public SearchQuery updateSearchQuery(@NotNull UUID id, @Valid @NotNull SearchQueryRequest request) {
         SearchQuery existing = getSearchQuery(id);
 
@@ -127,7 +109,7 @@ public class SearchQueryService {
         return saved;
     }
 
-    @CacheEvict(value = {"searchQuery", "searchQueries"}, allEntries = true)
+    @CacheEvict(value = { "searchQuery", "searchQueries" }, allEntries = true)
     public void softDeleteSearchQuery(@NotNull UUID id) {
         if (!searchQueryRepository.existsById(id)) {
             throw new ResourceNotFoundException("SearchQuery with ID [%s] not found.".formatted(id));
@@ -136,7 +118,7 @@ public class SearchQueryService {
         log.info("Soft deleted SearchQuery with ID: {}", id);
     }
 
-    @CacheEvict(value = {"searchQuery", "searchQueries"}, allEntries = true)
+    @CacheEvict(value = { "searchQuery", "searchQueries" }, allEntries = true)
     public void restoreSearchQuery(@NotNull UUID id) {
         if (!searchQueryRepository.existsById(id)) {
             throw new ResourceNotFoundException("SearchQuery with ID [%s] not found.".formatted(id));
@@ -145,7 +127,7 @@ public class SearchQueryService {
         log.info("Restored SearchQuery with ID: {}", id);
     }
 
-    @CacheEvict(value = {"searchQuery", "searchQueries"}, allEntries = true)
+    @CacheEvict(value = { "searchQuery", "searchQueries" }, allEntries = true)
     public void deleteSearchQuery(@NotNull UUID id) {
         if (!searchQueryRepository.existsById(id)) {
             throw new ResourceNotFoundException("SearchQuery with ID [%s] not found.".formatted(id));

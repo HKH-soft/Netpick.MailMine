@@ -3,6 +3,7 @@ package ir.netpick.mailmine.scrape.service.base;
 import ir.netpick.mailmine.common.PageDTO;
 import ir.netpick.mailmine.common.constants.GeneralConstants;
 import ir.netpick.mailmine.common.exception.ResourceNotFoundException;
+import ir.netpick.mailmine.common.utils.PageDTOMapper;
 import ir.netpick.mailmine.scrape.model.Pipeline;
 import ir.netpick.mailmine.scrape.repository.PipelineRepository;
 import lombok.RequiredArgsConstructor;
@@ -28,30 +29,21 @@ public class PipelineService {
         Pageable pageable = PageRequest.of(pageNumber - 1, GeneralConstants.PAGE_SIZE,
                 Sort.by("createdAt").descending());
         Page<Pipeline> page = pipelineRepository.findByDeletedFalse(pageable);
-        return new PageDTO<>(
-                page.getContent(),
-                page.getTotalPages(),
-                pageNumber);
+        return PageDTOMapper.map(page);
     }
 
     public PageDTO<Pipeline> deletedPipelines(int pageNumber) {
         Pageable pageable = PageRequest.of(pageNumber - 1, GeneralConstants.PAGE_SIZE,
                 Sort.by("createdAt").descending());
         Page<Pipeline> page = pipelineRepository.findByDeletedTrue(pageable);
-        return new PageDTO<>(
-                page.getContent(),
-                page.getTotalPages(),
-                pageNumber);
+        return PageDTOMapper.map(page);
     }
 
     public PageDTO<Pipeline> allPipelinesIncludingDeleted(int pageNumber) {
         Pageable pageable = PageRequest.of(pageNumber - 1, GeneralConstants.PAGE_SIZE,
                 Sort.by("createdAt").descending());
         Page<Pipeline> page = pipelineRepository.findAll(pageable);
-        return new PageDTO<>(
-                page.getContent(),
-                page.getTotalPages(),
-                pageNumber);
+        return PageDTOMapper.map(page);
     }
 
     public Pipeline getPipeline(UUID pipelineId) {

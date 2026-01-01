@@ -8,6 +8,7 @@ import ir.netpick.mailmine.common.PageDTO;
 import ir.netpick.mailmine.common.constants.GeneralConstants;
 import ir.netpick.mailmine.common.enums.ProxyStatus;
 import ir.netpick.mailmine.common.exception.ResourceNotFoundException;
+import ir.netpick.mailmine.common.utils.PageDTOMapper;
 import ir.netpick.mailmine.scrape.model.Proxy;
 import ir.netpick.mailmine.scrape.repository.ProxyRepository;
 import lombok.RequiredArgsConstructor;
@@ -48,14 +49,14 @@ public class ProxyService {
         Pageable pageable = PageRequest.of(pageNumber - 1, GeneralConstants.PAGE_SIZE,
                 Sort.by("createdAt").descending());
         Page<Proxy> page = proxyRepository.findByDeletedFalse(pageable);
-        return new PageDTO<>(page.getContent(), page.getTotalPages(), pageNumber);
+        return PageDTOMapper.map(page);
     }
 
     public PageDTO<Proxy> deletedProxies(int pageNumber) {
         Pageable pageable = PageRequest.of(pageNumber - 1, GeneralConstants.PAGE_SIZE,
                 Sort.by("createdAt").descending());
         Page<Proxy> page = proxyRepository.findByDeletedTrue(pageable);
-        return new PageDTO<>(page.getContent(), page.getTotalPages(), pageNumber);
+        return PageDTOMapper.map(page);
     }
 
     public Proxy getProxy(UUID id) {

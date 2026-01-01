@@ -19,6 +19,7 @@ import org.springframework.validation.annotation.Validated;
 
 import ir.netpick.mailmine.common.exception.RequestValidationException;
 import ir.netpick.mailmine.common.exception.ResourceNotFoundException;
+import ir.netpick.mailmine.common.utils.PageDTOMapper;
 import ir.netpick.mailmine.scrape.model.ScrapeJob;
 import ir.netpick.mailmine.scrape.repository.ScrapeJobRepository;
 import jakarta.validation.Valid;
@@ -48,28 +49,19 @@ public class ScrapeJobService {
     public PageDTO<ScrapeJob> allJobs(@NotNull int page) {
         Pageable pageable = PageRequest.of(page - 1, GeneralConstants.PAGE_SIZE, Sort.by("createdAt").descending());
         Page<ScrapeJob> pageContent = scrapeJobRepository.findByDeletedFalse(pageable);
-        return new PageDTO<>(
-                pageContent.getContent(),
-                pageContent.getTotalPages(),
-                page);
+        return PageDTOMapper.map(pageContent);
     }
 
     public PageDTO<ScrapeJob> deletedJobs(@NotNull int page) {
         Pageable pageable = PageRequest.of(page - 1, GeneralConstants.PAGE_SIZE, Sort.by("createdAt").descending());
         Page<ScrapeJob> pageContent = scrapeJobRepository.findByDeletedTrue(pageable);
-        return new PageDTO<>(
-                pageContent.getContent(),
-                pageContent.getTotalPages(),
-                page);
+        return PageDTOMapper.map(pageContent);
     }
 
     public PageDTO<ScrapeJob> allJobsIncludingDeleted(@NotNull int page) {
         Pageable pageable = PageRequest.of(page - 1, GeneralConstants.PAGE_SIZE, Sort.by("createdAt").descending());
         Page<ScrapeJob> pageContent = scrapeJobRepository.findAll(pageable);
-        return new PageDTO<>(
-                pageContent.getContent(),
-                pageContent.getTotalPages(),
-                page);
+        return PageDTOMapper.map(pageContent);
     }
 
     public ScrapeJob getJob(@NotNull UUID id) {

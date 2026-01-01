@@ -15,6 +15,7 @@ import ir.netpick.mailmine.common.exception.DuplicateResourceException;
 import ir.netpick.mailmine.common.exception.RequestValidationException;
 import ir.netpick.mailmine.common.exception.ResourceNotFoundException;
 import ir.netpick.mailmine.common.exception.SystemConfigurationException;
+import ir.netpick.mailmine.common.utils.PageDTOMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -152,13 +153,7 @@ public class UserService {
                 .findByDeletedFalse(
                         PageRequest.of(pageNumber - 1, GeneralConstants.PAGE_SIZE, Sort.by(direction, sortBy)));
 
-        PageDTO<UserDTO> result = new PageDTO<>(
-                page.getContent()
-                        .stream()
-                        .map(userDTOMapper)
-                        .collect(Collectors.toList()),
-                page.getTotalPages(),
-                page.getNumber() + 1);
+        PageDTO<UserDTO> result = PageDTOMapper.map(page, userDTOMapper);
         log.info("Successfully fetched {} users for page {}, sorted by: {}, direction: {}",
                 page.getContent().size(), pageNumber, sortBy, direction);
         return result;

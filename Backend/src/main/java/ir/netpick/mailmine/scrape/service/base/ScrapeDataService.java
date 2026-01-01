@@ -3,6 +3,7 @@ package ir.netpick.mailmine.scrape.service.base;
 import ir.netpick.mailmine.common.PageDTO;
 import ir.netpick.mailmine.common.constants.GeneralConstants;
 import ir.netpick.mailmine.common.exception.ResourceNotFoundException;
+import ir.netpick.mailmine.common.utils.PageDTOMapper;
 import ir.netpick.mailmine.scrape.model.ScrapeData;
 import ir.netpick.mailmine.scrape.model.ScrapeJob;
 import ir.netpick.mailmine.scrape.repository.ScrapeDataRepository;
@@ -65,28 +66,19 @@ public class ScrapeDataService {
     public PageDTO<ScrapeData> allData(int page) {
         Pageable pageable = PageRequest.of(page - 1, GeneralConstants.PAGE_SIZE, Sort.by("createdAt").descending());
         Page<ScrapeData> pageContent = scrapeDataRepository.findByDeletedFalse(pageable);
-        return new PageDTO<>(
-                pageContent.getContent(),
-                pageContent.getTotalPages(),
-                page);
+        return PageDTOMapper.map(pageContent);
     }
 
     public PageDTO<ScrapeData> deletedData(int page) {
         Pageable pageable = PageRequest.of(page - 1, GeneralConstants.PAGE_SIZE, Sort.by("createdAt").descending());
         Page<ScrapeData> pageContent = scrapeDataRepository.findByDeletedTrue(pageable);
-        return new PageDTO<>(
-                pageContent.getContent(),
-                pageContent.getTotalPages(),
-                page);
+        return PageDTOMapper.map(pageContent);
     }
 
     public PageDTO<ScrapeData> allDataIncludingDeleted(int page) {
         Pageable pageable = PageRequest.of(page - 1, GeneralConstants.PAGE_SIZE, Sort.by("createdAt").descending());
         Page<ScrapeData> pageContent = scrapeDataRepository.findAll(pageable);
-        return new PageDTO<>(
-                pageContent.getContent(),
-                pageContent.getTotalPages(),
-                page);
+        return PageDTOMapper.map(pageContent);
     }
 
     public ScrapeData getData(UUID dataId) {

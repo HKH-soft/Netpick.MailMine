@@ -3,6 +3,7 @@ package ir.netpick.mailmine.scrape.service.base;
 import ir.netpick.mailmine.common.PageDTO;
 import ir.netpick.mailmine.common.constants.GeneralConstants;
 import ir.netpick.mailmine.common.exception.ResourceNotFoundException;
+import ir.netpick.mailmine.common.utils.PageDTOMapper;
 import ir.netpick.mailmine.scrape.dto.ApiKeyRequest;
 import ir.netpick.mailmine.scrape.dto.ApiKeyResponse;
 import ir.netpick.mailmine.scrape.mapper.ApiKeyDTOMapper;
@@ -23,7 +24,6 @@ import org.springframework.validation.annotation.Validated;
 
 import java.util.Objects;
 import java.util.UUID;
-import java.util.stream.Collectors;
 
 @Slf4j
 @Validated
@@ -36,42 +36,24 @@ public class ApiKeyService {
 
     @Cacheable(value = "apiKeys", key = "'page-' + #pageNumber")
     public PageDTO<ApiKeyResponse> allKeys(int pageNumber) {
-        Pageable pageable = PageRequest.of(pageNumber - 1, GeneralConstants.PAGE_SIZE, Sort.by("createdAt").descending());
-        Page<ApiKey> page =  apiKeyRepository.findByDeletedFalse(pageable);
-        return new PageDTO<>(
-                page.getContent()
-                        .stream()
-                        .map(apiKeyDTOMapper)
-                        .collect(Collectors.toList()),
-                page.getTotalPages(),
-                page.getNumber() + 1
-        );
+        Pageable pageable = PageRequest.of(pageNumber - 1, GeneralConstants.PAGE_SIZE,
+                Sort.by("createdAt").descending());
+        Page<ApiKey> page = apiKeyRepository.findByDeletedFalse(pageable);
+        return PageDTOMapper.map(page, apiKeyDTOMapper);
     }
-    
+
     public PageDTO<ApiKeyResponse> deletedKeys(int pageNumber) {
-        Pageable pageable = PageRequest.of(pageNumber - 1, GeneralConstants.PAGE_SIZE, Sort.by("createdAt").descending());
-        Page<ApiKey> page =  apiKeyRepository.findByDeletedTrue(pageable);
-        return new PageDTO<>(
-                page.getContent()
-                        .stream()
-                        .map(apiKeyDTOMapper)
-                        .collect(Collectors.toList()),
-                page.getTotalPages(),
-                page.getNumber() + 1
-        );
+        Pageable pageable = PageRequest.of(pageNumber - 1, GeneralConstants.PAGE_SIZE,
+                Sort.by("createdAt").descending());
+        Page<ApiKey> page = apiKeyRepository.findByDeletedTrue(pageable);
+        return PageDTOMapper.map(page, apiKeyDTOMapper);
     }
-    
+
     public PageDTO<ApiKeyResponse> allKeysIncludingDeleted(int pageNumber) {
-        Pageable pageable = PageRequest.of(pageNumber - 1, GeneralConstants.PAGE_SIZE, Sort.by("createdAt").descending());
-        Page<ApiKey> page =  apiKeyRepository.findAll(pageable);
-        return new PageDTO<>(
-                page.getContent()
-                        .stream()
-                        .map(apiKeyDTOMapper)
-                        .collect(Collectors.toList()),
-                page.getTotalPages(),
-                page.getNumber() + 1
-        );
+        Pageable pageable = PageRequest.of(pageNumber - 1, GeneralConstants.PAGE_SIZE,
+                Sort.by("createdAt").descending());
+        Page<ApiKey> page = apiKeyRepository.findAll(pageable);
+        return PageDTOMapper.map(page, apiKeyDTOMapper);
     }
 
     @Cacheable(value = "apiKey", key = "#id")
@@ -79,13 +61,13 @@ public class ApiKeyService {
         return apiKeyRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("ApiKey with ID [%s] not found.".formatted(id)));
     }
-    
+
     public ApiKey getKeyIncludingDeleted(@NotNull UUID id) {
         return apiKeyRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("ApiKey with ID [%s] not found.".formatted(id)));
     }
 
-    @CacheEvict(value = {"apiKey", "apiKeys"}, allEntries = true)
+    @CacheEvict(value = { "apiKey", "apiKeys" }, allEntries = true)
     public ApiKey createKey(@Valid @NotNull ApiKeyRequest apiKeyRequest) {
         ApiKey apiKey = new ApiKey(
                 apiKeyRequest.key(),
@@ -98,7 +80,7 @@ public class ApiKeyService {
         return saved;
     }
 
-    @CacheEvict(value = {"apiKey", "apiKeys"}, allEntries = true)
+    @CacheEvict(value = { "apiKey", "apiKeys" }, allEntries = true)
     public ApiKey updateKey(@NotNull UUID id, @Valid @NotNull ApiKeyRequest updatedApiKey) {
         ApiKey existing = getKey(id);
 
@@ -122,8 +104,8 @@ public class ApiKeyService {
         log.info("Updated ApiKey with ID: {}", id);
         return saved;
     }
-    
-    @CacheEvict(value = {"apiKey", "apiKeys"}, allEntries = true)
+
+    @CacheEvict(value = { "apiKey", "apiKeys" }, allEntries = true)
     public void softDeleteKey(@NotNull UUID id) {
         if (!apiKeyRepository.existsById(id)) {
             throw new ResourceNotFoundException("ApiKey with ID [%s] not found.".formatted(id));
@@ -131,8 +113,8 @@ public class ApiKeyService {
         apiKeyRepository.softDelete(id);
         log.info("Soft deleted ApiKey with ID: {}", id);
     }
-    
-    @CacheEvict(value = {"apiKey", "apiKeys"}, allEntries = true)
+
+    @CacheEvict(value = { "apiKey", "apiKeys" }, allEntries = true)
     public void restoreKey(@NotNull UUID id) {
         if (!apiKeyRepository.existsById(id)) {
             throw new ResourceNotFoundException("ApiKey with ID [%s] not found.".formatted(id));
@@ -141,7 +123,7 @@ public class ApiKeyService {
         log.info("Restored ApiKey with ID: {}", id);
     }
 
-    @CacheEvict(value = {"apiKey", "apiKeys"}, allEntries = true)
+    @CacheEvict(value = { "apiKey", "apiKeys" }, allEntries = true)
     public void deleteKey(@NotNull UUID id) {
         if (!apiKeyRepository.existsById(id)) {
             throw new ResourceNotFoundException("ApiKey with ID [%s] not found.".formatted(id));
