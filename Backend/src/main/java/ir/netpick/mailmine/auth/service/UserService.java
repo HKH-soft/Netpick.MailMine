@@ -82,7 +82,7 @@ public class UserService {
      * @param email the email address of the user
      * @return the UUID of the user associated with the given email
      */
-    public UUID emailToUserId(String email) {
+    private UUID emailToUserId(String email) {
         log.debug("Converting email to user ID for email: {}", email);
         return userRepository.findIdByEmail(email)
                 .orElseThrow(() -> new ResourceNotFoundException("User not found for email: " + email));
