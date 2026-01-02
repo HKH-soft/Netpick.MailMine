@@ -34,13 +34,19 @@ jobs:
           to: ${{ secrets.TELEGRAM_TO }}
           token: ${{ secrets.TELEGRAM_TOKEN }}
           message: |
-            🧪 *CI Build Started for PR*
+            ━━━━━━━━━━━━━━━━━━━━━━
+            🧪 *BACKEND CI BUILD*
+            ━━━━━━━━━━━━━━━━━━━━━━
 
-            📄 PR Title: `${{ github.event.pull_request.title }}`
-            👤 Author: `${{ github.event.pull_request.user.login }}`
-            🔀 Branch: `${{ github.head_ref }}`
-            📦 Repo: `${{ github.repository }}`
+            ▶️ *Status*: STARTED
+
+            📄 *PR*: `${{ github.event.pull_request.title }}`
+            👤 *Author*: `${{ github.event.pull_request.user.login }}`
+            🔀 *Branch*: `${{ github.head_ref }}`
+            📦 *Repo*: `${{ github.repository }}`
             🔗 [View PR](https://github.com/${{ github.repository }}/pull/${{ github.event.pull_request.number }})
+
+            ━━━━━━━━━━━━━━━━━━━━━━
 
       - name: Checkout Repository
         uses: actions/checkout@v4
@@ -123,20 +129,26 @@ jobs:
           to: ${{ secrets.TELEGRAM_TO }}
           token: ${{ secrets.TELEGRAM_TOKEN }}
           message: |
-            ✅ *CI Passed for Pull Request*
+            ╔══════════════════════╗
+            ║  ✅ CI BUILD PASSED  ║
+            ╚══════════════════════╝
 
-            📄 PR Title: `${{ github.event.pull_request.title }}`
-            👤 Author: `${{ github.event.pull_request.user.login }}`
-            🔀 Branch: `${{ github.head_ref }}`
+            🎉 *All Tests Passed*
 
-            🧪 *Test Results*:
-            - Total: `${{ steps.test-summary.outputs.total }}`
-            - Passed: `${{ steps.test-summary.outputs.passed }}`
-            - Failed: `${{ steps.test-summary.outputs.failures }}`
-            - Errors: `${{ steps.test-summary.outputs.errors }}`
-            - Skipped: `${{ steps.test-summary.outputs.skipped }}`
+            📄 *PR*: `${{ github.event.pull_request.title }}`
+            👤 *Author*: `${{ github.event.pull_request.user.login }}`
+            🔀 *Branch*: `${{ github.head_ref }}`
+
+            🧪 *Test Summary*:
+            ┣━ ✅ Total: `${{ steps.test-summary.outputs.total }}`
+            ┣━ 🟢 Passed: `${{ steps.test-summary.outputs.passed }}`
+            ┣━ 🔴 Failed: `${{ steps.test-summary.outputs.failures }}`
+            ┣━ ⚠️ Errors: `${{ steps.test-summary.outputs.errors }}`
+            ┗━ ⏭️ Skipped: `${{ steps.test-summary.outputs.skipped }}`
 
             🔗 [View PR](https://github.com/${{ github.repository }}/pull/${{ github.event.pull_request.number }})
+
+            ━━━━━━━━━━━━━━━━━━━━━━
 
       - name: Notify Telegram on failure - Message
         if: failure()
@@ -145,17 +157,23 @@ jobs:
           to: ${{ secrets.TELEGRAM_TO }}
           token: ${{ secrets.TELEGRAM_TOKEN }}
           message: |
-            ❌ *CI Failed for Pull Request*
+            ╔══════════════════════╗
+            ║  ❌ CI BUILD FAILED  ║
+            ╚══════════════════════╝
 
-            📄 PR Title: `${{ github.event.pull_request.title }}`
-            👤 Author: `${{ github.event.pull_request.user.login }}`
-            🔀 Branch: `${{ github.head_ref }}`
+            🚨 *Tests Failed*
+
+            📄 *PR*: `${{ github.event.pull_request.title }}`
+            👤 *Author*: `${{ github.event.pull_request.user.login }}`
+            🔀 *Branch*: `${{ github.head_ref }}`
 
             🧪 *Test Results* (may be incomplete):
-            - Total: `${{ steps.test-summary.outputs.total }}`
-            - Passed: `${{ steps.test-summary.outputs.passed }}`
-            - Failed: `${{ steps.test-summary.outputs.failures }}`
-            - Errors: `${{ steps.test-summary.outputs.errors }}`
-            - Skipped: `${{ steps.test-summary.outputs.skipped }}`
+            ┣━ ✅ Total: `${{ steps.test-summary.outputs.total }}`
+            ┣━ 🟢 Passed: `${{ steps.test-summary.outputs.passed }}`
+            ┣━ 🔴 Failed: `${{ steps.test-summary.outputs.failures }}`
+            ┣━ ⚠️ Errors: `${{ steps.test-summary.outputs.errors }}`
+            ┗━ ⏭️ Skipped: `${{ steps.test-summary.outputs.skipped }}`
 
-            🛠 Logs: [Run #${{ github.run_number }}](https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }})
+            🛠 *Action Required*: [Check Logs - Run #${{ github.run_number }}](https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }})
+
+            ━━━━━━━━━━━━━━━━━━━━━━

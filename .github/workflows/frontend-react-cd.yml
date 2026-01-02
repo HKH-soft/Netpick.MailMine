@@ -21,12 +21,18 @@ jobs:
           to: ${{ secrets.TELEGRAM_TO }}
           token: ${{ secrets.TELEGRAM_TOKEN }}
           message: |
-            🚀 *Frontend React Deployment Started*
+            ━━━━━━━━━━━━━━━━━━━━━━
+            ⚛️ *FRONTEND DEPLOYMENT*
+            ━━━━━━━━━━━━━━━━━━━━━━
 
-            📦 Repo: `${{ github.repository }}`
-            🌿 Branch: `${{ github.ref_name }}`
-            👤 Triggered by: `${{ github.actor }}`
+            ▶️ *Status*: STARTED
+
+            📦 *Repository*: `${{ github.repository }}`
+            🌿 *Branch*: `${{ github.ref_name }}`
+            👤 *Triggered by*: `${{ github.actor }}`
             🔗 [View Commit](https://github.com/${{ github.repository }}/commit/${{ github.sha }})
+
+            ━━━━━━━━━━━━━━━━━━━━━━
 
       - name: Checkout Repository
         uses: actions/checkout@v4
@@ -44,10 +50,11 @@ jobs:
           to: ${{ secrets.TELEGRAM_TO }}
           token: ${{ secrets.TELEGRAM_TOKEN }}
           message: |
-            🔧 *Setup Completed* by `${{ github.actor }}`
+            ⚙️ *SETUP COMPLETED*
 
-            📝 Commit: `${{ github.event.commits[0].message }}`
-            📦 Repo: `${{ github.repository }}`
+            🔧 *Phase*: Node.js Environment
+            👤 *Actor*: `${{ github.actor }}`
+            📝 *Commit*: `${{ github.event.commits[0].message }}`
             🔗 [View Commit](https://github.com/${{ github.repository }}/commit/${{ github.sha }})
 
       - name: login to Docker Hub
@@ -66,14 +73,14 @@ jobs:
           to: ${{ secrets.TELEGRAM_TO }}
           token: ${{ secrets.TELEGRAM_TOKEN }}
           message: |
-            🔢 *Build Number Generated*
+            🔢 *BUILD VERSION*
 
-            👤 Author: `${{ github.actor }}`
-            🧱 Build Version: `${{ steps.build-number.outputs.BUILD_NUMBER }}`
+            🧱 *Version*: `${{ steps.build-number.outputs.BUILD_NUMBER }}`
+            👤 *Author*: `${{ github.actor }}`
             🔗 [View Commit](https://github.com/${{ github.repository }}/commit/${{ github.sha }})
 
-      - name: Build Docker Image with Dockerfile
-        run: docker build . --push -t blackpuss/mailmine-frontend:${{steps.build-number.outputs.BUILD_NUMBER}} -t blackpuss/mailmine-frontend
+      - name: Build and Push Docker Image
+        run: docker build . --push -t ${{ secrets.DOCKERHUB_USERNAME }}/mailmine-frontend:${{steps.build-number.outputs.BUILD_NUMBER}} -t ${{ secrets.DOCKERHUB_USERNAME }}/mailmine-frontend:latest
 
       - name: action is completed! - Message
         if: success()
@@ -82,12 +89,18 @@ jobs:
           to: ${{ secrets.TELEGRAM_TO }}
           token: ${{ secrets.TELEGRAM_TOKEN }}
           message: |
-            🚀 *Deployment Workflow Completed*
+            ╔══════════════════════╗
+            ║  ✅ DEPLOYMENT SUCCESS  ║
+            ╚══════════════════════╝
 
-            👤 Initiated by: `${{ github.actor }}`
-            ✅ Build: `${{ steps.build-number.outputs.BUILD_NUMBER }}`
-            📦 Repo: `${{ github.repository }}`
+            🎉 *Frontend Deployed Successfully*
+
+            👤 *Deployed by*: `${{ github.actor }}`
+            🔖 *Build*: `${{ steps.build-number.outputs.BUILD_NUMBER }}`
+            📦 *Repository*: `${{ github.repository }}`
             🔗 [Final Commit](https://github.com/${{ github.repository }}/commit/${{ github.sha }})
+
+            ━━━━━━━━━━━━━━━━━━━━━━
 
       - name: Send Telegram message on failure - Message
         if: failure()
@@ -96,11 +109,17 @@ jobs:
           to: ${{ secrets.TELEGRAM_TO }}
           token: ${{ secrets.TELEGRAM_TOKEN }}
           message: |
-            ❌ *Deployment Failed*
+            ╔══════════════════════╗
+            ║  ❌ DEPLOYMENT FAILED  ║
+            ╚══════════════════════╝
 
-            👤 Triggered by: `${{ github.actor }}`
-            📝 Commit: `${{ github.event.commits[0].message }}`
-            📦 Repository: `${{ github.repository }}`
+            🚨 *Frontend Deployment Failed*
+
+            👤 *Triggered by*: `${{ github.actor }}`
+            📝 *Commit*: `${{ github.event.commits[0].message }}`
+            📦 *Repository*: `${{ github.repository }}`
             🔗 [View Commit](https://github.com/${{ github.repository }}/commit/${{ github.sha}})
 
-            🛠 Check logs: [Actions Run](https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }})
+            🛠 *Action Required*: [Check Logs](https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }})
+
+            ━━━━━━━━━━━━━━━━━━━━━━

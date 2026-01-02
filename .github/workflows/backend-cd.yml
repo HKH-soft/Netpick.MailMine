@@ -35,12 +35,18 @@ jobs:
           to: ${{ secrets.TELEGRAM_TO }}
           token: ${{ secrets.TELEGRAM_TOKEN }}
           message: |
-            🚀 *Backend Deployment Started*
+            ━━━━━━━━━━━━━━━━━━━━━━
+            🚀 *BACKEND DEPLOYMENT*
+            ━━━━━━━━━━━━━━━━━━━━━━
 
-            📦 Repo: `${{ github.repository }}`
-            🌿 Branch: `${{ github.ref_name }}`
-            👤 Triggered by: `${{ github.actor }}`
+            ▶️ *Status*: STARTED
+
+            📦 *Repository*: `${{ github.repository }}`
+            🌿 *Branch*: `${{ github.ref_name }}`
+            👤 *Triggered by*: `${{ github.actor }}`
             🔗 [View Commit](https://github.com/${{ github.repository }}/commit/${{ github.sha }})
+
+            ━━━━━━━━━━━━━━━━━━━━━━
 
       - name: Checkout Repository
         uses: actions/checkout@v4
@@ -58,10 +64,11 @@ jobs:
           to: ${{ secrets.TELEGRAM_TO }}
           token: ${{ secrets.TELEGRAM_TOKEN }}
           message: |
-            🔧 *Setup Completed* by `${{ github.actor }}`
+            ⚙️ *SETUP COMPLETED*
 
-            📝 Commit: `${{ github.event.commits[0].message }}`
-            📦 Repo: `${{ github.repository }}`
+            🔧 *Phase*: Environment Setup
+            👤 *Actor*: `${{ github.actor }}`
+            📝 *Commit*: `${{ github.event.commits[0].message }}`
             🔗 [View Commit](https://github.com/${{ github.repository }}/commit/${{ github.sha }})
 
       - name: login to Docker Hub
@@ -80,13 +87,13 @@ jobs:
           to: ${{ secrets.TELEGRAM_TO }}
           token: ${{ secrets.TELEGRAM_TOKEN }}
           message: |
-            🔢 *Build Number Generated*
+            🔢 *BUILD VERSION*
 
-            👤 Author: `${{ github.actor }}`s
-            🧱 Build Version: `${{ steps.build-number.outputs.BUILD_NUMBER }}`
+            🧱 *Version*: `${{ steps.build-number.outputs.BUILD_NUMBER }}`
+            👤 *Author*: `${{ github.actor }}`
             🔗 [View Commit](https://github.com/${{ github.repository }}/commit/${{ github.sha }})
 
-      - name: Build Package Puch with Maven
+      - name: Build and Test with Maven
         env:
           # Database
           POSTGRES_URL: localhost:5432
@@ -104,12 +111,12 @@ jobs:
           # Server
           SERVER_PORT: 8080
 
-          # Docker
-          DOCKER_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
-
           # Gemini
           GEMINI_API_KEY: ""
-        run: mvn -ntp -B verify -D docker.image.tag=${{steps.build-number.outputs.BUILD_NUMBER}} jib:build
+        run: mvn -ntp -B verify
+
+      - name: Build and Push Docker Image
+        run: docker build . --push -t ${{ secrets.DOCKERHUB_USERNAME }}/mailmine-backend:${{steps.build-number.outputs.BUILD_NUMBER}} -t ${{ secrets.DOCKERHUB_USERNAME }}/mailmine-backend:latest
 
       - name: maven build was successful  - Message
         uses: appleboy/telegram-action@master
@@ -117,11 +124,12 @@ jobs:
           to: ${{ secrets.TELEGRAM_TO }}
           token: ${{ secrets.TELEGRAM_TOKEN }}
           message: |
-            ✅ *Maven Build Successful*
+            ✅ *DOCKER BUILD SUCCESS*
 
-            🧪 Commit by `${{ github.actor }}`
-            🔖 Build Tag: `${{ steps.build-number.outputs.BUILD_NUMBER }}`
-            📁 Repo: `${{ github.repository }}`
+            🐳 *Image Built & Pushed*
+            🔖 *Tag*: `${{ steps.build-number.outputs.BUILD_NUMBER }}`
+            👤 *Author*: `${{ github.actor }}`
+            📁 *Repo*: `${{ github.repository }}`
             🔗 [View Commit](https://github.com/${{ github.repository }}/commit/${{ github.sha }})
 
       - name: action is completed!  - Message
@@ -131,12 +139,18 @@ jobs:
           to: ${{ secrets.TELEGRAM_TO }}
           token: ${{ secrets.TELEGRAM_TOKEN }}
           message: |
-            🚀 *Deployment Workflow Completed*
+            ╔══════════════════════╗
+            ║  ✅ DEPLOYMENT SUCCESS  ║
+            ╚══════════════════════╝
 
-            👤 Initiated by: `${{ github.actor }}`
-            ✅ Build: `${{ steps.build-number.outputs.BUILD_NUMBER }}`
-            📦 Repo: `${{ github.repository }}`
+            🎉 *Backend Deployed Successfully*
+
+            👤 *Deployed by*: `${{ github.actor }}`
+            🔖 *Build*: `${{ steps.build-number.outputs.BUILD_NUMBER }}`
+            📦 *Repository*: `${{ github.repository }}`
             🔗 [Final Commit](https://github.com/${{ github.repository }}/commit/${{ github.sha }})
+
+            ━━━━━━━━━━━━━━━━━━━━━━
 
       - name: Send Telegram message on failure  - Message
         if: failure()
@@ -145,11 +159,17 @@ jobs:
           to: ${{ secrets.TELEGRAM_TO }}
           token: ${{ secrets.TELEGRAM_TOKEN }}
           message: |
-            ❌ *Deployment Failed*
+            ╔══════════════════════╗
+            ║  ❌ DEPLOYMENT FAILED  ║
+            ╚══════════════════════╝
 
-            👤 Triggered by: `${{ github.actor }}`
-            📝 Commit: `${{ github.event.commits[0].message }}`
-            📦 Repository: `${{ github.repository }}`
+            🚨 *Backend Deployment Failed*
+
+            👤 *Triggered by*: `${{ github.actor }}`
+            📝 *Commit*: `${{ github.event.commits[0].message }}`
+            📦 *Repository*: `${{ github.repository }}`
             🔗 [View Commit](https://github.com/${{ github.repository }}/commit/${{ github.sha}})
 
-            🛠 Check logs: [Actions Run](https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }})
+            🛠 *Action Required*: [Check Logs](https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }})
+
+            ━━━━━━━━━━━━━━━━━━━━━━
