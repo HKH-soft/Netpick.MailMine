@@ -1,6 +1,5 @@
 package ir.netpick.mailmine.common.result;
 
-
 import ir.netpick.mailmine.common.result.error.Error;
 import ir.netpick.mailmine.common.result.success.Created;
 import ir.netpick.mailmine.common.result.success.Deleted;
@@ -11,7 +10,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 import java.util.function.Function;
-
 
 // --- Generic Result wrapper (sealed interface for type safety)
 public sealed interface Result<T> {
@@ -54,10 +52,10 @@ public sealed interface Result<T> {
     static <T> Result<T> conflict(String message) {
         return error(new Error("General.CONFLICT", message));
     }
+
     static <T> Result<T> unexpected(String message) {
         return error(new Error("General.UNEXPECTED", message));
     }
-
 
     // Single error
     static <T> Result<T> error(Error error) {
@@ -74,8 +72,11 @@ public sealed interface Result<T> {
 
     // --- Query methods
     boolean isSuccess();
+
     boolean isError();
+
     T getValue(); // Throws if error
+
     List<Error> getErrors(); // Empty if success
 
     // --- Functional methods
@@ -98,17 +99,30 @@ public sealed interface Result<T> {
     default <R> R fold(
             Function<? super List<Error>, ? extends R> onError,
             Function<? super T, ? extends R> onSuccess) {
-        return this instanceof Err<T> err ? 
-                onError.apply(err.errors()) : 
-                onSuccess.apply(((Ok<T>) this).value());
+        return this instanceof Err<T> err ? onError.apply(err.errors()) : onSuccess.apply(((Ok<T>) this).value());
     }
 
     // --- Implementations
     record Ok<T>(T value) implements Result<T> {
-        @Override public boolean isSuccess() { return true; }
-        @Override public boolean isError() { return false; }
-        @Override public T getValue() { return value; }
-        @Override public List<Error> getErrors() { return Collections.emptyList(); }
+        @Override
+        public boolean isSuccess() {
+            return true;
+        }
+
+        @Override
+        public boolean isError() {
+            return false;
+        }
+
+        @Override
+        public T getValue() {
+            return value;
+        }
+
+        @Override
+        public List<Error> getErrors() {
+            return Collections.emptyList();
+        }
 
         @Override
         public String toString() {
@@ -127,10 +141,25 @@ public sealed interface Result<T> {
     }
 
     record Err<T>(List<Error> errors) implements Result<T> {
-        @Override public boolean isSuccess() { return false; }
-        @Override public boolean isError() { return true; }
-        @Override public T getValue() { throw new IllegalStateException("Cannot get value from Err: " + errors); }
-        @Override public List<Error> getErrors() { return errors; }
+        @Override
+        public boolean isSuccess() {
+            return false;
+        }
+
+        @Override
+        public boolean isError() {
+            return true;
+        }
+
+        @Override
+        public T getValue() {
+            throw new IllegalStateException("Cannot get value from Err: " + errors);
+        }
+
+        @Override
+        public List<Error> getErrors() {
+            return errors;
+        }
 
         @Override
         public String toString() {

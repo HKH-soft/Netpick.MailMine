@@ -1,5 +1,7 @@
 package ir.netpick.mailmine.auth.service;
 
+import com.nulabinc.zxcvbn.Strength;
+import com.nulabinc.zxcvbn.Zxcvbn;
 import ir.netpick.mailmine.auth.dto.AuthenticationSignupRequest;
 import ir.netpick.mailmine.auth.dto.UserDTO;
 import ir.netpick.mailmine.auth.dto.UserUpdateRequest;
@@ -9,6 +11,9 @@ import ir.netpick.mailmine.auth.model.User;
 import ir.netpick.mailmine.auth.repository.RoleRepository;
 import ir.netpick.mailmine.auth.repository.UserRepository;
 import ir.netpick.mailmine.common.PageDTO;
+import ir.netpick.mailmine.common.result.Result;
+import ir.netpick.mailmine.common.result.error.Error;
+import ir.netpick.mailmine.common.result.success.Success;
 import ir.netpick.mailmine.common.constants.GeneralConstants;
 import ir.netpick.mailmine.common.enums.RoleEnum;
 import ir.netpick.mailmine.common.exception.DuplicateResourceException;
@@ -18,6 +23,7 @@ import ir.netpick.mailmine.common.exception.SystemConfigurationException;
 import ir.netpick.mailmine.common.utils.PageDTOMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.core.io.ClassPathResource;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
@@ -26,9 +32,12 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
@@ -46,6 +55,48 @@ public class UserService {
     private final RoleRepository roleRepository;
     private final UserDTOMapper userDTOMapper;
     private final VerificationService verificationService;
+
+    // Precompiled patterns for efficiency
+    private static final Pattern EMAIL_PATTERN = Pattern.compile(
+            "^(?=.{1,64}@)[A-Za-z0-9_-]+(\\.[A-Za-z0-9_-]+)*@[^-][A-Za-z0-9-]+(\\.[A-Za-z0-9-]+)*(\\.[A-Za-z]{2,})$");
+    private static final Pattern LOWERCASE_PATTERN = Pattern.compile(".*\\p{Ll}.*");
+    private static final Pattern UPPERCASE_PATTERN = Pattern.compile(".*\\p{Lu}.*");
+    private static final Pattern DIGIT_PATTERN = Pattern.compile(".*\\d.*");
+    private static final Pattern SPECIAL_CHAR_PATTERN = Pattern.compile(".*[^\\p{L}\\d].*");
+
+    // Leet speak substitutions for better password checking
+    private static final Map<Character, Character> LEET_SPEAK_MAP = Map.of(
+            '0', 'o', '1', 'i', '3', 'e', '4', 'a', '5', 's', '7', 't', '8', 'b', '@', 'a', '$', 's');
+
+    // Common passwords loaded from file
+    private static final Set<String> COMMON_PASSWORDS = loadCommonPasswords();
+
+    // zxcvbn instance for password strength checking
+    private static final Zxcvbn ZXCVBN = new Zxcvbn();
+
+    private static final int MIN_PASSWORD_LENGTH = 12;
+    private static final int MIN_CATEGORY_COUNT = 3;
+    private static final int MIN_ZXCVBN_SCORE = 3;
+
+    /**
+     * Load common passwords from classpath resource file.
+     */
+    private static Set<String> loadCommonPasswords() {
+        try {
+            ClassPathResource resource = new ClassPathResource("common-passwords.txt");
+            try (BufferedReader reader = new BufferedReader(
+                    new InputStreamReader(resource.getInputStream(), StandardCharsets.UTF_8))) {
+                return reader.lines()
+                        .map(String::trim)
+                        .map(String::toLowerCase)
+                        .filter(line -> !line.isEmpty())
+                        .collect(Collectors.toSet());
+            }
+        } catch (IOException e) {
+            log.error("Failed to load common passwords file. Using minimal set.", e);
+            return Set.of("password", "123456", "qwerty", "abc123", "letmein");
+        }
+    }
 
     /**
      * Updates the last sign-in timestamp for a user.
@@ -67,13 +118,125 @@ public class UserService {
      */
     public boolean isEmailValidation(String email) {
         log.debug("Validating email format for: {}", email);
-        String regexPattern = "^(?=.{1,64}@)[A-Za-z0-9_-]+(\\.[A-Za-z0-9_-]+)*@"
-                + "[^-][A-Za-z0-9-]+(\\.[A-Za-z0-9-]+)*(\\.[A-Za-z]{2,})$";
-        boolean isValid = Pattern.compile(regexPattern)
-                .matcher(email)
-                .matches();
+        boolean isValid = EMAIL_PATTERN.matcher(email).matches();
         log.debug("Email validation result for {}: {}", email, isValid);
         return isValid;
+    }
+
+    /**
+     * Normalizes password to detect leet-speak and common substitutions.
+     *
+     * @param password the password to normalize
+     * @return normalized password
+     */
+    private String normalizeLeetSpeak(String password) {
+        StringBuilder normalized = new StringBuilder();
+        for (char c : password.toLowerCase().toCharArray()) {
+            normalized.append(LEET_SPEAK_MAP.getOrDefault(c, c));
+        }
+        return normalized.toString();
+    }
+
+    /**
+     * Validates password strength with detailed feedback.
+     * Returns a Result with specific error codes and messages for better UX.
+     *
+     * @param password the password to validate
+     * @param email    the user's email (optional, for checking personal info)
+     * @param name     the user's name (optional, for checking personal info)
+     * @return Result<Success> with success or detailed errors
+     */
+    public Result<Success> validatePassword(String password, String email, String name) {
+        List<Error> errors = new ArrayList<>();
+
+        // 1. Null or empty check
+        if (password == null || password.trim().isEmpty()) {
+            return Result.error(new Error("Password.REQUIRED", "Password is required"));
+        }
+
+        // 2. Length check
+        if (password.length() < MIN_PASSWORD_LENGTH) {
+            errors.add(new Error("Password.TOO_SHORT",
+                    String.format("Password must be at least %d characters long", MIN_PASSWORD_LENGTH)));
+        }
+
+        // 3. Character variety check (using Unicode-aware patterns)
+        int categories = 0;
+        if (LOWERCASE_PATTERN.matcher(password).matches())
+            categories++;
+        if (UPPERCASE_PATTERN.matcher(password).matches())
+            categories++;
+        if (DIGIT_PATTERN.matcher(password).matches())
+            categories++;
+        if (SPECIAL_CHAR_PATTERN.matcher(password).matches())
+            categories++;
+
+        if (categories < MIN_CATEGORY_COUNT) {
+            errors.add(new Error("Password.WEAK_VARIETY",
+                    String.format(
+                            "Password must contain at least %d of: lowercase, uppercase, numbers, special characters",
+                            MIN_CATEGORY_COUNT)));
+        }
+
+        // 4. Personal information check (email local-part)
+        if (email != null && !email.trim().isEmpty()) {
+            try {
+                int atIndex = email.indexOf('@');
+                if (atIndex > 0) {
+                    String localPart = email.substring(0, atIndex).toLowerCase();
+                    String passwordLower = password.toLowerCase();
+                    String normalizedPassword = normalizeLeetSpeak(password);
+
+                    if (localPart.length() >= 3 && (passwordLower.contains(localPart)
+                            || normalizedPassword.contains(localPart))) {
+                        errors.add(new Error("Password.CONTAINS_EMAIL",
+                                "Password must not contain your email address"));
+                    }
+                }
+            } catch (Exception e) {
+                log.warn("Failed to validate email local-part in password check", e);
+            }
+        }
+
+        // 5. Personal information check (name)
+        if (name != null && !name.trim().isEmpty()) {
+            String nameLower = name.toLowerCase().replaceAll("\\s+", "");
+            String passwordLower = password.toLowerCase();
+            String normalizedPassword = normalizeLeetSpeak(password);
+
+            if (nameLower.length() >= 3 && (passwordLower.contains(nameLower)
+                    || normalizedPassword.contains(nameLower))) {
+                errors.add(new Error("Password.CONTAINS_NAME", "Password must not contain your name"));
+            }
+        }
+
+        // 6. Common passwords check
+        String passwordLower = password.toLowerCase();
+        if (COMMON_PASSWORDS.contains(passwordLower)) {
+            errors.add(new Error("Password.TOO_COMMON",
+                    "Password is too common. Please choose a more unique password"));
+        }
+
+        // 7. zxcvbn strength analysis (entropy-based)
+        try {
+            List<String> userInputs = new ArrayList<>();
+            if (email != null)
+                userInputs.add(email);
+            if (name != null)
+                userInputs.add(name);
+
+            Strength strength = ZXCVBN.measure(password, userInputs);
+            if (strength.getScore() < MIN_ZXCVBN_SCORE) {
+                String feedback = strength.getFeedback() != null && strength.getFeedback().getWarning() != null
+                        ? strength.getFeedback().getWarning()
+                        : "Password is too weak. Add more words or use longer phrases";
+                errors.add(new Error("Password.TOO_WEAK", feedback));
+            }
+        } catch (Exception e) {
+            log.warn("zxcvbn password strength check failed, skipping", e);
+        }
+
+        return errors.isEmpty() ? Result.ok() : Result.errors(errors);
     }
 
     /**
@@ -229,36 +392,7 @@ public class UserService {
      *                                      system
      */
     public User createAdministrator(AuthenticationSignupRequest request) {
-        log.info("Creating new administrator with email: {}", request.email());
-
-        if (isRegisterRequestInvalid(request)) {
-            throw new RequestValidationException(
-                    "Your registration request is not valid. " +
-                            "Please check all fields and try again.");
-        }
-
-        Optional<Role> optionalRole = roleRepository.findByName(RoleEnum.ADMIN);
-
-        if (optionalRole.isEmpty()) {
-            log.error("Failed to find ADMIN role");
-            throw new SystemConfigurationException("System configuration error: ADMIN role not found");
-        }
-
-        User user = new User(
-                request.email(),
-                passwordEncoder.encode(request.password()),
-                request.name(),
-                optionalRole.get());
-
-        User savedUser = userRepository.save(user);
-
-        // Automatically verify ADMIN users (but not SUPER_ADMIN)
-        savedUser.setIsVerified(true);
-        userRepository.save(savedUser);
-
-        log.info("Successfully created administrator with ID: {} and email: {}", savedUser.getId(),
-                savedUser.getEmail());
-        return savedUser;
+        return createUser(request, roleRepository.findByName(RoleEnum.ADMIN), true);
     }
 
     /**
@@ -271,6 +405,10 @@ public class UserService {
      *                                      system
      */
     public User createUnverifiedUser(AuthenticationSignupRequest request) {
+        return createUser(request, roleRepository.findByName(RoleEnum.USER), false);
+    }
+
+    private User createUser(AuthenticationSignupRequest request, Optional<Role> optionalRole, boolean verified) {
         log.info("Creating new unverified user with email: {}", request.email());
 
         if (isRegisterRequestInvalid(request)) {
@@ -279,11 +417,21 @@ public class UserService {
                             "Please check all fields and try again.");
         }
 
-        Optional<Role> optionalRole = roleRepository.findByName(RoleEnum.USER);
-
         if (optionalRole.isEmpty()) {
-            log.error("Failed to find USER role");
+            log.error("Failed to find role");
             throw new SystemConfigurationException("System configuration error: USER role not found");
+        }
+
+        Result<Success> passwordValidation = validatePassword(
+                request.password(), request.email(), request.name());
+        if (passwordValidation.isError()) {
+            String errorMessages = passwordValidation.getErrors().stream()
+                    .map(Error::message)
+                    .collect(java.util.stream.Collectors.joining("; "));
+            log.warn("Invalid password during registration for email: {}. Errors: {}",
+                    request.email(), errorMessages);
+            throw new RequestValidationException(
+                    "Password validation failed: " + errorMessages);
         }
 
         User user = new User(
@@ -293,6 +441,9 @@ public class UserService {
                 optionalRole.get());
 
         User savedUser = userRepository.save(user);
+        if (verified) {
+            savedUser.setIsVerified(true);
+        }
         log.info("Successfully created user with ID: {} and email: {}", savedUser.getId(), savedUser.getEmail());
         return savedUser;
     }
@@ -468,6 +619,16 @@ public class UserService {
         if (!passwordEncoder.matches(currentPassword, user.getPasswordHash())) {
             log.warn("Invalid current password provided for user: {}", email);
             throw new RequestValidationException("Current password is incorrect");
+        }
+
+        Result<Success> passwordValidation = validatePassword(newPassword, email, user.getName());
+        if (passwordValidation.isError()) {
+            String errorMessages = passwordValidation.getErrors().stream()
+                    .map(Error::message)
+                    .collect(java.util.stream.Collectors.joining("; "));
+            log.warn("Invalid new password for user: {}. Errors: {}", email, errorMessages);
+            throw new RequestValidationException(
+                    "New password validation failed: " + errorMessages);
         }
 
         user.setPasswordHash(passwordEncoder.encode(newPassword));
