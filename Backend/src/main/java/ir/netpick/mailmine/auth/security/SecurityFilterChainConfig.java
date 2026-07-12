@@ -41,8 +41,9 @@ public class SecurityFilterChainConfig {
                                                 "/api/v1/auth/refresh",
                                                 "/api/v1/auth/logout")
                                 .permitAll()
-                                .requestMatchers(HttpMethod.GET, "/actuator/**")
-                                .permitAll()
+                                // Actuator endpoints - restrict to authenticated users with ADMIN role
+                                .requestMatchers("/actuator/**")
+                                .hasRole("ADMIN")
                                 // Swagger UI and OpenAPI docs
                                 .requestMatchers(
                                                 "/swagger-ui.html",
@@ -55,6 +56,12 @@ public class SecurityFilterChainConfig {
                 http.authenticationProvider(authenticationProvider);
                 http.addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
                 http.exceptionHandling(request -> request.authenticationEntryPoint(delegatedAuthEntryPoint));
+                // Add security headers including CSP
+                http.headers(headers -> {
+                        headers.contentSecurityPolicy(csp -> csp.policyDirectives("default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self'; connect-src 'self'; frame-ancestors 'none';"));
+                        headers.frameOptions().sameOrigin();
+                        headers.contentTypeOptions().and();
+                });
                 return http.build();
         }
 

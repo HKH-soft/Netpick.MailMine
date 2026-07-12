@@ -76,7 +76,7 @@ docker exec certbot certbot renew --dry-run
 ## Monitoring
 
 - **Prometheus**: http://localhost:9090
-- **Grafana**: http://localhost:3000
+- **Grafana**: http://localhost:3001 (3000 in production)
 
 ## Resource Limits
 
@@ -106,3 +106,28 @@ All services have CPU and memory limits configured. Adjust in `docker-compose.ym
 - [ ] Prometheus/Grafana secured (not exposed on 0.0.0.0 in production)
 - [ ] Resource limits adjusted for your hardware
 - [ ] Backup strategy for volumes (pgdata, redis-data, etc.)
+
+## Automation
+
+### Generate Secrets
+```powershell
+.\scripts\generate-secrets.ps1
+```
+
+### Environment-Specific Compose Files
+- `docker-compose.override.yml` - Development (auto-loaded, exposes ports)
+- `docker-compose.prod.yml` - Production overrides (replicas, placement)
+- `docker-compose.staging.yml` - Staging certbot profile
+
+### Quick Commands
+```powershell
+# Development
+docker-compose up -d
+
+# Production
+docker-compose -f docker-compose.yml -f docker-compose.prod.yml config
+docker stack deploy -c docker-stack.yml mailmine
+
+# Staging (test certificates)
+docker-compose --profile staging up certbot-staging
+```

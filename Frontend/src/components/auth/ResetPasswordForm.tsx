@@ -6,12 +6,13 @@ import Link from "next/link";
 import React, { useState } from "react";
 import { Formik, Form, Field, ErrorMessage } from "formik";
 import * as Yup from "yup";
+import AuthService from "@/services/authService";
 
 export default function ResetPasswordForm() {
     const [step, setStep] = useState<"email" | "code" | "newPassword" | "success">("email");
     const [email, setEmail] = useState("");
+    const [code, setCode] = useState("");
     const [error, setError] = useState("");
-    // const [isSubmitting, setIsSubmitting] = useState(false); // Uncomment if needed (Formik provides isSubmitting)
 
     const emailValidationSchema = Yup.object({
         email: Yup.string()
@@ -27,7 +28,7 @@ export default function ResetPasswordForm() {
 
     const passwordValidationSchema = Yup.object({
         password: Yup.string()
-            .min(6, "Password must be at least 6 characters")
+            .min(12, "Password must be at least 12 characters")
             .required("Password is required"),
         confirmPassword: Yup.string()
             .oneOf([Yup.ref("password")], "Passwords must match")
@@ -40,8 +41,7 @@ export default function ResetPasswordForm() {
     ) => {
         setError("");
         try {
-            // TODO: Implement password reset request API call
-            // await AuthService.requestPasswordReset(values.email);
+            await AuthService.requestPasswordReset(values.email);
             setEmail(values.email);
             setStep("code");
         } catch (err) {
@@ -58,8 +58,8 @@ export default function ResetPasswordForm() {
     ) => {
         setError("");
         try {
-            // TODO: Implement code verification API call
-            // await AuthService.verifyResetCode({ email, code: values.code });
+            await AuthService.verifyPasswordResetCode(email, values.code);
+            setCode(values.code);
             setStep("newPassword");
         } catch (err) {
             setError("Invalid or expired code. Please try again.");
@@ -75,8 +75,7 @@ export default function ResetPasswordForm() {
     ) => {
         setError("");
         try {
-            // TODO: Implement password reset API call
-            // await AuthService.resetPassword({ email, password: values.password });
+            await AuthService.confirmPasswordReset(email, code, values.password);
             setStep("success");
         } catch (err) {
             setError("Failed to reset password. Please try again.");
@@ -88,18 +87,13 @@ export default function ResetPasswordForm() {
 
     const handleResendCode = async () => {
         setError("");
-        // setIsSubmitting(true); // Uncomment if using local isSubmitting state
         try {
-            // TODO: Implement resend reset code API call
-            // await AuthService.requestPasswordReset(email);
+            await AuthService.requestPasswordReset(email);
             alert("A new code has been sent to your email.");
         } catch (err) {
             setError("Failed to resend code. Please try again.");
             console.error("Resend code error:", err);
         }
-        // finally {
-        //     setIsSubmitting(false);
-        // }
     };
 
     return (

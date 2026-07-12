@@ -69,10 +69,14 @@ services:
         reservations:
           cpus: '0.1'
           memory: 64M
+      restart_policy:
+        condition: on-failure
+        delay: 5s
+        max_attempts: 3
 
   # ===== PostgreSQL =====
   postgres:
-    image: postgres:18.1-alpine
+    image: postgres:17-alpine
     secrets:
       - POSTGRES_USER_secret
       - POSTGRES_PASSWORD_secret
@@ -96,6 +100,10 @@ services:
         reservations:
           cpus: '0.25'
           memory: 256M
+      restart_policy:
+        condition: on-failure
+        delay: 5s
+        max_attempts: 3
 
   # ===== Redis =====
   redis:
@@ -116,6 +124,10 @@ services:
         reservations:
           cpus: '0.1'
           memory: 256M
+      restart_policy:
+        condition: on-failure
+        delay: 5s
+        max_attempts: 3
 
   # ===== NGINX =====
   nginx:
@@ -136,6 +148,109 @@ services:
       - app-net
     deploy:
       replicas: 1
+      restart_policy:
+        condition: on-failure
+        delay: 5s
+        max_attempts: 3
+
+  # ===== Prometheus =====
+  prometheus:
+    image: prom/prometheus:v3.2.0
+    volumes:
+      - ./app-config/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - ./app-config/prometheus/alert_rules.yml:/etc/prometheus/alert_rules.yml:ro
+      - prom-data:/prometheus
+    environment:
+      - ACTUATOR_USERNAME_FILE=/run/secrets/ACTUATOR_USERNAME_secret
+      - ACTUATOR_PASSWORD_FILE=/run/secrets/ACTUATOR_PASSWORD_secret
+    networks:
+      - monitoring-net
+    depends_on:
+      - backend
+    deploy:
+      resources:
+        limits:
+          cpus: '1'
+          memory: 512M
+        reservations:
+          cpus: '0.25'
+          memory: 256M
+      restart_policy:
+        condition: on-failure
+        delay: 5s
+        max_attempts: 3
+
+  # ===== Alertmanager =====
+  alertmanager:
+    image: prom/alertmanager:v0.28.0
+    env_file:
+      - ./.config/docker/alertmanager.env
+    volumes:
+      - ./app-config/prometheus/alertmanager.yml.tpl:/etc/alertmanager/alertmanager.yml.tpl:ro
+      - ./app-config/prometheus/alertmanager-entrypoint.sh:/usr/local/bin/alertmanager-entrypoint.sh:ro
+      - alertmanager-data:/alertmanager
+    entrypoint: ["/bin/sh", "/usr/local/bin/alertmanager-entrypoint.sh"]
+    networks:
+      - monitoring-net
+    deploy:
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 256M
+        reservations:
+          cpus: '0.1'
+          memory: 64M
+      restart_policy:
+        condition: on-failure
+        delay: 5s
+        max_attempts: 3
+
+  # ===== Blackbox Exporter (endpoint probing) =====
+  blackbox-exporter:
+    image: prom/blackbox-exporter:v0.26.0
+    volumes:
+      - ./app-config/prometheus/blackbox.yml:/etc/blackbox_exporter/config.yml:ro
+    networks:
+      - monitoring-net
+      - app-net
+    deploy:
+      replicas: 1
+      resources:
+        limits:
+          cpus: '0.25'
+          memory: 128M
+        reservations:
+          cpus: '0.05'
+          memory: 64M
+      restart_policy:
+        condition: on-failure
+        delay: 5s
+        max_attempts: 3
+
+  # ===== Grafana =====
+  grafana:
+    image: grafana/grafana:12.3.0
+    env_file:
+      - ./.config/docker/grafana.env
+    volumes:
+      - grafana-data:/var/lib/grafana
+      - ./app-config/grafana/provisioning:/etc/grafana/provisioning:ro
+    networks:
+      - monitoring-net
+    depends_on:
+      - prometheus
+    deploy:
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 512M
+        reservations:
+          cpus: '0.1'
+          memory: 128M
+      restart_policy:
+        condition: on-failure
+        delay: 5s
+        max_attempts: 3
 
 # Define secrets
 secrets:
@@ -185,6 +300,71 @@ secrets:
     external: true
   XRAY_EXECUTABLE_PATH_secret:
     external: true
+
+# ===== Prometheus =====
+  prometheus:
+    image: prom/prometheus:v3.2.0
+    volumes:
+      - ./app-config/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - ./app-config/prometheus/alert_rules.yml:/etc/prometheus/alert_rules.yml:ro
+      - prom-data:/prometheus
+    environment:
+      - ACTUATOR_USERNAME_FILE=/run/secrets/ACTUATOR_USERNAME_secret
+      - ACTUATOR_PASSWORD_FILE=/run/secrets/ACTUATOR_PASSWORD_secret
+    networks:
+      - monitoring-net
+    depends_on:
+      - backend
+    deploy:
+      resources:
+        limits:
+          cpus: '1'
+          memory: 512M
+        reservations:
+          cpus: '0.25'
+          memory: 256M
+
+  # ===== Alertmanager =====
+  alertmanager:
+    image: prom/alertmanager:v0.28.0
+    env_file:
+      - ./.config/docker/alertmanager.env
+    volumes:
+      - ./app-config/prometheus/alertmanager.yml.tpl:/etc/alertmanager/alertmanager.yml.tpl:ro
+      - ./app-config/prometheus/alertmanager-entrypoint.sh:/usr/local/bin/alertmanager-entrypoint.sh:ro
+      - alertmanager-data:/alertmanager
+    entrypoint: ["/bin/sh", "/usr/local/bin/alertmanager-entrypoint.sh"]
+    networks:
+      - monitoring-net
+    deploy:
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 256M
+        reservations:
+          cpus: '0.1'
+          memory: 64M
+
+  # ===== Grafana =====
+  grafana:
+    image: grafana/grafana:12.3.0
+    env_file:
+      - ./.config/docker/grafana.env
+    volumes:
+      - grafana-data:/var/lib/grafana
+      - ./app-config/grafana/provisioning:/etc/grafana/provisioning:ro
+    networks:
+      - monitoring-net
+    depends_on:
+      - prometheus
+    deploy:
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 512M
+        reservations:
+          cpus: '0.1'
+          memory: 128M
 
 volumes:
   pgdata:

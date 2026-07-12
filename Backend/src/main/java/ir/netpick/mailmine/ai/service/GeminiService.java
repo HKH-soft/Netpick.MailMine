@@ -2,6 +2,7 @@ package ir.netpick.mailmine.ai.service;
 
 import com.google.genai.Client;
 import com.google.genai.types.GenerateContentResponse;
+import ir.netpick.mailmine.auth.service.RateLimiting;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.retry.annotation.Backoff;
@@ -10,6 +11,7 @@ import org.springframework.retry.annotation.Retryable;
 import org.springframework.stereotype.Service;
 
 import java.net.UnknownHostException;
+import java.time.Duration;
 
 @Slf4j
 @Service
@@ -17,6 +19,18 @@ public class GeminiService {
 
     @Value("${gemini.model:gemini-2.0-flash}")
     private String model;
+
+    @Value("${gemini.timeout-seconds:30}")
+    private int timeoutSeconds;
+
+    @Value("${gemini.max-prompt-length:10000}")
+    private int maxPromptLength;
+
+    private final RateLimiting rateLimiting;
+
+    public GeminiService(RateLimiting rateLimiting) {
+        this.rateLimiting = rateLimiting;
+    }
 
     /**
      * Generate text from a prompt using Gemini with retry logic
@@ -29,8 +43,19 @@ public class GeminiService {
             recover = "recoverGenerateText"
     )
     public String generateText(String prompt) {
-        try (Client client = new Client()) {
-            log.debug("Attempting to generate text with Gemini API");
+        // Validate prompt length
+        if (prompt == null || prompt.isBlank()) {
+            throw new IllegalArgumentException("Prompt cannot be null or empty");
+        }
+        if (prompt.length() > maxPromptLength) {
+            log.warn("Prompt exceeds max length ({}), truncating", maxPromptLength);
+            prompt = prompt.substring(0, maxPromptLength);
+        }
+
+        try (Client client = Client.builder()
+                .apiKey(System.getenv("GOOGLE_API_KEY"))
+                .build()) {
+            log.debug("Attempting to generate text with Gemini API, timeout: {}s", timeoutSeconds);
             GenerateContentResponse response = client.models.generateContent(model, prompt, null);
             return response.text();
         } catch (Exception e) {

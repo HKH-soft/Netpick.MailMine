@@ -30,10 +30,7 @@ npm audit fix --force
 `src/app/(admin)/(others-pages)/scrape/control/page.tsx:238`
 
 ### Problem
-React Hook being called inside a callback, violating Rules of Hooks.
-
-### Impact
-Can cause unpredictable behavior, state management bugs, and crashes.
+React Hook "useScrapeControls" is being called inside a callback, which violates the Rules of Hooks.
 
 ### Solution
 Move hook call to component top level.
@@ -66,12 +63,9 @@ Run `npm run lint -- --fix` and manually review.
 - `src/services/api.ts` (Lines 9, 11, 132)
 - `src/services/authService.ts` (Lines 46, 191)
 
-### Impact
-Loss of type safety, no autocompletion, potential runtime errors.
-
 ### Solution
 - Use `NodeJS.Timeout` for timeouts
-- Create proper error interfaces
+- Create proper error type interfaces
 - Use `unknown` instead of `any`
 
 ---
@@ -85,9 +79,6 @@ Loss of type safety, no autocompletion, potential runtime errors.
 3. `src/app/(admin)/(others-pages)/scrape/ai/page.tsx`
 4. `src/app/(admin)/(others-pages)/scrape/query-generator/page.tsx`
 
-### Impact
-Can cause rendering issues when lists are reordered or updated.
-
 ### Solution
 Use unique IDs from data instead of indices.
 
@@ -95,9 +86,6 @@ Use unique IDs from data instead of indices.
 
 ## Issue #6: [DOCUMENTATION] Add .env.example File
 **Labels**: `documentation`, `configuration`, `frontend`, `low`
-
-### Problem
-No `.env.example` file documenting required environment variables.
 
 ### Solution
 Create `Frontend/.env.example` with all environment variables documented.
@@ -110,13 +98,10 @@ Create `Frontend/.env.example` with all environment variables documented.
 ### Location
 `src/components/auth/ResetPasswordForm.tsx` (Lines 43, 61, 78, 93)
 
-### Problem
-Password reset has TODO comments - functionality not implemented.
-
 ### Required
-- Backend API endpoints
-- Frontend service methods
-- Complete integration
+- Backend API endpoints for password reset flow
+- Frontend service methods in authService.ts
+- Complete integration in ResetPasswordForm component
 
 ---
 
@@ -126,9 +111,6 @@ Password reset has TODO comments - functionality not implemented.
 ### Location
 `src/context/ToastContext.tsx:34`
 
-### Problem
-Using `Math.random()` for IDs - not cryptographically secure, may collide.
-
 ### Solution
 Use `crypto.randomUUID()`.
 
@@ -136,9 +118,6 @@ Use `crypto.randomUUID()`.
 
 ## Issue #9: [CODE QUALITY] Remove or Gate Console Logs in Production
 **Labels**: `code-quality`, `performance`, `frontend`, `low`
-
-### Problem
-Console logs throughout codebase expose information and affect performance.
 
 ### Solution
 Create logger utility with environment-based logging.
@@ -163,9 +142,6 @@ npm install @tanstack/react-query
 ## Issue #11: [IMPROVEMENT] Add Error Boundaries
 **Labels**: `enhancement`, `frontend`, `error-handling`, `medium`
 
-### Problem
-No error boundaries - errors crash entire app.
-
 ### Solution
 Add error boundaries at app, page, and component levels.
 
@@ -173,9 +149,6 @@ Add error boundaries at app, page, and component levels.
 
 ## Issue #12: [IMPROVEMENT] Replace Loading Text with Skeleton Loaders
 **Labels**: `enhancement`, `frontend`, `ux`, `low`
-
-### Problem
-Simple "Loading..." text instead of skeleton loaders.
 
 ### Benefits
 Better perceived performance and more professional appearance.
@@ -196,9 +169,6 @@ Add to `tsconfig.json`:
 
 ## Issue #14: [IMPROVEMENT] Add Request Cancellation for API Calls
 **Labels**: `enhancement`, `frontend`, `performance`, `medium`
-
-### Problem
-In-flight requests not cancelled on unmount - potential memory leaks.
 
 ### Solution
 Use AbortController in API service.
@@ -236,6 +206,9 @@ Better component documentation and isolated development.
 - Missing ARIA labels on modals, buttons, and forms
 - Poor screen reader support
 
+### Solution
+Audit and add proper ARIA labels to all interactive elements.
+
 ---
 
 ## Issue #19: [ACCESSIBILITY] Verify WCAG 2.1 Color Contrast
@@ -248,9 +221,6 @@ Audit and fix color contrast issues, especially in dark mode.
 
 ## Issue #20: [CODE QUALITY] Create Shared Type Definitions
 **Labels**: `code-quality`, `typescript`, `frontend`, `low`
-
-### Problem
-Types duplicated across files.
 
 ### Solution
 Centralize types in `src/types/` directory.
@@ -282,8 +252,8 @@ Add optimistic updates for delete, status updates, and form submissions.
 ### Location
 `src/layout/AppHeader.tsx:198`
 
-### Problem
-Unescaped quotes should use `&quot;` or similar entities.
+### Solution
+Use `&quot;` or similar entities for quotes.
 
 ---
 

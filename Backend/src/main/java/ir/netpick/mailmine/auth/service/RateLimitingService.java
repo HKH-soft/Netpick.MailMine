@@ -3,6 +3,7 @@ package ir.netpick.mailmine.auth.service;
 import ir.netpick.mailmine.auth.AuthConstants;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -35,6 +36,29 @@ public class RateLimitingService implements RateLimiting {
     // Login rate limiting constants
     private static final int MAX_LOGIN_ATTEMPTS = 5;
     private static final int LOGIN_LOCKOUT_MINUTES = 15;
+
+    /**
+     * Clean up expired rate limit entries periodically to prevent memory leaks
+     * Runs every 30 minutes
+     */
+    @Scheduled(fixedRate = 30 * 60 * 1000)
+    public void cleanupExpiredEntries() {
+        LocalDateTime now = LocalDateTime.now();
+        
+        // Clean verification attempts - 10 minute cooldown
+        verificationAttemptCounts.entrySet().removeIf(entry -> 
+            entry.getValue().getLastAttempt().plusMinutes(10).isBefore(now));
+        
+        // Clean resend attempts - 1 hour cooldown
+        resendAttemptCounts.entrySet().removeIf(entry -> 
+            entry.getValue().getLastAttempt().plusHours(1).isBefore(now));
+        
+        // Clean login attempts - 15 minute lockout
+        loginAttemptCounts.entrySet().removeIf(entry -> 
+            entry.getValue().getLastAttempt().plusMinutes(LOGIN_LOCKOUT_MINUTES).isBefore(now));
+        
+        log.debug("Cleaned up expired rate limit entries");
+    }
 
     /**
      * Check if a user can attempt login

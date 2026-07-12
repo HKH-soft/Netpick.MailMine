@@ -56,6 +56,7 @@ public class ProxyController {
                 request.username(),
                 request.password());
         proxy.setDescription(request.description());
+        proxy.setVercelToken(request.vercelToken());
         Proxy saved = proxyService.createProxy(proxy);
         return ResponseEntity.status(HttpStatus.CREATED).body(proxyDTOMapper.apply(saved));
     }
@@ -71,6 +72,7 @@ public class ProxyController {
         updates.setUsername(request.username());
         updates.setPassword(request.password());
         updates.setDescription(request.description());
+        updates.setVercelToken(request.vercelToken());
 
         Proxy updated = proxyService.updateProxy(id, updates);
         return ResponseEntity.ok(proxyDTOMapper.apply(updated));

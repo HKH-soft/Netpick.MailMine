@@ -76,7 +76,7 @@ services:
 
   # ===== PostgreSQL =====
   postgres:
-    image: postgres:18.1-alpine
+    image: postgres:17-alpine
     container_name: postgres
     restart: always
     env_file:
@@ -181,7 +181,7 @@ services:
 
   # ===== Prometheus =====
   prometheus:
-    image: ubuntu/prometheus:3-24.04_stable
+    image: prom/prometheus:v3.2.0
     container_name: prometheus
     restart: always
     volumes:
@@ -214,7 +214,7 @@ services:
 
   # ===== Alertmanager =====
   alertmanager:
-    image: ubuntu/alertmanager:0.28.0-24.04_stable
+    image: prom/alertmanager:v0.28.0
     container_name: alertmanager
     restart: always
     env_file:
@@ -242,6 +242,30 @@ services:
         max-size: "10m"
         max-file: "3"
 
+  # ===== Blackbox Exporter (endpoint probing) =====
+  blackbox-exporter:
+    image: prom/blackbox-exporter:v0.26.0
+    container_name: blackbox-exporter
+    restart: always
+    volumes:
+      - ./app-config/prometheus/blackbox.yml:/etc/blackbox_exporter/config.yml:ro
+    networks:
+      - monitoring-net
+      - app-net
+    deploy:
+      resources:
+        limits:
+          cpus: "0.25"
+          memory: 128M
+        reservations:
+          cpus: "0.05"
+          memory: 64M
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+
   # ===== Grafana =====
   grafana:
     image: grafana/grafana:12.3.0
@@ -253,7 +277,7 @@ services:
       - grafana-data:/var/lib/grafana
       - ./app-config/grafana/provisioning:/etc/grafana/provisioning:ro
     ports:
-      - "3000:3000"
+      - "3001:3000"
     networks:
       - monitoring-net
     depends_on:
@@ -273,6 +297,30 @@ services:
         reservations:
           cpus: "0.1"
           memory: 128M
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+  # ===== Certbot Staging (for testing) =====
+  certbot-staging:
+    image: certbot/dns-cloudflare:v5.2.2
+    container_name: certbot-staging
+    profiles:
+      - staging
+    volumes:
+      - certbot-certs:/etc/letsencrypt
+      - ./app-config/certbot:/scripts:ro
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+    env_file:
+      - ./.config/docker/certbot.env
+    entrypoint: '/bin/sh -c 'trap exit TERM; while :; do certbot renew --dns-cloudflare --dns-cloudflare-credentials /scripts/cloudflare.ini --staging --deploy-hook "docker exec nginx nginx -s reload" --quiet; sleep 12h & wait $${!}; done;''
+    networks:
+      - app-net
+    depends_on:
+      nginx:
+        condition: service_healthy
     logging:
       driver: "json-file"
       options:

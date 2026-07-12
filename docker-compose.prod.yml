@@ -1,0 +1,33 @@
+# Production overrides - use with: docker-compose -f docker-compose.yml -f docker-compose.prod.yml up
+services:
+  backend:
+    restart: unless-stopped
+    deploy:
+      replicas: 2
+      placement:
+        constraints:
+          - node.role == worker
+
+  frontend:
+    restart: unless-stopped
+    deploy:
+      replicas: 2
+      placement:
+        constraints:
+          - node.role == worker
+
+  nginx:
+    restart: unless-stopped
+
+  prometheus:
+    restart: unless-stopped
+
+  alertmanager:
+    restart: unless-stopped
+
+  grafana:
+    restart: unless-stopped
+    deploy:
+      placement:
+        constraints:
+          - node.labels.monitoring == true

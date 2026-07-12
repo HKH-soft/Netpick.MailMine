@@ -1,9 +1,35 @@
 spring:
+  datasource:
+    driver-class-name: org.sqlite.JDBC
+    url: jdbc:sqlite:mailmine-dev.db
+    hikari:
+      pool-name: SQLitePool
+      maximum-pool-size: 5
+      minimum-idle: 1
+      idle-timeout: 600000
+      max-lifetime: 1800000
+      connection-timeout: 30000
   flyway:
     enabled: false
-
+  data:
+    redis:
+      enabled: false
+  cache:
+    type: none
+  jpa:
+    hibernate:
+      ddl-auto: update
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.SQLiteDialect
+        format_sql: true
 
 management:
   health:
     mail:
       enabled: false
+    redis:
+      enabled: false
+
+rate-limiting:
+  use-redis: false

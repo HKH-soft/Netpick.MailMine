@@ -25,7 +25,7 @@ spring:
           min-idle: 0
           max-wait: -1ms
   cache:
-    type: redis
+    type: ${CACHE_TYPE:redis}
     redis:
       time-to-live: 3600000
       cache-null-values: false
@@ -46,8 +46,8 @@ spring:
           timeout: 5000
           writetimeout: 5000
   datasource:
-    driver-class-name: org.postgresql.Driver
-    url: jdbc:postgresql://${POSTGRES_URL}/${DATABASE_NAME}
+    driver-class-name: ${DB_DRIVER:org.postgresql.Driver}
+    url: ${DB_URL:jdbc:postgresql://${POSTGRES_URL}/${DATABASE_NAME}}
     username: ${POSTGRES_USERNAME}
     password: ${POSTGRES_PASSWORD}
     hikari:
@@ -120,6 +120,11 @@ google:
     backoff-multiplier: 2.0
     backoff-max-ms: 20000
 
+vercel:
+  token: ${VERCEL_TOKEN:}
+  team-id: ${VERCEL_TEAM_ID:}
+  relay-worker-url: https://vercel-relay.vercel.app
+
 springdoc:
   api-docs:
     path: /v3/api-docs
@@ -134,6 +139,13 @@ springdoc:
 scraper:
   use-proxy: true
   batch-size: 100
+  disable-sandbox: false
+
+gemini:
+  api-key: ${GOOGLE_API_KEY}
+  model: gemini-2.0-flash
+  timeout-seconds: 30
+  max-prompt-length: 10000
 
 v2ray:
   executable: ${XRAY_EXECUTABLE_PATH}

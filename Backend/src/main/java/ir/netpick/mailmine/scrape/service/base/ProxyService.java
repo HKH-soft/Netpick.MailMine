@@ -6,6 +6,7 @@ import com.microsoft.playwright.BrowserType;
 import com.microsoft.playwright.Playwright;
 import ir.netpick.mailmine.common.PageDTO;
 import ir.netpick.mailmine.common.constants.GeneralConstants;
+import ir.netpick.mailmine.common.enums.ProxyProtocol;
 import ir.netpick.mailmine.common.enums.ProxyStatus;
 import ir.netpick.mailmine.common.exception.ResourceNotFoundException;
 import ir.netpick.mailmine.common.utils.PageDTOMapper;
@@ -37,6 +38,7 @@ public class ProxyService {
 
     private final ProxyRepository proxyRepository;
     private final V2RayClientService v2RayClientService;
+    private final VercelRelayService vercelRelayService;
     private final AtomicInteger roundRobinIndex = new AtomicInteger(0);
 
     private static final String TEST_URL = "https://httpbin.org/ip";
@@ -232,6 +234,20 @@ public class ProxyService {
             }
         }
 
+        // For Vercel Relay proxies, deploy the relay first
+        if (ProxyProtocol.VERCEL_RELAY.equals(proxy.getProtocol())) {
+            try {
+                vercelRelayService.deployRelay(proxy);
+                log.info("Vercel Relay deployed for {}", proxy.toDisplayString());
+            } catch (Exception e) {
+                log.error("Failed to deploy Vercel Relay for {}: {}", proxy.toDisplayString(), e.getMessage());
+                proxy.setStatus(ProxyStatus.FAILED);
+                proxy.recordFailure();
+                proxy.setLastTestedAt(LocalDateTime.now());
+                return proxyRepository.save(proxy);
+            }
+        }
+
         try (Playwright playwright = Playwright.create()) {
             log.debug("Playwright created, launching browser with proxy: {}", proxy.toProxyUrl());
 
@@ -273,6 +289,10 @@ public class ProxyService {
             if (proxy.isV2RayProtocol()) {
                 v2RayClientService.stopProxy(proxy.getId());
             }
+            // Stop Vercel Relay after testing
+            if (ProxyProtocol.VERCEL_RELAY.equals(proxy.getProtocol())) {
+                vercelRelayService.stopRelay(proxy.getId(), proxy.getVercelToken());
+            }
         }
 
         proxy.setLastTestedAt(LocalDateTime.now());
@@ -295,6 +315,19 @@ public class ProxyService {
 
         int index = roundRobinIndex.getAndIncrement() % activeProxies.size();
         Proxy proxy = activeProxies.get(index);
+
+        // Ensure Vercel Relay has active session
+        if (ProxyProtocol.VERCEL_RELAY.equals(proxy.getProtocol())) {
+            if (!vercelRelayService.isRelayActive(proxy.getId())) {
+                try {
+                    vercelRelayService.deployRelay(proxy);
+                } catch (Exception e) {
+                    log.warn("Failed to deploy Vercel Relay for proxy {}: {}", proxy.getId(), e.getMessage());
+                    return Optional.empty();
+                }
+            }
+        }
+
         log.debug("Selected proxy: {}", proxy.toProxyUrl());
         return Optional.of(proxy);
     }
@@ -310,7 +343,21 @@ public class ProxyService {
             return Optional.empty();
         }
 
-        return Optional.of(bestProxies.get(0));
+        Proxy proxy = bestProxies.get(0);
+
+        // Ensure Vercel Relay has active session
+        if (ProxyProtocol.VERCEL_RELAY.equals(proxy.getProtocol())) {
+            if (!vercelRelayService.isRelayActive(proxy.getId())) {
+                try {
+                    vercelRelayService.deployRelay(proxy);
+                } catch (Exception e) {
+                    log.warn("Failed to deploy Vercel Relay for proxy {}: {}", proxy.getId(), e.getMessage());
+                    return Optional.empty();
+                }
+            }
+        }
+
+        return Optional.of(proxy);
     }
 
     /**
@@ -325,6 +372,19 @@ public class ProxyService {
         }
 
         Proxy proxy = activeProxies.get(new Random().nextInt(activeProxies.size()));
+
+        // Ensure Vercel Relay has active session
+        if (ProxyProtocol.VERCEL_RELAY.equals(proxy.getProtocol())) {
+            if (!vercelRelayService.isRelayActive(proxy.getId())) {
+                try {
+                    vercelRelayService.deployRelay(proxy);
+                } catch (Exception e) {
+                    log.warn("Failed to deploy Vercel Relay for proxy {}: {}", proxy.getId(), e.getMessage());
+                    return Optional.empty();
+                }
+            }
+        }
+
         return Optional.of(proxy);
     }
 

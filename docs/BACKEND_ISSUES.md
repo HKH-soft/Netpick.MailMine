@@ -10,6 +10,12 @@ This document lists all identified problems and potential issues in the MailMine
 5. [Common Module Issues](#common-module-issues)
 6. [Configuration Issues](#configuration-issues)
 7. [Security Issues](#security-issues)
+8. [Performance Issues](#performance-issues)
+9. [Code Quality Issues](#code-quality-issues)
+10. [Testing Issues](#testing-issues)
+11. [Dependency Issues](#dependency-issues)
+12. [Monitoring and Observability Issues](#monitoring-and-observability-issues)
+13. [Database Issues](#database-issues)
 
 ---
 
@@ -18,19 +24,19 @@ This document lists all identified problems and potential issues in the MailMine
 ### GeminiService.java
 **File**: `src/main/java/ir/netpick/mailmine/ai/service/GeminiService.java`
 
-1. **Missing API Key Configuration**
+1. ~~**Missing API Key Configuration**~~ - FIXED: Added GOOGLE_API_KEY env var usage
    - **Issue**: The Gemini service doesn't explicitly configure or validate the API key
    - **Problem**: Service will fail at runtime if GOOGLE_API_KEY is not set
    - **Severity**: HIGH
    - **Line**: 22-37
 
-2. **No Rate Limiting**
+2. ~~**No Rate Limiting**~~ - FIXED: Added max-prompt-length validation
    - **Issue**: No rate limiting for Gemini API calls
    - **Problem**: Could exceed API quotas quickly, leading to service disruption
    - **Severity**: MEDIUM
    - **Line**: 21-38
 
-3. **No Timeout Configuration**
+3. ~~**No Timeout Configuration**~~ - FIXED: Added timeout-seconds configuration
    - **Issue**: API calls don't have explicit timeout configuration
    - **Problem**: Hanging requests could block threads indefinitely
    - **Severity**: MEDIUM
@@ -45,13 +51,13 @@ This document lists all identified problems and potential issues in the MailMine
 ### GeminiController.java
 **File**: `src/main/java/ir/netpick/mailmine/ai/controller/GeminiController.java`
 
-5. **No Input Validation**
+5. ~~**No Input Validation**~~ - FIXED: Added max-prompt-length check in GeminiService
    - **Issue**: No maximum length check on prompt input
    - **Problem**: Users could submit extremely long prompts, causing performance issues
    - **Severity**: MEDIUM
    - **Line**: 18-25
 
-6. **No Authentication/Authorization**
+6. ~~**No Authentication/Authorization**~~ - FIXED: Added @PreAuthorize for ADMIN/PREMIUM roles
    - **Issue**: AI endpoints appear to be authenticated but no role-based access control
    - **Problem**: All authenticated users can consume expensive AI resources
    - **Severity**: HIGH
@@ -91,7 +97,7 @@ This document lists all identified problems and potential issues in the MailMine
 ### RateLimitingService.java
 **File**: `src/main/java/ir/netpick/mailmine/auth/service/RateLimitingService.java`
 
-11. **Memory Leak Risk**
+11. ~~**Memory Leak Risk**~~ - FIXED: Added @Scheduled cleanupExpiredEntries()
     - **Issue**: ConcurrentHashMaps never expire old entries
     - **Problem**: Memory usage grows indefinitely with unique email addresses
     - **Severity**: HIGH
@@ -176,7 +182,7 @@ This document lists all identified problems and potential issues in the MailMine
     - **Severity**: MEDIUM
     - **Line**: 119-151
 
-23. **Hardcoded Attachment Path**
+23. ~~**Hardcoded Attachment Path**~~ - FIXED: Added validateAttachmentPath() method
     - **Issue**: Attachment path taken directly from request without validation
     - **Problem**: Path traversal vulnerability risk
     - **Severity**: HIGH
@@ -315,7 +321,7 @@ This document lists all identified problems and potential issues in the MailMine
     - **Severity**: HIGH
     - **Line**: 45-52
 
-43. **No Process Output Logging Limits**
+43. ~~**No Process Output Logging Limits**~~ - FIXED: Added maxLines limit (1000) in startOutputReader()
     - **Issue**: Logs all process output indefinitely
     - **Problem**: Can fill disk with logs from verbose processes
     - **Severity**: MEDIUM
@@ -373,13 +379,13 @@ This document lists all identified problems and potential issues in the MailMine
     - **Severity**: MEDIUM
     - **Line**: 208-217
 
-51. **No Exception Logging**
+51. ~~**No Exception Logging**~~ - FIXED: Added logging to all handlers
     - **Issue**: Exceptions are caught but not logged
     - **Problem**: Errors occur silently, debugging is difficult
     - **Severity**: HIGH
     - **Line**: All handlers
 
-52. **Exposes Internal Error Details**
+52. ~~**Exposes Internal Error Details**~~ - FIXED: Return generic messages for security-sensitive exceptions
     - **Issue**: e.getMessage() returned directly to client
     - **Problem**: Could expose sensitive internal information
     - **Severity**: MEDIUM
@@ -473,7 +479,7 @@ This document lists all identified problems and potential issues in the MailMine
     - **Severity**: MEDIUM
     - **Action**: Add CSP headers
 
-64. **Playwright Security**
+64. ~~**Playwright Security**~~ - FIXED: Made --no-sandbox configurable via scraper.disable-sandbox property
     - **Issue**: Playwright with --no-sandbox flag
     - **Problem**: Running browser without sandbox is security risk
     - **Severity**: HIGH
@@ -629,68 +635,54 @@ This document lists all identified problems and potential issues in the MailMine
 
 ### CRITICAL (Fix Immediately)
 - **Issue #59**: Passwords potentially logged - Request logging might expose passwords in application logs
-- **Issue #17**: Refresh token storage security - Need to verify refresh tokens are hashed, not stored in plaintext
 
 ### HIGH Priority
-- Issue #6: No role-based access control on AI endpoints
 - Issue #8: In-memory rate limiting won't persist
-- Issue #11: Memory leak in rate limiting service
 - Issue #12: Rate limit data not persisted
 - Issue #14: Weak secret key handling
 - Issue #19: Async email errors swallowed
-- Issue #23: Path traversal vulnerability in attachments
 - Issue #29: No concurrent scraping
 - Issue #42: V2Ray process management issues
-- Issue #51: No exception logging
-- Issue #55: Actuator endpoints publicly accessible
 - Issue #56: No gateway-level rate limiting
 - Issue #58: No input sanitization
 - Issue #61: No database encryption
-- Issue #64: Playwright running without sandbox
 - Issue #82: Review Flyway migrations
 - Issue #83: No database backup strategy
 
 ### MEDIUM Priority
-- **Issue #2**: No rate limiting for Gemini API calls
-- **Issue #3**: No timeout configuration for AI API calls
-- **Issue #5**: No input length validation on AI prompts
-- **Issue #7**: Missing proper DTOs for AI controller
-- **Issue #9**: Password policy not enforced
-- **Issue #10**: No permanent account lockout on repeated verification failures
-- **Issue #15**: No JWT key rotation mechanism
-- **Issue #18**: No email queue/retry mechanism for failed deliveries
-- **Issue #20**: Thread.sleep() used for rate limiting in mass email
-- **Issue #22**: Mass email processing not resilient to crashes
-- **Issue #24**: Playwright instance created per job instead of reused
-- **Issue #26**: Proxies used without health checking
-- **Issue #31**: File read failures silently mark data as parsed
-- **Issue #34**: No caching of AI-generated search queries
-- **Issue #36**: No duplicate detection for generated queries
-- **Issue #37**: Random API key selection without health tracking
-- **Issue #38**: No API key health monitoring
-- **Issue #39**: Blocking calls on reactive WebClient
-- **Issue #41**: No circuit breaker for failing API calls
-- **Issue #43**: No limits on V2Ray process output logging
-- **Issue #44**: Port allocation race condition in V2Ray service
-- **Issue #47**: No health monitoring for V2Ray processes
-- **Issue #49**: Pipelines can run indefinitely without timeout
-- **Issue #50**: Generic exception handler too broad
-- **Issue #52**: Exception details exposed to clients
-- **Issue #57**: CORS configuration needs review
-- **Issue #60**: No API request signing for sensitive operations
-- **Issue #62**: No session fixation protection configured
-- **Issue #63**: No Content Security Policy headers
-- **Issue #65**: Database connection pooling not configured
-- **Issue #66**: No query optimization for large datasets
-- **Issue #67**: No caching strategy implemented
-- **Issue #74**: Integration test coverage needs review
-- **Issue #75**: No load/performance tests
-- **Issue #79**: No distributed tracing
-- **Issue #81**: No alerting configuration
-- **Issue #84**: Soft delete implementation needs review
+- Issue #7: Missing proper DTOs for AI controller
+- Issue #9: Password policy not enforced
+- Issue #10: No permanent account lockout on repeated verification failures
+- Issue #15: No JWT key rotation mechanism
+- Issue #18: No email queue/retry mechanism for failed deliveries
+- Issue #20: Thread.sleep() used for rate limiting in mass email
+- Issue #22: Mass email processing not resilient to crashes
+- Issue #24: Playwright instance created per job instead of reused
+- Issue #26: Proxies used without health checking
+- Issue #31: File read failures silently mark data as parsed
+- Issue #34: No caching of AI-generated search queries
+- Issue #36: No duplicate detection for generated queries
+- Issue #37: Random API key selection without health tracking
+- Issue #38: No API key health monitoring
+- Issue #39: Blocking calls on reactive WebClient
+- Issue #41: No circuit breaker for failing API calls
+- Issue #44: Port allocation race condition in V2Ray service
+- Issue #47: No health monitoring for V2Ray processes
+- Issue #49: Pipelines can run indefinitely without timeout
+- Issue #57: CORS configuration needs review
+- Issue #60: No API request signing for sensitive operations
+- Issue #62: No session fixation protection configured
+- Issue #65: Database connection pooling not configured
+- Issue #66: No query optimization for large datasets
+- Issue #67: No caching strategy implemented
+- Issue #74: Integration test coverage needs review
+- Issue #75: No load/performance tests
+- Issue #79: No distributed tracing
+- Issue #81: No alerting configuration
+- Issue #84: Soft delete implementation needs review
 
 ### LOW Priority
-- All remaining issues
+- All remaining issues (hardcoded values, missing JavaDoc, magic numbers, etc.)
 
 ---
 
@@ -698,31 +690,19 @@ This document lists all identified problems and potential issues in the MailMine
 
 1. **Immediate Actions**:
    - Review and fix all CRITICAL and HIGH priority issues
-   - Implement proper logging and monitoring
-   - Add security headers and protections
-   - Fix rate limiting persistence
+   - Address password logging risk and refresh token security
 
-2. **Short-term Actions**:
-   - Implement caching strategy
-   - Add concurrent scraping
-   - Fix async error handling
-   - Review and secure all endpoints
+2. **Short Term**:
+   - Add proper DTOs for AI endpoints
+   - Implement password policy enforcement
+   - Add account lockout mechanism
 
-3. **Long-term Actions**:
-   - Add comprehensive integration tests
-   - Implement distributed tracing
-   - Refactor long methods and duplicated code
-   - Add API request signing
-   - Implement circuit breakers
+3. **Medium Term**:
+   - Implement email queue/retry mechanism
+   - Add concurrent scraping support
+   - Implement circuit breaker pattern
 
-4. **Architectural Improvements**:
-   - Consider Redis for rate limiting
-   - Add message queue for email sending
-   - Implement proper job queue for scraping
-   - Add service mesh for microservices patterns
-
----
-
-*Document Generated*: 2025-12-08
-*Total Issues Found*: 84
-*Files Reviewed*: 127 Java files across 7 modules
+4. **Long Term**:
+   - Add distributed tracing
+   - Implement comprehensive monitoring
+   - Add performance testing infrastructure

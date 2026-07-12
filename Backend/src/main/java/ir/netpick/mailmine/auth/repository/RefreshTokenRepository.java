@@ -15,26 +15,9 @@ import java.util.UUID;
 public interface RefreshTokenRepository extends JpaRepository<RefreshToken, UUID> {
 
     /**
-     * Find a refresh token by its token string.
-     */
-    Optional<RefreshToken> findByToken(String token);
-
-    /**
-     * Find a valid (non-revoked, non-expired) refresh token by its token string.
-     */
-    @Query("SELECT rt FROM RefreshToken rt WHERE rt.token = :token AND rt.revoked = false AND rt.expiresAt > :now")
-    Optional<RefreshToken> findValidToken(@Param("token") String token, @Param("now") Instant now);
-
-    /**
      * Find all refresh tokens for a user.
      */
     List<RefreshToken> findByUserId(UUID userId);
-
-    /**
-     * Find all valid (non-revoked, non-expired) refresh tokens for a user.
-     */
-    @Query("SELECT rt FROM RefreshToken rt WHERE rt.user.id = :userId AND rt.revoked = false AND rt.expiresAt > :now")
-    List<RefreshToken> findValidTokensByUserId(@Param("userId") UUID userId, @Param("now") Instant now);
 
     /**
      * Revoke all refresh tokens for a user.
@@ -43,14 +26,6 @@ public interface RefreshTokenRepository extends JpaRepository<RefreshToken, UUID
     @Modifying
     @Query("UPDATE RefreshToken rt SET rt.revoked = true WHERE rt.user.id = :userId")
     int revokeAllByUserId(@Param("userId") UUID userId);
-
-    /**
-     * Revoke a specific refresh token.
-     */
-    @Transactional
-    @Modifying
-    @Query("UPDATE RefreshToken rt SET rt.revoked = true WHERE rt.token = :token")
-    int revokeByToken(@Param("token") String token);
 
     /**
      * Delete expired refresh tokens (cleanup job).

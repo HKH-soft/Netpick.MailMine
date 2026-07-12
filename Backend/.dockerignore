@@ -1,0 +1,12 @@
+**/.classpath
+**/.project
+**/.settings
+**/.vs
+**/.vscode
+**/target
+**/node_modules
+**/.git
+**/.gitignore
+**/README.md
+**/Dockerfile
+**/docker-compose*

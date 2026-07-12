@@ -27,6 +27,11 @@ public interface EmailService {
     void sendVerificationEmail(String email, String code, int expirationMinutes);
 
     /**
+     * Send password reset email to a user
+     */
+    void sendPasswordResetEmail(String email, String code, int expirationMinutes);
+
+    /**
      * Send mass emails to multiple recipients
      */
     void sendMassEmail(EmailRequest request);

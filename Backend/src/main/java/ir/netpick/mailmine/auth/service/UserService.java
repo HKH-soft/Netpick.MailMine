@@ -462,6 +462,34 @@ public class UserService {
     }
 
     /**
+     * Updates a user's password.
+     *
+     * @param user     the user to update
+     * @param password the new password (will be encoded)
+     * @throws RequestValidationException if the password is invalid
+     */
+    @Transactional
+    public void updatePassword(User user, String password) {
+        log.info("Updating password for user: {}", user.getEmail());
+
+        // Validate password strength
+        Result<Success> passwordValidation = validatePassword(password, user.getEmail(), user.getName());
+        if (passwordValidation.isError()) {
+            String errorMessages = passwordValidation.getErrors().stream()
+                    .map(Error::message)
+                    .collect(java.util.stream.Collectors.joining("; "));
+            log.warn("Invalid password during reset for email: {}. Errors: {}",
+                    user.getEmail(), errorMessages);
+            throw new RequestValidationException(
+                    "Password validation failed: " + errorMessages);
+        }
+
+        user.setPasswordHash(passwordEncoder.encode(password));
+        userRepository.save(user);
+        log.info("Password updated successfully for user: {}", user.getEmail());
+    }
+
+    /**
      * Updates a user's information by their email address.
      *
      * @param email   the email address of the user to update

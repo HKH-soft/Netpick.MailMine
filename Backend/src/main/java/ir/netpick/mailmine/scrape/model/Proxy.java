@@ -147,6 +147,18 @@ public class Proxy extends BaseEntity {
     @Column(name = "local_port")
     private Integer localPort;
 
+    /**
+     * Vercel token for VERCEL_RELAY protocol
+     */
+    @Column(name = "vercel_token", length = 255)
+    private String vercelToken;
+
+    /**
+     * Session ID for Vercel Relay (for session-specific proxy URL)
+     */
+    @Column(name = "relay_session_id", length = 100)
+    private String relaySessionId;
+
     public Proxy() {
     }
 
@@ -167,6 +179,7 @@ public class Proxy extends BaseEntity {
     /**
      * Returns the proxy URL for Playwright.
      * For V2Ray protocols, returns the local SOCKS5 proxy URL.
+     * For Vercel Relay, returns the relay endpoint URL (session managed by VercelRelayService).
      * For standard proxies, returns the direct URL.
      */
     public String toProxyUrl() {
@@ -177,6 +190,19 @@ public class Proxy extends BaseEntity {
                         "V2Ray proxy requires localPort to be set. Call V2RayClientService.startProxy() first.");
             }
             return "socks5://127.0.0.1:" + localPort;
+        }
+
+        // Vercel Relay uses remote endpoint
+        if (ProxyProtocol.VERCEL_RELAY.equals(protocol)) {
+            if (vercelToken == null || vercelToken.isBlank()) {
+                throw new IllegalStateException(
+                        "Vercel Relay proxy requires vercelToken to be set.");
+            }
+            // Return session-specific URL if we have a relaySessionId
+            if (relaySessionId != null && !relaySessionId.isBlank()) {
+                return "socks5://vercel-relay.vercel.app:1080?sessionId=" + relaySessionId;
+            }
+            return "socks5://vercel-relay.vercel.app:1080";
         }
 
         // Standard proxy URL
@@ -244,6 +270,8 @@ public class Proxy extends BaseEntity {
             return parseShadowsocksUrl(url);
         } else if (url.startsWith("trojan://")) {
             return parseTrojanUrl(url);
+        } else if (url.startsWith("vercel-relay://")) {
+            return parseVercelRelayUrl(url);
         }
 
         // Standard proxy parsing
@@ -268,7 +296,8 @@ public class Proxy extends BaseEntity {
         // #fragment
 
         if (url.startsWith("ss://") || url.startsWith("vless://") ||
-                url.startsWith("vmess://") || url.startsWith("trojan://")) {
+                url.startsWith("vmess://") || url.startsWith("trojan://") ||
+                url.startsWith("vercel-relay://")) {
 
             // Find the actual protocol content before any space-separated comment
             // But preserve proper #fragment which is part of the URL standard
@@ -554,6 +583,39 @@ public class Proxy extends BaseEntity {
 
         } catch (Exception e) {
             throw new IllegalArgumentException("Invalid Trojan URL: " + url, e);
+        }
+
+        return proxy;
+    }
+
+    /**
+     * Parse Vercel Relay URL: vercel-relay://token@host:port#name
+     */
+    private static Proxy parseVercelRelayUrl(String url) {
+        Proxy proxy = new Proxy();
+        proxy.setProtocol(ProxyProtocol.VERCEL_RELAY);
+        proxy.setOriginalLink(url);
+
+        try {
+            String content = url.substring(14); // Remove vercel-relay://
+
+            // Extract name (after #)
+            if (content.contains("#")) {
+                String[] parts = content.split("#", 2);
+                content = parts[0];
+                proxy.setDescription(java.net.URLDecoder.decode(parts[1], "UTF-8"));
+            }
+
+            // Parse token@host:port
+            String[] tokenAndHost = content.split("@", 2);
+            proxy.setVercelToken(tokenAndHost[0]);
+
+            String[] hostPort = tokenAndHost[1].split(":");
+            proxy.setHost(hostPort[0]);
+            proxy.setPort(Integer.parseInt(hostPort[1]));
+
+        } catch (Exception e) {
+            throw new IllegalArgumentException("Invalid Vercel Relay URL: " + url, e);
         }
 
         return proxy;

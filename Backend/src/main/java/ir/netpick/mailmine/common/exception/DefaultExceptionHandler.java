@@ -2,6 +2,7 @@ package ir.netpick.mailmine.common.exception;
 
 import ir.netpick.mailmine.auth.exception.*;
 import jakarta.servlet.http.HttpServletRequest;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
@@ -17,10 +18,12 @@ import org.springframework.web.method.annotation.MethodArgumentTypeMismatchExcep
 import java.time.LocalDateTime;
 
 @ControllerAdvice
+@Slf4j
 public class DefaultExceptionHandler {
         @ExceptionHandler(ResourceNotFoundException.class)
         public ResponseEntity<ApiError> handleException(ResourceNotFoundException e,
                         HttpServletRequest request) {
+                log.warn("Resource not found: {}", e.getMessage());
                 ApiError apiError = new ApiError(
                                 request.getRequestURI(),
                                 e.getMessage(),
@@ -32,9 +35,10 @@ public class DefaultExceptionHandler {
         @ExceptionHandler(InsufficientAuthenticationException.class)
         public ResponseEntity<ApiError> handleException(InsufficientAuthenticationException e,
                         HttpServletRequest request) {
+                log.warn("Authentication required: {}", e.getMessage());
                 ApiError apiError = new ApiError(
                                 request.getRequestURI(),
-                                e.getMessage(),
+                                "Authentication required",
                                 HttpStatus.UNAUTHORIZED.value(),
                                 LocalDateTime.now());
                 return new ResponseEntity<>(apiError, HttpStatus.UNAUTHORIZED);
@@ -43,9 +47,10 @@ public class DefaultExceptionHandler {
         @ExceptionHandler(BadCredentialsException.class)
         public ResponseEntity<ApiError> handleException(BadCredentialsException e,
                         HttpServletRequest request) {
+                log.warn("Bad credentials for login attempt");
                 ApiError apiError = new ApiError(
                                 request.getRequestURI(),
-                                e.getMessage(),
+                                "Invalid credentials",
                                 HttpStatus.UNAUTHORIZED.value(),
                                 LocalDateTime.now());
                 return new ResponseEntity<>(apiError, HttpStatus.UNAUTHORIZED);
@@ -208,9 +213,10 @@ public class DefaultExceptionHandler {
         @ExceptionHandler(Exception.class)
         public ResponseEntity<ApiError> handleException(Exception e,
                         HttpServletRequest request) {
+                log.error("Unexpected error occurred: {}", e.getMessage(), e);
                 ApiError apiError = new ApiError(
                                 request.getRequestURI(),
-                                e.getMessage(),
+                                "An unexpected error occurred",
                                 HttpStatus.INTERNAL_SERVER_ERROR.value(),
                                 LocalDateTime.now());
                 return new ResponseEntity<>(apiError, HttpStatus.INTERNAL_SERVER_ERROR);

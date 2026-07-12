@@ -1,9 +1,8 @@
-# Mail Mine todo list
-
+# Mail Mine Todo List
 
 ### Todo
 
-- [ ] **Backend Issues**: Review and fix the 84 documented issues in `Backend/BACKEND_ISSUES.md`
+- [ ] **Backend Issues**: Review and fix the 84 documented issues in `docs/BACKEND_ISSUES.md`
   - [ ] CRITICAL: Fix password logging risk and refresh token security (2 issues)
   - [ ] HIGH: Address security, rate limiting, and process management (18 issues)
   - [ ] MEDIUM: Improve performance, error handling, and monitoring (36 issues)

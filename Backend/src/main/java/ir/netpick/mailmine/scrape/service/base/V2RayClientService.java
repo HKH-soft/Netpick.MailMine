@@ -145,21 +145,28 @@ public class V2RayClientService {
 
     /**
      * Start a background thread to read and log process output
+     * Limits output to prevent disk filling from verbose processes
      */
     private void startOutputReader(UUID proxyId, Process process) {
         Thread outputReader = new Thread(() -> {
             try (BufferedReader reader = new BufferedReader(
                     new InputStreamReader(process.getInputStream()))) {
                 String line;
-                while ((line = reader.readLine()) != null) {
+                int lineCount = 0;
+                final int maxLines = 1000; // Limit to prevent log spam
+                while ((line = reader.readLine()) != null && lineCount < maxLines) {
+                    lineCount++;
                     // Log errors and warnings at appropriate levels
                     if (line.contains("error") || line.contains("Error") || line.contains("ERROR")) {
                         log.error("[xray-{}] {}", proxyId, line);
                     } else if (line.contains("warn") || line.contains("Warn") || line.contains("WARN")) {
                         log.warn("[xray-{}] {}", proxyId, line);
                     } else {
-                        log.info("[xray-{}] {}", proxyId, line);
+                        log.debug("[xray-{}] {}", proxyId, line);
                     }
+                }
+                if (lineCount >= maxLines) {
+                    log.warn("Output limit reached for proxy {}, stopping log capture", proxyId);
                 }
             } catch (IOException e) {
                 if (process.isAlive()) {

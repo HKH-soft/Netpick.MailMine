@@ -27,5 +27,8 @@ public record ProxyResponse(
         String security,
         String sni,
         Integer localPort,
-        boolean isV2Ray) {
+        boolean isV2Ray,
+        // Vercel Relay fields
+        String vercelToken,
+        String relaySessionId) {
 }

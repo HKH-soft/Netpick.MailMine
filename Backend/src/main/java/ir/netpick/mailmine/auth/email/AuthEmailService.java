@@ -48,4 +48,31 @@ public class AuthEmailService {
 
         log.info("Verification email sent to: {}", email);
     }
+
+    /**
+     * Send password reset email to a user using their stored verification code
+     */
+    public void sendPasswordResetEmail(String email) {
+        log.info("Sending password reset email to: {}", email);
+
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new ResourceNotFoundException("User not found: " + email));
+
+        if (user.getVerification() == null) {
+            throw new VerificationException("No verification code exists for user: " + email);
+        }
+
+        if (user.getVerification().isExpired()) {
+            throw new VerificationException("Verification code has expired for user: " + email);
+        }
+
+        String code = user.getVerification().getCode();
+        emailService.sendPasswordResetEmail(email, code, AuthConstants.VERIFICATION_CODE_EXPIRATION_TIME_MIN);
+
+        // Update last sent timestamp
+        user.getVerification().updateLastSent();
+        userRepository.save(user);
+
+        log.info("Password reset email sent to: {}", email);
+    }
 }

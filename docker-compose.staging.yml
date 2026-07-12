@@ -1,0 +1,22 @@
+# Staging overrides - use with: docker-compose -f docker-compose.yml -f docker-compose.staging.yml --profile staging up
+services:
+  certbot:
+    image: certbot/dns-cloudflare:v5.2.2
+    container_name: certbot-staging
+    volumes:
+      - certbot-certs:/etc/letsencrypt
+      - ./app-config/certbot:/scripts:ro
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+    env_file:
+      - ./.config/docker/certbot.env
+    entrypoint: '/bin/sh -c ''trap exit TERM; while :; do certbot renew --dns-cloudflare --dns-cloudflare-credentials /scripts/cloudflare.ini --staging --deploy-hook "docker exec nginx nginx -s reload" --quiet; sleep 12h & wait $${!}; done;'''
+    networks:
+      - app-net
+    depends_on:
+      nginx:
+        condition: service_healthy
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"

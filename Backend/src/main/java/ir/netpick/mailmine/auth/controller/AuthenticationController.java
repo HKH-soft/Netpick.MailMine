@@ -12,6 +12,9 @@ import ir.netpick.mailmine.auth.dto.AuthenticationResponse;
 import ir.netpick.mailmine.auth.dto.AuthenticationSigninRequest;
 import ir.netpick.mailmine.auth.dto.AuthenticationSignupRequest;
 import ir.netpick.mailmine.auth.dto.MessageResponse;
+import ir.netpick.mailmine.auth.dto.PasswordResetConfirmRequest;
+import ir.netpick.mailmine.auth.dto.PasswordResetRequest;
+import ir.netpick.mailmine.auth.dto.PasswordResetVerifyRequest;
 import ir.netpick.mailmine.auth.dto.RefreshTokenRequest;
 import ir.netpick.mailmine.auth.dto.VerificationRequest;
 import ir.netpick.mailmine.auth.service.AuthenticationService;
@@ -150,6 +153,43 @@ public class AuthenticationController {
             return xRealIp;
         }
         return request.getRemoteAddr();
+    }
+
+    @Operation(summary = "Request password reset", description = "Send a password reset code to the user's email address")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Password reset email sent successfully"),
+            @ApiResponse(responseCode = "404", description = "User not found"),
+            @ApiResponse(responseCode = "429", description = "Too many reset attempts")
+    })
+    @PostMapping("password-reset/request")
+    public ResponseEntity<MessageResponse> requestPasswordReset(@RequestBody PasswordResetRequest request) {
+        authenticationService.requestPasswordReset(request);
+        return ResponseEntity.ok(new MessageResponse("Password reset email sent successfully"));
+    }
+
+    @Operation(summary = "Verify password reset code", description = "Verify the password reset code sent to the user's email")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Code verified successfully"),
+            @ApiResponse(responseCode = "400", description = "Invalid or expired code"),
+            @ApiResponse(responseCode = "404", description = "User not found"),
+            @ApiResponse(responseCode = "429", description = "Too many verification attempts")
+    })
+    @PostMapping("password-reset/verify")
+    public ResponseEntity<MessageResponse> verifyPasswordResetCode(@RequestBody PasswordResetVerifyRequest request) {
+        authenticationService.verifyPasswordResetCode(request);
+        return ResponseEntity.ok(new MessageResponse("Code verified successfully"));
+    }
+
+    @Operation(summary = "Confirm password reset", description = "Set a new password for the user after verifying the reset code")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Password reset successfully"),
+            @ApiResponse(responseCode = "400", description = "Invalid or expired code, or invalid password"),
+            @ApiResponse(responseCode = "404", description = "User not found")
+    })
+    @PostMapping("password-reset/confirm")
+    public ResponseEntity<MessageResponse> confirmPasswordReset(@RequestBody PasswordResetConfirmRequest request) {
+        authenticationService.confirmPasswordReset(request);
+        return ResponseEntity.ok(new MessageResponse("Password reset successfully"));
     }
 
 }

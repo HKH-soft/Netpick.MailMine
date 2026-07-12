@@ -39,3 +39,58 @@ scrape_configs:
     basic_auth:
       username: '${ACTUATOR_USERNAME}'
       password: '${ACTUATOR_PASSWORD}'
+
+  # Blackbox HTTP probe (website uptime)
+  - job_name: 'blackbox-http'
+    metrics_path: /probe
+    params:
+      module: [http_2xx]
+    static_configs:
+      - targets:
+          - https://netpick.ir
+          - https://netpick.ir/api/actuator/health
+        labels:
+          service: 'blackbox'
+    relabel_configs:
+      - source_labels: [__address__]
+        target_label: __param_target
+      - source_labels: [__param_target]
+        target_label: instance
+      - target_label: __address__
+        replacement: blackbox-exporter:9115
+
+  # Blackbox TCP probe (backend port)
+  - job_name: 'blackbox-tcp'
+    metrics_path: /probe
+    params:
+      module: [tcp_connect]
+    static_configs:
+      - targets:
+          - backend:8080
+        labels:
+          service: 'backend-tcp'
+    relabel_configs:
+      - source_labels: [__address__]
+        target_label: __param_target
+      - source_labels: [__param_target]
+        target_label: instance
+      - target_label: __address__
+        replacement: blackbox-exporter:9115
+
+  # Blackbox DNS probe
+  - job_name: 'blackbox-dns'
+    metrics_path: /probe
+    params:
+      module: [dns_resolve]
+    static_configs:
+      - targets:
+          - netpick.ir
+        labels:
+          service: 'dns'
+    relabel_configs:
+      - source_labels: [__address__]
+        target_label: __param_target
+      - source_labels: [__param_target]
+        target_label: instance
+      - target_label: __address__
+        replacement: blackbox-exporter:9115

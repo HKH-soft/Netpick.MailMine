@@ -17,12 +17,16 @@ import java.time.Instant;
 @NoArgsConstructor
 @Entity
 @Table(name = "refresh_tokens", indexes = {
-        @Index(name = "idx_refresh_tokens_token", columnList = "token"),
+        @Index(name = "idx_refresh_tokens_token_hash", columnList = "token_hash"),
         @Index(name = "idx_refresh_tokens_user_id", columnList = "user_id")
 })
 public class RefreshToken extends BaseEntity {
 
-    @Column(nullable = false, unique = true)
+    @Column(name = "token_hash", nullable = false, unique = true)
+    private String tokenHash;
+
+    // Transient field to hold the raw token (not persisted)
+    @Transient
     private String token;
 
     @ManyToOne(fetch = FetchType.LAZY)
@@ -53,6 +57,14 @@ public class RefreshToken extends BaseEntity {
         this.expiresAt = expiresAt;
         this.deviceInfo = deviceInfo;
         this.ipAddress = ipAddress;
+    }
+
+    /**
+     * Get the raw token value (transient, for response only).
+     * @return the raw token
+     */
+    public String getToken() {
+        return token;
     }
 
     /**

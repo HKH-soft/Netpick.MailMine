@@ -63,8 +63,14 @@ public class EmailServiceImpl implements EmailService {
             helper.setText(request.getBody());
 
             if (request.getAttachment() != null && !request.getAttachment().isEmpty()) {
-                FileSystemResource file = new FileSystemResource(new File(request.getAttachment()));
-                helper.addAttachment(file.getFilename(), file);
+                String attachmentPath = validateAttachmentPath(request.getAttachment());
+                File file = new File(attachmentPath);
+                if (!file.exists() || !file.isFile()) {
+                    log.warn("Attachment file not found or not a file: {}", attachmentPath);
+                    throw new IllegalArgumentException("Attachment file not found: " + attachmentPath);
+                }
+                FileSystemResource fileResource = new FileSystemResource(file);
+                helper.addAttachment(fileResource.getFilename(), fileResource);
             }
 
             javaMailSender.send(mimeMessage);
@@ -73,6 +79,28 @@ public class EmailServiceImpl implements EmailService {
             log.error("Error while sending email with attachment to: {}", request.getRecipient(), e);
             throw new RuntimeException("Failed to send email with attachment", e);
         }
+    }
+
+    /**
+     * Validate attachment path to prevent path traversal attacks
+     * Only allows files within the configured upload directory
+     */
+    private String validateAttachmentPath(String attachmentPath) {
+        if (attachmentPath == null || attachmentPath.isEmpty()) {
+            throw new IllegalArgumentException("Attachment path cannot be null or empty");
+        }
+        
+        // Normalize the path and check for path traversal attempts
+        String normalizedPath = new File(attachmentPath).getAbsolutePath();
+        String normalizedBase = new File(System.getProperty("user.dir"), "uploads").getAbsolutePath();
+        
+        // Check if the path is within the allowed uploads directory
+        if (!normalizedPath.startsWith(normalizedBase)) {
+            log.warn("Path traversal attempt detected: {}", attachmentPath);
+            throw new SecurityException("Attachment path must be within uploads directory");
+        }
+        
+        return normalizedPath;
     }
 
     @Override
@@ -113,6 +141,18 @@ public class EmailServiceImpl implements EmailService {
                 "expirationTime", expirationMinutes);
 
         sendTemplatedEmail(email, "Email Verification Code", "email/verification-email", variables);
+    }
+
+    @Override
+    @Async
+    public void sendPasswordResetEmail(String email, String code, int expirationMinutes) {
+        log.info("Sending password reset email to: {}", email);
+
+        Map<String, Object> variables = Map.of(
+                "code", code,
+                "expirationTime", expirationMinutes);
+
+        sendTemplatedEmail(email, "Password Reset Code", "email/password-reset-email", variables);
     }
 
     @Override

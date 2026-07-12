@@ -47,6 +47,10 @@ public class Scraper {
     @Value("${scraper.batch-size:100}")
     private int scraperBatchSize;
 
+    // Security: disable sandbox only in containerized environments
+    @Value("${scraper.disable-sandbox:false}")
+    private boolean disableSandbox;
+
     // Progress tracking
     private final AtomicInteger processedCount = new AtomicInteger(0);
     private int totalCount = 0;
@@ -151,12 +155,16 @@ public class Scraper {
             }
         }
 
+        List<String> args = new java.util.ArrayList<>(List.of(
+                "--disable-gpu",
+                "--disable-dev-shm-usage"));
+        if (disableSandbox) {
+            log.warn("Running browser without sandbox - ensure this is only in containerized environments");
+            args.add("--no-sandbox");
+        }
         BrowserType.LaunchOptions launchOptions = new BrowserType.LaunchOptions()
                 .setHeadless(headless)
-                .setArgs(List.of(
-                        "--disable-gpu",
-                        "--no-sandbox",
-                        "--disable-dev-shm-usage"));
+                .setArgs(args);
 
         // Apply proxy if available
         if (proxyOpt.isPresent() && proxyModel != null) {

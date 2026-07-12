@@ -11,5 +11,8 @@ public enum ProxyProtocol {
     VLESS,
     VMESS,
     SHADOWSOCKS,
-    TROJAN
+    TROJAN,
+
+    // Vercel Relay
+    VERCEL_RELAY
 }

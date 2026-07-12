@@ -401,6 +401,57 @@ class AuthService {
 
     return await response.json();
   }
+
+  // Request password reset - send code to email
+  async requestPasswordReset(email: string): Promise<MessageResponse> {
+    const response = await fetch(`${API_BASE_URL}/api/v1/auth/password-reset/request`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ email }),
+    });
+
+    if (!response.ok) {
+      await this.handleResponseError(response);
+    }
+
+    return await response.json();
+  }
+
+  // Verify password reset code
+  async verifyPasswordResetCode(email: string, code: string): Promise<MessageResponse> {
+    const response = await fetch(`${API_BASE_URL}/api/v1/auth/password-reset/verify`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ email, code }),
+    });
+
+    if (!response.ok) {
+      await this.handleResponseError(response);
+    }
+
+    return await response.json();
+  }
+
+  // Confirm password reset - set new password
+  async confirmPasswordReset(email: string, code: string, password: string): Promise<MessageResponse> {
+    const response = await fetch(`${API_BASE_URL}/api/v1/auth/password-reset/confirm`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ email, code, password }),
+    });
+
+    if (!response.ok) {
+      await this.handleResponseError(response);
+    }
+
+    return await response.json();
+  }
 }
 
 const authService = new AuthService();

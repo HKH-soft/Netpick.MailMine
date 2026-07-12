@@ -47,6 +47,7 @@
       </ul>
     </li>
     <li><a href="#project-structure">Project Structure</a></li>
+    <li><a href="#documentation">Documentation</a></li>
     <li><a href="#usage">Usage</a></li>
     <li><a href="#roadmap">Roadmap</a></li>
     <li><a href="#contributing">Contributing</a></li>
@@ -162,8 +163,25 @@ Netpick.MailMine/
 │   │   └── types/           # TypeScript type definitions
 │   ├── public/              # Static assets
 │   └── package.json         # npm dependencies
+├── docs/                    # Project documentation
+│   ├── BACKEND_ISSUES.md    # Backend issues analysis
+│   ├── FRONTEND_ISSUES.md   # Frontend issues analysis
+│   ├── DOCKER_SETUP_GUIDE.md # Docker deployment guide
+│   └── TODO.md              # Project roadmap
 └── README.md               # This file
 ```
+
+<p align="right">(<a href="#readme-top">back to top</a>)</p>
+
+<!-- DOCUMENTATION -->
+## 📚 Documentation
+
+All project documentation is available in the `docs/` folder:
+
+- **[Backend Issues](docs/BACKEND_ISSUES.md)** - Backend code issues and problems analysis
+- **[Frontend Issues](docs/FRONTEND_ISSUES.md)** - Frontend code issues and improvements
+- **[Docker Setup Guide](docs/DOCKER_SETUP_GUIDE.md)** - Docker deployment and SSL setup guide
+- **[Todo List](docs/TODO.md)** - Project roadmap and tasks
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 

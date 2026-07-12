@@ -8,5 +8,6 @@ public record ProxyRequest(
         Integer port,
         String username,
         String password,
-        String description) {
+        String description,
+        String vercelToken) {
 }
