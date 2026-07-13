@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 import { useAuth } from "@/context/AuthContext";
 import AuthService from "@/services/authService";
 
@@ -17,6 +18,7 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
   const [isAuthorized, setIsAuthorized] = useState(false);
   const { isAuthenticated } = useAuth();
   const [hasCheckedAuth, setHasCheckedAuth] = useState(false);
+  const router = useRouter();
 
   useEffect(() => {
     // Skip if we've already checked auth to prevent multiple executions
@@ -30,7 +32,7 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
 
       // If not authenticated, redirect to login
       if (!isValid) {
-        window.location.href = "/signin";
+        router.push("/signin");
         setIsLoading(false);
         setHasCheckedAuth(true);
         return;
@@ -95,7 +97,7 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
             setIsLoading(false);
             setHasCheckedAuth(true);
             // Redirect to home page or unauthorized page
-            window.location.href = "/signin";
+            router.push("/signin");
             return;
           }
 
@@ -104,7 +106,7 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
             setIsAuthorized(true);
           } else {
             // Redirect to home page
-            window.location.href = "/";
+            router.push("/");
           }
         } catch (error) {
           console.error("Error parsing token", error);
@@ -114,11 +116,11 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
           setIsLoading(false);
           setHasCheckedAuth(true);
           // Redirect to home page or unauthorized page
-          window.location.href = "/signin";
+          router.push("/signin");
           return;
         }
       } else {
-        window.location.href = "/signin";
+        router.push("/signin");
       }
 
       setIsLoading(false);

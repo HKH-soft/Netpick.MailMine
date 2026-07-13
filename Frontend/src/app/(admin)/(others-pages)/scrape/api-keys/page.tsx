@@ -124,10 +124,17 @@ export default function Apikeys() {
     { key: "delete", header: "Delete", type: "delete" },
   ] as const satisfies ColumnConfig[];
 
+  // Helper to mask API key for display
+  const maskApiKey = (key: string): string => {
+    if (!key) return "-";
+    if (key.length <= 12) return "••••••••••••";
+    return `${key.slice(0, 8)}...${key.slice(-4)}`;
+  };
+
   // Transform data to match the table structure
   const data = apiKeys.map(apiKey => ({
     id: apiKey.id,
-    key: apiKey.key,
+    key: maskApiKey(apiKey.key),
     description: apiKey.description || "-",
     point: apiKey.point?.toString() || "0",
   }));

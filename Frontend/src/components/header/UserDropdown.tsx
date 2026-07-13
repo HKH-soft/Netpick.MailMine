@@ -1,5 +1,6 @@
 "use client";
 import React, { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
 import { Dropdown } from "../ui/dropdown/Dropdown";
 import { DropdownItem } from "../ui/dropdown/DropdownItem";
 import AuthService from "@/services/authService";
@@ -18,6 +19,7 @@ export default function UserDropdown() {
   const [isOpen, setIsOpen] = useState(false);
   const [user, setUser] = useState<User | null>(null);
   const { logout } = useAuth();
+  const router = useRouter();
 
   useEffect(() => {
     const fetchUserProfile = async () => {
@@ -65,7 +67,7 @@ export default function UserDropdown() {
 
   function handleSignOut() {
     logout(); // Use the logout function from AuthContext
-    window.location.href = "/signin";
+    router.push("/signin");
   }
 
   return (

@@ -24,7 +24,7 @@ export default function SignInForm() {
       .email("Invalid email address")
       .required("Email is required"),
     password: Yup.string()
-      .min(6, "Password must be at least 6 characters")
+      .min(12, "Password must be at least 12 characters")
       .required("Password is required"),
   });
 
