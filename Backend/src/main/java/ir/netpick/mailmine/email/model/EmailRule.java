@@ -6,8 +6,6 @@ import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
 
-import java.util.UUID;
-
 @Entity
 @Table(name = "email_rules", indexes = {
     @Index(name = "idx_email_rules_active", columnList = "is_active"),

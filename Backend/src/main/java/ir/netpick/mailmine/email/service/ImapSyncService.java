@@ -13,7 +13,6 @@ import java.util.Properties;
 
 import jakarta.mail.*;
 import jakarta.mail.internet.InternetAddress;
-import jakarta.mail.internet.MimeMessage;
 import jakarta.mail.Part;
 
 @Service

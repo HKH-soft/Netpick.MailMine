@@ -36,6 +36,34 @@ public class EmailSummaryService {
         """;
 
     /**
+     * Sanitize text to prevent prompt injection attacks.
+     */
+    private String sanitizeForPrompt(String text) {
+        if (text == null) return "";
+        String result = text;
+        result = result.replace("````", "");
+        String[] lines = result.split("\n");
+        StringBuilder cleaned = new StringBuilder();
+        for (String line : lines) {
+            String trimmed = line.strip();
+            if (trimmed.isEmpty()) continue;
+            boolean isJsonLike = false;
+            if (trimmed.startsWith("\"")) {
+                isJsonLike = trimmed.contains("\":");
+            } else if (trimmed.contains(":")) {
+                String key = trimmed.substring(0, trimmed.indexOf(":")).strip();
+                isJsonLike = !key.isEmpty() && key.chars().allMatch(Character::isLetterOrDigit);
+            }
+            if (!isJsonLike) {
+                cleaned.append(line).append("\n");
+            }
+        }
+        result = cleaned.toString();
+        result = result.replaceAll("(?i)(ignore|disregard|forget|system|assistant|previous|instructions?)", "");
+        return result.trim();
+    }
+
+    /**
      * Generate summary for a single email
      */
     @Async
@@ -44,10 +72,10 @@ public class EmailSummaryService {
                 .orElseThrow(() -> new ResourceNotFoundException("Email not found: " + emailId));
 
         String prompt = String.format(SUMMARY_PROMPT,
-                email.getSubject() != null ? email.getSubject() : "No subject",
-                email.getSenderEmail(),
+                sanitizeForPrompt(email.getSubject() != null ? email.getSubject() : "No subject"),
+                sanitizeForPrompt(email.getSenderEmail()),
                 email.getReceivedAt(),
-                email.getBodyText() != null ? truncate(email.getBodyText(), 3000) : "No content");
+                sanitizeForPrompt(email.getBodyText() != null ? truncate(email.getBodyText(), 3000) : "No content"));
 
         String summary = geminiService.generateText(prompt);
         return CompletableFuture.completedFuture(summary);
@@ -90,8 +118,8 @@ public class EmailSummaryService {
             5. Current status
             """,
                 thread.size(),
-                thread.get(0).getSubject(),
-                threadContent);
+                sanitizeForPrompt(thread.get(0).getSubject()),
+                sanitizeForPrompt(threadContent.toString()));
 
         String summary = geminiService.generateText(prompt);
         return CompletableFuture.completedFuture(summary);
@@ -136,9 +164,9 @@ public class EmailSummaryService {
             
             Then add a one-sentence explanation.
             """,
-                email.getSenderEmail(),
-                email.getSubject(),
-                email.getBodyText() != null ? truncate(email.getBodyText(), 2000) : "");
+                sanitizeForPrompt(email.getSenderEmail()),
+                sanitizeForPrompt(email.getSubject()),
+                sanitizeForPrompt(email.getBodyText() != null ? truncate(email.getBodyText(), 2000) : ""));
 
         String aiStatus = geminiService.generateText(prompt);
         status.put("aiStatus", aiStatus);

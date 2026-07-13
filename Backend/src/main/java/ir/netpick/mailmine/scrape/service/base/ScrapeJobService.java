@@ -97,6 +97,7 @@ public class ScrapeJobService {
 
         Set<String> existingLinks = scrapeJobRepository.findAllByLinkIn(urls)
                 .stream()
+                @SuppressWarnings("nullness")
                 .map(ScrapeJob::getLink)
                 .collect(Collectors.toSet());
 

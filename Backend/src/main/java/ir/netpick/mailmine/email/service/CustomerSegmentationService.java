@@ -3,7 +3,6 @@ package ir.netpick.mailmine.email.service;
 import ir.netpick.mailmine.email.model.EmailMessage;
 import ir.netpick.mailmine.email.repository.EmailMessageRepository;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -19,6 +18,7 @@ public class CustomerSegmentationService {
     /**
      * Segment customers by activity level based on email frequency.
      */
+    @SuppressWarnings("nullness")
     public Map<String, Object> segmentByActivity() {
         Map<String, Object> result = new LinkedHashMap<>();
         LocalDateTime thirtyDaysAgo = LocalDateTime.now().minusDays(30);

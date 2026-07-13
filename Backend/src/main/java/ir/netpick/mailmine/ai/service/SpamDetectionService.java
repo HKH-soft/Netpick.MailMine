@@ -53,9 +53,9 @@ public class SpamDetectionService {
                 .orElseThrow(() -> new ResourceNotFoundException("Email not found: " + emailId));
 
         String prompt = String.format(SPAM_DETECTION_PROMPT,
-                email.getSenderEmail(),
-                email.getSubject(),
-                email.getBodyText() != null ? truncate(email.getBodyText(), 3000) : "No content");
+                sanitizeForPrompt(email.getSenderEmail()),
+                sanitizeForPrompt(email.getSubject()),
+                sanitizeForPrompt(email.getBodyText() != null ? truncate(email.getBodyText(), 3000) : "No content"));
 
         String response = geminiService.generateText(prompt);
         Map<String, Object> result = parseSpamResponse(response);
@@ -114,6 +114,35 @@ public class SpamDetectionService {
         reputation.put("domain", domain);
 
         return reputation;
+    }
+
+    /**
+     * Sanitize text to prevent prompt injection attacks.
+     * Removes or escapes characters that could manipulate LLM behavior.
+     */
+    private String sanitizeForPrompt(String text) {
+        if (text == null) return "";
+        String result = text;
+        result = result.replace("````", "");
+        String[] lines = result.split("\n");
+        StringBuilder cleaned = new StringBuilder();
+        for (String line : lines) {
+            String trimmed = line.strip();
+            if (trimmed.isEmpty()) continue;
+            boolean isJsonLike = false;
+            if (trimmed.startsWith("\"")) {
+                isJsonLike = trimmed.contains("\":");
+            } else if (trimmed.contains(":")) {
+                String key = trimmed.substring(0, trimmed.indexOf(":")).strip();
+                isJsonLike = !key.isEmpty() && key.chars().allMatch(Character::isLetterOrDigit);
+            }
+            if (!isJsonLike) {
+                cleaned.append(line).append("\n");
+            }
+        }
+        result = cleaned.toString();
+        result = result.replaceAll("(?i)(ignore|disregard|forget|system|assistant|previous|instructions?)", "");
+        return result.trim();
     }
 
     private Map<String, Object> parseSpamResponse(String response) {

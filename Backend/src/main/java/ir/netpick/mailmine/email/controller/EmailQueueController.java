@@ -1,11 +1,8 @@
 package ir.netpick.mailmine.email.controller;
 
 import ir.netpick.mailmine.email.dto.EmailRequest;
-import ir.netpick.mailmine.email.model.EmailQueueItem;
 import ir.netpick.mailmine.email.service.EmailQueueService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;

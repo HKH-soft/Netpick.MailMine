@@ -69,6 +69,8 @@ public class RefreshTokenService {
     /**
      * Find a valid refresh token by its token string.
      * Uses token hash comparison for security.
+     * Note: BCrypt hashes are non-deterministic, requiring iteration.
+     * For better performance, consider using RedisRateLimitingService with token cache.
      *
      * @param token the raw token string
      * @return the RefreshToken if valid

@@ -74,6 +74,9 @@ public class RulesEngineService {
                 // Send notification via WebSocket
                 log.info("Notification triggered for rule: {}", rule.getName());
             }
+            case MOVE_TO_FOLDER -> {
+                // TODO: implement folder move logic
+            }
         }
     }
 }

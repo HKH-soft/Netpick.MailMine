@@ -3,6 +3,7 @@ package ir.netpick.mailmine.auth.jwt;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
+import jakarta.annotation.PostConstruct;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
@@ -27,6 +28,16 @@ public class JWTUtil {
 
     @Value("${security.jwt.issuer}")
     private String issuer;
+
+    private static final int MIN_SECRET_KEY_LENGTH = 256; // bits for HS256
+
+    @PostConstruct
+    private void validateSecretKey() {
+        if (secretKey == null || secretKey.length() < MIN_SECRET_KEY_LENGTH / 8) {
+            throw new IllegalStateException(
+                    "JWT secret key must be at least " + (MIN_SECRET_KEY_LENGTH / 8) + " characters (" + MIN_SECRET_KEY_LENGTH + " bits) for security");
+        }
+    }
 
     public String issueToken(String subject) {
         return issueToken(subject, Map.of());

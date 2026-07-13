@@ -81,7 +81,7 @@ public class SharedInboxService {
 
     @Transactional
     public EmailMessage assignEmail(UUID inboxId, UUID emailId, UUID userId) {
-        SharedInbox inbox = getById(inboxId);
+        getById(inboxId); // validates inbox exists
         EmailMessage email = emailMessageRepository.findById(emailId)
                 .orElseThrow(() -> new ResourceNotFoundException("Email not found: " + emailId));
         User assignee = userRepository.findById(userId)

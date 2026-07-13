@@ -122,7 +122,7 @@ public class ApiCaller {
         }
     }
 
-    private int processQuery(SearchQuery query, List<ApiKey> apiKeys) {
+    private @SuppressWarnings("nullness") int processQuery(SearchQuery query, List<ApiKey> apiKeys) {
         int totalLinksCreated = 0;
         int page = 0;
         int currentApiKeyIndex = ThreadLocalRandom.current().nextInt(apiKeys.size());

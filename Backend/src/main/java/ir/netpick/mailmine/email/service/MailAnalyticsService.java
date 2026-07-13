@@ -5,7 +5,6 @@ import ir.netpick.mailmine.email.repository.EmailMessageRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.PageRequest;
-import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
@@ -73,6 +72,7 @@ public class MailAnalyticsService {
     /**
      * Get top senders by email volume
      */
+    @SuppressWarnings("nullness")
     public List<Map<String, Object>> getTopSenders(LocalDateTime start, LocalDateTime end) {
         // This would need a custom query - simplified for now
         List<EmailMessage> emails = emailMessageRepository.findAll(
@@ -95,6 +95,7 @@ public class MailAnalyticsService {
     /**
      * Get response time metrics
      */
+    @SuppressWarnings("nullness")
     public Map<String, Object> getResponseTimeMetrics() {
         List<EmailMessage> answered = emailMessageRepository.findAll(
                 PageRequest.of(0, 1000)).getContent().stream()

@@ -14,7 +14,6 @@ import java.nio.file.*;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -78,7 +77,7 @@ public class AttachmentService {
      * Get attachments for an email
      */
     public List<Map<String, Object>> getAttachments(UUID emailId) {
-        EmailMessage email = emailMessageRepository.findById(emailId)
+        emailMessageRepository.findById(emailId)
                 .orElseThrow(() -> new ResourceNotFoundException("Email not found: " + emailId));
 
         // Scan upload directory for attachments belonging to this email

@@ -96,11 +96,12 @@ public class VercelRelayService {
         HttpEntity<Map<String, Object>> entity = new HttpEntity<>(request, headers);
 
         try {
-            ResponseEntity<Map> response = restTemplate.postForEntity(url, entity, Map.class);
-            if (response.getStatusCode() == HttpStatus.OK && response.getBody() != null) {
-                return (String) response.getBody().get("sessionId");
+            @SuppressWarnings("unchecked")
+            Map<String, Object> body = restTemplate.postForEntity(url, entity, Map.class).getBody();
+            if (body != null) {
+                return (String) body.get("sessionId");
             }
-            throw new RuntimeException("Failed to create relay session: " + response.getStatusCode());
+            throw new RuntimeException("Failed to create relay session: empty body");
         } catch (Exception e) {
             log.error("Error creating relay session: {}", e.getMessage());
             throw new RuntimeException("Failed to create relay session", e);

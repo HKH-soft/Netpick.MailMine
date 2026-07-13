@@ -1,7 +1,6 @@
 package ir.netpick.mailmine.common;
 
 import lombok.Data;
-import org.springframework.http.HttpStatus;
 
 @Data
 public class GlobalSearchResult {

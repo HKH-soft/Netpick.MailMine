@@ -1,7 +1,6 @@
 package ir.netpick.mailmine.ai.controller;
 
 import ir.netpick.mailmine.ai.service.GeminiService;
-import ir.netpick.mailmine.auth.service.RateLimiting;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
@@ -17,7 +16,6 @@ import java.util.Map;
 public class GeminiController {
 
     private final GeminiService geminiService;
-    private final RateLimiting rateLimiting;
 
     @PostMapping("/generate")
     @PreAuthorize("hasRole('ADMIN') or hasRole('PREMIUM')")

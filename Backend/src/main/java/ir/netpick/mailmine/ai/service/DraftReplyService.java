@@ -120,6 +120,7 @@ public class DraftReplyService {
                 email.getBodyText() != null ? truncate(email.getBodyText(), 1000) : "");
 
         String response = geminiService.generateText(prompt);
+        @SuppressWarnings("nullness")
         List<String> subjects = Arrays.stream(response.split("\n"))
                 .map(String::trim)
                 .filter(s -> !s.isEmpty())

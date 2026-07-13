@@ -1,8 +1,6 @@
 package ir.netpick.mailmine.email.controller;
 
-import ir.netpick.mailmine.email.dto.EmailRequest;
 import ir.netpick.mailmine.email.model.EmailMessage;
-import ir.netpick.mailmine.email.model.EmailTag;
 import ir.netpick.mailmine.email.repository.EmailMessageRepository;
 import ir.netpick.mailmine.email.service.EmailClassificationService;
 import lombok.RequiredArgsConstructor;

@@ -2,7 +2,6 @@ package ir.netpick.mailmine.ai.service;
 
 import com.google.genai.Client;
 import com.google.genai.types.GenerateContentResponse;
-import ir.netpick.mailmine.auth.service.RateLimiting;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.retry.annotation.Backoff;
@@ -11,7 +10,6 @@ import org.springframework.retry.annotation.Retryable;
 import org.springframework.stereotype.Service;
 
 import java.net.UnknownHostException;
-import java.time.Duration;
 
 @Slf4j
 @Service
@@ -25,12 +23,6 @@ public class GeminiService {
 
     @Value("${gemini.max-prompt-length:10000}")
     private int maxPromptLength;
-
-    private final RateLimiting rateLimiting;
-
-    public GeminiService(RateLimiting rateLimiting) {
-        this.rateLimiting = rateLimiting;
-    }
 
     /**
      * Generate text from a prompt using Gemini with retry logic

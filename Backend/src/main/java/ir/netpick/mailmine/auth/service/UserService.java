@@ -81,6 +81,7 @@ public class UserService {
     /**
      * Load common passwords from classpath resource file.
      */
+    @SuppressWarnings("nullness")
     private static Set<String> loadCommonPasswords() {
         try {
             ClassPathResource resource = new ClassPathResource("common-passwords.txt");
@@ -408,7 +409,7 @@ public class UserService {
         return createUser(request, roleRepository.findByName(RoleEnum.USER), false);
     }
 
-    private User createUser(AuthenticationSignupRequest request, Optional<Role> optionalRole, boolean verified) {
+    private @SuppressWarnings("nullness") User createUser(AuthenticationSignupRequest request, Optional<Role> optionalRole, boolean verified) {
         log.info("Creating new unverified user with email: {}", request.email());
 
         if (isRegisterRequestInvalid(request)) {

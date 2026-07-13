@@ -9,8 +9,6 @@ import ir.netpick.mailmine.email.repository.EmailTagRepository;
 import ir.netpick.mailmine.email.repository.SharedInboxRepository;
 import ir.netpick.mailmine.email.repository.CampaignRepository;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;

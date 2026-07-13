@@ -1,6 +1,5 @@
 package ir.netpick.mailmine.common;
 
-import ir.netpick.mailmine.email.repository.EmailMessageRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -18,7 +17,6 @@ public class GdprRetentionService {
 
     private final GdprRetentionConfigRepository configRepository;
     private final AuditTrailRepository auditTrailRepository;
-    private final EmailMessageRepository emailMessageRepository;
 
     /**
      * Run cleanup for all active retention configs.

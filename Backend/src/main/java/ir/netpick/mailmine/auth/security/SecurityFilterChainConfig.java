@@ -10,6 +10,7 @@ import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
+import org.springframework.security.config.Customizer;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
@@ -26,6 +27,7 @@ public class SecurityFilterChainConfig {
         private final UrlBasedCorsConfigurationSource corsConfigurationSource;
 
         @Bean
+        @SuppressWarnings("nullness")
         public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
                 http.cors(cors -> cors.configurationSource(corsConfigurationSource));
                 http.csrf(AbstractHttpConfigurer::disable);
@@ -59,8 +61,8 @@ public class SecurityFilterChainConfig {
                 // Add security headers including CSP
                 http.headers(headers -> {
                         headers.contentSecurityPolicy(csp -> csp.policyDirectives("default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self'; connect-src 'self'; frame-ancestors 'none';"));
-                        headers.frameOptions().sameOrigin();
-                        headers.contentTypeOptions().and();
+                        headers.frameOptions(frameOptions -> frameOptions.sameOrigin());
+                        headers.contentTypeOptions(Customizer.withDefaults());
                 });
                 return http.build();
         }

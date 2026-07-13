@@ -32,6 +32,14 @@ public class V2RayClientService {
     private final ProxyRepository proxyRepository;
     private Gson gson;
 
+    // Allowed executable paths for security
+    private static final Set<String> ALLOWED_EXECUTABLES = Set.of(
+            "/app/xray/xray",
+            "/usr/local/bin/xray",
+            "/usr/bin/xray",
+            "xray"
+    );
+
     @Value("${v2ray.executable:xray}")
     private String v2rayExecutable;
 
@@ -62,8 +70,20 @@ public class V2RayClientService {
         this.configFiles = new ConcurrentHashMap<>();
         this.portCounter = new AtomicInteger(0);
         this.usedPorts = ConcurrentHashMap.newKeySet();
+        validateExecutablePath();
         log.info("V2RayClientService initialized. Executable: {}, Config dir: {}, Base port: {}",
                 v2rayExecutable, configDir, basePort);
+    }
+
+    /**
+     * Validate executable path to prevent command injection.
+     */
+    private void validateExecutablePath() {
+        if (!ALLOWED_EXECUTABLES.contains(v2rayExecutable)) {
+            log.error("Invalid v2ray executable path: {}. Must be one of: {}",
+                    v2rayExecutable, ALLOWED_EXECUTABLES);
+            throw new SecurityException("Invalid v2ray executable configuration");
+        }
     }
 
     /**
