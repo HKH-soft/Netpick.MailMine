@@ -42,6 +42,19 @@ const navItems: NavItem[] = [
   },
 
   {
+    name: "Email",
+    icon: <GridIcon />,
+    subItems: [
+      { name: "Inbox", path: "/email", pro: false },
+      { name: "Analytics", path: "/analytics", pro: false, new: true },
+      { name: "Campaigns", path: "/campaigns", pro: false, new: true },
+      { name: "Shared Inboxes", path: "/shared-inboxes", pro: false, new: true },
+      { name: "Follow-ups", path: "/follow-ups", pro: false, new: true },
+      { name: "Email Auth Check", path: "/email-auth", pro: false, new: true },
+    ],
+  },
+
+  {
     name: "Scrape",
     icon: <PageIcon />,
     subItems: [
