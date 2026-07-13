@@ -167,21 +167,19 @@ public class PipelineControlService {
     /**
      * Get the currently active pipeline (if any)
      */
-    @SuppressWarnings("nullness")
     public Optional<UUID> getActivePipelineId() {
         return activePipelineStates.entrySet().stream()
                 .filter(e -> e.getValue().isActive())
-                .map(Map.Entry::getKey)
+                .map(e -> e.getKey())
                 .findFirst();
     }
 
     /**
      * Check if there's an active pipeline running
      */
-    @SuppressWarnings("nullness")
     public boolean hasActivePipeline() {
         return activePipelineStates.values().stream()
-                .anyMatch(PipelineStateEnum::isActive);
+                .anyMatch(state -> state.isActive());
     }
 
     /**

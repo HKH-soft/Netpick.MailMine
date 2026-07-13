@@ -122,7 +122,8 @@ public class ApiCaller {
         }
     }
 
-    private @SuppressWarnings("nullness") int processQuery(SearchQuery query, List<ApiKey> apiKeys) {
+    @SuppressWarnings("nullness")
+    private int processQuery(SearchQuery query, List<ApiKey> apiKeys) {
         int totalLinksCreated = 0;
         int page = 0;
         int currentApiKeyIndex = ThreadLocalRandom.current().nextInt(apiKeys.size());
@@ -162,8 +163,8 @@ public class ApiCaller {
                     continue;
                 }
 
-                List<String> urls = parsedLinks.stream().map(LinkResult::getLink).toList();
-                List<String> titles = parsedLinks.stream().map(LinkResult::getTitle).toList();
+                List<String> urls = parsedLinks.stream().map(link -> link.getLink()).toList();
+                List<String> titles = parsedLinks.stream().map(link -> link.getTitle()).toList();
 
                 scrapeJobService.createJobsByList(urls, titles);
                 totalLinksCreated += urls.size();

@@ -81,11 +81,13 @@ public sealed interface Result<T> {
 
     // --- Functional methods
     // Map the value if success, else propagate errors
+    @SuppressWarnings("unchecked")
     default <U> Result<U> map(Function<? super T, ? extends U> mapper) {
         return this instanceof Ok<T> ok ? ok(mapper.apply(ok.value())) : (Result<U>) this;
     }
 
     // FlatMap for chaining results
+    @SuppressWarnings("unchecked")
     default <U> Result<U> flatMap(Function<? super T, ? extends Result<? extends U>> mapper) {
         return this instanceof Ok<T> ok ? (Result<U>) mapper.apply(ok.value()) : (Result<U>) this;
     }

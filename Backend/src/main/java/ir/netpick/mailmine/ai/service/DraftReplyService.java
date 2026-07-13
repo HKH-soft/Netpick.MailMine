@@ -102,6 +102,7 @@ public class DraftReplyService {
      * Generate subject line suggestions
      */
     @Async
+    @SuppressWarnings("nullness")
     public CompletableFuture<List<String>> generateSubjectSuggestions(UUID emailId) {
         EmailMessage email = emailMessageRepository.findById(emailId)
                 .orElseThrow(() -> new ResourceNotFoundException("Email not found: " + emailId));
@@ -120,10 +121,9 @@ public class DraftReplyService {
                 email.getBodyText() != null ? truncate(email.getBodyText(), 1000) : "");
 
         String response = geminiService.generateText(prompt);
-        @SuppressWarnings("nullness")
         List<String> subjects = Arrays.stream(response.split("\n"))
-                .map(String::trim)
-                .filter(s -> !s.isEmpty())
+                .map(s -> s != null ? s.trim() : null)
+                .filter(s -> s != null && !s.isEmpty())
                 .limit(5)
                 .collect(Collectors.toList());
         return CompletableFuture.completedFuture(subjects);

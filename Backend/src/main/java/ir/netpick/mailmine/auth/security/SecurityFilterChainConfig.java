@@ -9,8 +9,6 @@ import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
-import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
-import org.springframework.security.config.Customizer;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
@@ -27,10 +25,9 @@ public class SecurityFilterChainConfig {
         private final UrlBasedCorsConfigurationSource corsConfigurationSource;
 
         @Bean
-        @SuppressWarnings("nullness")
         public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
                 http.cors(cors -> cors.configurationSource(corsConfigurationSource));
-                http.csrf(AbstractHttpConfigurer::disable);
+                http.csrf(csrf -> csrf.disable());
                 http.authorizeHttpRequests(request -> request
                                 // Allow preflight OPTIONS requests for CORS
                                 .requestMatchers(HttpMethod.OPTIONS, "/**")
@@ -61,8 +58,8 @@ public class SecurityFilterChainConfig {
                 // Add security headers including CSP
                 http.headers(headers -> {
                         headers.contentSecurityPolicy(csp -> csp.policyDirectives("default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self'; connect-src 'self'; frame-ancestors 'none';"));
-                        headers.frameOptions(frameOptions -> frameOptions.sameOrigin());
-                        headers.contentTypeOptions(Customizer.withDefaults());
+                        headers.frameOptions(frame -> frame.sameOrigin());
+                        // X-Content-Type-Options: nosniff is enabled by default in Spring Security 6
                 });
                 return http.build();
         }

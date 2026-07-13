@@ -201,8 +201,8 @@ public class SearchQueryGenerator {
         }
 
         return Arrays.stream(response.split("\n"))
-                .map(String::trim)
-                .filter(line -> !line.isBlank())
+                .map(s -> s != null ? s.trim() : null)
+                .filter(line -> line != null && !line.isBlank())
                 .filter(line -> !line.matches("^\\d+\\.?.*")) // Remove numbered lines
                 .filter(line -> !line.startsWith("-")) // Remove bullet points
                 .filter(line -> !line.startsWith("*")) // Remove asterisk bullets

@@ -90,6 +90,7 @@ public class ScrapeJobService {
         log.info("Created ScrapeJob for link: {}", link);
     }
 
+    @SuppressWarnings("nullness")
     public void createJobsByList(@NotNull @Valid List<String> urls, @NotNull @Valid List<String> titles) {
         if (urls.size() != titles.size()) {
             throw new RequestValidationException("URLs and titles lists must be of equal size.");
@@ -97,8 +98,7 @@ public class ScrapeJobService {
 
         Set<String> existingLinks = scrapeJobRepository.findAllByLinkIn(urls)
                 .stream()
-                @SuppressWarnings("nullness")
-                .map(ScrapeJob::getLink)
+                .map(job -> job.getLink())
                 .collect(Collectors.toSet());
 
         List<ScrapeJob> newJobs = IntStream.range(0, urls.size())

@@ -24,6 +24,9 @@ public class GeminiService {
     @Value("${gemini.max-prompt-length:10000}")
     private int maxPromptLength;
 
+    public GeminiService() {
+    }
+
     /**
      * Generate text from a prompt using Gemini with retry logic
      * Retries up to 3 times with exponential backoff on RuntimeException

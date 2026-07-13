@@ -81,16 +81,15 @@ public class UserService {
     /**
      * Load common passwords from classpath resource file.
      */
-    @SuppressWarnings("nullness")
     private static Set<String> loadCommonPasswords() {
         try {
             ClassPathResource resource = new ClassPathResource("common-passwords.txt");
             try (BufferedReader reader = new BufferedReader(
                     new InputStreamReader(resource.getInputStream(), StandardCharsets.UTF_8))) {
                 return reader.lines()
-                        .map(String::trim)
-                        .map(String::toLowerCase)
-                        .filter(line -> !line.isEmpty())
+                        .map(s -> s != null ? s.trim() : null)
+                        .map(s -> s != null ? s.toLowerCase() : null)
+                        .filter(s -> s != null && !s.isEmpty())
                         .collect(Collectors.toSet());
             }
         } catch (IOException e) {
@@ -409,7 +408,8 @@ public class UserService {
         return createUser(request, roleRepository.findByName(RoleEnum.USER), false);
     }
 
-    private @SuppressWarnings("nullness") User createUser(AuthenticationSignupRequest request, Optional<Role> optionalRole, boolean verified) {
+    @SuppressWarnings("nullness")
+    private User createUser(AuthenticationSignupRequest request, Optional<Role> optionalRole, boolean verified) {
         log.info("Creating new unverified user with email: {}", request.email());
 
         if (isRegisterRequestInvalid(request)) {
@@ -427,7 +427,7 @@ public class UserService {
                 request.password(), request.email(), request.name());
         if (passwordValidation.isError()) {
             String errorMessages = passwordValidation.getErrors().stream()
-                    .map(Error::message)
+                    .map(err -> err.message())
                     .collect(java.util.stream.Collectors.joining("; "));
             log.warn("Invalid password during registration for email: {}. Errors: {}",
                     request.email(), errorMessages);
@@ -469,6 +469,7 @@ public class UserService {
      * @param password the new password (will be encoded)
      * @throws RequestValidationException if the password is invalid
      */
+    @SuppressWarnings("nullness")
     @Transactional
     public void updatePassword(User user, String password) {
         log.info("Updating password for user: {}", user.getEmail());
@@ -477,7 +478,7 @@ public class UserService {
         Result<Success> passwordValidation = validatePassword(password, user.getEmail(), user.getName());
         if (passwordValidation.isError()) {
             String errorMessages = passwordValidation.getErrors().stream()
-                    .map(Error::message)
+                    .map(err -> err.message())
                     .collect(java.util.stream.Collectors.joining("; "));
             log.warn("Invalid password during reset for email: {}. Errors: {}",
                     user.getEmail(), errorMessages);
@@ -631,6 +632,7 @@ public class UserService {
      * @throws RequestValidationException if the current password is incorrect or
      *                                    the user is super admin
      */
+    @SuppressWarnings("nullness")
     @Transactional
     public void changePassword(String email, String currentPassword, String newPassword) {
         log.info("Changing password for user: {}", email);
@@ -653,7 +655,7 @@ public class UserService {
         Result<Success> passwordValidation = validatePassword(newPassword, email, user.getName());
         if (passwordValidation.isError()) {
             String errorMessages = passwordValidation.getErrors().stream()
-                    .map(Error::message)
+                    .map(err -> err.message())
                     .collect(java.util.stream.Collectors.joining("; "));
             log.warn("Invalid new password for user: {}. Errors: {}", email, errorMessages);
             throw new RequestValidationException(

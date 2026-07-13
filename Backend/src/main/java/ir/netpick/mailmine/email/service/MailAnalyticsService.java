@@ -72,7 +72,6 @@ public class MailAnalyticsService {
     /**
      * Get top senders by email volume
      */
-    @SuppressWarnings("nullness")
     public List<Map<String, Object>> getTopSenders(LocalDateTime start, LocalDateTime end) {
         // This would need a custom query - simplified for now
         List<EmailMessage> emails = emailMessageRepository.findAll(
@@ -81,7 +80,7 @@ public class MailAnalyticsService {
         return emails.stream()
                 .filter(e -> e.getReceivedAt().isAfter(start) && e.getReceivedAt().isBefore(end))
                 .collect(Collectors.groupingBy(
-                        EmailMessage::getSenderEmail,
+                        e -> e.getSenderEmail(),
                         Collectors.counting()))
                 .entrySet().stream()
                 .sorted(Map.Entry.<String, Long>comparingByValue().reversed())
@@ -95,7 +94,6 @@ public class MailAnalyticsService {
     /**
      * Get response time metrics
      */
-    @SuppressWarnings("nullness")
     public Map<String, Object> getResponseTimeMetrics() {
         List<EmailMessage> answered = emailMessageRepository.findAll(
                 PageRequest.of(0, 1000)).getContent().stream()
@@ -111,7 +109,7 @@ public class MailAnalyticsService {
                 .sorted()
                 .toList();
 
-        double average = responseTimes.stream().mapToLong(Long::longValue).average().orElse(0);
+        double average = responseTimes.stream().mapToLong(l -> l).average().orElse(0);
         long median = responseTimes.get(responseTimes.size() / 2);
         long p95 = responseTimes.get((int) (responseTimes.size() * 0.95));
 

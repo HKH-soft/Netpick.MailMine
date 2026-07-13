@@ -18,7 +18,6 @@ public class CustomerSegmentationService {
     /**
      * Segment customers by activity level based on email frequency.
      */
-    @SuppressWarnings("nullness")
     public Map<String, Object> segmentByActivity() {
         Map<String, Object> result = new LinkedHashMap<>();
         LocalDateTime thirtyDaysAgo = LocalDateTime.now().minusDays(30);
@@ -29,7 +28,7 @@ public class CustomerSegmentationService {
                 .findByReceivedAtAfter(ninetyDaysAgo);
 
         Map<String, Long> senderCounts = recentEmails.stream()
-                .collect(Collectors.groupingBy(EmailMessage::getSenderEmail, Collectors.counting()));
+                .collect(Collectors.groupingBy(m -> m.getSenderEmail(), Collectors.counting()));
 
         // Active: 5+ emails in last 30 days
         List<String> active = senderCounts.entrySet().stream()
@@ -40,7 +39,7 @@ public class CustomerSegmentationService {
                             .count();
                     return count >= 5;
                 })
-                .map(Map.Entry::getKey)
+                .map(e -> e.getKey())
                 .collect(Collectors.toList());
 
         // Engaged: 2-4 emails in last 30 days
@@ -52,13 +51,13 @@ public class CustomerSegmentationService {
                             .count();
                     return count >= 2 && count < 5;
                 })
-                .map(Map.Entry::getKey)
+                .map(e -> e.getKey())
                 .collect(Collectors.toList());
 
         // One-time: only 1 email
         List<String> oneTime = senderCounts.entrySet().stream()
                 .filter(e -> e.getValue() == 1)
-                .map(Map.Entry::getKey)
+                .map(e -> e.getKey())
                 .collect(Collectors.toList());
 
         // Inactive: emails older than 30 days but none recent
@@ -70,7 +69,7 @@ public class CustomerSegmentationService {
                             .count();
                     return recentCount == 0 && e.getValue() > 0;
                 })
-                .map(Map.Entry::getKey)
+                .map(e -> e.getKey())
                 .collect(Collectors.toList());
 
         result.put("active", Map.of("count", active.size(), "emails", active));
@@ -91,7 +90,7 @@ public class CustomerSegmentationService {
                 .findByReceivedAtAfter(ninetyDaysAgo);
 
         Map<String, Long> senderCounts = recentEmails.stream()
-                .collect(Collectors.groupingBy(EmailMessage::getSenderEmail, Collectors.counting()));
+                .collect(Collectors.groupingBy(m -> m.getSenderEmail(), Collectors.counting()));
 
         return senderCounts.entrySet().stream()
                 .sorted(Map.Entry.<String, Long>comparingByValue().reversed())
@@ -103,7 +102,7 @@ public class CustomerSegmentationService {
                     // Calculate average response time for this sender
                     List<EmailMessage> senderEmails = recentEmails.stream()
                             .filter(m -> m.getSenderEmail().equals(e.getKey()))
-                            .sorted(Comparator.comparing(EmailMessage::getReceivedAt))
+                            .sorted(Comparator.comparing(m -> m.getReceivedAt()))
                             .collect(Collectors.toList());
                     customer.put("firstSeen", senderEmails.isEmpty() ? null : senderEmails.get(0).getReceivedAt());
                     customer.put("lastSeen", senderEmails.isEmpty() ? null : senderEmails.get(senderEmails.size() - 1).getReceivedAt());
