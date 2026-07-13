@@ -4,7 +4,7 @@ spring:
   profiles:
     active: dev
   application:
-    name: mailmine
+    name: netpick
   security:
     user:
       name: ${ACTUATOR_USERNAME}
@@ -51,7 +51,7 @@ spring:
     username: ${POSTGRES_USERNAME}
     password: ${POSTGRES_PASSWORD}
     hikari:
-      pool-name: MailMineHikariPool
+      pool-name: NetpickPool
       maximum-pool-size: 10
       minimum-idle: 10
       idle-timeout: 30000
@@ -92,7 +92,7 @@ management:
         - "prometheus"
   metrics:
     tags:
-      application: mailmine
+      application: netpick
   prometheus:
     metrics:
       export:
@@ -149,5 +149,5 @@ gemini:
 
 v2ray:
   executable: ${XRAY_EXECUTABLE_PATH}
-  config-dir: ${java.io.tmpdir}/mailmine/v2ray-configs
+  config-dir: ${java.io.tmpdir}/netpick/v2ray-configs
   base-port: 30000

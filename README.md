@@ -3,7 +3,7 @@
     <img src="Frontend/public/images/logo/LOGO_WHITE_TEXT.svg" alt="Logo" width="200" height="80">
   </a>
 
-  <h3 align="center">MailMine</h3>
+  <h3 align="center">Netpick</h3>
 
   <p align="center">
     The Ultimate Web Scraping & Lead Generation Platform
@@ -59,16 +59,16 @@
 <!-- ABOUT THE PROJECT -->
 ## 🚀 About The Project
 
-![MailMine Dashboard](ProductPics/mailmine-dash.png)
+![Netpick Dashboard](ProductPics/netpick-dash.png)
 
-**MailMine** is a sophisticated web scraping and lead generation solution designed to streamline the process of gathering business intelligence. Whether you are a marketer looking for leads, a recruiter finding candidates, or a data analyst gathering insights, MailMine provides the tools to automate the extraction of emails, links, and contact information from the web.
+**Netpick** is a sophisticated web scraping and lead generation solution designed to streamline the process of gathering business intelligence. Whether you are a marketer looking for leads, a recruiter finding candidates, or a data analyst gathering insights, Netpick provides the tools to automate the extraction of emails, links, and contact information from the web.
 
 ### Key Features
 
 *   **🕷️ Advanced Web Scraping**: Powered by Jsoup and Selenium to handle complex websites.
 *   **🎯 Smart Query Generation**: Automatically generate search queries tailored to specific industries and roles.
 *   **📊 Interactive Dashboard**: Visualize your scraping jobs, success rates, and data collection in real-time.
-*   **🔐 Secure Authentication**: Enterprise-grade security with JWT tokens and role-based access control.
+*   **🔐 Gatekeeper Authentication**: Enterprise-grade security with JWT tokens and role-based access control.
 *   **⚡ High Performance**: Asynchronous processing for handling multiple scraping jobs simultaneously.
 *   **📱 Responsive Design**: Fully responsive admin panel built with the latest Tailwind CSS.
 
@@ -128,7 +128,7 @@ Ensure you have the following installed on your system:
     The frontend will be available at `http://localhost:3000`
 
 4.  **Database Setup**
-    - Create a PostgreSQL database named `mailmine`
+    - Create a PostgreSQL database named `netpick`
     - Update `Backend/src/main/resources/application.yml` with your database credentials
     - Flyway migrations will run automatically on startup
 
@@ -141,16 +141,15 @@ Ensure you have the following installed on your system:
 ## 📁 Project Structure
 
 ```
-Netpick.MailMine/
+Netpick/
 ├── Backend/                 # Spring Boot backend application
 │   ├── src/
 │   │   ├── main/
 │   │   │   ├── java/        # Java source code
-│   │   │   │   └── ir/netpick/mailmine/
-│   │   │   │       ├── auth/           # Authentication & JWT
-│   │   │   │       ├── scrape/         # Web scraping logic
-│   │   │   │       ├── email/          # Email handling
-│   │   │   │       └── ai/             # AI integration (Gemini)
+│   │   │   │   └── ir/netpick/platform/
+│   │   │   │       ├── gatekeeper/     # Authentication & JWT (Gatekeeper extension)
+│   │   │   │       ├── mailmine/       # Web scraping & email (MailMine extension)
+│   │   │   │       └── core/           # Shared utilities (Core extension)
 │   │   │   └── resources/
 │   │   │       ├── application.yml     # Configuration
 │   │   │       └── db/migration/       # Flyway migrations
@@ -191,7 +190,7 @@ All project documentation is available in the `docs/` folder:
 ### Secure Sign In
 Access your dashboard securely. The system supports persistent login sessions.
 
-![Sign In Screen](ProductPics/mailmine-signin.png)
+![Sign In Screen](ProductPics/netpick-signin.png)
 
 ### Managing Scrape Pipelines
 1.  Navigate to the **Scrape** section.

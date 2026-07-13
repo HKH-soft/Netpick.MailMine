@@ -13,7 +13,7 @@ export interface ContactStats {
 }
 
 class ContactService {
-  private basePath = '/api/v1/scrape/contacts';
+  private basePath = '/api/v1/mailmine/scrape/contacts';
 
   /**
    * Get all active contacts
@@ -81,3 +81,5 @@ class ContactService {
 
 const contactService = new ContactService();
 export default contactService;
+
+

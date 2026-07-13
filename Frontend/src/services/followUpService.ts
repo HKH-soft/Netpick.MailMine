@@ -11,7 +11,7 @@ export interface FollowUpItem {
 }
 
 class FollowUpService {
-  private basePath = '/api/v1/follow-ups';
+  private basePath = '/api/v1/mailmine/follow-ups';
 
   async getDashboard(): Promise<FollowUpItem[]> {
     return await api.get<FollowUpItem[]>(`${this.basePath}/dashboard`);
@@ -29,3 +29,6 @@ class FollowUpService {
 
 const followUpService = new FollowUpService();
 export default followUpService;
+
+
+

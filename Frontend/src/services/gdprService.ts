@@ -1,6 +1,5 @@
 // gdprService.ts
 import api from './api';
-import { PageDTO } from './api';
 
 export interface RetentionConfig {
   id: string;
@@ -24,7 +23,7 @@ export interface AuditTrailEntry {
 }
 
 class GdprService {
-  private basePath = '/api/v1/gdpr';
+  private basePath = '/api/v1/core/gdpr';
 
   async getConfigs(): Promise<RetentionConfig[]> {
     return await api.get<RetentionConfig[]>(`${this.basePath}/configs`);
@@ -49,3 +48,6 @@ class GdprService {
 
 const gdprService = new GdprService();
 export default gdprService;
+
+
+

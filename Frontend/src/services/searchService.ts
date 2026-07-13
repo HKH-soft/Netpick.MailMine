@@ -18,7 +18,7 @@ export interface GlobalSearchResponse {
 }
 
 class SearchService {
-  private basePath = '/api/v1/search';
+  private basePath = '/api/v1/core/search';
 
   async search(query: string, page: number = 0, size: number = 20): Promise<GlobalSearchResponse> {
     return await api.get<GlobalSearchResponse>(`${this.basePath}?q=${encodeURIComponent(query)}&page=${page}&size=${size}`);
@@ -27,3 +27,6 @@ class SearchService {
 
 const searchService = new SearchService();
 export default searchService;
+
+
+

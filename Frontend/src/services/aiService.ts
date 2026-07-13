@@ -45,7 +45,7 @@ export interface SpamResult {
 
 class AIService {
   private basePath = '/api/v1/ai';
-  private spamPath = '/api/v1/spam-detection';
+  private spamPath = '/api/v1/core/spam-detection';
 
   // === Text Generation ===
   public async generateText(prompt: string): Promise<GenerateTextResponse> {
@@ -111,3 +111,6 @@ class AIService {
 
 const aiService = new AIService();
 export default aiService;
+
+
+

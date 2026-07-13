@@ -128,7 +128,7 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
     };
 
     checkAuthorization();
-  }, [isAuthenticated, allowedRoles, hasCheckedAuth]);
+  }, [isAuthenticated, allowedRoles, hasCheckedAuth, router]);
 
   if (isLoading) {
     return <div className="flex items-center justify-center h-screen">Loading...</div>;
@@ -142,3 +142,5 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
 };
 
 export default ProtectedRoute;
+
+

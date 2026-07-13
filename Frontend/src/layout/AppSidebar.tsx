@@ -9,10 +9,7 @@ import {
   ChevronDownIcon,
   GridIcon,
   HorizontaLDots,
-  PieChartIcon,
   UserCircleIcon,
-  SettingsIcon,
-  GroupIcon,
   PageIcon,
 
 } from "../icons/index";
@@ -28,36 +25,33 @@ type NavItem = {
 const navItems: NavItem[] = [
   {
     icon: <GridIcon />,
-    name: "Dashboard",
+    name: "Core",
     subItems: [
-      { name: "Overview", path: "/", pro: false }
+      { name: "Dashboard", path: "/", pro: false },
+      { name: "Statistics", path: "/statistics", pro: false },
     ],
   },
 
-
   {
     icon: <UserCircleIcon />,
-    name: "User Profile",
-    path: "/profile",
+    name: "Gatekeeper",
+    subItems: [
+      { name: "User Profile", path: "/profile", pro: false },
+      { name: "Users", path: "/users", pro: false },
+      { name: "Settings", path: "/settings", pro: false },
+    ],
   },
 
   {
-    name: "Email",
-    icon: <GridIcon />,
+    name: "MailMine",
+    icon: <PageIcon />,
     subItems: [
-      { name: "Inbox", path: "/email", pro: false },
+      { name: "Email", path: "/email", pro: false },
       { name: "Analytics", path: "/analytics", pro: false, new: true },
       { name: "Campaigns", path: "/campaigns", pro: false, new: true },
       { name: "Shared Inboxes", path: "/shared-inboxes", pro: false, new: true },
       { name: "Follow-ups", path: "/follow-ups", pro: false, new: true },
       { name: "Email Auth Check", path: "/email-auth", pro: false, new: true },
-    ],
-  },
-
-  {
-    name: "Scrape",
-    icon: <PageIcon />,
-    subItems: [
       { name: "Control", path: "/scrape/control", pro: false },
       { name: "Pipelines", path: "/scrape/pipelines", pro: false },
       { name: "Jobs", path: "/scrape/jobs", pro: false },
@@ -67,49 +61,9 @@ const navItems: NavItem[] = [
       { name: "Search Queries", path: "/scrape/search-querys", pro: false },
       { name: "Query Generator", path: "/scrape/query-generator", pro: false, new: true },
       { name: "Proxies", path: "/scrape/proxies", pro: false },
-      { name: "Email", path: "/scrape/email", pro: false },
       { name: "AI", path: "/scrape/ai", pro: false, new: true },
     ],
   },
-  {
-    name: "Access",
-    icon: <GroupIcon />,
-    subItems: [
-      { name: "Users", path: "/users", pro: false }
-    ],
-  },
-
-  {
-    icon: <PieChartIcon />,
-    name: "Statistics",
-    path: "/statistics",
-  },
-
-  {
-    icon: <SettingsIcon />,
-    name: "Settings",
-    path: "/settings",
-  },
-
-  // {
-  //   icon: <CalenderIcon />,
-  //   name: "Calendar",
-  //   path: "/calendar",
-  // },
-
-  // {
-  //   name: "Tables",
-  //   icon: <TableIcon />,
-  //   subItems: [{ name: "Basic Tables", path: "/basic-tables", pro: false }],
-  // },
-  // {
-  //   name: "Pages",
-  //   icon: <PageIcon />,
-  //   subItems: [
-  //     { name: "Blank Page", path: "/blank", pro: false },
-  //     { name: "404 Error", path: "/error-404", pro: false },
-  //   ],
-  // },
 ];
 
 // const othersItems: NavItem[] = [
@@ -454,3 +408,7 @@ const AppSidebar: React.FC = () => {
 };
 
 export default AppSidebar;
+
+
+
+

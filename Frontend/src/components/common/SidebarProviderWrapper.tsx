@@ -28,3 +28,5 @@ const SidebarProviderWrapper: React.FC<SidebarProviderWrapperProps> = ({
 };
 
 export default SidebarProviderWrapper;
+
+

@@ -45,3 +45,5 @@ export default function VerticallyCenteredModal() {
     </ComponentCard>
   );
 }
+
+

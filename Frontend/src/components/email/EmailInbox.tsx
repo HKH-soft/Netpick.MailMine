@@ -6,7 +6,7 @@ import { EmailTag } from '@/services/emailMessageService';
 import AiAssistantPanel from './AiAssistantPanel';
 
 export default function EmailInbox() {
-  const { emails, loading, error, refetch } = useEmailMessages();
+  const { emails, loading, error } = useEmailMessages();
   const [selectedEmailId, setSelectedEmailId] = useState<string | null>(null);
 
   if (loading) return <div className="p-4">Loading emails...</div>;
@@ -101,3 +101,5 @@ export default function EmailInbox() {
     </div>
   );
 }
+
+

@@ -126,7 +126,7 @@ docker-compose up -d
 
 # Production
 docker-compose -f docker-compose.yml -f docker-compose.prod.yml config
-docker stack deploy -c docker-stack.yml mailmine
+docker stack deploy -c docker-stack.yml netpick
 
 # Staging (test certificates)
 docker-compose --profile staging up certbot-staging

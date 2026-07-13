@@ -46,7 +46,7 @@ export interface ProxyStats {
 }
 
 class ProxyService {
-  private basePath = '/api/v1/proxies';
+  private basePath = '/api/v1/mailmine/proxies';
 
   // ==================== CRUD ====================
 
@@ -174,3 +174,6 @@ class ProxyService {
 
 const proxyService = new ProxyService();
 export default proxyService;
+
+
+

@@ -10,7 +10,7 @@ prod:
 
 # Deploy to swarm
 deploy:
-	docker stack deploy -c docker-stack.yml mailmine
+	docker stack deploy -c docker-stack.yml netpick
 
 # Stop services
 down:

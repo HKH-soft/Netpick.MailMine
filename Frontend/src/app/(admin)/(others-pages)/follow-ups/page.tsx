@@ -4,7 +4,7 @@ import FollowUpDashboard from "@/components/email/FollowUpDashboard";
 import React from "react";
 
 export const metadata: Metadata = {
-  title: "Follow-ups - MailMine",
+  title: "Follow-ups - Netpick",
   description: "Email follow-up detection dashboard",
 };
 
@@ -19,3 +19,6 @@ export default function FollowUpsPage() {
     </div>
   );
 }
+
+
+

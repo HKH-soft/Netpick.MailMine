@@ -35,7 +35,7 @@ export interface DashboardSummary {
 }
 
 class AnalyticsService {
-  private basePath = '/api/v1/analytics';
+  private basePath = '/api/v1/mailmine/analytics';
 
   async getDashboard(): Promise<DashboardSummary> {
     return await api.get<DashboardSummary>(`${this.basePath}/dashboard`);
@@ -60,3 +60,6 @@ class AnalyticsService {
 
 const analyticsService = new AnalyticsService();
 export default analyticsService;
+
+
+

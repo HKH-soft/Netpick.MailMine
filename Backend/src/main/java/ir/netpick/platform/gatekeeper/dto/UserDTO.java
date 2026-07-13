@@ -1,0 +1,29 @@
+package ir.netpick.platform.gatekeeper.dto;
+
+import ir.netpick.platform.core.enums.RoleEnum;
+
+import java.time.LocalDateTime;
+import java.util.UUID;
+
+public record UserDTO(
+        UUID id,
+        String email,
+        String name,
+        RoleEnum role,
+        Boolean isVerified,
+        LocalDateTime created_at,
+        LocalDateTime updatedAt,
+        LocalDateTime lastLoginAt
+
+) {
+
+}
+
+
+
+
+
+
+
+
+

@@ -17,7 +17,7 @@ export interface SearchQueryRequest {
 }
 
 class SearchQueryService {
-  private basePath = '/api/v1/scrape/search_queries';
+  private basePath = '/api/v1/mailmine/scrape/search_queries';
 
   /**
    * Get all active search queries
@@ -92,3 +92,5 @@ class SearchQueryService {
 
 const searchQueryService = new SearchQueryService();
 export default searchQueryService;
+
+

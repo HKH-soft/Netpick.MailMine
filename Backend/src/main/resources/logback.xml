@@ -12,7 +12,7 @@
     <!-- =================================================================== -->
     <!-- 2. PROPERTIES                                                       -->
     <!-- =================================================================== -->
-    <property name="LOG_PATH" value="${java.io.tmpdir}/mailmine/logs" />
+    <property name="LOG_PATH" value="${java.io.tmpdir}/netpick/logs" />
     <property name="ARCHIVE_PATH" value="${LOG_PATH}/archive" />
 
     <!-- Spring Boot "Vibrant" Console Pattern -->
@@ -87,7 +87,7 @@
     <logger name="org.hibernate" level="WARN" />
     <logger name="com.zaxxer.hikari" level="INFO" />
 
-    <logger name="ir.netpick.mailmine" level="DEBUG" additivity="false">
+    <logger name="ir.netpick.platform" level="DEBUG" additivity="false">
         <appender-ref ref="CONSOLE" />
         <appender-ref ref="ASYNC_INFO" />
         <appender-ref ref="ASYNC_ERROR" />

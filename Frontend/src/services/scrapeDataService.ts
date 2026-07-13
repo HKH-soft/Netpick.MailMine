@@ -11,7 +11,7 @@ export interface ScrapeData {
 }
 
 class ScrapeDataService {
-  private basePath = '/api/v1/scrape/scrape_data';
+  private basePath = '/api/v1/mailmine/scrape/scrape_data';
 
   /**
    * Get all active scrape data
@@ -72,3 +72,5 @@ class ScrapeDataService {
 
 const scrapeDataService = new ScrapeDataService();
 export default scrapeDataService;
+
+

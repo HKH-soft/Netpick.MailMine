@@ -27,7 +27,7 @@ export interface PipelineStats {
 }
 
 class PipelineService {
-  private basePath = '/api/v1/scrape/pipelines';
+  private basePath = '/api/v1/mailmine/scrape/pipelines';
 
   /**
    * Get all active pipelines
@@ -95,3 +95,6 @@ class PipelineService {
 
 const pipelineService = new PipelineService();
 export default pipelineService;
+
+
+

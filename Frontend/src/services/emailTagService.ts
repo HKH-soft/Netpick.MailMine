@@ -19,7 +19,7 @@ export interface TagAssignment {
 }
 
 class EmailTagService {
-  private basePath = '/api/v1/email-tags';
+  private basePath = '/api/v1/mailmine/email-tags';
 
   async listTags(page: number = 0, size: number = 50): Promise<PageDTO<EmailTag>> {
     return await api.get(`${this.basePath}?page=${page}&size=${size}`);
@@ -56,3 +56,6 @@ class EmailTagService {
 
 const emailTagService = new EmailTagService();
 export default emailTagService;
+
+
+

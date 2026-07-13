@@ -10,10 +10,10 @@
 		<!-- lookup parent from repository -->
 	</parent>
 	<groupId>ir.netpick</groupId>
-	<artifactId>mailMine</artifactId>
+	<artifactId>netpick-platform</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
-	<name>Mail-Mine</name>
-	<description>a Mail Miner</description>
+	<name>Netpick</name>
+	<description>Netpick platform with Gatekeeper and MailMine extensions</description>
 	<url/>
 	<licenses>
 		<license/>
@@ -222,6 +222,7 @@
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-compiler-plugin</artifactId>
+				<version>3.13.0</version>
 				<configuration>
 					<annotationProcessorPaths>
 						<path>
@@ -230,6 +231,7 @@
 							<version>1.18.42</version>
 						</path>
 					</annotationProcessorPaths>
+					<release>21</release>
 				</configuration>
 			</plugin>
 			<!-- <plugin>

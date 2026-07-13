@@ -43,20 +43,20 @@ $RedisPassword = New-SecureSecret -Length 48
 $PostgresPassword = New-SecureSecret -Length 48
 $GrafanaAdminPassword = New-SecureSecret -Length 24
 
-Write-Host "`n=== Netpick MailMine Secret Generator ===" -ForegroundColor Cyan
+Write-Host "`n=== Netpick Platform Secret Generator ===" -ForegroundColor Cyan
 
 # backend.env
 @"
 # Backend Spring Boot Configuration
-DATABASE_NAME=mailmine
-POSTGRES_URL=jdbc:postgresql://postgres:5432/mailmine
+DATABASE_NAME=netpick
+POSTGRES_URL=jdbc:postgresql://postgres:5432/netpick
 POSTGRES_USERNAME=postgres
 POSTGRES_PASSWORD=$PostgresPassword
 REDIS_HOST=redis
 REDIS_PORT=6379
 REDIS_PASSWORD=$RedisPassword
 JWT_SECRET_KEY=$JwtSecret
-JWT_ISSUER=mailmine
+JWT_ISSUER=netpick
 SERVER_PORT=8080
 XRAY_EXECUTABLE_PATH=/app/xray/xray
 GEMINI_API_KEY=your_gemini_api_key_here
@@ -82,7 +82,7 @@ NODE_ENV=development
 # PostgreSQL Configuration
 POSTGRES_USER=postgres
 POSTGRES_PASSWORD=$PostgresPassword
-POSTGRES_DB=mailmine
+POSTGRES_DB=netpick
 PGDATA=/var/lib/postgresql/data/pgdata
 "@ | Set-Content -Path "$ConfigDir\postgres.env" -Encoding UTF8
 
@@ -132,9 +132,9 @@ Write-Host "`n=== Docker Swarm Secrets ===" -ForegroundColor Cyan
 $SwarmSecrets = @(
     @{ Name = "ACTUATOR_USERNAME_secret"; Value = "admin" },
     @{ Name = "ACTUATOR_PASSWORD_secret"; Value = New-SecureSecret -Length 32 },
-    @{ Name = "POSTGRES_USER_secret"; Value = "mailmine" },
+    @{ Name = "POSTGRES_USER_secret"; Value = "netpick" },
     @{ Name = "POSTGRES_PASSWORD_secret"; Value = $PostgresPassword },
-    @{ Name = "POSTGRES_DB_secret"; Value = "mailmine" },
+    @{ Name = "POSTGRES_DB_secret"; Value = "netpick" },
     @{ Name = "REDIS_PASSWORD_secret"; Value = $RedisPassword },
     @{ Name = "JWT_SECRET_KEY_secret"; Value = $JwtSecret },
     @{ Name = "GEMINI_API_KEY_secret"; Value = "CHANGE_ME_gemini_api_key" },

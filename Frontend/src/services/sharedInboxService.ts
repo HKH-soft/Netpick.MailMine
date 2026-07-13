@@ -12,7 +12,7 @@ export interface SharedInbox {
 }
 
 class SharedInboxService {
-  private basePath = '/api/v1/shared-inboxes';
+  private basePath = '/api/v1/mailmine/shared-inboxes';
 
   async listInboxes(page: number = 0, size: number = 20): Promise<PageDTO<SharedInbox>> {
     return await api.get(`${this.basePath}?page=${page}&size=${size}`);
@@ -49,3 +49,6 @@ class SharedInboxService {
 
 const sharedInboxService = new SharedInboxService();
 export default sharedInboxService;
+
+
+

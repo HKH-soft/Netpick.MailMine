@@ -1,4 +1,4 @@
-# Mail Mine Todo List
+# Netpick Todo List
 
 ### Todo
 

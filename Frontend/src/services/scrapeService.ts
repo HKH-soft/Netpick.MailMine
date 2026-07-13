@@ -101,3 +101,5 @@ class ScrapeService {
 
 const scrapeService = new ScrapeService();
 export default scrapeService;
+
+

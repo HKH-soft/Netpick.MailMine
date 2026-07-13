@@ -29,7 +29,7 @@ export interface EmailTag {
 }
 
 class EmailMessageService {
-  private basePath = '/api/v1/email-messages';
+  private basePath = '/api/v1/mailmine/email-messages';
 
   public async listEmails(page: number = 0, size: number = 20): Promise<EmailMessage[]> {
     const response = await api.get<{ content: EmailMessage[] }>(`${this.basePath}?page=${page}&size=${size}`);
@@ -52,3 +52,5 @@ class EmailMessageService {
 
 const emailMessageService = new EmailMessageService();
 export default emailMessageService;
+
+

@@ -3,7 +3,7 @@ import EmailInbox from "@/components/email/EmailInbox";
 import React from "react";
 
 export const metadata: Metadata = {
-  title: "Email Inbox - MailMine",
+  title: "Email Inbox - Netpick",
   description: "View and manage incoming emails",
 };
 
@@ -21,3 +21,5 @@ export default function EmailPage() {
     </div>
   );
 }
+
+

@@ -55,7 +55,7 @@ export interface EmailQueryResponse {
 }
 
 class SearchQueryGeneratorService {
-  private basePath = '/api/v1/search-queries/generate';
+  private basePath = '/api/v1/core/search-queries/generate';
 
   /**
    * Generate search queries based on topic and target
@@ -95,3 +95,6 @@ class SearchQueryGeneratorService {
 
 const searchQueryGeneratorService = new SearchQueryGeneratorService();
 export default searchQueryGeneratorService;
+
+
+

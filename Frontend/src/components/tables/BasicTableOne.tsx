@@ -224,3 +224,6 @@ export default function BasicTableOne() {
     </div>
   );
 }
+
+
+

@@ -215,7 +215,7 @@ class AuthService {
   // Sign in user
   async signin(request: SigninRequest, rememberMe: boolean = false): Promise<AuthenticationResponse> {
     try {
-      const response = await fetch(`${API_BASE_URL}/api/v1/auth/sign-in`, {
+      const response = await fetch(`${API_BASE_URL}/api/v1/gatekeeper/auth/sign-in`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -239,7 +239,7 @@ class AuthService {
   // Sign up user
   async signup(request: SignupRequest): Promise<MessageResponse> {
     try {
-      const response = await fetch(`${API_BASE_URL}/api/v1/auth/sign-up`, {
+      const response = await fetch(`${API_BASE_URL}/api/v1/gatekeeper/auth/sign-up`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -261,7 +261,7 @@ class AuthService {
   // Verify email
   async verify(request: VerificationRequest): Promise<MessageResponse> {
     try {
-      const response = await fetch(`${API_BASE_URL}/api/v1/auth/verify`, {
+      const response = await fetch(`${API_BASE_URL}/api/v1/gatekeeper/auth/verify`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -283,7 +283,7 @@ class AuthService {
   // Resend verification email
   async resendVerification(email: string): Promise<MessageResponse> {
     try {
-      const response = await fetch(`${API_BASE_URL}/api/v1/auth/resend-verification?email=${encodeURIComponent(email)}`, {
+      const response = await fetch(`${API_BASE_URL}/api/v1/gatekeeper/auth/resend-verification?email=${encodeURIComponent(email)}`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -314,7 +314,7 @@ class AuthService {
           throw new Error('No refresh token available');
         }
 
-        const response = await fetch(`${API_BASE_URL}/api/v1/auth/refresh`, {
+        const response = await fetch(`${API_BASE_URL}/api/v1/gatekeeper/auth/refresh`, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
@@ -347,7 +347,7 @@ class AuthService {
     try {
       const refreshToken = this.getRefreshToken();
       if (refreshToken) {
-        await fetch(`${API_BASE_URL}/api/v1/auth/logout`, {
+        await fetch(`${API_BASE_URL}/api/v1/gatekeeper/auth/logout`, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
@@ -366,7 +366,7 @@ class AuthService {
   // Logout from all devices
   async logoutAllDevices(): Promise<MessageResponse> {
     try {
-      const response = await fetch(`${API_BASE_URL}/api/v1/auth/logout-all`, {
+      const response = await fetch(`${API_BASE_URL}/api/v1/gatekeeper/auth/logout-all`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -388,7 +388,7 @@ class AuthService {
 
   // Fetch auth-related configuration (e.g., resend cooldown)
   async getAuthConfig(): Promise<AuthConfigResponse> {
-    const response = await fetch(`${API_BASE_URL}/api/v1/auth/config`, {
+    const response = await fetch(`${API_BASE_URL}/api/v1/gatekeeper/auth/config`, {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',
@@ -404,7 +404,7 @@ class AuthService {
 
   // Request password reset - send code to email
   async requestPasswordReset(email: string): Promise<MessageResponse> {
-    const response = await fetch(`${API_BASE_URL}/api/v1/auth/password-reset/request`, {
+    const response = await fetch(`${API_BASE_URL}/api/v1/gatekeeper/auth/password-reset/request`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -421,7 +421,7 @@ class AuthService {
 
   // Verify password reset code
   async verifyPasswordResetCode(email: string, code: string): Promise<MessageResponse> {
-    const response = await fetch(`${API_BASE_URL}/api/v1/auth/password-reset/verify`, {
+    const response = await fetch(`${API_BASE_URL}/api/v1/gatekeeper/auth/password-reset/verify`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -438,7 +438,7 @@ class AuthService {
 
   // Confirm password reset - set new password
   async confirmPasswordReset(email: string, code: string, password: string): Promise<MessageResponse> {
-    const response = await fetch(`${API_BASE_URL}/api/v1/auth/password-reset/confirm`, {
+    const response = await fetch(`${API_BASE_URL}/api/v1/gatekeeper/auth/password-reset/confirm`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -456,3 +456,5 @@ class AuthService {
 
 const authService = new AuthService();
 export default authService;
+
+

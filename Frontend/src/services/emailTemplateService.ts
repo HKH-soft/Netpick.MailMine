@@ -12,7 +12,7 @@ export interface EmailTemplate {
 }
 
 class EmailTemplateService {
-  private basePath = '/api/v1/email-templates';
+  private basePath = '/api/v1/mailmine/email-templates';
 
   public async listTemplates(): Promise<EmailTemplate[]> {
     return await api.get<EmailTemplate[]>(`${this.basePath}`);
@@ -37,3 +37,5 @@ class EmailTemplateService {
 
 const emailTemplateService = new EmailTemplateService();
 export default emailTemplateService;
+
+

@@ -66,3 +66,5 @@ export const useScrapeData = (id: string | null) => {
 
   return { scrapeData, loading, error, refetch: fetchScrapeData };
 };
+
+

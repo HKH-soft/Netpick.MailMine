@@ -3,7 +3,7 @@ import api from './api';
 import { SignupRequest } from './authService';
 
 class AdminService {
-  private basePath = '/api/v1/admin';
+  private basePath = '/api/v1/gatekeeper/admin';
 
   /**
    * Create a new user account (admin-initiated, skips normal signup)
@@ -22,3 +22,5 @@ class AdminService {
 
 const adminService = new AdminService();
 export default adminService;
+
+

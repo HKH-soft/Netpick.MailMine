@@ -4,7 +4,7 @@ import SharedInboxView from "@/components/email/SharedInboxView";
 import React from "react";
 
 export const metadata: Metadata = {
-  title: "Shared Inboxes - MailMine",
+  title: "Shared Inboxes - Netpick",
   description: "Manage shared inbox configurations",
 };
 
@@ -19,3 +19,6 @@ export default function SharedInboxesPage() {
     </div>
   );
 }
+
+
+

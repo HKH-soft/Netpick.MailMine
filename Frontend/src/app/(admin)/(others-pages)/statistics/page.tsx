@@ -3,7 +3,7 @@ import { Metadata } from "next";
 import React from "react";
 
 export const metadata: Metadata = {
-  title: "Statistics | MailMine",
+  title: "Statistics | Netpick",
   description: "Application Statistics and Metrics",
 };
 
@@ -40,3 +40,6 @@ export default function StatisticsPage() {
     </div>
   );
 }
+
+
+

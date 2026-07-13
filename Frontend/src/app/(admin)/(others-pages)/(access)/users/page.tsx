@@ -5,12 +5,10 @@ import ProtectedRoute from "@/components/common/ProtectedRoute";
 import DynamicTable, { ColumnConfig } from "@/components/tables/DynamicTable";
 import Pagination from "@/components/tables/Pagination";
 import React, { useState } from "react";
-// import React, { useState, useEffect } from "react"; // Uncomment if using isSuperAdmin check
 import Button from "@/components/ui/button/Button";
 import ModalForm from "@/components/forms/ModalForm";
 import ConfirmModal from "@/components/forms/ConfirmModal";
 import { useUsers } from "@/hooks/useUsers";
-// import AuthService from "@/services/authService"; // Uncomment if using isSuperAdmin check
 import UserService, { User } from "@/services/userService";
 import AdminService from "@/services/adminService";
 import { useToast } from "@/context/ToastContext";
@@ -21,23 +19,8 @@ export default function Users() {
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [selectedItem, setSelectedItem] = useState<User | null>(null);
-  // const [isSuperAdmin, setIsSuperAdmin] = useState(false); // Uncomment if needed for role-based UI
   const { addToast } = useToast();
   const { users, loading, error, totalPages, refetch } = useUsers(currentPage);
-
-  // Check if current user is super admin (commented out to avoid unused variable)
-  // useEffect(() => {
-  //   const token = AuthService.getToken();
-  //   if (token) {
-  //     try {
-  //       const payload = JSON.parse(atob(token.split('.')[1]));
-  //       setIsSuperAdmin(payload.role === 'SUPER_ADMIN');
-  //     } catch (e) {
-  //       console.error("Error parsing token", e);
-  //       setIsSuperAdmin(false);
-  //     }
-  //   }
-  // }, []);
 
   const handlePageChange = (page: number) => {
     setCurrentPage(page);
@@ -209,3 +192,5 @@ export default function Users() {
     </ProtectedRoute>
   );
 }
+
+

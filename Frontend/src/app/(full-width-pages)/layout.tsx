@@ -5,3 +5,6 @@ export default function FullWidthPageLayout({
 }) {
   return <div>{children}</div>;
 }
+
+
+

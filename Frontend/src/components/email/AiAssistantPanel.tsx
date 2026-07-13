@@ -23,7 +23,7 @@ export default function AiAssistantPanel({ emailId, onClose }: AiAssistantPanelP
     try {
       const result = await aiService.summarizeEmail(emailId);
       setSummary(result);
-    } catch (e) {
+    } catch {
       setSummary('Failed to generate summary');
     } finally {
       setLoading(false);
@@ -35,7 +35,7 @@ export default function AiAssistantPanel({ emailId, onClose }: AiAssistantPanelP
     try {
       const result = await aiService.generateDraft(emailId);
       setDraft(result);
-    } catch (e) {
+    } catch {
       setDraft('Failed to generate draft');
     } finally {
       setLoading(false);
@@ -49,8 +49,8 @@ export default function AiAssistantPanel({ emailId, onClose }: AiAssistantPanelP
       const result = await aiService.improveDraft(draft, draftInstructions);
       setDraft(result);
       setDraftInstructions('');
-    } catch (e) {
-      console.error('Failed to improve draft:', e);
+    } catch (error) {
+      console.error('Failed to improve draft:', error);
     } finally {
       setLoading(false);
     }
@@ -61,7 +61,7 @@ export default function AiAssistantPanel({ emailId, onClose }: AiAssistantPanelP
     try {
       const result = await aiService.analyzeSentiment(emailId);
       setSentiment(result);
-    } catch (e) {
+    } catch {
       setSentiment({ sentiment: 'neutral', confidence: 0, urgency: 'low', emotion: 'unknown' });
     } finally {
       setLoading(false);
@@ -73,7 +73,7 @@ export default function AiAssistantPanel({ emailId, onClose }: AiAssistantPanelP
     try {
       const result = await aiService.detectSpam(emailId);
       setSpamResult(result);
-    } catch (e) {
+    } catch {
       setSpamResult({ risk_level: 'low', is_spam: false, is_phishing: false, is_scam: false, confidence: 0 });
     } finally {
       setLoading(false);
@@ -271,3 +271,6 @@ export default function AiAssistantPanel({ emailId, onClose }: AiAssistantPanelP
     </div>
   );
 }
+
+
+

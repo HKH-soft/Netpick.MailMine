@@ -62,3 +62,5 @@ export const useSearchQuery = (id: string | null) => {
 
   return { searchQuery, loading, error, refetch: fetchSearchQuery };
 };
+
+

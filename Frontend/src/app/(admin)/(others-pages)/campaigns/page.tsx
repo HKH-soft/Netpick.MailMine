@@ -4,7 +4,7 @@ import CampaignBuilder from "@/components/email/CampaignBuilder";
 import React from "react";
 
 export const metadata: Metadata = {
-  title: "Campaigns - MailMine",
+  title: "Campaigns - Netpick",
   description: "Email campaign management",
 };
 
@@ -19,3 +19,6 @@ export default function CampaignsPage() {
     </div>
   );
 }
+
+
+

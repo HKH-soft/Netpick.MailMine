@@ -17,7 +17,7 @@ jobs:
         env:
           POSTGRES_USER: postgres
           POSTGRES_PASSWORD: password
-          POSTGRES_DB: mailmine
+          POSTGRES_DB: netpick
         ports:
           - 5432:5432
         options: >-
@@ -116,7 +116,7 @@ jobs:
         run: mvn -ntp -B verify
 
       - name: Build and Push Docker Image
-        run: docker build . --push -t ${{ secrets.DOCKERHUB_USERNAME }}/mailmine-backend:${{steps.build-number.outputs.BUILD_NUMBER}} -t ${{ secrets.DOCKERHUB_USERNAME }}/mailmine-backend:latest
+        run: docker build . --push -t ${{ secrets.DOCKERHUB_USERNAME }}/netpick-backend:${{steps.build-number.outputs.BUILD_NUMBER}} -t ${{ secrets.DOCKERHUB_USERNAME }}/netpick-backend:latest
 
       - name: maven build was successful  - Message
         uses: appleboy/telegram-action@master

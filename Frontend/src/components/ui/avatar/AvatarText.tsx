@@ -45,3 +45,6 @@ const AvatarText: React.FC<AvatarTextProps> = ({ name, className = "" }) => {
 };
 
 export default AvatarText;
+
+
+

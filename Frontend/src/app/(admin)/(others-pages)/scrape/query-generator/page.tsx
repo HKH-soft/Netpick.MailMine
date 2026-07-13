@@ -386,3 +386,6 @@ export default function SearchQueryGeneratorPage() {
         </div>
     );
 }
+
+
+

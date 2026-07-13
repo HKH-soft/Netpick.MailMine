@@ -80,7 +80,7 @@ jobs:
             🔗 [View Commit](https://github.com/${{ github.repository }}/commit/${{ github.sha }})
 
       - name: Build and Push Docker Image
-        run: docker build . --push -t ${{ secrets.DOCKERHUB_USERNAME }}/mailmine-frontend:${{steps.build-number.outputs.BUILD_NUMBER}} -t ${{ secrets.DOCKERHUB_USERNAME }}/mailmine-frontend:latest
+        run: docker build . --push -t ${{ secrets.DOCKERHUB_USERNAME }}/netpick-frontend:${{steps.build-number.outputs.BUILD_NUMBER}} -t ${{ secrets.DOCKERHUB_USERNAME }}/netpick-frontend:latest
 
       - name: action is completed! - Message
         if: success()

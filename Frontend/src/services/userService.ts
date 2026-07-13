@@ -24,7 +24,7 @@ export interface PasswordChangeRequest {
 }
 
 class UserService {
-  private basePath = '/api/v1/users';
+  private basePath = '/api/v1/gatekeeper/users';
 
   // ==================== Current User Operations ====================
 
@@ -110,3 +110,5 @@ class UserService {
 
 const userService = new UserService();
 export default userService;
+
+

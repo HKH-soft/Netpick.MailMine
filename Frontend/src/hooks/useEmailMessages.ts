@@ -8,14 +8,13 @@ export const useEmailMessages = (page: number = 0) => {
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
 
-  const fetchEmails = useCallback(async (signal?: AbortSignal) => {
+  const fetchEmails = useCallback(async () => {
     try {
       setLoading(true);
       const data = await emailMessageService.listEmails(page);
       setEmails(data);
       setError(null);
     } catch (err: unknown) {
-      if ((err as { name?: string })?.name === 'AbortError') return;
       setError('Failed to fetch emails');
       setEmails([]);
       console.error('Error fetching emails:', err);
@@ -25,9 +24,7 @@ export const useEmailMessages = (page: number = 0) => {
   }, [page]);
 
   useEffect(() => {
-    const controller = new AbortController();
-    fetchEmails(controller.signal);
-    return () => controller.abort();
+    fetchEmails();
   }, [fetchEmails]);
 
   return { emails, loading, error, refetch: fetchEmails };
@@ -60,3 +57,5 @@ export const useEmailMessage = (id: string | null) => {
 
   return { email, loading, error, refetch: fetchEmail };
 };
+
+

@@ -1,6 +1,6 @@
 # Backend Code Issues and Problems
 
-This document lists all identified problems and potential issues in the MailMine backend modules that should be fixed later.
+This document lists all identified problems and potential issues in the Netpick backend modules that should be fixed later.
 
 ## Table of Contents
 1. [AI Module Issues](#ai-module-issues)

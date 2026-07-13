@@ -20,7 +20,7 @@ export interface RenderedTemplate {
 }
 
 class TemplateService {
-  private basePath = '/api/v1/email-templates';
+  private basePath = '/api/v1/mailmine/email-templates';
 
   async listTemplates(): Promise<EmailTemplate[]> {
     return await api.get<EmailTemplate[]>(this.basePath);
@@ -49,3 +49,6 @@ class TemplateService {
 
 const templateService = new TemplateService();
 export default templateService;
+
+
+

@@ -21,7 +21,7 @@ export interface ApiKeyRequest {
 }
 
 class ApiKeyService {
-  private basePath = '/api/v1/scrape/api_keys';
+  private basePath = '/api/v1/mailmine/scrape/api_keys';
 
   /**
    * Get all active API keys
@@ -96,3 +96,5 @@ class ApiKeyService {
 
 const apiKeyService = new ApiKeyService();
 export default apiKeyService;
+
+

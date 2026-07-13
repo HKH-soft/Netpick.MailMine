@@ -5,8 +5,8 @@ import RecentContacts from "@/components/dashboard/RecentContacts";
 import React from "react";
 
 export const metadata: Metadata = {
-  title: "MailMine Dashboard",
-  description: "MailMine Admin Dashboard",
+  title: "Netpick Dashboard",
+  description: "Netpick Admin Dashboard",
 };
 
 export default function Dashboard() {
@@ -26,3 +26,6 @@ export default function Dashboard() {
     </div>
   );
 }
+
+
+

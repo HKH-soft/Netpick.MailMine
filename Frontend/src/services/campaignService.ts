@@ -33,7 +33,7 @@ export interface CampaignRecipient {
 }
 
 class CampaignService {
-  private basePath = '/api/v1/campaigns';
+  private basePath = '/api/v1/mailmine/campaigns';
 
   async listCampaigns(page: number = 0, size: number = 20): Promise<PageDTO<Campaign>> {
     return await api.get(`${this.basePath}?page=${page}&size=${size}`);
@@ -77,3 +77,6 @@ class CampaignService {
 
 const campaignService = new CampaignService();
 export default campaignService;
+
+
+

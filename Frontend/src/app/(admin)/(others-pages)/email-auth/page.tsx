@@ -4,7 +4,7 @@ import EmailAuthCheck from "@/components/email/EmailAuthCheck";
 import React from "react";
 
 export const metadata: Metadata = {
-  title: "Email Auth Check - MailMine",
+  title: "Email Auth Check - Netpick",
   description: "Validate SPF/DKIM/DMARC records for email domains",
 };
 
@@ -19,3 +19,6 @@ export default function EmailAuthPage() {
     </div>
   );
 }
+
+
+

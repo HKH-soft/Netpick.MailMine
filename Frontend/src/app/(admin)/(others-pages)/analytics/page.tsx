@@ -4,7 +4,7 @@ import AnalyticsDashboard from "@/components/email/AnalyticsDashboard";
 import React from "react";
 
 export const metadata: Metadata = {
-  title: "Analytics - MailMine",
+  title: "Analytics - Netpick",
   description: "Email analytics and dashboard",
 };
 
@@ -19,3 +19,6 @@ export default function AnalyticsPage() {
     </div>
   );
 }
+
+
+

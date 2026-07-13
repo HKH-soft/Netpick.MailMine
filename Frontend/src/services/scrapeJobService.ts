@@ -20,7 +20,7 @@ export interface ScrapeJobStats {
 }
 
 class ScrapeJobService {
-  private basePath = '/api/v1/scrape/scrape_jobs';
+  private basePath = '/api/v1/mailmine/scrape/scrape_jobs';
 
   /**
    * Get all active scrape jobs
@@ -88,3 +88,5 @@ class ScrapeJobService {
 
 const scrapeJobService = new ScrapeJobService();
 export default scrapeJobService;
+
+

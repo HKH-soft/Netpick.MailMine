@@ -62,3 +62,5 @@ export const useScrapeJob = (id: string | null) => {
 
   return { scrapeJob, loading, error, refetch: fetchScrapeJob };
 };
+
+

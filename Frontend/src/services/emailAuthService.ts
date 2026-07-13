@@ -24,7 +24,7 @@ export interface DomainAuthResult {
 }
 
 class EmailAuthService {
-  private basePath = '/api/v1/email-auth';
+  private basePath = '/api/v1/mailmine/email-auth';
 
   async validateDomain(domain: string): Promise<DomainAuthResult> {
     return await api.get<DomainAuthResult>(`${this.basePath}/validate?domain=${encodeURIComponent(domain)}`);
@@ -37,3 +37,6 @@ class EmailAuthService {
 
 const emailAuthService = new EmailAuthService();
 export default emailAuthService;
+
+
+

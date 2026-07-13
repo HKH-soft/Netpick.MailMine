@@ -45,3 +45,5 @@ const Toast: React.FC<ToastProps> = ({ type, title, message, onClose }) => {
 };
 
 export default Toast;
+
+

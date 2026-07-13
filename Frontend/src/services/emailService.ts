@@ -11,7 +11,7 @@ export interface EmailRequest {
 }
 
 class EmailService {
-  private basePath = '/api/v1/email';
+  private basePath = '/api/v1/mailmine/email';
 
   /**
    * Send a simple email
@@ -37,3 +37,6 @@ class EmailService {
 
 const emailService = new EmailService();
 export default emailService;
+
+
+
