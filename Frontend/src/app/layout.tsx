@@ -5,6 +5,7 @@ import { SidebarProvider } from '@/context/SidebarContext';
 import { ThemeProvider } from '@/context/ThemeContext';
 import { AuthProvider } from '@/context/AuthContext';
 import { ToastProvider } from '@/context/ToastContext';
+import { QueryProvider } from '@/context/QueryProvider';
 import ThemeProviderWrapper from '@/components/common/ThemeProviderWrapper';
 import AuthProviderWrapper from '@/components/common/AuthProviderWrapper';
 import SidebarProviderWrapper from '@/components/common/SidebarProviderWrapper';
@@ -46,22 +47,24 @@ export default function RootLayout({
             `,
           }}
         />
-        <AuthProvider>
-          <ThemeProvider>
-            <ToastProvider>
-              <AuthProviderWrapper>
-                <InactivityHandler />
-                <ThemeProviderWrapper>
-                  <SidebarProvider>
-                    <SidebarProviderWrapper>
-                      {children}
-                    </SidebarProviderWrapper>
-                  </SidebarProvider>
-                </ThemeProviderWrapper>
-              </AuthProviderWrapper>
-            </ToastProvider>
-          </ThemeProvider>
-        </AuthProvider>
+        <QueryProvider>
+          <AuthProvider>
+            <ThemeProvider>
+              <ToastProvider>
+                <AuthProviderWrapper>
+                  <InactivityHandler />
+                  <ThemeProviderWrapper>
+                    <SidebarProvider>
+                      <SidebarProviderWrapper>
+                        {children}
+                      </SidebarProviderWrapper>
+                    </SidebarProvider>
+                  </ThemeProviderWrapper>
+                </AuthProviderWrapper>
+              </ToastProvider>
+            </ThemeProvider>
+          </AuthProvider>
+        </QueryProvider>
       </body>
     </html>
   );

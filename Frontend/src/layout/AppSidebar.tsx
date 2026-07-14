@@ -4,7 +4,6 @@ import Link from "next/link";
 import Image from "next/image";
 import { usePathname } from "next/navigation";
 import { useSidebar } from "../context/SidebarContext";
-import { useTranslation } from "react-i18next";
 import AuthService from "../services/authService";
 import {
   ChevronDownIcon,
@@ -26,43 +25,43 @@ type NavItem = {
 const navItems: NavItem[] = [
   {
     icon: <GridIcon />,
-    name: "navigation.core",
+    name: "Core",
     subItems: [
-      { name: "navigation.dashboard", path: "/", pro: false },
-      { name: "navigation.statistics", path: "/statistics", pro: false },
+      { name: "Dashboard", path: "/dashboard", pro: false },
+      { name: "Statistics", path: "/statistics", pro: false },
     ],
   },
 
   {
     icon: <UserCircleIcon />,
-    name: "navigation.gatekeeper",
+    name: "Gatekeeper",
     subItems: [
-      { name: "navigation.userProfile", path: "/profile", pro: false },
-      { name: "navigation.users", path: "/users", pro: false },
-      { name: "navigation.settings", path: "/settings", pro: false },
+      { name: "User Profile", path: "/profile", pro: false },
+      { name: "Users", path: "/users", pro: false },
+      { name: "Settings", path: "/settings", pro: false },
     ],
   },
 
   {
-    name: "navigation.mailMine",
+    name: "MailMine",
     icon: <PageIcon />,
     subItems: [
-      { name: "navigation.email", path: "/email", pro: false },
-      { name: "navigation.analytics", path: "/analytics", pro: false, new: true },
-      { name: "navigation.campaigns", path: "/campaigns", pro: false, new: true },
-      { name: "navigation.sharedInboxes", path: "/shared-inboxes", pro: false, new: true },
-      { name: "navigation.followUps", path: "/follow-ups", pro: false, new: true },
-      { name: "navigation.emailAuthCheck", path: "/email-auth", pro: false, new: true },
-      { name: "navigation.control", path: "/scrape/control", pro: false },
-      { name: "navigation.pipelines", path: "/scrape/pipelines", pro: false },
-      { name: "navigation.jobs", path: "/scrape/jobs", pro: false },
-      { name: "navigation.data", path: "/scrape/data", pro: false },
-      { name: "navigation.contacts", path: "/scrape/contacts", pro: false },
-      { name: "navigation.apiKeys", path: "/scrape/api-keys", pro: false },
-      { name: "navigation.searchQueries", path: "/scrape/search-querys", pro: false },
-      { name: "navigation.queryGenerator", path: "/scrape/query-generator", pro: false, new: true },
-      { name: "navigation.proxies", path: "/scrape/proxies", pro: false },
-      { name: "navigation.ai", path: "/scrape/ai", pro: false, new: true },
+      { name: "Email", path: "/email", pro: false },
+      { name: "Analytics", path: "/analytics", pro: false, new: true },
+      { name: "Campaigns", path: "/campaigns", pro: false, new: true },
+      { name: "Shared Inboxes", path: "/shared-inboxes", pro: false, new: true },
+      { name: "Follow-ups", path: "/follow-ups", pro: false, new: true },
+      { name: "Email Auth Check", path: "/email-auth", pro: false, new: true },
+      { name: "Control", path: "/scrape/control", pro: false },
+      { name: "Pipelines", path: "/scrape/pipelines", pro: false },
+      { name: "Jobs", path: "/scrape/jobs", pro: false },
+      { name: "Data", path: "/scrape/data", pro: false },
+      { name: "Contacts", path: "/scrape/contacts", pro: false },
+      { name: "Api keys", path: "/scrape/api-keys", pro: false },
+      { name: "Search Queries", path: "/scrape/search-querys", pro: false },
+      { name: "Query Generator", path: "/scrape/query-generator", pro: false, new: true },
+      { name: "Proxies", path: "/scrape/proxies", pro: false },
+      { name: "AI", path: "/scrape/ai", pro: false, new: true },
     ],
   },
 ];
@@ -102,7 +101,6 @@ const AppSidebar: React.FC = () => {
   const { isExpanded, isMobileOpen, isHovered, setIsHovered } = useSidebar();
   const pathname = usePathname();
   const [userRole, setUserRole] = useState<string | null>(null);
-  const { t } = useTranslation('common');
 
   // Get user role from token
   useEffect(() => {
@@ -166,7 +164,7 @@ const AppSidebar: React.FC = () => {
                 {nav.icon}
               </span>
               {(isExpanded || isHovered || isMobileOpen) && (
-                <span className={`menu-item-text`}>{t(nav.name)}</span>
+                <span className={`menu-item-text`}>{nav.name}</span>
               )}
               {(isExpanded || isHovered || isMobileOpen) && (
                 <ChevronDownIcon
@@ -194,7 +192,7 @@ const AppSidebar: React.FC = () => {
                   {nav.icon}
                 </span>
                 {(isExpanded || isHovered || isMobileOpen) && (
-                  <span className={`menu-item-text`}>{t(nav.name)}</span>
+                  <span className={`menu-item-text`}>{nav.name}</span>
                 )}
               </Link>
             )
@@ -222,7 +220,7 @@ const AppSidebar: React.FC = () => {
                         : "menu-dropdown-item-inactive"
                         }`}
                     >
-                      {t(subItem.name)}
+                      {subItem.name}
                       <span className="flex items-center gap-1 ml-auto">
                         {subItem.new && (
                           <span
@@ -231,7 +229,7 @@ const AppSidebar: React.FC = () => {
                               : "menu-dropdown-badge-inactive"
                               } menu-dropdown-badge `}
                           >
-                            {t('common.new')}
+                            new
                           </span>
                         )}
                         {subItem.pro && (
@@ -241,7 +239,7 @@ const AppSidebar: React.FC = () => {
                               : "menu-dropdown-badge-inactive"
                               } menu-dropdown-badge `}
                           >
-                            {t('common.pro')}
+                            pro
                           </span>
                         )}
                       </span>
@@ -378,7 +376,7 @@ const AppSidebar: React.FC = () => {
                   }`}
               >
                 {isExpanded || isHovered || isMobileOpen ? (
-                  t('navigation.menu')
+                  "Menu"
                 ) : (
                   <HorizontaLDots />
                 )}

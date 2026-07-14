@@ -72,6 +72,8 @@ import SignoutIcon from "./signout.svg";
 import MenuToggleIcon from "./menu-toggle.svg";
 import DotsHorizontalIcon from "./dots-horizontal.svg";
 import SearchIcon from "./search.svg";
+import GripVerticalIcon from "./grip-vertical.svg";
+import MaximizeIcon from "./maximize.svg";
 
 export {
   DownloadIcon,
@@ -150,6 +152,8 @@ export {
   DotsHorizontalIcon,
   SearchIcon,
   // 删除了重复的 BellIcon 导出
+  GripVerticalIcon,
+  MaximizeIcon,
 };
 
 
