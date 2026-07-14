@@ -33,6 +33,7 @@ jobs:
         with:
           to: ${{ secrets.TELEGRAM_TO }}
           token: ${{ secrets.TELEGRAM_TOKEN }}
+          parse_mode: markdown
           message: |
             ━━━━━━━━━━━━━━━━━━━━━━
             🧪 *BACKEND CI BUILD*
@@ -128,6 +129,7 @@ jobs:
         with:
           to: ${{ secrets.TELEGRAM_TO }}
           token: ${{ secrets.TELEGRAM_TOKEN }}
+          parse_mode: markdown
           message: |
             ╔══════════════════════╗
             ║  ✅ CI BUILD PASSED  ║
@@ -156,6 +158,7 @@ jobs:
         with:
           to: ${{ secrets.TELEGRAM_TO }}
           token: ${{ secrets.TELEGRAM_TOKEN }}
+          parse_mode: markdown
           message: |
             ╔══════════════════════╗
             ║  ❌ CI BUILD FAILED  ║

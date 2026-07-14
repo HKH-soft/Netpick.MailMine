@@ -10,12 +10,14 @@ import { useRouter } from "next/navigation";
 import AuthService, { SignupRequest } from "@/services/authService";
 import { Formik, Form, Field, ErrorMessage } from "formik";
 import * as Yup from "yup";
+import { useTranslation } from "react-i18next";
 
 export default function SignUpForm() {
   const [showPassword, setShowPassword] = useState(false);
   const [isChecked, setIsChecked] = useState(false);
   const [error, setError] = useState("");
   const router = useRouter();
+  const { t } = useTranslation('common');
 
   const validationSchema = Yup.object({
     name: Yup.string().required("Name is required"),
@@ -34,7 +36,7 @@ export default function SignUpForm() {
     setError("");
 
     if (!isChecked) {
-      setError("You must agree to the Terms and Conditions and Privacy Policy");
+      setError(t('auth.signUp.agreeError'));
       setSubmitting(false);
       return;
     }
@@ -66,10 +68,10 @@ export default function SignUpForm() {
         <div>
           <div className="mb-5 sm:mb-8">
             <h1 className="mb-2 font-semibold text-gray-800 text-title-sm dark:text-white/90 sm:text-title-md">
-              Sign Up
+              {t('auth.signUp.title')}
             </h1>
             <p className="text-sm text-gray-500 dark:text-gray-400">
-              Enter your email and password to sign up!
+              {t('auth.signUp.subtitle')}
             </p>
           </div>
           <div>
@@ -87,12 +89,12 @@ export default function SignUpForm() {
                     {/* <!-- Name --> */}
                     <div>
                       <Label>
-                        Name<span className="text-error-500">*</span>
+                        {t('auth.signUp.name')}<span className="text-error-500">*</span>
                       </Label>
                       <Field
                         name="name"
                         type="text"
-                        placeholder="Enter your name"
+                        placeholder={t('auth.signUp.name')}
                         as={Input}
                       />
                       <ErrorMessage name="name" component="div" className="text-red-500 text-sm mt-1" />
@@ -100,12 +102,12 @@ export default function SignUpForm() {
                     {/* <!-- Email --> */}
                     <div>
                       <Label>
-                        Email<span className="text-error-500">*</span>
+                        {t('auth.signUp.email')}<span className="text-error-500">*</span>
                       </Label>
                       <Field
                         name="email"
                         type="email"
-                        placeholder="Enter your email"
+                        placeholder={t('auth.signUp.email')}
                         as={Input}
                       />
                       <ErrorMessage name="email" component="div" className="text-red-500 text-sm mt-1" />
@@ -113,12 +115,12 @@ export default function SignUpForm() {
                     {/* <!-- Password --> */}
                     <div>
                       <Label>
-                        Password<span className="text-error-500">*</span>
+                        {t('auth.signUp.password')}<span className="text-error-500">*</span>
                       </Label>
                       <div className="relative">
                         <Field
                           name="password"
-                          placeholder="Enter your password"
+                          placeholder={t('auth.signUp.password')}
                           type={showPassword ? "text" : "password"}
                           as={Input}
                         />
@@ -143,13 +145,13 @@ export default function SignUpForm() {
                         onChange={setIsChecked}
                       />
                       <p className="inline-block font-normal text-gray-500 dark:text-gray-400">
-                        By creating an account means you agree to the{" "}
+                        {t('auth.signUp.agree')}{" "}
                         <span className="text-gray-800 dark:text-white/90">
-                          Terms and Conditions,
+                          {t('auth.signUp.terms')}
                         </span>{" "}
-                        and our{" "}
+                        {t('auth.signUp.and')}{" "}
                         <span className="text-gray-800 dark:text-white">
-                          Privacy Policy
+                          {t('auth.signUp.privacy')}
                         </span>
                       </p>
                     </div>
@@ -160,7 +162,7 @@ export default function SignUpForm() {
                         className="flex items-center justify-center w-full"
                         disabled={isSubmitting || !isValid || !dirty}
                       >
-                        {isSubmitting ? "Signing up..." : "Sign Up"}
+                        {isSubmitting ? t('auth.signUp.submitting') : t('auth.signUp.submit')}
                       </Button>
                     </div>
                   </div>
@@ -170,12 +172,12 @@ export default function SignUpForm() {
 
             <div className="mt-5">
               <p className="text-sm font-normal text-center text-gray-700 dark:text-gray-400 sm:text-start">
-                Already have an account?
+                {t('auth.signUp.haveAccount')}
                 <Link
                   href="/signin"
                   className="text-brand-500 hover:text-brand-600 dark:text-brand-400"
                 >
-                  Sign In
+                  {t('auth.signUp.signIn')}
                 </Link>
               </p>
             </div>

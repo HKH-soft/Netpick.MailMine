@@ -1,0 +1,116 @@
+{
+  "navigation": {
+    "menu": "Menu",
+    "core": "Core",
+    "dashboard": "Dashboard",
+    "statistics": "Statistics",
+    "gatekeeper": "Gatekeeper",
+    "userProfile": "User Profile",
+    "users": "Users",
+    "settings": "Settings",
+    "mailMine": "MailMine",
+    "email": "Email",
+    "analytics": "Analytics",
+    "campaigns": "Campaigns",
+    "sharedInboxes": "Shared Inboxes",
+    "followUps": "Follow-ups",
+    "emailAuthCheck": "Email Auth Check",
+    "control": "Control",
+    "pipelines": "Pipelines",
+    "jobs": "Jobs",
+    "data": "Data",
+    "contacts": "Contacts",
+    "apiKeys": "Api keys",
+    "searchQueries": "Search Queries",
+    "queryGenerator": "Query Generator",
+    "proxies": "Proxies",
+    "ai": "AI",
+    "calendar": "Calendar",
+    "messages": "Messages"
+  },
+  "auth": {
+    "signIn": {
+      "title": "Sign In",
+      "subtitle": "Enter your email and password to sign in!",
+      "email": "Email",
+      "password": "Password",
+      "error": "Invalid email or password",
+      "rememberMe": "Keep me logged in",
+      "forgotPassword": "Forgot password?",
+      "submit": "Sign in",
+      "submitting": "Signing in..."
+    },
+    "signUp": {
+      "title": "Sign Up",
+      "subtitle": "Enter your email and password to sign up!",
+      "name": "Name",
+      "email": "Email",
+      "password": "Password",
+      "agree": "By creating an account means you agree to the",
+      "terms": "Terms and Conditions,",
+      "and": "and our",
+      "privacy": "Privacy Policy",
+      "submit": "Sign Up",
+      "submitting": "Signing up...",
+      "haveAccount": "Already have an account?",
+      "signIn": "Sign In",
+      "agreeError": "You must agree to the Terms and Conditions and Privacy Policy"
+    },
+    "verify": {
+      "title": "Verify Your Email",
+      "subtitle": "We've sent a verification code to",
+      "email": "your email",
+      "code": "Verification Code",
+      "verifying": "Verifying...",
+      "button": "Verify Email",
+      "resend": "Didn't receive the code?",
+      "sending": "Sending...",
+      "resendCountdown": "Resend code in...",
+      "resendNow": "Resend verification code",
+      "wrongEmail": "Wrong email? Go back to Sign Up",
+      "signUp": "Sign Up",
+      "success": "Email verified successfully! Redirecting to login...",
+      "error": "Invalid or expired verification code. Please try again.",
+      "sent": "Verification code sent! Check your email.",
+      "resendError": "Failed to resend verification code. Please try again.",
+      "timeRemaining": "Time remaining to enter code",
+      "alreadyVerified": "Already verified?"
+    },
+    "resetPassword": {
+      "title": "Reset Password",
+      "email": "Email",
+      "code": "Verification code",
+      "password": "Password",
+      "passwordMatch": "Passwords must match"
+    }
+  },
+  "buttons": {
+    "resend": "Resend",
+    "back": "Back",
+    "save": "Save",
+    "cancel": "Cancel",
+    "delete": "Delete",
+    "edit": "Edit"
+  },
+  "language": {
+    "switch": "Switch Language",
+    "english": "English",
+    "farsi": "فارسی"
+  },
+  "common": {
+    "new": "New",
+    "pro": "Pro"
+  },
+  "search": {
+    "placeholder": "Search or type command...",
+    "jumpTo": "Jump to",
+    "noResults": "No results found for \"{{query}}\"",
+    "general": "General",
+    "scraping": "Scraping",
+    "configuration": "Configuration",
+    "tools": "Tools",
+    "email": "Email",
+    "shortcutCtrl": "Ctrl",
+    "shortcutK": "K"
+  }
+}

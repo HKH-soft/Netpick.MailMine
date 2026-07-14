@@ -5,6 +5,7 @@ import Link from "next/link";
 import React, { useState, useEffect, useCallback } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import AuthService, { AuthConfigResponse } from "@/services/authService";
+import { useTranslation } from "react-i18next";
 
 const RESEND_COOLDOWN_DEFAULT = 600;
 const RESEND_STORAGE_KEY = "verificationCooldownUntil";
@@ -21,6 +22,7 @@ export default function VerifyForm() {
     const router = useRouter();
     const searchParams = useSearchParams();
     const email = searchParams.get("email") || "";
+    const { t } = useTranslation('common');
 
     const cooldownKey = email ? `${RESEND_STORAGE_KEY}:${email}` : RESEND_STORAGE_KEY;
 
@@ -95,12 +97,12 @@ export default function VerifyForm() {
 
         try {
             await AuthService.verify({ email, code });
-            setSuccess("Email verified successfully! Redirecting to login...");
+            setSuccess(t('auth.verify.success', { defaultValue: 'Email verified successfully! Redirecting to login...' }));
             setTimeout(() => {
                 router.push("/signin");
             }, 2000);
         } catch (err) {
-            setError("Invalid or expired verification code. Please try again.");
+            setError(t('auth.verify.error', { defaultValue: 'Invalid or expired verification code. Please try again.' }));
             console.error("Verification error:", err);
         } finally {
             setIsSubmitting(false);
@@ -116,7 +118,7 @@ export default function VerifyForm() {
 
         try {
             await AuthService.resendVerification(email);
-            setSuccess("Verification code sent! Check your email.");
+            setSuccess(t('auth.verify.sent', { defaultValue: 'Verification code sent! Check your email.' }));
 
             // Persist the new cooldown so reloads won't reset it
             const nextUnlock = Date.now() + resendCooldown * 1000;
@@ -127,7 +129,7 @@ export default function VerifyForm() {
             setCanResend(false);
             setCountdown(resendCooldown);
         } catch (err) {
-            setError("Failed to resend verification code. Please try again.");
+            setError(t('auth.verify.resendError', { defaultValue: 'Failed to resend verification code. Please try again.' }));
             console.error("Resend verification error:", err);
         } finally {
             setIsResending(false);
@@ -147,12 +149,12 @@ export default function VerifyForm() {
                 <div>
                     <div className="mb-5 sm:mb-8">
                         <h1 className="mb-2 font-semibold text-gray-800 text-title-sm dark:text-white/90 sm:text-title-md">
-                            Verify Your Email
+                            {t('auth.verify.title')}
                         </h1>
                         <p className="text-sm text-gray-500 dark:text-gray-400">
-                            We&apos;ve sent a verification code to{" "}
+                            {t('auth.verify.subtitle')}{" "}
                             <span className="font-medium text-gray-700 dark:text-gray-300">
-                                {email || "your email"}
+                                {email || t('auth.verify.email')}
                             </span>
                         </p>
                     </div>
@@ -180,21 +182,21 @@ export default function VerifyForm() {
                                 </div>
                                 <p className="text-sm text-gray-500 dark:text-gray-400">
                                     {canResend
-                                        ? "You can now resend the verification code"
-                                        : "Time remaining to enter code"}
+                                        ? t('auth.verify.resend')
+                                        : t('auth.verify.timeRemaining', { defaultValue: 'Time remaining to enter code' })}
                                 </p>
                             </div>
 
                             {/* Verification Code Input */}
                             <div>
                                 <Label>
-                                    Verification Code <span className="text-error-500">*</span>
+                                    {t('auth.verify.code')} <span className="text-error-500">*</span>
                                 </Label>
                                 <input
                                     type="text"
                                     value={code}
                                     onChange={(e) => setCode(e.target.value.toUpperCase())}
-                                    placeholder="Enter verification code"
+                                    placeholder={t('auth.verify.code')}
                                     maxLength={10}
                                     className="h-11 w-full rounded-lg border appearance-none px-4 py-2.5 text-sm shadow-theme-xs placeholder:text-gray-400 focus:outline-hidden focus:ring-3 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30 dark:focus:border-brand-800 bg-transparent text-gray-800 border-gray-300 focus:border-brand-300 focus:ring-brand-500/10 dark:border-gray-700 text-center text-lg tracking-widest"
                                 />
@@ -208,14 +210,14 @@ export default function VerifyForm() {
                                     size="sm"
                                     disabled={isSubmitting || !code}
                                 >
-                                    {isSubmitting ? "Verifying..." : "Verify Email"}
+                                    {isSubmitting ? t('auth.verify.verifying') : t('auth.verify.button')}
                                 </Button>
                             </div>
 
                             {/* Resend Code */}
                             <div className="text-center">
                                 <p className="text-sm text-gray-500 dark:text-gray-400 mb-2">
-                                    Didn&apos;t receive the code?
+                                    {t('auth.verify.resend')}
                                 </p>
                                 <button
                                     type="button"
@@ -227,10 +229,10 @@ export default function VerifyForm() {
                                         }`}
                                 >
                                     {isResending
-                                        ? "Sending..."
+                                        ? t('auth.verify.sending')
                                         : canResend
-                                            ? "Resend verification code"
-                                            : `Resend code in ${formatTime(countdown)}`}
+                                            ? t('auth.verify.resendNow')
+                                            : `${t('auth.verify.resendCountdown')} ${formatTime(countdown)}`}
                                 </button>
                             </div>
                         </div>
@@ -238,24 +240,24 @@ export default function VerifyForm() {
 
                     <div className="mt-8 pt-6 border-t border-gray-200 dark:border-gray-800">
                         <p className="text-sm font-normal text-center text-gray-700 dark:text-gray-400">
-                            Wrong email?{" "}
+                            {t('auth.verify.wrongEmail', { defaultValue: 'Wrong email?' })}{" "}
                             <Link
                                 href="/signup"
                                 className="text-brand-500 hover:text-brand-600 dark:text-brand-400"
                             >
-                                Go back to Sign Up
+                                {t('auth.verify.signUp')}
                             </Link>
                         </p>
                     </div>
 
                     <div className="mt-4">
                         <p className="text-sm font-normal text-center text-gray-700 dark:text-gray-400">
-                            Already verified?{" "}
+                            {t('auth.verify.alreadyVerified', { defaultValue: 'Already verified?' })}{" "}
                             <Link
                                 href="/signin"
                                 className="text-brand-500 hover:text-brand-600 dark:text-brand-400"
                             >
-                                Sign In
+                                {t('auth.signIn.submit')}
                             </Link>
                         </p>
                     </div>

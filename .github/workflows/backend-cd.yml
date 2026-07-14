@@ -34,6 +34,7 @@ jobs:
         with:
           to: ${{ secrets.TELEGRAM_TO }}
           token: ${{ secrets.TELEGRAM_TOKEN }}
+          parse_mode: markdown
           message: |
             ━━━━━━━━━━━━━━━━━━━━━━
             🚀 *BACKEND DEPLOYMENT*
@@ -63,6 +64,7 @@ jobs:
         with:
           to: ${{ secrets.TELEGRAM_TO }}
           token: ${{ secrets.TELEGRAM_TOKEN }}
+          parse_mode: markdown
           message: |
             ⚙️ *SETUP COMPLETED*
 
@@ -86,6 +88,7 @@ jobs:
         with:
           to: ${{ secrets.TELEGRAM_TO }}
           token: ${{ secrets.TELEGRAM_TOKEN }}
+          parse_mode: markdown
           message: |
             🔢 *BUILD VERSION*
 
@@ -123,6 +126,7 @@ jobs:
         with:
           to: ${{ secrets.TELEGRAM_TO }}
           token: ${{ secrets.TELEGRAM_TOKEN }}
+          parse_mode: markdown
           message: |
             ✅ *DOCKER BUILD SUCCESS*
 
@@ -138,6 +142,7 @@ jobs:
         with:
           to: ${{ secrets.TELEGRAM_TO }}
           token: ${{ secrets.TELEGRAM_TOKEN }}
+          parse_mode: markdown
           message: |
             ╔══════════════════════╗
             ║  ✅ DEPLOYMENT SUCCESS  ║
@@ -158,6 +163,7 @@ jobs:
         with:
           to: ${{ secrets.TELEGRAM_TO }}
           token: ${{ secrets.TELEGRAM_TOKEN }}
+          parse_mode: markdown
           message: |
             ╔══════════════════════╗
             ║  ❌ DEPLOYMENT FAILED  ║

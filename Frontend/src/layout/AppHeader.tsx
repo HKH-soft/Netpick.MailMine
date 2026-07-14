@@ -2,12 +2,14 @@
 import { ThemeToggleButton } from "@/components/common/ThemeToggleButton";
 import NotificationDropdown from "@/components/header/NotificationDropdown";
 import UserDropdown from "@/components/header/UserDropdown";
+import LanguageSwitcher from "@/components/common/LanguageSwitcher";
 import { useSidebar } from "@/context/SidebarContext";
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import React, { useState, useEffect, useRef } from "react";
 import { MenuToggleIcon, CloseIcon, DotsHorizontalIcon, SearchIcon } from "@/icons";
+import { useTranslation } from "react-i18next";
 
 interface SearchResult {
   title: string;
@@ -16,28 +18,28 @@ interface SearchResult {
 }
 
 const searchablePages: SearchResult[] = [
-  { title: "Dashboard", path: "/", category: "General" },
-  { title: "Calendar", path: "/calendar", category: "General" },
-  { title: "Profile", path: "/profile", category: "General" },
-  { title: "Settings", path: "/settings", category: "General" },
-  { title: "Scrape Control", path: "/scrape/control", category: "Scraping" },
-  { title: "Scrape Jobs", path: "/scrape/jobs", category: "Scraping" },
-  { title: "Scrape Data", path: "/scrape/data", category: "Scraping" },
-  { title: "Contacts", path: "/scrape/contacts", category: "Scraping" },
-  { title: "API Keys", path: "/scrape/api-keys", category: "Configuration" },
-  { title: "Proxies", path: "/scrape/proxies", category: "Configuration" },
-  { title: "Pipelines", path: "/scrape/pipelines", category: "Scraping" },
-  { title: "Search Queries", path: "/scrape/search-querys", category: "Scraping" },
-  { title: "Query Generator", path: "/scrape/query-generator", category: "Tools" },
-  { title: "Email", path: "/scrape/email", category: "Tools" },
-  { title: "AI Tools", path: "/scrape/ai", category: "Tools" },
-  { title: "Messages", path: "/scrape/messages", category: "General" },
-  { title: "Email Inbox", path: "/email", category: "Email" },
-  { title: "Analytics", path: "/analytics", category: "Email" },
-  { title: "Campaigns", path: "/campaigns", category: "Email" },
-  { title: "Shared Inboxes", path: "/shared-inboxes", category: "Email" },
-  { title: "Follow-ups", path: "/follow-ups", category: "Email" },
-  { title: "Email Auth Check", path: "/email-auth", category: "Email" },
+  { title: "navigation.dashboard", path: "/", category: "General" },
+  { title: "navigation.calendar", path: "/calendar", category: "General" },
+  { title: "navigation.userProfile", path: "/profile", category: "General" },
+  { title: "navigation.settings", path: "/settings", category: "General" },
+  { title: "navigation.control", path: "/scrape/control", category: "Scraping" },
+  { title: "navigation.jobs", path: "/scrape/jobs", category: "Scraping" },
+  { title: "navigation.data", path: "/scrape/data", category: "Scraping" },
+  { title: "navigation.contacts", path: "/scrape/contacts", category: "Scraping" },
+  { title: "navigation.apiKeys", path: "/scrape/api-keys", category: "Configuration" },
+  { title: "navigation.proxies", path: "/scrape/proxies", category: "Configuration" },
+  { title: "navigation.pipelines", path: "/scrape/pipelines", category: "Scraping" },
+  { title: "navigation.searchQueries", path: "/scrape/search-querys", category: "Scraping" },
+  { title: "navigation.queryGenerator", path: "/scrape/query-generator", category: "Tools" },
+  { title: "navigation.email", path: "/scrape/email", category: "Tools" },
+  { title: "navigation.ai", path: "/scrape/ai", category: "Tools" },
+  { title: "navigation.messages", path: "/scrape/messages", category: "General" },
+  { title: "navigation.email", path: "/email", category: "Email" },
+  { title: "navigation.analytics", path: "/analytics", category: "Email" },
+  { title: "navigation.campaigns", path: "/campaigns", category: "Email" },
+  { title: "navigation.sharedInboxes", path: "/shared-inboxes", category: "Email" },
+  { title: "navigation.followUps", path: "/follow-ups", category: "Email" },
+  { title: "navigation.emailAuthCheck", path: "/email-auth", category: "Email" },
 ];
 
 const AppHeader: React.FC = () => {
@@ -48,6 +50,7 @@ const AppHeader: React.FC = () => {
   const [showResults, setShowResults] = useState(false);
   const router = useRouter();
   const searchContainerRef = useRef<HTMLDivElement>(null);
+  const { t } = useTranslation('common');
 
   const { isMobileOpen, toggleSidebar, toggleMobileSidebar } = useSidebar();
 
@@ -108,12 +111,12 @@ const AppHeader: React.FC = () => {
     }
 
     const filtered = searchablePages.filter((page) =>
-      page.title.toLowerCase().includes(query.toLowerCase()) ||
-      page.category.toLowerCase().includes(query.toLowerCase())
+      t(page.title).toLowerCase().includes(query.toLowerCase()) ||
+      t(`search.${page.category.toLowerCase()}`).toLowerCase().includes(query.toLowerCase())
     );
     setSearchResults(filtered);
     setShowResults(true);
-  }, [debouncedQuery]);
+  }, [debouncedQuery, t]);
 
   const handleResultClick = (path: string) => {
     router.push(path);
@@ -165,7 +168,7 @@ const AppHeader: React.FC = () => {
           <div className="hidden lg:block">
             <form onSubmit={(e) => e.preventDefault()}>
               <div className="relative" ref={searchContainerRef}>
-                <span className="absolute -translate-y-1/2 left-4 top-1/2 pointer-events-none">
+                <span className="absolute -translate-y-1/2 left-4 top-1/2 pointer-events-none rtl:left-auto rtl:right-4">
                   <SearchIcon className="fill-gray-500 dark:fill-gray-400" />
                 </span>
                 <input
@@ -176,13 +179,13 @@ const AppHeader: React.FC = () => {
                   onFocus={() => {
                     if (searchQuery.trim() !== "") setShowResults(true);
                   }}
-                  placeholder="Search or type command..."
-                  className="h-11 w-full rounded-lg border border-gray-200 bg-transparent py-2.5 pl-12 pr-14 text-sm text-gray-800 shadow-theme-xs placeholder:text-gray-400 focus:border-brand-300 focus:outline-hidden focus:ring-3 focus:ring-brand-500/10 dark:border-gray-800 dark:bg-white/[0.03] dark:text-white/90 dark:placeholder:text-white/30 dark:focus:border-brand-800 xl:w-[430px]"
+                  placeholder={t('search.placeholder')}
+                  className="h-11 w-full rounded-lg border border-gray-200 bg-transparent py-2.5 pl-12 pr-14 text-sm text-gray-800 shadow-theme-xs placeholder:text-gray-400 focus:border-brand-300 focus:outline-hidden focus:ring-3 focus:ring-brand-500/10 dark:border-gray-800 dark:bg-white/[0.03] dark:text-white/90 dark:placeholder:text-white/30 dark:focus:border-brand-800 xl:w-[430px] rtl:pr-14 rtl:pl-12"
                 />
 
-                <button className="absolute right-2.5 top-1/2 inline-flex -translate-y-1/2 items-center gap-0.5 rounded-lg border border-gray-200 bg-gray-50 px-[7px] py-[4.5px] text-xs -tracking-[0.2px] text-gray-500 dark:border-gray-800 dark:bg-white/[0.03] dark:text-gray-400">
-                  <span> Ctrl </span>
-                  <span> K </span>
+                <button className="absolute right-2.5 top-1/2 inline-flex -translate-y-1/2 items-center gap-0.5 rounded-lg border border-gray-200 bg-gray-50 px-[7px] py-[4.5px] text-xs -tracking-[0.2px] text-gray-500 dark:border-gray-800 dark:bg-white/[0.03] dark:text-gray-400 rtl:right-auto rtl:left-2.5">
+                  <span> {t('search.shortcutCtrl')} </span>
+                  <span> {t('search.shortcutK')} </span>
                 </button>
 
                 {/* Search Results Dropdown */}
@@ -192,18 +195,18 @@ const AppHeader: React.FC = () => {
                       <button
                         key={result.path}
                         onClick={() => handleResultClick(result.path)}
-                        className="w-full text-left px-4 py-3 hover:bg-gray-50 dark:hover:bg-gray-700/50 flex items-center justify-between group transition-colors"
+                        className="w-full text-left px-4 py-3 hover:bg-gray-50 dark:hover:bg-gray-700/50 flex items-center justify-between group transition-colors rtl:text-right"
                       >
                         <div>
                           <div className="text-sm font-medium text-gray-900 dark:text-white">
-                            {result.title}
+                            {t(result.title)}
                           </div>
                           <div className="text-xs text-gray-500 dark:text-gray-400">
-                            {result.category}
+                            {t(`search.${result.category.toLowerCase()}`)}
                           </div>
                         </div>
                         <span className="text-xs text-gray-400 opacity-0 group-hover:opacity-100 transition-opacity">
-                          Jump to
+                          {t('search.jumpTo')}
                         </span>
                       </button>
                     ))}
@@ -212,7 +215,7 @@ const AppHeader: React.FC = () => {
 
                 {showResults && searchResults.length === 0 && searchQuery.trim() !== "" && (
                   <div className="absolute top-full left-0 w-full mt-2 bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 p-4 text-center text-sm text-gray-500 dark:text-gray-400 z-50">
-                    No results found for &quot;{searchQuery}&quot;
+                    {t('search.noResults', { query: searchQuery })}
                   </div>
                 )}
               </div>
@@ -227,6 +230,9 @@ const AppHeader: React.FC = () => {
             {/* <!-- Dark Mode Toggler --> */}
             <ThemeToggleButton />
             {/* <!-- Dark Mode Toggler --> */}
+
+            <LanguageSwitcher />
+            {/* <!-- Language Switcher --> */}
 
             <NotificationDropdown />
             {/* <!-- Notification Menu Area --> */}

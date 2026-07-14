@@ -9,9 +9,15 @@ import ThemeProviderWrapper from '@/components/common/ThemeProviderWrapper';
 import AuthProviderWrapper from '@/components/common/AuthProviderWrapper';
 import SidebarProviderWrapper from '@/components/common/SidebarProviderWrapper';
 import InactivityHandler from '@/components/auth/InactivityHandler';
+import LanguageDetector from '@/components/common/LanguageDetector';
 
 const outfit = Outfit({
   subsets: ["latin"],
+});
+
+const vazirmatn = Outfit({
+  subsets: ["latin"],
+  variable: "--font-vazirmatn",
 });
 
 export default function RootLayout({
@@ -20,8 +26,9 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className="dark">
-      <body className={`${outfit.className} dark:bg-gray-900`}>
+    <html lang="en" className="dark" dir="ltr">
+      <body className={`${outfit.className} ${vazirmatn.className} dark:bg-gray-900`}>
+        <LanguageDetector />
         <script
           dangerouslySetInnerHTML={{
             __html: `
