@@ -3,7 +3,7 @@ package ir.netpick.platform.gatekeeper.jwt;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
-import jakarta.annotation.PostConstruct;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
@@ -17,11 +17,11 @@ import java.util.Map;
 
 import static java.time.temporal.ChronoUnit.MINUTES;
 
+@Slf4j
 @Service
 public class JWTUtil {
 
-    @Value("${security.jwt.secret-key}")
-    private String secretKey;
+    private final JWTKeyRotationService keyRotationService;
 
     @Value("${security.jwt.access-expiration-minutes:15}")
     private long accessTokenExpirationMinutes;
@@ -29,14 +29,8 @@ public class JWTUtil {
     @Value("${security.jwt.issuer}")
     private String issuer;
 
-    private static final int MIN_SECRET_KEY_LENGTH = 256; // bits for HS256
-
-    @PostConstruct
-    private void validateSecretKey() {
-        if (secretKey == null || secretKey.length() < MIN_SECRET_KEY_LENGTH / 8) {
-            throw new IllegalStateException(
-                    "JWT secret key must be at least " + (MIN_SECRET_KEY_LENGTH / 8) + " characters (" + MIN_SECRET_KEY_LENGTH + " bits) for security");
-        }
+    public JWTUtil(JWTKeyRotationService keyRotationService) {
+        this.keyRotationService = keyRotationService;
     }
 
     public String issueToken(String subject) {
@@ -62,7 +56,9 @@ public class JWTUtil {
                 .issuer(issuer)
                 .issuedAt(Date.from(Instant.now()))
                 .expiration(Date.from(Instant.now().plus(accessTokenExpirationMinutes, MINUTES)))
-                .signWith(getSignInKey())
+                .header().keyId(keyRotationService.getKeyId())
+                .and()
+                .signWith(keyRotationService.getSigningKey())
                 .compact();
     }
 
@@ -84,16 +80,23 @@ public class JWTUtil {
     }
 
     private Claims getClaims(String token) {
+        // Parse token to get header with key ID
+        var parsed = Jwts.parser()
+                .verifyWith((SecretKey) keyRotationService.getSigningKey())
+                .build()
+                .parseSignedClaims(token);
+        
+        String keyId = parsed.getHeader().getKeyId();
+        
+        // Use appropriate verification key based on key ID
+        Key verificationKey = keyRotationService.getVerificationKey(keyId);
+        
         return Jwts
                 .parser()
-                .verifyWith((SecretKey) getSignInKey())
+                .verifyWith((SecretKey) verificationKey)
                 .build()
                 .parseSignedClaims(token)
                 .getPayload();
-    }
-
-    private Key getSignInKey() {
-        return Keys.hmacShaKeyFor(secretKey.getBytes());
     }
 
     public boolean isTokenValid(String token, UserDetails userDetails) {

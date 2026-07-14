@@ -435,6 +435,72 @@ public class ProxyService {
 
         return stats;
     }
+
+    // ==================== Proxy Health Check ====================
+
+    /**
+     * Quick health check for a proxy without full browser test.
+     * Used to verify proxy before use in scraping.
+     */
+    public boolean isProxyHealthy(Proxy proxy) {
+        if (proxy == null || proxy.getStatus() != ProxyStatus.ACTIVE) {
+            return false;
+        }
+
+        // Check if proxy has too many recent failures
+        if (proxy.getFailureCount() > 3 && proxy.getSuccessCount() < proxy.getFailureCount()) {
+            return false;
+        }
+
+        // Check if last test was recent (within 1 hour)
+        if (proxy.getLastTestedAt() != null) {
+            LocalDateTime oneHourAgo = LocalDateTime.now().minusHours(1);
+            if (proxy.getLastTestedAt().isAfter(oneHourAgo)) {
+                return true;
+            }
+        }
+
+        return true;
+    }
+
+    /**
+     * Get next proxy with health verification
+     */
+    public Optional<Proxy> getNextProxyWithHealthCheck() {
+        List<Proxy> activeProxies = proxyRepository.findByStatusInAndDeletedFalse(
+                List.of(ProxyStatus.ACTIVE, ProxyStatus.SLOW));
+
+        if (activeProxies.isEmpty()) {
+            log.warn("No active proxies available");
+            return Optional.empty();
+        }
+
+        // Try proxies in round-robin order, skip unhealthy ones
+        int startIndex = roundRobinIndex.getAndIncrement() % activeProxies.size();
+        for (int i = 0; i < activeProxies.size(); i++) {
+            int index = (startIndex + i) % activeProxies.size();
+            Proxy proxy = activeProxies.get(index);
+
+            if (isProxyHealthy(proxy)) {
+                // Ensure Vercel Relay has active session
+                if (ProxyProtocol.VERCEL_RELAY.equals(proxy.getProtocol())) {
+                    if (!vercelRelayService.isRelayActive(proxy.getId())) {
+                        try {
+                            vercelRelayService.deployRelay(proxy);
+                        } catch (Exception e) {
+                            log.warn("Failed to deploy Vercel Relay for proxy {}: {}", proxy.getId(), e.getMessage());
+                            continue;
+                        }
+                    }
+                }
+                log.debug("Selected healthy proxy: {}", proxy.toProxyUrl());
+                return Optional.of(proxy);
+            }
+        }
+
+        log.warn("No healthy proxies found among {} active proxies", activeProxies.size());
+        return Optional.empty();
+    }
 }
 
 
