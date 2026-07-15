@@ -64,6 +64,42 @@ const navItems: NavItem[] = [
       { name: "AI", path: "/scrape/ai", pro: false, new: true },
     ],
   },
+  {
+    icon: <PageIcon />,
+    name: "DealPick",
+    subItems: [
+      { name: "Deals", path: "/dealfarm", pro: false },
+    ],
+  },
+  {
+    icon: <PageIcon />,
+    name: "TaskPick",
+    subItems: [
+      { name: "Tasks", path: "/taskfarm", pro: false },
+      { name: "Projects", path: "/taskfarm/projects", pro: false },
+    ],
+  },
+  {
+    icon: <PageIcon />,
+    name: "FilePick",
+    subItems: [
+      { name: "Files", path: "/filefarm", pro: false },
+    ],
+  },
+  {
+    icon: <PageIcon />,
+    name: "FinancePick",
+    subItems: [
+      { name: "Invoices", path: "/financefarm", pro: false },
+    ],
+  },
+  {
+    icon: <PageIcon />,
+    name: "InventoryPick",
+    subItems: [
+      { name: "Inventory", path: "/inventoryfarm", pro: false },
+    ],
+  },
 ];
 
 // const othersItems: NavItem[] = [

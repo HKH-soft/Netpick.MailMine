@@ -17,5 +17,7 @@ public record DealDTO(
     UUID ownerId,
     LocalDateTime createdAt,
     LocalDateTime updatedAt,
-    LocalDateTime closedAt
+    LocalDateTime closedAt,
+    Integer probability,
+    LocalDateTime expectedCloseDate
 ) {}

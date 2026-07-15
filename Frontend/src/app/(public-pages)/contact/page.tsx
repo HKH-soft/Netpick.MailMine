@@ -1,12 +1,8 @@
-import { Metadata } from "next";
+"use client";
+
 import React, { useState } from "react";
 import Input from "@/components/form/input/InputField";
 import Button from "@/components/ui/button/Button";
-
-export const metadata: Metadata = {
-  title: "Contact Us | Netpick",
-  description: "Get in touch with the Netpick team",
-};
 
 export default function ContactPage() {
   const [formData, setFormData] = useState({
@@ -40,7 +36,7 @@ export default function ContactPage() {
               Get in Touch
             </h3>
             <p className="text-gray-600 dark:text-gray-400 mb-6">
-              Have questions or need assistance? We're here to help.
+              Have questions or need assistance? We&apos;re here to help.
             </p>
 
             <div className="space-y-4">

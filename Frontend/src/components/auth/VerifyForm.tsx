@@ -134,6 +134,7 @@ export default function VerifyForm() {
         } finally {
             setIsResending(false);
         }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [canResend, email, resendCooldown, cooldownKey]);
 
     const formatTime = (seconds: number) => {

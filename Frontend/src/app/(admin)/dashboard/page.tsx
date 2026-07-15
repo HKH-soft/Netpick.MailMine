@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+"use client";
 import { DashboardMetrics } from "@/components/dashboard/DashboardMetrics";
 import RecentScrapeJobs from "@/components/dashboard/RecentScrapeJobs";
 import RecentContacts from "@/components/dashboard/RecentContacts";
@@ -7,11 +7,6 @@ import { DashboardProvider, useDashboard } from "@/context/DashboardContext";
 import { DndProvider } from "react-dnd";
 import { HTML5Backend } from "react-dnd-html5-backend";
 import React from "react";
-
-export const metadata: Metadata = {
-  title: "Netpick Dashboard",
-  description: "Netpick Admin Dashboard",
-};
 
 function DashboardContent() {
   const { widgets, moveWidget, resizeWidget, removeWidget } = useDashboard();

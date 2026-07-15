@@ -12,5 +12,13 @@ export * from './useScrape';
 export * from './useCurrentUser';
 export * from './useGoBack';
 export * from './useModal';
+export * from './useDeals';
+export * from './useTasks';
+export * from './useProjects';
+export * from './useFiles';
+export * from './useFolders';
+export * from './useInvoices';
+export * from './useTransactions';
+export * from './useProducts';
 
 

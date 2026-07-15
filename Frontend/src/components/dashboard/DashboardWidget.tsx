@@ -32,7 +32,7 @@ export const DashboardWidget: React.FC<DashboardWidgetProps> = ({
   onResize,
   position,
 }) => {
-  const resizeRef = useRef<HTMLDivElement>(null);
+  const resizeRef = useRef<HTMLButtonElement>(null);
 
   const [, drag] = useDrag({
     type: "WIDGET",
@@ -64,11 +64,11 @@ export const DashboardWidget: React.FC<DashboardWidgetProps> = ({
 
   return (
     <div
-      ref={drop}
+      ref={drop as unknown as React.Ref<HTMLDivElement>}
       className={`rounded-2xl border border-gray-200 bg-white dark:border-gray-800 dark:bg-white/[0.03] ${getWidthClass()} relative`}
     >
       <div
-        ref={drag}
+        ref={drag as unknown as React.Ref<HTMLDivElement>}
         className="flex items-center justify-between p-4 border-b border-gray-200 dark:border-gray-800 cursor-move"
       >
         <h3 className="text-lg font-semibold text-gray-800 dark:text-white/90">

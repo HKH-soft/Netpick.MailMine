@@ -1,13 +1,14 @@
 package ir.netpick.platform.taskfarm.controller;
 
 import ir.netpick.platform.taskfarm.dto.TaskDTO;
-import ir.netpick.platform.gatekeeper.model.User;
+import ir.netpick.platform.taskfarm.model.Task;
+import ir.netpick.platform.taskfarm.model.TaskStatus;
+import ir.netpick.platform.taskfarm.service.TaskService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
 import java.util.UUID;
 
 /**
@@ -16,37 +17,70 @@ import java.util.UUID;
 @RestController
 @RequestMapping("/api/v1/taskfarm/tasks")
 @RequiredArgsConstructor
+@PreAuthorize("hasAnyRole('ADMIN', 'SUPER_ADMIN')")
 public class TaskController {
 
-    // TODO: Add TaskService dependency
+    private final TaskService taskService;
 
     @GetMapping
-    public ResponseEntity<List<TaskDTO>> getAllTasks(@AuthenticationPrincipal User user) {
-        // TODO: Implement
-        return ResponseEntity.ok(List.of());
+    public ResponseEntity<?> getAllTasks(@RequestParam(defaultValue = "1") int page) {
+        return ResponseEntity.ok(taskService.getAll(page));
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<TaskDTO> getTask(@PathVariable UUID id, @AuthenticationPrincipal User user) {
-        // TODO: Implement
-        return ResponseEntity.ok(null);
+    public ResponseEntity<?> getTask(@PathVariable UUID id) {
+        return ResponseEntity.ok(taskService.getById(id));
     }
 
     @PostMapping
-    public ResponseEntity<TaskDTO> createTask(@RequestBody TaskDTO request, @AuthenticationPrincipal User user) {
-        // TODO: Implement
-        return ResponseEntity.ok(request);
+    public ResponseEntity<?> createTask(@RequestBody TaskDTO request) {
+        Task task = new Task();
+        task.setTitle(request.title());
+        task.setDescription(request.description());
+        task.setStatus(TaskStatus.valueOf(request.status()));
+        task.setPriority(ir.netpick.platform.taskfarm.model.TaskPriority.valueOf(request.priority()));
+        task.setProjectId(request.projectId());
+        task.setAssigneeId(request.assigneeId());
+        task.setCreatorId(request.creatorId());
+        task.setDueDate(request.dueDate());
+        task.setOrder(request.order());
+        return ResponseEntity.ok(taskService.create(task));
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<TaskDTO> updateTask(@PathVariable UUID id, @RequestBody TaskDTO request, @AuthenticationPrincipal User user) {
-        // TODO: Implement
-        return ResponseEntity.ok(request);
+    public ResponseEntity<?> updateTask(@PathVariable UUID id, @RequestBody TaskDTO request) {
+        Task task = new Task();
+        task.setTitle(request.title());
+        task.setDescription(request.description());
+        task.setStatus(TaskStatus.valueOf(request.status()));
+        task.setPriority(ir.netpick.platform.taskfarm.model.TaskPriority.valueOf(request.priority()));
+        task.setProjectId(request.projectId());
+        task.setAssigneeId(request.assigneeId());
+        task.setCreatorId(request.creatorId());
+        task.setDueDate(request.dueDate());
+        task.setOrder(request.order());
+        return ResponseEntity.ok(taskService.update(id, task));
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteTask(@PathVariable UUID id, @AuthenticationPrincipal User user) {
-        // TODO: Implement
+    public ResponseEntity<?> deleteTask(@PathVariable UUID id) {
+        taskService.delete(id);
         return ResponseEntity.noContent().build();
+    }
+
+    @PutMapping("/{id}/restore")
+    public ResponseEntity<?> restoreTask(@PathVariable UUID id) {
+        taskService.restore(id);
+        return ResponseEntity.ok().build();
+    }
+
+    @GetMapping("/status/{status}")
+    public ResponseEntity<?> getByStatus(@PathVariable String status, @RequestParam(defaultValue = "1") int page) {
+        return ResponseEntity.ok(taskService.getByStatus(TaskStatus.valueOf(status), page));
+    }
+
+    @GetMapping("/project/{projectId}")
+    public ResponseEntity<?> getByProject(@PathVariable UUID projectId, @RequestParam(defaultValue = "1") int page) {
+        return ResponseEntity.ok(taskService.getByProject(projectId, page));
     }
 }

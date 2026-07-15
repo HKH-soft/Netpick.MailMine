@@ -18,5 +18,6 @@ public record TaskDTO(
     LocalDateTime dueDate,
     LocalDateTime createdAt,
     LocalDateTime updatedAt,
-    LocalDateTime completedAt
+    LocalDateTime completedAt,
+    Integer order
 ) {}
