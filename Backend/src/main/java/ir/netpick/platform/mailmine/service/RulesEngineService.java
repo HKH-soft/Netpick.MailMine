@@ -75,7 +75,12 @@ public class RulesEngineService {
                 log.info("Notification triggered for rule: {}", rule.getName());
             }
             case MOVE_TO_FOLDER -> {
-                // TODO: implement folder move logic
+                // Move email to specified folder
+                String folderName = rule.getActionValue();
+                if (folderName != null && !folderName.isEmpty()) {
+                    email.setMailboxFolder(folderName);
+                    log.info("Moved email {} to folder: {}", email.getMessageId(), folderName);
+                }
             }
         }
     }
