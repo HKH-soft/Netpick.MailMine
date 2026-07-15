@@ -2,8 +2,6 @@ package ir.netpick.platform.financefarm.controller;
 
 import ir.netpick.platform.core.PageDTO;
 import ir.netpick.platform.financefarm.dto.FinanceSummaryDTO;
-import ir.netpick.platform.financefarm.dto.InvoiceDTO;
-import ir.netpick.platform.financefarm.dto.InvoiceLineItemDTO;
 import ir.netpick.platform.financefarm.model.Invoice;
 import ir.netpick.platform.financefarm.model.InvoiceStatus;
 import ir.netpick.platform.financefarm.service.InvoiceService;

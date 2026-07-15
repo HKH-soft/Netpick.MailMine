@@ -5,13 +5,10 @@ import ir.netpick.platform.core.constants.GeneralConstants;
 import ir.netpick.platform.core.exception.ResourceNotFoundException;
 import ir.netpick.platform.core.utils.PageDTOMapper;
 import ir.netpick.platform.financefarm.dto.FinanceSummaryDTO;
-import ir.netpick.platform.financefarm.dto.InvoiceDTO;
-import ir.netpick.platform.financefarm.dto.InvoiceLineItemDTO;
 import ir.netpick.platform.financefarm.model.Invoice;
 import ir.netpick.platform.financefarm.model.InvoiceLineItem;
 import ir.netpick.platform.financefarm.model.InvoiceStatus;
 import ir.netpick.platform.financefarm.repository.InvoiceRepository;
-import ir.netpick.platform.financefarm.repository.TransactionRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -21,8 +18,6 @@ import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
-import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
@@ -30,7 +25,6 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class InvoiceService {
     private final InvoiceRepository invoiceRepository;
-    private final TransactionRepository transactionRepository;
 
     public PageDTO<Invoice> getAll(int pageNumber) {
         Pageable pageable = PageRequest.of(pageNumber - 1, GeneralConstants.PAGE_SIZE,

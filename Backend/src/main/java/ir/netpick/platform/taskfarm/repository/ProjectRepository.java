@@ -1,7 +1,6 @@
 package ir.netpick.platform.taskfarm.repository;
 
 import ir.netpick.platform.taskfarm.model.Project;
-import ir.netpick.platform.taskfarm.model.Project.ProjectStatus;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;

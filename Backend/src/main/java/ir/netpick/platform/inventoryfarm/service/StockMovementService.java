@@ -4,7 +4,6 @@ import ir.netpick.platform.core.PageDTO;
 import ir.netpick.platform.core.constants.GeneralConstants;
 import ir.netpick.platform.core.exception.ResourceNotFoundException;
 import ir.netpick.platform.core.utils.PageDTOMapper;
-import ir.netpick.platform.inventoryfarm.dto.StockMovementDTO;
 import ir.netpick.platform.inventoryfarm.model.StockMovement;
 import ir.netpick.platform.inventoryfarm.repository.StockMovementRepository;
 import lombok.RequiredArgsConstructor;

@@ -1,7 +1,6 @@
 package ir.netpick.platform.inventoryfarm.repository;
 
 import ir.netpick.platform.inventoryfarm.model.StockMovement;
-import ir.netpick.platform.inventoryfarm.model.StockMovementType;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
