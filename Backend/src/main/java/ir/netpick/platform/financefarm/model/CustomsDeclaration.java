@@ -6,6 +6,7 @@ import lombok.Getter;
 import lombok.Setter;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.time.LocalDate;
 import java.util.UUID;
 
@@ -87,7 +88,7 @@ public class CustomsDeclaration extends BaseEntity {
     public void calculateDuty() {
         if (customsValue != null && dutyRate != null) {
             this.dutyAmount = customsValue.multiply(dutyRate)
-                .divide(new BigDecimal("100"), 2, BigDecimal.ROUND_HALF_UP);
+                .divide(new BigDecimal("100"), 2, RoundingMode.HALF_UP);
         }
     }
 
@@ -98,7 +99,7 @@ public class CustomsDeclaration extends BaseEntity {
         if (customsValue != null && vatRate != null) {
             BigDecimal base = customsValue.add(dutyAmount != null ? dutyAmount : BigDecimal.ZERO);
             this.vatAmount = base.multiply(vatRate)
-                .divide(new BigDecimal("100"), 2, BigDecimal.ROUND_HALF_UP);
+                .divide(new BigDecimal("100"), 2, RoundingMode.HALF_UP);
         }
     }
 
@@ -108,6 +109,6 @@ public class CustomsDeclaration extends BaseEntity {
     public void calculateTotalTax() {
         BigDecimal duty = dutyAmount != null ? dutyAmount : BigDecimal.ZERO;
         BigDecimal vat = vatAmount != null ? vatAmount : BigDecimal.ZERO;
-        this.totalTax = duty.add(vat).setScale(2, BigDecimal.ROUND_HALF_UP);
+        this.totalTax = duty.add(vat).setScale(2, RoundingMode.HALF_UP);
     }
 }

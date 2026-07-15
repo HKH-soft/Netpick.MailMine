@@ -1,6 +1,5 @@
 package ir.netpick.platform.financefarm.service;
 
-import ir.netpick.platform.financefarm.model.CurrencyRate;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cache.annotation.CacheEvict;
@@ -11,7 +10,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
 import java.math.BigDecimal;
-import java.time.LocalDate;
+import java.math.RoundingMode;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -112,13 +111,13 @@ public class TseExchangeRateService {
 
         BigDecimal rate = switch (fromCurrency + "_" + toCurrency) {
             case "USD_IRR" -> getUsdToIrrRate();
-            case "IRR_USD" -> BigDecimal.ONE.divide(getUsdToIrrRate(), 6, BigDecimal.ROUND_HALF_UP);
+            case "IRR_USD" -> BigDecimal.ONE.divide(getUsdToIrrRate(), 6, RoundingMode.HALF_UP);
             case "EUR_IRR" -> getEurToIrrRate();
-            case "IRR_EUR" -> BigDecimal.ONE.divide(getEurToIrrRate(), 6, BigDecimal.ROUND_HALF_UP);
+            case "IRR_EUR" -> BigDecimal.ONE.divide(getEurToIrrRate(), 6, RoundingMode.HALF_UP);
             default -> throw new IllegalArgumentException("Unsupported currency pair: " + fromCurrency + "_" + toCurrency);
         };
 
-        return amount.multiply(rate).setScale(2, BigDecimal.ROUND_HALF_UP);
+        return amount.multiply(rate).setScale(2, RoundingMode.HALF_UP);
     }
 
     // Inner classes for API response

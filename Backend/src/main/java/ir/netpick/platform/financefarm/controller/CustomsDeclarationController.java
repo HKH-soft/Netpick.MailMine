@@ -1,7 +1,6 @@
 package ir.netpick.platform.financefarm.controller;
 
 import ir.netpick.platform.core.PageDTO;
-import ir.netpick.platform.core.result.Result;
 import ir.netpick.platform.financefarm.model.CustomsDeclaration;
 import ir.netpick.platform.financefarm.service.CustomsDeclarationService;
 import lombok.RequiredArgsConstructor;
