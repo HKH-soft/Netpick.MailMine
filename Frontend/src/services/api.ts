@@ -1,8 +1,12 @@
 // api.ts
 import AuthService from './authService';
+import { mockDashboardStats, mockCampaigns, mockContacts, mockDeals, createMockPage } from './mockData';
 
 // Use relative URL to go through Next.js proxy
 const API_BASE_URL = '';
+
+// Check if dev mode is enabled (mock data, no auth required)
+const isDevMode = process.env.NEXT_PUBLIC_DEV_MODE === 'true';
 
 export class ApiError<T = unknown> extends Error {
   status: number;
@@ -51,6 +55,53 @@ export interface ApiResponse<T> {
   empty: boolean;
 }
 
+// Get mock data based on endpoint
+function getMockData<T>(endpoint: string): T | null {
+  if (!isDevMode) return null;
+
+  // Dashboard stats
+  if (endpoint.includes('/dashboard/stats') || endpoint.includes('/dashboard')) {
+    return mockDashboardStats as T;
+  }
+
+  // Campaigns
+  if (endpoint.includes('/campaigns')) {
+    return createMockPage(mockCampaigns) as T;
+  }
+
+  // Contacts
+  if (endpoint.includes('/contacts')) {
+    return createMockPage(mockContacts) as T;
+  }
+
+  // Deals
+  if (endpoint.includes('/deals')) {
+    return createMockPage(mockDeals) as T;
+  }
+
+  // Users
+  if (endpoint.includes('/users')) {
+    return createMockPage([{ id: '1', email: 'dev@example.com', name: 'Development User', role: 'SUPER_ADMIN' }]) as T;
+  }
+
+  // Products
+  if (endpoint.includes('/products')) {
+    return createMockPage([{ id: '1', name: 'Sample Product', price: 99.99, description: 'Mock product for dev mode' }]) as T;
+  }
+
+  // Tasks
+  if (endpoint.includes('/tasks')) {
+    return createMockPage([{ id: '1', title: 'Sample Task', status: 'TODO', priority: 'HIGH' }]) as T;
+  }
+
+  // Projects
+  if (endpoint.includes('/projects')) {
+    return createMockPage([{ id: '1', name: 'Sample Project', status: 'ACTIVE', progress: 50 }]) as T;
+  }
+
+  return null;
+}
+
 class ApiService {
   private baseUrl: string;
   private isRefreshing: boolean = false;
@@ -84,6 +135,18 @@ class ApiService {
   }
 
   public async request<T>(endpoint: string, options: RequestInit = {}, isRetry: boolean = false): Promise<T> {
+    // In dev mode, return mock data instead of making real API calls
+    if (isDevMode) {
+      const mockData = getMockData<T>(endpoint);
+      if (mockData) {
+        console.debug(`[DEV MODE] Returning mock data for ${endpoint}`);
+        return mockData;
+      }
+      // For unhandled endpoints, return empty object
+      console.debug(`[DEV MODE] No mock data for ${endpoint}, returning empty object`);
+      return {} as T;
+    }
+
     const url = `${this.baseUrl}${endpoint}`;
     
     // Get the auth token

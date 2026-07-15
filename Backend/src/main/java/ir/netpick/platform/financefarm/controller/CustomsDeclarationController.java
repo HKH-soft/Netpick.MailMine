@@ -1,10 +1,11 @@
 package ir.netpick.platform.financefarm.controller;
 
+import ir.netpick.platform.core.PageDTO;
 import ir.netpick.platform.core.result.Result;
-import ir.netpick.platform.core.result.ResultGenerator;
 import ir.netpick.platform.financefarm.model.CustomsDeclaration;
 import ir.netpick.platform.financefarm.service.CustomsDeclarationService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.UUID;
@@ -17,51 +18,51 @@ public class CustomsDeclarationController {
     private final CustomsDeclarationService customsDeclarationService;
 
     @GetMapping
-    public Result getAll(
+    public ResponseEntity<PageDTO<CustomsDeclaration>> getAll(
             @RequestParam(defaultValue = "1") int pageNumber) {
-        return ResultGenerator.success(customsDeclarationService.getAll(pageNumber));
+        return ResponseEntity.ok(customsDeclarationService.getAll(pageNumber));
     }
 
     @GetMapping("/status/{status}")
-    public Result getByStatus(
+    public ResponseEntity<PageDTO<CustomsDeclaration>> getByStatus(
             @PathVariable String status,
             @RequestParam(defaultValue = "1") int pageNumber) {
-        return ResultGenerator.success(customsDeclarationService.getByStatus(status, pageNumber));
+        return ResponseEntity.ok(customsDeclarationService.getByStatus(status, pageNumber));
     }
 
     @GetMapping("/{id}")
-    public Result getById(@PathVariable UUID id) {
-        return ResultGenerator.success(customsDeclarationService.getById(id));
+    public ResponseEntity<CustomsDeclaration> getById(@PathVariable UUID id) {
+        return ResponseEntity.ok(customsDeclarationService.getById(id));
     }
 
     @GetMapping("/number/{declarationNumber}")
-    public Result getByDeclarationNumber(@PathVariable String declarationNumber) {
-        return ResultGenerator.success(customsDeclarationService.getByDeclarationNumber(declarationNumber));
+    public ResponseEntity<CustomsDeclaration> getByDeclarationNumber(@PathVariable String declarationNumber) {
+        return ResponseEntity.ok(customsDeclarationService.getByDeclarationNumber(declarationNumber));
     }
 
     @PostMapping
-    public Result create(@RequestBody CustomsDeclaration declaration) {
-        return ResultGenerator.success(customsDeclarationService.create(declaration));
+    public ResponseEntity<CustomsDeclaration> create(@RequestBody CustomsDeclaration declaration) {
+        return ResponseEntity.ok(customsDeclarationService.create(declaration));
     }
 
     @PutMapping("/{id}")
-    public Result update(@PathVariable UUID id, @RequestBody CustomsDeclaration declaration) {
-        return ResultGenerator.success(customsDeclarationService.update(id, declaration));
+    public ResponseEntity<CustomsDeclaration> update(@PathVariable UUID id, @RequestBody CustomsDeclaration declaration) {
+        return ResponseEntity.ok(customsDeclarationService.update(id, declaration));
     }
 
     @DeleteMapping("/{id}")
-    public Result delete(@PathVariable UUID id) {
+    public ResponseEntity<Void> delete(@PathVariable UUID id) {
         customsDeclarationService.delete(id);
-        return ResultGenerator.success("Customs declaration deleted");
+        return ResponseEntity.noContent().build();
     }
 
     @PostMapping("/{id}/submit")
-    public Result submit(@PathVariable UUID id) {
-        return ResultGenerator.success(customsDeclarationService.submitForApproval(id));
+    public ResponseEntity<CustomsDeclaration> submit(@PathVariable UUID id) {
+        return ResponseEntity.ok(customsDeclarationService.submitForApproval(id));
     }
 
     @PostMapping("/{id}/approve")
-    public Result approve(@PathVariable UUID id) {
-        return ResultGenerator.success(customsDeclarationService.approve(id));
+    public ResponseEntity<CustomsDeclaration> approve(@PathVariable UUID id) {
+        return ResponseEntity.ok(customsDeclarationService.approve(id));
     }
 }

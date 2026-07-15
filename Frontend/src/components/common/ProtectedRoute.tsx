@@ -10,6 +10,9 @@ interface ProtectedRouteProps {
   allowedRoles?: string[];
 }
 
+// Check if dev mode is enabled (mock data, no auth required)
+const isDevMode = process.env.NEXT_PUBLIC_DEV_MODE === 'true';
+
 const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
   children,
   allowedRoles
@@ -27,6 +30,14 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
     }
 
     const checkAuthorization = () => {
+      // In dev mode, bypass all authentication checks
+      if (isDevMode) {
+        setIsAuthorized(true);
+        setIsLoading(false);
+        setHasCheckedAuth(true);
+        return;
+      }
+
       // Validate token and check if user is authenticated
       const isValid = AuthService.isAuthenticated();
 

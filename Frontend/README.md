@@ -123,7 +123,22 @@ Frontend/
 
    Open [http://localhost:3000](http://localhost:3000) in your browser.
 
-5. **Build for Production**
+5. **Run with Mock Data (No Backend Required)**
+   
+   For frontend-only development without the backend, use dev mode with mock data:
+   ```bash
+   npm run dev:mock
+   # or
+   NEXT_PUBLIC_DEV_MODE=true npm run dev
+   ```
+   
+   This mode:
+   - Bypasses all authentication checks
+   - Provides mock data for dashboard, campaigns, contacts, deals, etc.
+   - Skips inactivity timeout and token refresh
+   - Allows full access to all protected routes
+
+6. **Build for Production**
    ```bash
    npm run build
    npm run start

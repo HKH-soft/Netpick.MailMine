@@ -13,11 +13,21 @@ interface AuthContextType {
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
+// Check if dev mode is enabled (mock data, no auth required)
+const isDevMode = process.env.NEXT_PUBLIC_DEV_MODE === 'true';
+
 export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
   const [isInitialized, setIsInitialized] = useState<boolean>(false);
 
   useEffect(() => {
+    // In dev mode, skip authentication check and auto-authenticate
+    if (isDevMode) {
+      setIsAuthenticated(true);
+      setIsInitialized(true);
+      return;
+    }
+
     // Check if user is authenticated on initial load and validate token
     setIsAuthenticated(AuthService.isAuthenticated());
     setIsInitialized(true);
@@ -29,12 +39,14 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   };
 
   const logout = () => {
-    AuthService.removeToken();
+    if (!isDevMode) {
+      AuthService.removeToken();
+    }
     setIsAuthenticated(false);
   };
 
-  // Don't render children until auth state is initialized to prevent hydration errors
-  if (!isInitialized) {
+  // In dev mode, render children immediately without waiting for auth initialization
+  if (!isInitialized && !isDevMode) {
     return null;
   }
 

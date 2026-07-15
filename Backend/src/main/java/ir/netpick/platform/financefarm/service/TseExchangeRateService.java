@@ -1,7 +1,6 @@
 package ir.netpick.platform.financefarm.service;
 
 import ir.netpick.platform.financefarm.model.CurrencyRate;
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cache.annotation.CacheEvict;
@@ -21,11 +20,10 @@ import java.util.Map;
  * Provides daily IRR/USD/TMN rates.
  */
 @Service
-@RequiredArgsConstructor
 @Slf4j
 public class TseExchangeRateService {
 
-    private final RestTemplate restTemplate;
+    private final RestTemplate restTemplate = new RestTemplate();
 
     @Value("${tse.api.url:https://api.tgju.org/v1/}")
     private String tseApiUrl;

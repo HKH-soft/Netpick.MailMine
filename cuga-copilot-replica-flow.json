@@ -1,0 +1,532 @@
+{
+  "data": {
+    "edges": [
+      {
+        "animated": false,
+        "className": "",
+        "data": {
+          "sourceHandle": {
+            "dataType": "ChatInput",
+            "id": "ChatInput-main",
+            "name": "message",
+            "output_types": ["Message"]
+          },
+          "targetHandle": {
+            "fieldName": "input_value",
+            "id": "CugaAgent-main",
+            "inputTypes": ["Message"],
+            "type": "str"
+          }
+        },
+        "id": "xy-edge__ChatInput-main-CugaAgent-main",
+        "selected": false,
+        "source": "ChatInput-main",
+        "sourceHandle": "message",
+        "target": "CugaAgent-main",
+        "targetHandle": "input_value"
+      },
+      {
+        "animated": false,
+        "className": "",
+        "data": {
+          "sourceHandle": {
+            "dataType": "LanguageModel",
+            "id": "OpenAIModel-main",
+            "name": "model_output",
+            "output_types": ["LanguageModel"]
+          },
+          "targetHandle": {
+            "fieldName": "model",
+            "id": "CugaAgent-main",
+            "inputTypes": ["LanguageModel"],
+            "type": "model"
+          }
+        },
+        "id": "xy-edge__OpenAIModel-main-CugaAgent-main",
+        "selected": false,
+        "source": "OpenAIModel-main",
+        "sourceHandle": "model_output",
+        "target": "CugaAgent-main",
+        "targetHandle": "model"
+      },
+      {
+        "animated": false,
+        "className": "",
+        "data": {
+          "sourceHandle": {
+            "dataType": "Agent",
+            "id": "CugaAgent-main",
+            "name": "response",
+            "output_types": ["Message"]
+          },
+          "targetHandle": {
+            "fieldName": "input_value",
+            "id": "ChatOutput-main",
+            "inputTypes": ["Message"],
+            "type": "other"
+          }
+        },
+        "id": "xy-edge__CugaAgent-main-ChatOutput-main",
+        "selected": false,
+        "source": "CugaAgent-main",
+        "sourceHandle": "response",
+        "target": "ChatOutput-main",
+        "targetHandle": "input_value"
+      },
+      {
+        "animated": false,
+        "className": "",
+        "data": {
+          "sourceHandle": {
+            "dataType": "Tool",
+            "id": "ShellCommand-main",
+            "name": "component_as_tool",
+            "output_types": ["Tool"]
+          },
+          "targetHandle": {
+            "fieldName": "tools",
+            "id": "CugaAgent-main",
+            "inputTypes": ["Tool"],
+            "type": "other"
+          }
+        },
+        "id": "xy-edge__ShellCommand-main-CugaAgent-main",
+        "selected": false,
+        "source": "ShellCommand-main",
+        "sourceHandle": "component_as_tool",
+        "target": "CugaAgent-main",
+        "targetHandle": "tools"
+      },
+      {
+        "animated": false,
+        "className": "",
+        "data": {
+          "sourceHandle": {
+            "dataType": "Tool",
+            "id": "GitOperations-main",
+            "name": "component_as_tool",
+            "output_types": ["Tool"]
+          },
+          "targetHandle": {
+            "fieldName": "tools",
+            "id": "CugaAgent-main",
+            "inputTypes": ["Tool"],
+            "type": "other"
+          }
+        },
+        "id": "xy-edge__GitOperations-main-CugaAgent-main",
+        "selected": false,
+        "source": "GitOperations-main",
+        "sourceHandle": "component_as_tool",
+        "target": "CugaAgent-main",
+        "targetHandle": "tools"
+      },
+      {
+        "animated": false,
+        "className": "",
+        "data": {
+          "sourceHandle": {
+            "dataType": "Tool",
+            "id": "CodeEditor-main",
+            "name": "component_as_tool",
+            "output_types": ["Tool"]
+          },
+          "targetHandle": {
+            "fieldName": "tools",
+            "id": "CugaAgent-main",
+            "inputTypes": ["Tool"],
+            "type": "other"
+          }
+        },
+        "id": "xy-edge__CodeEditor-main-CugaAgent-main",
+        "selected": false,
+        "source": "CodeEditor-main",
+        "sourceHandle": "component_as_tool",
+        "target": "CugaAgent-main",
+        "targetHandle": "tools"
+      },
+      {
+        "animated": false,
+        "className": "",
+        "data": {
+          "sourceHandle": {
+            "dataType": "Tool",
+            "id": "WorkspaceContext-main",
+            "name": "component_as_tool",
+            "output_types": ["Tool"]
+          },
+          "targetHandle": {
+            "fieldName": "tools",
+            "id": "CugaAgent-main",
+            "inputTypes": ["Tool"],
+            "type": "other"
+          }
+        },
+        "id": "xy-edge__WorkspaceContext-main-CugaAgent-main",
+        "selected": false,
+        "source": "WorkspaceContext-main",
+        "sourceHandle": "component_as_tool",
+        "target": "CugaAgent-main",
+        "targetHandle": "tools"
+      },
+      {
+        "animated": false,
+        "className": "",
+        "data": {
+          "sourceHandle": {
+            "dataType": "Tool",
+            "id": "MCPTools-main",
+            "name": "component_as_tool",
+            "output_types": ["Tool"]
+          },
+          "targetHandle": {
+            "fieldName": "tools",
+            "id": "CugaAgent-main",
+            "inputTypes": ["Tool"],
+            "type": "other"
+          }
+        },
+        "id": "xy-edge__MCPTools-main-CugaAgent-main",
+        "selected": false,
+        "source": "MCPTools-main",
+        "sourceHandle": "component_as_tool",
+        "target": "CugaAgent-main",
+        "targetHandle": "tools"
+      },
+      {
+        "animated": false,
+        "className": "",
+        "data": {
+          "sourceHandle": {
+            "dataType": "Tool",
+            "id": "GitHubIntegration-main",
+            "name": "component_as_tool",
+            "output_types": ["Tool"]
+          },
+          "targetHandle": {
+            "fieldName": "tools",
+            "id": "CugaAgent-main",
+            "inputTypes": ["Tool"],
+            "type": "other"
+          }
+        },
+        "id": "xy-edge__GitHubIntegration-main-CugaAgent-main",
+        "selected": false,
+        "source": "GitHubIntegration-main",
+        "sourceHandle": "component_as_tool",
+        "target": "CugaAgent-main",
+        "targetHandle": "tools"
+      },
+      {
+        "animated": false,
+        "className": "",
+        "data": {
+          "sourceHandle": {
+            "dataType": "Tool",
+            "id": "WorkspaceMemory-main",
+            "name": "component_as_tool",
+            "output_types": ["Tool"]
+          },
+          "targetHandle": {
+            "fieldName": "tools",
+            "id": "CugaAgent-main",
+            "inputTypes": ["Tool"],
+            "type": "other"
+          }
+        },
+        "id": "xy-edge__WorkspaceMemory-main-CugaAgent-main",
+        "selected": false,
+        "source": "WorkspaceMemory-main",
+        "sourceHandle": "component_as_tool",
+        "target": "CugaAgent-main",
+        "targetHandle": "tools"
+      }
+    ],
+    "nodes": [
+      {
+        "data": {
+          "id": "ChatInput-main",
+          "node": {
+            "base_classes": ["Message"],
+            "display_name": "Chat Input",
+            "description": "Get chat inputs from the Playground.",
+            "icon": "MessagesSquare",
+            "name": "ChatInput",
+            "template": {
+              "_type": "Component",
+              "input_value": {"value": ""},
+              "sender": {"value": "User"},
+              "sender_name": {"value": "User"}
+            },
+            "tool_mode": false
+          },
+          "showNode": false,
+          "type": "ChatInput"
+        },
+        "id": "ChatInput-main",
+        "position": {"x": 100, "y": 100},
+        "type": "genericNode"
+      },
+      {
+        "data": {
+          "id": "CugaAgent-main",
+          "node": {
+            "base_classes": ["Data", "JSON", "Message"],
+            "display_name": "CUGA Agent",
+            "description": "Advanced agent with browser automation and tool support.",
+            "icon": "Bot",
+            "name": "Cuga",
+            "template": {
+              "_type": "Component",
+              "agent_llm": {"value": ""},
+              "instructions": {
+                "value": "You are a Copilot-like agent. Handle:\n- Code editing via CodeEditor\n- Shell commands via ShellCommand\n- Git operations via GitOperations\n- Workspace navigation via WorkspaceContext\n- External tools via MCP\n- GitHub operations via GitHubIntegration\n- Persistent memory via WorkspaceMemory\n- Web browsing (browser_enabled=True)\n\nExplain actions before executing."
+              },
+              "n_messages": {"value": 100},
+              "browser_enabled": {"value": true},
+              "web_apps": {"value": ""},
+              "lite_mode": {"value": true},
+              "decomposition_strategy": {"value": "flexible"}
+            },
+            "tool_mode": false
+          },
+          "selected_output": "response",
+          "showNode": true,
+          "type": "Cuga"
+        },
+        "id": "CugaAgent-main",
+        "position": {"x": 400, "y": 100},
+        "type": "genericNode"
+      },
+      {
+        "data": {
+          "id": "ChatOutput-main",
+          "node": {
+            "base_classes": ["Message"],
+            "display_name": "Chat Output",
+            "description": "Display a chat message in the Playground.",
+            "icon": "MessagesSquare",
+            "name": "ChatOutput",
+            "template": {
+              "_type": "Component",
+              "sender": {"value": "Machine"},
+              "sender_name": {"value": "AI"}
+            },
+            "tool_mode": false
+          },
+          "showNode": false,
+          "type": "ChatOutput"
+        },
+        "id": "ChatOutput-main",
+        "position": {"x": 700, "y": 100},
+        "type": "genericNode"
+      },
+      {
+        "data": {
+          "id": "OpenAIModel-main",
+          "node": {
+            "base_classes": ["LanguageModel", "Message"],
+            "display_name": "OpenAI",
+            "description": "Generate text using OpenAI models.",
+            "icon": "OpenAI",
+            "name": "OpenAIModel",
+            "template": {
+              "_type": "Component",
+              "api_key": {"value": "OPENAI_API_KEY"},
+              "model_name": {"value": "gpt-4o"},
+              "temperature": {"value": 0.7}
+            },
+            "tool_mode": false
+          },
+          "selected_output": "model_output",
+          "showNode": false,
+          "type": "OpenAIModel"
+        },
+        "id": "OpenAIModel-main",
+        "position": {"x": 300, "y": -100},
+        "type": "genericNode"
+      },
+      {
+        "data": {
+          "id": "ShellCommand-main",
+          "node": {
+            "base_classes": ["Data"],
+            "display_name": "Shell Command",
+            "description": "Execute whitelisted shell commands safely.",
+            "icon": "square-terminal",
+            "name": "ShellCommand",
+            "template": {
+              "_type": "Component",
+              "command": {"value": ""},
+              "safe_mode": {"value": true}
+            },
+            "tool_mode": true
+          },
+          "selected_output": "component_as_tool",
+          "showNode": true,
+          "type": "ShellCommand"
+        },
+        "id": "ShellCommand-main",
+        "position": {"x": 200, "y": 300},
+        "type": "genericNode"
+      },
+      {
+        "data": {
+          "id": "GitOperations-main",
+          "node": {
+            "base_classes": ["Data"],
+            "display_name": "Git Operations",
+            "description": "Execute git commands for version control.",
+            "icon": "git-branch",
+            "name": "Git",
+            "template": {
+              "_type": "Component",
+              "operation": {"value": "status"},
+              "args": {"value": ""}
+            },
+            "tool_mode": true
+          },
+          "selected_output": "component_as_tool",
+          "showNode": true,
+          "type": "Git"
+        },
+        "id": "GitOperations-main",
+        "position": {"x": 200, "y": 500},
+        "type": "genericNode"
+      },
+      {
+        "data": {
+          "id": "CodeEditor-main",
+          "node": {
+            "base_classes": ["Data"],
+            "display_name": "Code Editor",
+            "description": "Read and edit code files.",
+            "icon": "file-code",
+            "name": "CodeEditor",
+            "template": {
+              "_type": "Component",
+              "file_path": {"value": ""},
+              "content": {"value": ""},
+              "replace": {"value": true}
+            },
+            "tool_mode": true
+          },
+          "selected_output": "component_as_tool",
+          "showNode": true,
+          "type": "CodeEditor"
+        },
+        "id": "CodeEditor-main",
+        "position": {"x": 200, "y": 700},
+        "type": "genericNode"
+      },
+      {
+        "data": {
+          "id": "WorkspaceContext-main",
+          "node": {
+            "base_classes": ["Data"],
+            "display_name": "Workspace Context",
+            "description": "Read and navigate workspace files.",
+            "icon": "folder",
+            "name": "WorkspaceContext",
+            "template": {
+              "_type": "Component",
+              "action": {"value": "read_file"},
+              "file_path": {"value": ""},
+              "content": {"value": ""},
+              "search_pattern": {"value": ""},
+              "max_depth": {"value": 3}
+            },
+            "tool_mode": true
+          },
+          "selected_output": "component_as_tool",
+          "showNode": true,
+          "type": "WorkspaceContext"
+        },
+        "id": "WorkspaceContext-main",
+        "position": {"x": 200, "y": 900},
+        "type": "genericNode"
+      },
+      {
+        "data": {
+          "id": "MCPTools-main",
+          "node": {
+            "base_classes": ["Data"],
+            "display_name": "MCP Tools",
+            "description": "Connect to MCP servers for external tools.",
+            "icon": "plug",
+            "name": "MCPTools",
+            "template": {
+              "_type": "Component",
+              "mcp_server": {"value": ""},
+              "command": {"value": "uv"}
+            },
+            "tool_mode": true
+          },
+          "selected_output": "component_as_tool",
+          "showNode": true,
+          "type": "MCPTools"
+        },
+        "id": "MCPTools-main",
+        "position": {"x": 200, "y": 1100},
+        "type": "genericNode"
+      },
+      {
+        "data": {
+          "id": "GitHubIntegration-main",
+          "node": {
+            "base_classes": ["Data"],
+            "display_name": "GitHub Integration",
+            "description": "GitHub API operations for PRs and issues.",
+            "icon": "github",
+            "name": "GitHubIntegration",
+            "template": {
+              "_type": "Component",
+              "operation": {"value": "list_prs"},
+              "repo": {"value": ""},
+              "title": {"value": ""},
+              "body": {"value": ""},
+              "branch": {"value": ""},
+              "base": {"value": "main"}
+            },
+            "tool_mode": true
+          },
+          "selected_output": "component_as_tool",
+          "showNode": true,
+          "type": "GitHubIntegration"
+        },
+        "id": "GitHubIntegration-main",
+        "position": {"x": 200, "y": 1300},
+        "type": "genericNode"
+      },
+      {
+        "data": {
+          "id": "WorkspaceMemory-main",
+          "node": {
+            "base_classes": ["Data"],
+            "display_name": "Workspace Memory",
+            "description": "Persistent workspace context and memory.",
+            "icon": "database",
+            "name": "WorkspaceMemory",
+            "template": {
+              "_type": "Component",
+              "action": {"value": "retrieve"},
+              "key": {"value": ""},
+              "value": {"value": ""},
+              "max_items": {"value": 50}
+            },
+            "tool_mode": true
+          },
+          "selected_output": "component_as_tool",
+          "showNode": true,
+          "type": "WorkspaceMemory"
+        },
+        "id": "WorkspaceMemory-main",
+        "position": {"x": 200, "y": 1500},
+        "type": "genericNode"
+      }
+    ]
+  },
+  "description": "Copilot-like agent with CUGA, shell, git, editor, workspace, MCP, GitHub, and memory tools",
+  "name": "Copilot Replica Flow",
+  "tags": ["copilot", "cuga", "multi-tool", "browser"]
+}

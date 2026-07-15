@@ -7,7 +7,11 @@ import { useToast } from '@/context/ToastContext';
 
 const INACTIVITY_TIMEOUT = 30 * 60 * 1000; // 30 minutes
 
+// Check if dev mode is enabled (mock data, no auth required)
+const isDevMode = process.env.NEXT_PUBLIC_DEV_MODE === 'true';
+
 export default function InactivityHandler() {
+    // Hooks must be called before any early return
     const router = useRouter();
     const { addToast } = useToast();
     const timerRef = useRef<NodeJS.Timeout | null>(null);
@@ -32,6 +36,11 @@ export default function InactivityHandler() {
     }, [logout]);
 
     useEffect(() => {
+        // In dev mode, skip inactivity handling
+        if (isDevMode) {
+            return;
+        }
+
         // Initial setup
         resetTimer();
 
@@ -60,6 +69,11 @@ export default function InactivityHandler() {
             });
         };
     }, [resetTimer]);
+
+    // In dev mode, render nothing
+    if (isDevMode) {
+        return null;
+    }
 
     return null;
 }

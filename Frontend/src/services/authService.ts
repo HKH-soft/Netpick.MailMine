@@ -3,6 +3,11 @@
 // Use empty string for relative URLs - Next.js rewrites will proxy to backend
 const API_BASE_URL = '';
 
+// Check if dev mode is enabled (mock data, no auth required)
+const isDevMode = process.env.NEXT_PUBLIC_DEV_MODE === 'true';
+
+import { mockAuthResponse } from './mockData';
+
 export interface SigninRequest {
   email: string;
   password: string;
@@ -214,6 +219,13 @@ class AuthService {
 
   // Sign in user
   async signin(request: SigninRequest, rememberMe: boolean = false): Promise<AuthenticationResponse> {
+    // In dev mode, return mock auth response
+    if (isDevMode) {
+      console.debug('[DEV MODE] Returning mock auth response');
+      this.setToken(mockAuthResponse.access_token, mockAuthResponse.refresh_token, rememberMe);
+      return mockAuthResponse;
+    }
+
     try {
       const response = await fetch(`${API_BASE_URL}/api/v1/gatekeeper/auth/sign-in`, {
         method: 'POST',
@@ -238,6 +250,12 @@ class AuthService {
 
   // Sign up user
   async signup(request: SignupRequest): Promise<MessageResponse> {
+    // In dev mode, return mock response
+    if (isDevMode) {
+      console.debug('[DEV MODE] Returning mock signup response');
+      return { message: 'User registered successfully (dev mode)' };
+    }
+
     try {
       const response = await fetch(`${API_BASE_URL}/api/v1/gatekeeper/auth/sign-up`, {
         method: 'POST',
@@ -260,6 +278,12 @@ class AuthService {
 
   // Verify email
   async verify(request: VerificationRequest): Promise<MessageResponse> {
+    // In dev mode, return mock response
+    if (isDevMode) {
+      console.debug('[DEV MODE] Returning mock verify response');
+      return { message: 'Email verified successfully (dev mode)' };
+    }
+
     try {
       const response = await fetch(`${API_BASE_URL}/api/v1/gatekeeper/auth/verify`, {
         method: 'POST',
@@ -282,6 +306,12 @@ class AuthService {
 
   // Resend verification email
   async resendVerification(email: string): Promise<MessageResponse> {
+    // In dev mode, return mock response
+    if (isDevMode) {
+      console.debug('[DEV MODE] Returning mock resend verification response');
+      return { message: 'Verification email sent (dev mode)' };
+    }
+
     try {
       const response = await fetch(`${API_BASE_URL}/api/v1/gatekeeper/auth/resend-verification?email=${encodeURIComponent(email)}`, {
         method: 'POST',
@@ -303,6 +333,14 @@ class AuthService {
 
   // Refresh access token
   async refreshAccessToken(): Promise<AuthenticationResponse> {
+    // In dev mode, return mock response
+    if (isDevMode) {
+      console.debug('[DEV MODE] Returning mock refresh token response');
+      const rememberMe = localStorage.getItem(this.REMEMBER_KEY) === 'true';
+      this.setToken(mockAuthResponse.access_token, mockAuthResponse.refresh_token, rememberMe);
+      return mockAuthResponse;
+    }
+
     if (this.refreshPromise) {
       return this.refreshPromise;
     }
@@ -365,6 +403,13 @@ class AuthService {
 
   // Logout from all devices
   async logoutAllDevices(): Promise<MessageResponse> {
+    // In dev mode, return mock response
+    if (isDevMode) {
+      console.debug('[DEV MODE] Returning mock logout all devices response');
+      this.removeToken();
+      return { message: 'Logged out from all devices (dev mode)' };
+    }
+
     try {
       const response = await fetch(`${API_BASE_URL}/api/v1/gatekeeper/auth/logout-all`, {
         method: 'POST',
@@ -388,6 +433,12 @@ class AuthService {
 
   // Fetch auth-related configuration (e.g., resend cooldown)
   async getAuthConfig(): Promise<AuthConfigResponse> {
+    // In dev mode, return mock response
+    if (isDevMode) {
+      console.debug('[DEV MODE] Returning mock auth config response');
+      return { resendCooldownSeconds: 60, resendMaxPerHour: 5 };
+    }
+
     const response = await fetch(`${API_BASE_URL}/api/v1/gatekeeper/auth/config`, {
       method: 'GET',
       headers: {
@@ -404,6 +455,12 @@ class AuthService {
 
   // Request password reset - send code to email
   async requestPasswordReset(email: string): Promise<MessageResponse> {
+    // In dev mode, return mock response
+    if (isDevMode) {
+      console.debug('[DEV MODE] Returning mock password reset request response');
+      return { message: 'Password reset code sent (dev mode)' };
+    }
+
     const response = await fetch(`${API_BASE_URL}/api/v1/gatekeeper/auth/password-reset/request`, {
       method: 'POST',
       headers: {
@@ -421,6 +478,12 @@ class AuthService {
 
   // Verify password reset code
   async verifyPasswordResetCode(email: string, code: string): Promise<MessageResponse> {
+    // In dev mode, return mock response
+    if (isDevMode) {
+      console.debug('[DEV MODE] Returning mock verify password reset code response');
+      return { message: 'Password reset code verified (dev mode)' };
+    }
+
     const response = await fetch(`${API_BASE_URL}/api/v1/gatekeeper/auth/password-reset/verify`, {
       method: 'POST',
       headers: {
@@ -438,6 +501,12 @@ class AuthService {
 
   // Confirm password reset - set new password
   async confirmPasswordReset(email: string, code: string, password: string): Promise<MessageResponse> {
+    // In dev mode, return mock response
+    if (isDevMode) {
+      console.debug('[DEV MODE] Returning mock confirm password reset response');
+      return { message: 'Password reset successfully (dev mode)' };
+    }
+
     const response = await fetch(`${API_BASE_URL}/api/v1/gatekeeper/auth/password-reset/confirm`, {
       method: 'POST',
       headers: {

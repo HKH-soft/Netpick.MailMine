@@ -1,6 +1,5 @@
 package ir.netpick.platform.core.notification;
 
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
@@ -14,11 +13,10 @@ import java.util.Map;
  * Telegram Bot integration for notifications.
  */
 @Service
-@RequiredArgsConstructor
 @Slf4j
 public class TelegramNotificationService {
 
-    private final RestTemplate restTemplate;
+    private final RestTemplate restTemplate = new RestTemplate();
 
     @Value("${telegram.bot.token:}")
     private String botToken;

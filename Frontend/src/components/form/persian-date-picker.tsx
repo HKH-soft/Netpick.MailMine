@@ -56,7 +56,11 @@ export default function PersianDatePicker({
           inputRef.current.value = toPersian(dateStr);
         }
         if (onChange) {
-          onChange(selectedDates, dateStr, instance);
+          if (Array.isArray(onChange)) {
+            onChange.forEach(cb => cb(selectedDates, dateStr, instance));
+          } else {
+            onChange(selectedDates, dateStr, instance);
+          }
         }
       },
     });

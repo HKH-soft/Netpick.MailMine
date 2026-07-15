@@ -8,6 +8,9 @@ interface AuthProviderWrapperProps {
   children: React.ReactNode;
 }
 
+// Check if dev mode is enabled (mock data, no auth required)
+const isDevMode = process.env.NEXT_PUBLIC_DEV_MODE === 'true';
+
 const AuthProviderWrapper: React.FC<AuthProviderWrapperProps> = ({ 
   children 
 }) => {
@@ -17,6 +20,11 @@ const AuthProviderWrapper: React.FC<AuthProviderWrapperProps> = ({
   useEffect(() => {
     setIsMounted(true);
   }, []);
+
+  // In dev mode, render children immediately without loading spinner
+  if (isDevMode) {
+    return <>{children}</>;
+  }
 
   // Render loading state until component is mounted and auth state is initialized
   // This prevents hydration errors
