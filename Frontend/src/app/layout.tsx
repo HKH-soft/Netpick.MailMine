@@ -11,6 +11,7 @@ import AuthProviderWrapper from '@/components/common/AuthProviderWrapper';
 import SidebarProviderWrapper from '@/components/common/SidebarProviderWrapper';
 import InactivityHandler from '@/components/auth/InactivityHandler';
 import LanguageDetector from '@/components/common/LanguageDetector';
+import PwaRegister from '@/components/common/PwaRegister';
 
 const outfit = Outfit({
   subsets: ["latin"],
@@ -28,8 +29,16 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" className="dark" dir="ltr">
+      <head>
+        <link rel="manifest" href="/manifest.json" />
+        <meta name="theme-color" content="#1E40AF" />
+        <meta name="apple-mobile-web-app-capable" content="yes" />
+        <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+        <link rel="apple-touch-icon" href="/icons/icon-192x192.png" />
+      </head>
       <body className={`${outfit.className} ${vazirmatn.className} dark:bg-gray-900`}>
         <LanguageDetector />
+        <PwaRegister />
         <script
           dangerouslySetInnerHTML={{
             __html: `

@@ -26,7 +26,13 @@
     "proxies": "پروکسی‌ها",
     "ai": "هوش مصنوعی",
     "calendar": "تقویم",
-    "messages": "پیام‌ها"
+    "messages": "پیام‌ها",
+    "finance": "مالی",
+    "transactions": "تراکنش‌ها",
+    "invoices": "فاکتورها",
+    "customsDeclarations": "اعلامیه‌های گمرکی",
+    "exchangeRates": "نرخ‌های ارز",
+    "notifications": "اطلاع‌رسانی‌ها"
   },
   "auth": {
     "signIn": {
@@ -99,7 +105,19 @@
   },
   "common": {
     "new": "جدید",
-    "pro": "پرو"
+    "pro": "پرو",
+    "sheba": "شبا",
+    "currency": "ارز",
+    "exchangeRate": "نرخ ارز",
+    "customs": "گمرک",
+    "declaration": "اعلامیه",
+    "duty": "عوارض",
+    "vat": "مالیات ارزش افزوده",
+    "totalTax": "کل مالیات",
+    "tracking": "رهایی",
+    "notification": "اطلاع‌رسانی",
+    "telegram": "تلگرام",
+    "sms": "پیامک"
   },
   "search": {
     "placeholder": "جستجو یا دستوری را تایپ کنید...",

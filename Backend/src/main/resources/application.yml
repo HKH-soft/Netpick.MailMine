@@ -125,6 +125,26 @@ vercel:
   team-id: ${VERCEL_TEAM_ID:}
   relay-worker-url: https://vercel-relay.vercel.app
 
+# Iranian Banking & Payment Integration
+tse:
+  api:
+    url: ${TSE_API_URL:https://api.tgju.org/v1/}
+    key: ${TSE_API_KEY:}
+
+# Telegram Bot Configuration
+telegram:
+  bot:
+    token: ${TELEGRAM_BOT_TOKEN:}
+    chat-id: ${TELEGRAM_CHAT_ID:}
+
+# SMS.ir Gateway Configuration
+smsir:
+  api:
+    key: ${SMSIR_API_KEY:}
+    secret-key: ${SMSIR_SECRET_KEY:}
+    base-url: ${SMSIR_BASE_URL:https://api.sms.ir/v1}
+  sender-number: ${SMSIR_SENDER_NUMBER:}
+
 springdoc:
   api-docs:
     path: /v3/api-docs
