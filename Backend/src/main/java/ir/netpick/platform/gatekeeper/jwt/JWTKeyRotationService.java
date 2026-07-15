@@ -14,6 +14,9 @@ import java.time.Duration;
 import java.util.Base64;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 
 /**
  * Service for JWT key rotation with grace period support.
@@ -41,6 +44,7 @@ public class JWTKeyRotationService {
 
     // Old keys kept for verification during grace period
     private final ConcurrentHashMap<String, Key> verificationKeys = new ConcurrentHashMap<>();
+    private final ScheduledExecutorService scheduler = Executors.newSingleThreadScheduledExecutor();
 
     public JWTKeyRotationService(RedisTemplate<String, Object> redisTemplate) {
         this.redisTemplate = redisTemplate;
@@ -129,15 +133,10 @@ public class JWTKeyRotationService {
     }
 
     private void cleanupOldKeyAfterGracePeriod(String oldKeyId) {
-        // Schedule removal after grace period
-        new Thread(() -> {
-            try {
-                Thread.sleep(Duration.ofDays(gracePeriodDays).toMillis());
-                verificationKeys.remove(oldKeyId);
-                log.info("Removed expired JWT key after grace period: {}", oldKeyId);
-            } catch (InterruptedException e) {
-                Thread.currentThread().interrupt();
-            }
-        }).start();
+        // Schedule removal after grace period using async scheduler
+        scheduler.schedule(() -> {
+            verificationKeys.remove(oldKeyId);
+            log.info("Removed expired JWT key after grace period: {}", oldKeyId);
+        }, gracePeriodDays, TimeUnit.DAYS);
     }
 }

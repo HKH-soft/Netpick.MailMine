@@ -43,9 +43,9 @@ public class SentimentAnalysisService {
                 .orElseThrow(() -> new ResourceNotFoundException("Email not found: " + emailId));
 
         String prompt = String.format(SENTIMENT_PROMPT,
-                email.getSenderEmail(),
-                email.getSubject(),
-                email.getBodyText() != null ? truncate(email.getBodyText(), 2000) : "No content");
+                sanitizeForPrompt(email.getSenderEmail()),
+                sanitizeForPrompt(email.getSubject()),
+                sanitizeForPrompt(email.getBodyText() != null ? truncate(email.getBodyText(), 2000) : "No content"));
 
         String response = geminiService.generateText(prompt);
         Map<String, Object> result = parseSentimentResponse(response);
@@ -177,6 +177,35 @@ public class SentimentAnalysisService {
     private String truncate(String text, int maxLength) {
         if (text == null) return "";
         return text.length() > maxLength ? text.substring(0, maxLength) + "..." : text;
+    }
+
+    /**
+     * Sanitize text to prevent prompt injection attacks.
+     * Removes or escapes characters that could manipulate LLM behavior.
+     */
+    private String sanitizeForPrompt(String text) {
+        if (text == null) return "";
+        String result = text;
+        result = result.replace("``````", "");
+        String[] lines = result.split("\n");
+        StringBuilder cleaned = new StringBuilder();
+        for (String line : lines) {
+            String trimmed = line.strip();
+            if (trimmed.isEmpty()) continue;
+            boolean isJsonLike = false;
+            if (trimmed.startsWith("\"")) {
+                isJsonLike = trimmed.contains("\":");
+            } else if (trimmed.contains(":")) {
+                String key = trimmed.substring(0, trimmed.indexOf(":")).strip();
+                isJsonLike = !key.isEmpty() && key.chars().allMatch(Character::isLetterOrDigit);
+            }
+            if (!isJsonLike) {
+                cleaned.append(line).append("\n");
+            }
+        }
+        result = cleaned.toString();
+        result = result.replaceAll("(?i)(ignore|disregard|forget|system|assistant|previous|instructions?)", "");
+        return result.trim();
     }
 }
 
