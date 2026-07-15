@@ -103,16 +103,10 @@ public class SmsIrGateway {
         return sendSms(phoneNumber, message);
     }
 
+    @lombok.Data
     private static class SmsResponse {
         private boolean success;
         private int messageId;
         private String message;
-
-        public boolean isSuccess() { return success; }
-        public void setSuccess(boolean success) { this.success = success; }
-        public int getMessageId() { return messageId; }
-        public void setMessageId(int messageId) { this.messageId = messageId; }
-        public String getMessage() { return message; }
-        public void setMessage(String message) { this.message = message; }
     }
 }

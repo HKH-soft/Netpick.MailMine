@@ -103,33 +103,21 @@ public class TelegramNotificationService {
         return sendNotification(message);
     }
 
+    @lombok.Data
     private static class TelegramResponse {
         private boolean ok;
         private Result result;
-
-        public boolean isOk() { return ok; }
-        public void setOk(boolean ok) { this.ok = ok; }
-        public Result getResult() { return result; }
-        public void setResult(Result result) { this.result = result; }
     }
 
+    @lombok.Data
     private static class Result {
         private long message_id;
         private Chat chat;
-
-        public long getMessage_id() { return message_id; }
-        public void setMessage_id(long message_id) { this.message_id = message_id; }
-        public Chat getChat() { return chat; }
-        public void setChat(Chat chat) { this.chat = chat; }
     }
 
+    @lombok.Data
     private static class Chat {
         private long id;
         private String title;
-
-        public long getId() { return id; }
-        public void setId(long id) { this.id = id; }
-        public String getTitle() { return title; }
-        public void setTitle(String title) { this.title = title; }
     }
 }

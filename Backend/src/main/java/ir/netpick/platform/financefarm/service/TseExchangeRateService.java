@@ -121,17 +121,13 @@ public class TseExchangeRateService {
     }
 
     // Inner classes for API response
+    @lombok.Data
     private static class TseResponse {
         private Data data;
-        
-        public Data getData() { return data; }
-        public void setData(Data data) { this.data = data; }
     }
 
+    @lombok.Data
     private static class Data {
         private String rate;
-        
-        public String getRate() { return rate; }
-        public void setRate(String rate) { this.rate = rate; }
     }
 }
