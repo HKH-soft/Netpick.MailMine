@@ -1,7 +1,6 @@
 package ir.netpick.platform.inventoryfarm.controller;
 
 import ir.netpick.platform.core.PageDTO;
-import ir.netpick.platform.inventoryfarm.dto.InventoryDTO;
 import ir.netpick.platform.inventoryfarm.model.Product;
 import ir.netpick.platform.inventoryfarm.model.StockMovementType;
 import ir.netpick.platform.inventoryfarm.service.ProductService;
