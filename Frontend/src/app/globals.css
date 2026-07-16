@@ -5,6 +5,8 @@
 @theme {
   --font-*: initial;
   --font-outfit: Outfit, sans-serif;
+  --font-inter: Inter, sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, monospace;
 
   --breakpoint-*: initial;
   --breakpoint-2xsm: 375px;
@@ -78,6 +80,23 @@
   --color-gray-950: #09090b;
   --color-gray-dark: #0a0a0a;
 
+  --color-zinc-50: #fafafa;
+  --color-zinc-100: #f4f4f5;
+  --color-zinc-200: #e4e4e7;
+  --color-zinc-300: #d4d4d8;
+  --color-zinc-400: #a1a1aa;
+  --color-zinc-500: #71717a;
+  --color-zinc-600: #52525b;
+  --color-zinc-700: #3f3f46;
+  --color-zinc-800: #27272a;
+  --color-zinc-900: #18181b;
+  --color-zinc-950: #09090b;
+
+  --color-surface: #000000;
+  --color-surface-elevated: #18181b;
+  --color-surface-card: #27272a;
+  --color-surface-hover: #3f3f46;
+
   --color-orange-25: #fffaf5;
   --color-orange-50: #fff6ed;
   --color-orange-100: #ffead5;
@@ -148,7 +167,7 @@
     0px 20px 24px -4px rgba(16, 24, 40, 0.08),
     0px 8px 8px -4px rgba(16, 24, 40, 0.03);
   --shadow-datepicker: -5px 0 0 #262d3c, 5px 0 0 #262d3c;
-  --shadow-focus-ring: 0px 0px 0px 4px rgba(70, 95, 255, 0.12);
+  --shadow-focus-ring: 0px 0px 0px 4px rgba(34, 197, 94, 0.12);
   --shadow-slider-navigation:
     0px 1px 2px 0px rgba(16, 24, 40, 0.1), 0px 1px 3px 0px rgba(16, 24, 40, 0.1);
   --shadow-tooltip:
@@ -276,7 +295,7 @@
 }
 
 .dark .custom-scrollbar::-webkit-scrollbar-thumb {
-  background-color: #003d0b;
+  background-color: #4B5563;
 }
 
 
@@ -293,10 +312,6 @@
 }
 
 /* third-party libraries CSS */
-.apexcharts-legend-text {
-  @apply !text-gray-700 dark:!text-gray-400;
-}
-
 .apexcharts-text {
   @apply !fill-gray-700 dark:!fill-gray-400;
 }
@@ -777,3 +792,60 @@ span.flatpickr-weekday,
 [dir="rtl"] .flatpickr-months .flatpickr-next-month {
   transform: scaleX(-1);
 }
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(24px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes scrollTicker {
+  0% {
+    transform: translateX(0);
+  }
+  100% {
+    transform: translateX(-50%);
+  }
+}
+
+@keyframes countUp {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.reveal-hidden {
+  opacity: 0;
+  transform: translateY(24px);
+  transition: opacity 0.6s ease-out, transform 0.6s ease-out;
+}
+
+.reveal-visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.animate-fade-in-up {
+  animation: fadeInUp 0.6s ease-out forwards;
+}
+
+.animate-scroll-ticker {
+  animation: scrollTicker 30s linear infinite;
+}
+
+.stagger-1 { animation-delay: 0.1s; }
+.stagger-2 { animation-delay: 0.2s; }
+.stagger-3 { animation-delay: 0.3s; }
+.stagger-4 { animation-delay: 0.4s; }
+.stagger-5 { animation-delay: 0.5s; }
+.stagger-6 { animation-delay: 0.6s; }

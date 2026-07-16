@@ -20,25 +20,25 @@ export default function FinanceDashboard() {
       title: "Total Revenue",
       value: `$${summary?.totalRevenue?.toFixed(2) || "0.00"}`,
       icon: <FiDollarSign className="w-6 h-6 text-green-500" />,
-      change: "+12%",
+      detail: "",
     },
     {
       title: "Total Expenses",
       value: `$${summary?.totalExpenses?.toFixed(2) || "0.00"}`,
       icon: <FiTrendingDown className="w-6 h-6 text-red-500" />,
-      change: "-8%",
+      detail: "",
     },
     {
       title: "Profit",
       value: `$${summary?.profit?.toFixed(2) || "0.00"}`,
       icon: <FiTrendingUp className="w-6 h-6 text-brand-500" />,
-      change: "+20%",
+      detail: "",
     },
     {
       title: "Total Invoices",
       value: summary?.totalInvoices?.toString() || "0",
       icon: <FiFileText className="w-6 h-6 text-blue-500" />,
-      change: `${summary?.paidInvoices || 0} paid`,
+      detail: `${summary?.paidInvoices || 0} paid`,
     },
   ];
 
@@ -52,7 +52,7 @@ export default function FinanceDashboard() {
           </div>
           <div className="mt-3">
             <span className="text-2xl font-bold text-gray-800 dark:text-white/90">{stat.value}</span>
-            <span className="text-sm text-gray-500 ml-2">{stat.change}</span>
+            {stat.detail && <span className="text-sm text-gray-500 ml-2">{stat.detail}</span>}
           </div>
         </div>
       ))}

@@ -1,124 +1,147 @@
 import { Metadata } from "next";
-import React from "react";
+import RevealOnScroll from "@/components/landing/ui/RevealOnScroll";
+import SectionHeader from "@/components/landing/ui/SectionHeader";
+import CTABanner from "@/components/landing/ui/CTABanner";
 
 export const metadata: Metadata = {
   title: "About Us | Netpick",
-  description: "Learn more about Netpick and our mission",
+  description: "Learn about Netpick's mission to revolutionize email intelligence.",
 };
+
+const principles = [
+  {
+    number: "01",
+    title: "Data Integrity First",
+    description: "Every email we process goes through multi-layer verification. We never compromise on data quality.",
+  },
+  {
+    number: "02",
+    title: "Ethical Scraping",
+    description: "We respect robots.txt, rate limits, and privacy regulations. Our tools are built for compliant data collection.",
+  },
+  {
+    number: "03",
+    title: "Transparency",
+    description: "Open pricing, clear documentation, and honest communication. No hidden fees or dark patterns.",
+  },
+  {
+    number: "04",
+    title: "Continuous Innovation",
+    description: "We ship weekly. Our platform evolves with the landscape to stay ahead of anti-scraping measures.",
+  },
+];
+
+const values = [
+  { title: "Privacy", description: "Your data security and privacy are non-negotiable. End-to-end encryption and GDPR compliance." },
+  { title: "Excellence", description: "We hold ourselves to the highest standards in engineering, design, and customer support." },
+  { title: "Innovation", description: "Continuously pushing the boundaries of what's possible in email intelligence." },
+  { title: "Community", description: "Building in the open, contributing to open source, and supporting our users." },
+];
+
+const team = [
+  { name: "Sarah Johnson", role: "CEO & Founder" },
+  { name: "Michael Chen", role: "CTO" },
+  { name: "Emily Rodriguez", role: "Head of Product" },
+];
 
 export default function AboutPage() {
   return (
     <div>
-
-      <div className="space-y-12">
-        {/* Our Story */}
-        <section className="rounded-2xl border border-gray-200 bg-white p-8 dark:border-gray-800 dark:bg-white/[0.03]">
-          <h2 className="text-3xl font-bold text-gray-800 dark:text-white mb-6">
-            Our Story
-          </h2>
-          <p className="text-gray-600 dark:text-gray-300 mb-4">
-            Netpick was founded in 2024 with a simple mission: to make email data
-            collection and analysis accessible to businesses of all sizes. We recognized
-            that traditional email scraping tools were either too complex or lacked the
-            necessary features for professional use.
-          </p>
-          <p className="text-gray-600 dark:text-gray-300 mb-4">
-            Our platform combines cutting-edge technology with intuitive design to
-            provide a seamless experience for marketers, researchers, and businesses
-            looking to gather and analyze contact information ethically and efficiently.
-          </p>
-        </section>
-
-        {/* Mission & Vision */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-          <section className="rounded-2xl border border-gray-200 bg-white p-8 dark:border-gray-800 dark:bg-white/[0.03]">
-            <h3 className="text-2xl font-bold text-gray-800 dark:text-white mb-4">
-              Our Mission
-            </h3>
-            <p className="text-gray-600 dark:text-gray-300">
-              To empower businesses with reliable, ethical, and efficient email
-              scraping solutions that drive growth while maintaining the highest
-              standards of data privacy and compliance.
-            </p>
-          </section>
-
-          <section className="rounded-2xl border border-gray-200 bg-white p-8 dark:border-gray-800 dark:bg-white/[0.03]">
-            <h3 className="text-2xl font-bold text-gray-800 dark:text-white mb-4">
-              Our Vision
-            </h3>
-            <p className="text-gray-600 dark:text-gray-300">
-              To become the leading platform for email intelligence, helping businesses
-              worldwide make data-driven decisions through accurate and actionable insights.
-            </p>
-          </section>
+      {/* Hero */}
+      <section className="relative py-24 md:py-32 overflow-hidden">
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-brand-500/10 via-black to-black" />
+        <div className="relative mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+          <RevealOnScroll>
+            <div className="max-w-3xl">
+              <span className="inline-block text-sm font-semibold tracking-widest uppercase text-brand-400 mb-4">
+                About Netpick
+              </span>
+              <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-white mb-6">
+                Email intelligence, built with purpose
+              </h1>
+              <p className="text-lg text-zinc-400 leading-relaxed">
+                Netpick was founded in 2024 with a simple mission: make email data collection
+                and analysis accessible, ethical, and powerful for businesses of all sizes.
+              </p>
+            </div>
+          </RevealOnScroll>
         </div>
+      </section>
 
-        {/* Team Section */}
-        <section>
-          <h2 className="text-3xl font-bold text-center text-gray-800 dark:text-white mb-8">
-            Meet Our Team
-          </h2>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            {[
-              { name: "Sarah Johnson", role: "CEO & Founder" },
-              { name: "Michael Chen", role: "CTO" },
-              { name: "Emily Rodriguez", role: "Head of Product" },
-            ].map((member) => (
-              <div
-                key={member.name}
-                className="rounded-2xl border border-gray-200 bg-white p-6 text-center dark:border-gray-800 dark:bg-white/[0.03]"
-              >
-                <div className="w-24 h-24 bg-gray-200 rounded-full mx-auto mb-4 dark:bg-gray-700" />
-                <h4 className="text-xl font-semibold text-gray-800 dark:text-white">
-                  {member.name}
-                </h4>
-                <p className="text-gray-500 dark:text-gray-400">{member.role}</p>
-              </div>
+      {/* Principles */}
+      <section className="py-24 border-t border-zinc-800/50">
+        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+          <SectionHeader
+            tag="Principles"
+            title="What we stand for"
+            subtitle="Four principles guide every decision we make."
+          />
+          <div className="space-y-4">
+            {principles.map((p, i) => (
+              <RevealOnScroll key={p.number} delay={i * 0.1}>
+                <div className="rounded-2xl border border-zinc-800 bg-zinc-900/30 p-6 md:p-8 flex flex-col md:flex-row gap-6 items-start">
+                  <span className="text-sm font-mono text-zinc-600 shrink-0">{p.number}</span>
+                  <div>
+                    <h3 className="text-xl font-semibold text-white mb-2">{p.title}</h3>
+                    <p className="text-zinc-400 leading-relaxed">{p.description}</p>
+                  </div>
+                </div>
+              </RevealOnScroll>
             ))}
           </div>
-        </section>
+        </div>
+      </section>
 
-        {/* Values */}
-        <section className="rounded-2xl border border-gray-200 bg-white p-8 dark:border-gray-800 dark:bg-white/[0.03]">
-          <h2 className="text-3xl font-bold text-gray-800 dark:text-white mb-6">
-            Our Values
-          </h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div>
-              <h4 className="font-semibold text-gray-800 dark:text-white mb-2">
-                Transparency
-              </h4>
-              <p className="text-gray-600 dark:text-gray-400">
-                We believe in clear communication and honest business practices.
-              </p>
-            </div>
-            <div>
-              <h4 className="font-semibold text-gray-800 dark:text-white mb-2">
-                Innovation
-              </h4>
-              <p className="text-gray-600 dark:text-gray-400">
-                Continuously improving our technology to stay ahead of industry trends.
-              </p>
-            </div>
-            <div>
-              <h4 className="font-semibold text-gray-800 dark:text-white mb-2">
-                Privacy
-              </h4>
-              <p className="text-gray-600 dark:text-gray-400">
-                Your data security and privacy are our top priorities.
-              </p>
-            </div>
-            <div>
-              <h4 className="font-semibold text-gray-800 dark:text-white mb-2">
-                Excellence
-              </h4>
-              <p className="text-gray-600 dark:text-gray-400">
-                Delivering the highest quality service and support to our customers.
-              </p>
-            </div>
+      {/* Values */}
+      <section className="py-24 border-t border-zinc-800/50">
+        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+          <SectionHeader
+            tag="Values"
+            title="Our core values"
+          />
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {values.map((v, i) => (
+              <RevealOnScroll key={v.title} delay={i * 0.1}>
+                <div className="rounded-2xl border border-zinc-800 bg-zinc-900/30 p-6 h-full">
+                  <h3 className="text-lg font-semibold text-white mb-2">{v.title}</h3>
+                  <p className="text-zinc-400 text-sm leading-relaxed">{v.description}</p>
+                </div>
+              </RevealOnScroll>
+            ))}
           </div>
-        </section>
-      </div>
+        </div>
+      </section>
+
+      {/* Team */}
+      <section className="py-24 border-t border-zinc-800/50">
+        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+          <SectionHeader
+            tag="Team"
+            title="Meet the team"
+          />
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            {team.map((member, i) => (
+              <RevealOnScroll key={member.name} delay={i * 0.1}>
+                <div className="rounded-2xl border border-zinc-800 bg-zinc-900/30 p-6 text-center">
+                  <div className="w-20 h-20 bg-zinc-800 rounded-full mx-auto mb-4" />
+                  <h4 className="text-lg font-semibold text-white">{member.name}</h4>
+                  <p className="text-zinc-500 text-sm">{member.role}</p>
+                </div>
+              </RevealOnScroll>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* CTA */}
+      <section className="py-24 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto">
+        <CTABanner
+          title="Join us in building the future"
+          subtitle="We're always looking for talented people who share our vision."
+          primaryAction={{ label: "View Open Positions", href: "/contact" }}
+          secondaryAction={{ label: "Contact Us", href: "/contact" }}
+        />
+      </section>
     </div>
   );
 }

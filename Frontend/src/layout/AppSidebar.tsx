@@ -9,9 +9,6 @@ import {
   ChevronDownIcon,
   GridIcon,
   HorizontaLDots,
-  UserCircleIcon,
-  PageIcon,
-
 } from "../icons/index";
 // import SidebarWidget from "./SidebarWidget";
 
@@ -33,7 +30,7 @@ const navItems: NavItem[] = [
   },
 
   {
-    icon: <UserCircleIcon />,
+    icon: <Image src="/images/Netpick-Platform/GateKeeper.svg" alt="" width={20} height={20} />,
     name: "Gatekeeper",
     subItems: [
       { name: "User Profile", path: "/profile", pro: false },
@@ -44,7 +41,7 @@ const navItems: NavItem[] = [
 
   {
     name: "MailMine",
-    icon: <PageIcon />,
+    icon: <Image src="/images/Netpick-Platform/MailMine.svg" alt="" width={20} height={20} />,
     subItems: [
       { name: "Email", path: "/email", pro: false },
       { name: "Analytics", path: "/analytics", pro: false, new: true },
@@ -65,14 +62,14 @@ const navItems: NavItem[] = [
     ],
   },
   {
-    icon: <PageIcon />,
+    icon: <GridIcon />,
     name: "DealPick",
     subItems: [
       { name: "Deals", path: "/dealfarm", pro: false },
     ],
   },
   {
-    icon: <PageIcon />,
+    icon: <GridIcon />,
     name: "TaskPick",
     subItems: [
       { name: "Tasks", path: "/taskfarm", pro: false },
@@ -80,21 +77,21 @@ const navItems: NavItem[] = [
     ],
   },
   {
-    icon: <PageIcon />,
+    icon: <GridIcon />,
     name: "FilePick",
     subItems: [
       { name: "Files", path: "/filefarm", pro: false },
     ],
   },
   {
-    icon: <PageIcon />,
+    icon: <GridIcon />,
     name: "FinancePick",
     subItems: [
       { name: "Invoices", path: "/financefarm", pro: false },
     ],
   },
   {
-    icon: <PageIcon />,
+    icon: <GridIcon />,
     name: "InventoryPick",
     subItems: [
       { name: "Inventory", path: "/inventoryfarm", pro: false },
@@ -378,23 +375,23 @@ const AppSidebar: React.FC = () => {
             <>
               <Image
                 className="dark:hidden"
-                src="/images/logo/LOGO_BLACK_TEXT.svg"
-                alt="Logo"
+                src="/images/Netpick-Platform/Netpick.svg"
+                alt="Netpick"
                 width={150}
                 height={40}
               />
               <Image
                 className="hidden dark:block"
-                src="/images/logo/LOGO_WHITE_TEXT.svg"
-                alt="Logo"
+                src="/images/Netpick-Platform/Netpick.svg"
+                alt="Netpick"
                 width={150}
                 height={40}
               />
             </>
           ) : (
             <Image
-              src="/images/logo/LOGO.svg"
-              alt="Logo"
+              src="/images/Netpick-Platform/Netpick.svg"
+              alt="Netpick"
               width={32}
               height={32}
             />

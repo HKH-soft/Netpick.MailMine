@@ -21,24 +21,44 @@ export const Modal: React.FC<ModalProps> = ({
   const modalRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    const handleEscape = (event: KeyboardEvent) => {
+    if (!isOpen) return;
+
+    const handleKeyDown = (event: KeyboardEvent) => {
       if (event.key === "Escape") {
         onCloseAction();
+        return;
+      }
+      if (event.key === "Tab" && modalRef.current) {
+        const focusable = modalRef.current.querySelectorAll<HTMLElement>(
+          'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
+        );
+        if (focusable.length === 0) return;
+        const first = focusable[0];
+        const last = focusable[focusable.length - 1];
+        if (event.shiftKey) {
+          if (document.activeElement === first) {
+            event.preventDefault();
+            last.focus();
+          }
+        } else {
+          if (document.activeElement === last) {
+            event.preventDefault();
+            first.focus();
+          }
+        }
       }
     };
 
-    if (isOpen) {
-      document.addEventListener("keydown", handleEscape);
-    }
-
+    document.addEventListener("keydown", handleKeyDown);
     return () => {
-      document.removeEventListener("keydown", handleEscape);
+      document.removeEventListener("keydown", handleKeyDown);
     };
   }, [isOpen, onCloseAction]);
 
   useEffect(() => {
     if (isOpen) {
       document.body.style.overflow = "hidden";
+      modalRef.current?.focus();
     } else {
       document.body.style.overflow = "unset";
     }
@@ -55,10 +75,10 @@ export const Modal: React.FC<ModalProps> = ({
     : "relative w-full rounded-3xl bg-white  dark:bg-gray-900";
 
   return (
-    <div className="fixed inset-0 flex items-center justify-center overflow-y-auto modal z-99999">
+    <div className="fixed inset-0 flex items-center justify-center overflow-y-auto modal z-99999" role="dialog" aria-modal="true">
       {!isFullscreen && (
         <div
-          className="fixed inset-0 h-full w-full bg-gray-400/50 backdrop-blur-[32px]"
+          className="fixed inset-0 z-10 h-full w-full bg-gray-400/50 backdrop-blur-[32px]"
           onClick={onCloseAction}
         ></div>
       )}
@@ -66,6 +86,7 @@ export const Modal: React.FC<ModalProps> = ({
         ref={modalRef}
         className={`${contentClasses}  ${className}`}
         onClick={(e) => e.stopPropagation()}
+        tabIndex={-1}
       >
         {showCloseButton && (
           <button

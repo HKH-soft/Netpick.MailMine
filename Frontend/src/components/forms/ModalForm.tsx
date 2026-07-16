@@ -15,6 +15,7 @@ interface FieldConfig {
   type: string;
   required?: boolean;
   placeholder?: string;
+  options?: { value: string; label: string }[];
 }
 
 interface ModalFormProps {
@@ -96,6 +97,21 @@ const ModalForm: React.FC<ModalFormProps> = ({
                           placeholder={field.placeholder}
                           className="w-full rounded-lg border px-4 py-2.5 text-sm shadow-theme-xs focus:outline-hidden bg-transparent text-gray-800 border-gray-300 focus:border-brand-300 focus:ring-3 focus:ring-brand-500/10 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:focus:border-brand-800"
                         />
+                        <ErrorMessage name={field.name} component="div" className="text-red-500 text-sm mt-1" />
+                      </>
+                    ) : field.type === "select" ? (
+                      <>
+                        <Field
+                          as="select"
+                          id={field.name}
+                          name={field.name}
+                          className="h-11 w-full rounded-lg border appearance-none px-4 py-2.5 text-sm shadow-theme-xs focus:outline-hidden bg-transparent text-gray-800 border-gray-300 focus:border-brand-300 focus:ring-3 focus:ring-brand-500/10 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:focus:border-brand-800"
+                        >
+                          <option value="">Select...</option>
+                          {field.options?.map(opt => (
+                            <option key={opt.value} value={opt.value}>{opt.label}</option>
+                          ))}
+                        </Field>
                         <ErrorMessage name={field.name} component="div" className="text-red-500 text-sm mt-1" />
                       </>
                     ) : field.type === "checkbox" ? (

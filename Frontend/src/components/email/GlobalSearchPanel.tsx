@@ -1,13 +1,26 @@
 // GlobalSearchPanel.tsx
 "use client";
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, useRef, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 import searchService, { SearchResult, GlobalSearchResponse } from '@/services/searchService';
 
 export default function GlobalSearchPanel() {
+  const router = useRouter();
+  const panelRef = useRef<HTMLDivElement>(null);
   const [query, setQuery] = useState('');
   const [results, setResults] = useState<GlobalSearchResponse | null>(null);
   const [loading, setLoading] = useState(false);
   const [isOpen, setIsOpen] = useState(false);
+
+  useEffect(() => {
+    const handleClickOutside = (e: MouseEvent) => {
+      if (panelRef.current && !panelRef.current.contains(e.target as Node)) {
+        setIsOpen(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
 
   const handleSearch = useCallback(async () => {
     if (!query.trim() || query.length < 2) {
@@ -26,6 +39,16 @@ export default function GlobalSearchPanel() {
     }
   }, [query]);
 
+  const getResultRoute = (item: SearchResult): string | null => {
+    switch (item.type) {
+      case 'email': return `/email/inbox?id=${item.id}`;
+      case 'tag': return `/email/tags?id=${item.id}`;
+      case 'sharedInbox': return `/email/inboxes?id=${item.id}`;
+      case 'campaign': return `/email/campaigns?id=${item.id}`;
+      default: return null;
+    }
+  };
+
   const renderResultItem = (item: SearchResult) => {
     const typeIcon: Record<string, string> = {
       email: '📧',
@@ -37,7 +60,11 @@ export default function GlobalSearchPanel() {
       <div
         key={`${item.type}-${item.id}`}
         className="flex items-center gap-3 p-3 hover:bg-gray-50 dark:hover:bg-meta-4 cursor-pointer border-b border-[#eee] dark:border-strokedark"
-        onClick={() => setIsOpen(false)}
+        onClick={() => {
+          const route = getResultRoute(item);
+          setIsOpen(false);
+          if (route) router.push(route);
+        }}
       >
         <span className="text-lg">{typeIcon[item.type] || '📄'}</span>
         <div className="flex-1 min-w-0">
@@ -50,7 +77,7 @@ export default function GlobalSearchPanel() {
   };
 
   return (
-    <div className="relative">
+    <div className="relative" ref={panelRef}>
       <div className="flex items-center gap-2">
         <input
           type="text"

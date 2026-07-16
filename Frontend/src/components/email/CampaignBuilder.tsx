@@ -16,6 +16,7 @@ export default function CampaignBuilder() {
   const [recipients, setRecipients] = useState('');
   const [selectedCampaign, setSelectedCampaign] = useState<string | null>(null);
   const [formErrors, setFormErrors] = useState<Record<string, string>>({});
+  const [creating, setCreating] = useState(false);
 
   useEffect(() => {
     loadCampaigns();
@@ -44,6 +45,7 @@ export default function CampaignBuilder() {
 
   const handleCreate = async () => {
     if (!validateForm()) return;
+    setCreating(true);
     try {
       await campaignService.createCampaign(formData);
       setShowCreate(false);
@@ -52,6 +54,8 @@ export default function CampaignBuilder() {
       loadCampaigns();
     } catch (error) {
       console.error('Failed to create campaign:', error);
+    } finally {
+      setCreating(false);
     }
   };
 
@@ -156,14 +160,14 @@ export default function CampaignBuilder() {
           </div>
           <button
             onClick={handleCreate}
-            disabled={!formData.name.trim() || !formData.subjectLine.trim() || !formData.bodyHtml.trim()}
+            disabled={creating || !formData.name.trim() || !formData.subjectLine.trim() || !formData.bodyHtml.trim()}
             className={`mt-3 px-4 py-2 rounded ${
-              !formData.name.trim() || !formData.subjectLine.trim() || !formData.bodyHtml.trim()
+              creating || !formData.name.trim() || !formData.subjectLine.trim() || !formData.bodyHtml.trim()
                 ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
                 : 'bg-primary text-white hover:bg-opacity-90'
             }`}
           >
-            Create Campaign
+            {creating ? 'Creating...' : 'Create Campaign'}
           </button>
         </div>
       )}
@@ -173,7 +177,7 @@ export default function CampaignBuilder() {
           <div className="text-5xl mb-4">📢</div>
           <h3 className="text-lg font-semibold text-black dark:text-white mb-2">No campaigns yet</h3>
           <p className="text-gray-500 text-center max-w-md mb-4">
-            You haven't created any campaigns yet. Click the button above to create your first campaign.
+            You have not created any campaigns yet. Click the button above to create your first campaign.
           </p>
         </div>
       ) : (

@@ -1,15 +1,22 @@
 // FollowUpDashboard.tsx
 "use client";
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import followUpService, { FollowUpItem } from '@/services/followUpService';
 
 export default function FollowUpDashboard() {
   const [followUps, setFollowUps] = useState<FollowUpItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [streaming, setStreaming] = useState(false);
+  const eventSourceRef = useRef<EventSource | null>(null);
 
   useEffect(() => {
     loadFollowUps();
+    return () => {
+      if (eventSourceRef.current) {
+        eventSourceRef.current.close();
+        eventSourceRef.current = null;
+      }
+    };
   }, []);
 
   const loadFollowUps = async () => {
@@ -25,7 +32,11 @@ export default function FollowUpDashboard() {
   };
 
   const startStreaming = () => {
+    if (eventSourceRef.current) {
+      eventSourceRef.current.close();
+    }
     const eventSource = followUpService.createEventSource();
+    eventSourceRef.current = eventSource;
     setStreaming(true);
 
     eventSource.onmessage = (event) => {
@@ -39,8 +50,17 @@ export default function FollowUpDashboard() {
 
     eventSource.onerror = () => {
       setStreaming(false);
+      eventSourceRef.current = null;
       eventSource.close();
     };
+  };
+
+  const stopStreaming = () => {
+    if (eventSourceRef.current) {
+      eventSourceRef.current.close();
+      eventSourceRef.current = null;
+      setStreaming(false);
+    }
   };
 
   const triggerDetection = async () => {
@@ -72,15 +92,14 @@ export default function FollowUpDashboard() {
             Refresh
           </button>
           <button
-            onClick={startStreaming}
-            disabled={streaming}
+            onClick={streaming ? stopStreaming : startStreaming}
             className={`px-4 py-2 rounded ${
               streaming
-                ? 'bg-gray-300 text-gray-500'
+                ? 'bg-red-500 text-white hover:bg-opacity-90'
                 : 'bg-green-500 text-white hover:bg-opacity-90'
             }`}
           >
-            {streaming ? 'Streaming...' : 'Start Live Updates'}
+            {streaming ? 'Stop Live Updates' : 'Start Live Updates'}
           </button>
         </div>
       </div>

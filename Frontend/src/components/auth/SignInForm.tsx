@@ -23,11 +23,11 @@ export default function SignInForm() {
 
   const validationSchema = Yup.object({
     email: Yup.string()
-      .email("Invalid email address")
-      .required("Email is required"),
+      .email(t('auth.signIn.emailInvalid'))
+      .required(t('auth.signIn.emailRequired')),
     password: Yup.string()
-      .min(12, "Password must be at least 12 characters")
-      .required("Password is required"),
+      .min(12, t('auth.signIn.passwordMinLength'))
+      .required(t('auth.signIn.passwordRequired')),
   });
 
   const handleSubmit = async (
@@ -44,9 +44,8 @@ export default function SignInForm() {
       login(); // Update auth context
       router.push("/"); // Redirect to dashboard after successful login
       router.refresh(); // Refresh the page to update the auth state
-    } catch (err) {
-      setError("Invalid email or password. Please try again.");
-      console.error("Sign in error:", err);
+    } catch {
+      setError(t('auth.signIn.signinError'));
     } finally {
       setSubmitting(false);
     }
@@ -54,9 +53,6 @@ export default function SignInForm() {
 
   return (
     <div className="flex flex-col flex-1 lg:w-1/2 w-full">
-      <div className="w-full max-w-md sm:pt-10 mx-auto mb-5">
-        {/* Removed "Back to dashboard" link */}
-      </div>
       <div className="flex flex-col justify-center flex-1 w-full max-w-md mx-auto">
         <div>
           <div className="mb-5 sm:mb-8">
@@ -76,7 +72,9 @@ export default function SignInForm() {
               {({ isSubmitting, isValid, dirty }) => (
                 <Form>
                   {error && (
-                    <div className="mb-4 text-red-500 text-sm">{error}</div>
+                    <div className="mb-4 p-3 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg">
+                        <p className="text-red-600 dark:text-red-400 text-sm">{error}</p>
+                    </div>
                   )}
                   <div className="space-y-6">
                     <div>
@@ -88,6 +86,7 @@ export default function SignInForm() {
                         type="email"
                         placeholder="info@gmail.com"
                         as={Input}
+                        autoComplete="email"
                       />
                       <ErrorMessage name="email" component="div" className="text-red-500 text-sm mt-1" />
                     </div>
@@ -99,8 +98,9 @@ export default function SignInForm() {
                         <Field
                           name="password"
                           type={showPassword ? "text" : "password"}
-                          placeholder="Enter your password"
+                          placeholder={t('auth.signIn.passwordPlaceholder')}
                           as={Input}
+                          autoComplete="current-password"
                         />
                         <span
                           onClick={() => setShowPassword(!showPassword)}
@@ -135,6 +135,7 @@ export default function SignInForm() {
                         className="w-full"
                         size="sm"
                         disabled={isSubmitting || !isValid || !dirty}
+                        loading={isSubmitting}
                       >
                         {isSubmitting ? t('auth.signIn.submitting') : t('auth.signIn.submit')}
                       </Button>
@@ -146,12 +147,12 @@ export default function SignInForm() {
 
             <div className="mt-5">
               <p className="text-sm font-normal text-center text-gray-700 dark:text-gray-400 sm:text-start">
-                Don&apos;t have an account? {""}
+                {t('auth.signIn.noAccount')}
                 <Link
                   href="/signup"
                   className="text-brand-500 hover:text-brand-600 dark:text-brand-400"
                 >
-                  Sign Up
+                  {t('auth.signIn.signUp')}
                 </Link>
               </p>
             </div>

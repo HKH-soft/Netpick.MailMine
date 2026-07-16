@@ -1,10 +1,10 @@
 import { Metadata } from "next";
-import React from "react";
 import Link from "next/link";
+import RevealOnScroll from "@/components/landing/ui/RevealOnScroll";
 
 export const metadata: Metadata = {
-  title: "Blogs | Netpick",
-  description: "Latest insights and updates from Netpick",
+  title: "Blog | Netpick",
+  description: "Latest insights, tutorials, and updates from the Netpick team.",
 };
 
 const blogPosts = [
@@ -65,71 +65,88 @@ const blogPosts = [
 ];
 
 export default function BlogsPage() {
+  const featured = blogPosts[0];
+  const rest = blogPosts.slice(1);
+
   return (
     <div>
-
-      {/* Featured Post */}
-      <section className="mb-12">
-        <div className="rounded-2xl border border-gray-200 bg-white overflow-hidden dark:border-gray-800 dark:bg-white/[0.03]">
-          <div className="p-8">
-            <span className="inline-block px-3 py-1 text-xs font-medium text-brand-500 bg-brand-100 rounded-full mb-4">
-              Featured
-            </span>
-            <h2 className="text-3xl font-bold text-gray-800 dark:text-white mb-4">
-              {blogPosts[0].title}
-            </h2>
-            <p className="text-gray-600 dark:text-gray-400 mb-6">
-              {blogPosts[0].excerpt}
-            </p>
-            <div className="flex items-center gap-4 text-sm text-gray-500 dark:text-gray-400 mb-6">
-              <span>{blogPosts[0].author}</span>
-              <span>•</span>
-              <span>{blogPosts[0].date}</span>
-              <span>•</span>
-              <span>{blogPosts[0].readTime}</span>
+      {/* Hero */}
+      <section className="relative py-24 md:py-32 overflow-hidden">
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-brand-500/10 via-black to-black" />
+        <div className="relative mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+          <RevealOnScroll>
+            <div className="max-w-3xl">
+              <span className="inline-block text-sm font-semibold tracking-widest uppercase text-brand-400 mb-4">
+                Blog
+              </span>
+              <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-white mb-6">
+                Insights & updates
+              </h1>
+              <p className="text-lg text-zinc-400 leading-relaxed">
+                Tutorials, product updates, and industry insights from the Netpick team.
+              </p>
             </div>
-            <Link
-              href={`/blogs/${blogPosts[0].id}`}
-              className="inline-flex items-center justify-center px-6 py-3 text-base font-medium text-white bg-brand-500 rounded-lg hover:bg-brand-600 transition-colors"
-            >
-              Read Article
-            </Link>
-          </div>
+          </RevealOnScroll>
         </div>
       </section>
 
-      {/* Blog Grid */}
-      <section>
-        <h3 className="text-2xl font-bold text-gray-800 dark:text-white mb-6">
-          Latest Articles
-        </h3>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {blogPosts.slice(1).map((post) => (
-            <article
-              key={post.id}
-              className="rounded-2xl border border-gray-200 bg-white p-6 dark:border-gray-800 dark:bg-white/[0.03] flex flex-col"
+      {/* Featured Post */}
+      <section className="py-16 border-t border-zinc-800/50">
+        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+          <RevealOnScroll>
+            <Link
+              href={`/blogs/${featured.id}`}
+              className="group block rounded-3xl border border-zinc-800 bg-zinc-900/30 p-8 md:p-12 transition-all duration-300 hover:border-brand-500/30"
             >
-              <span className="inline-block px-2 py-1 text-xs font-medium text-brand-500 bg-brand-100 rounded-full mb-3 self-start">
-                {post.category}
+              <span className="inline-block px-3 py-1 text-xs font-medium text-brand-400 bg-brand-500/10 rounded-full mb-4">
+                Featured
               </span>
-              <h4 className="text-lg font-semibold text-gray-800 dark:text-white mb-2">
-                {post.title}
-              </h4>
-              <p className="text-gray-600 dark:text-gray-400 text-sm mb-4 flex-grow">
-                {post.excerpt}
+              <h2 className="text-2xl md:text-3xl font-bold text-white mb-4 group-hover:text-brand-400 transition-colors">
+                {featured.title}
+              </h2>
+              <p className="text-zinc-400 text-lg mb-6 max-w-3xl">
+                {featured.excerpt}
               </p>
-              <div className="flex items-center justify-between text-xs text-gray-500 dark:text-gray-400">
-                <span>{post.author}</span>
-                <span>{post.date}</span>
+              <div className="flex items-center gap-4 text-sm text-zinc-500">
+                <span>{featured.author}</span>
+                <span>·</span>
+                <span>{featured.date}</span>
+                <span>·</span>
+                <span>{featured.readTime}</span>
               </div>
-              <Link
-                href={`/blogs/${post.id}`}
-                className="mt-4 text-sm font-medium text-brand-500 hover:text-brand-600"
-              >
-                Read more →
-              </Link>
-            </article>
-          ))}
+            </Link>
+          </RevealOnScroll>
+        </div>
+      </section>
+
+      {/* Post Grid */}
+      <section className="py-16 border-t border-zinc-800/50">
+        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+          <h2 className="text-2xl font-bold text-white mb-8">Latest Articles</h2>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            {rest.map((post, i) => (
+              <RevealOnScroll key={post.id} delay={i * 0.1}>
+                <Link
+                  href={`/blogs/${post.id}`}
+                  className="group block rounded-2xl border border-zinc-800 bg-zinc-900/30 p-6 h-full transition-all duration-300 hover:border-brand-500/30"
+                >
+                  <span className="inline-block px-2.5 py-1 text-xs font-medium text-brand-400 bg-brand-500/10 rounded-full mb-3">
+                    {post.category}
+                  </span>
+                  <h3 className="text-lg font-semibold text-white mb-2 group-hover:text-brand-400 transition-colors">
+                    {post.title}
+                  </h3>
+                  <p className="text-zinc-400 text-sm leading-relaxed mb-4">
+                    {post.excerpt}
+                  </p>
+                  <div className="flex items-center justify-between text-xs text-zinc-500">
+                    <span>{post.author}</span>
+                    <span>{post.readTime}</span>
+                  </div>
+                </Link>
+              </RevealOnScroll>
+            ))}
+          </div>
         </div>
       </section>
     </div>

@@ -1,4 +1,5 @@
 "use client";
+import Input from "@/components/form/input/InputField";
 import Label from "@/components/form/Label";
 import Button from "@/components/ui/button/Button";
 import Link from "next/link";
@@ -84,12 +85,12 @@ export default function VerifyForm() {
         setSuccess("");
 
         if (!email) {
-            setError("Email is required. Please go back to signup.");
+            setError(t('auth.verify.emailRequired', { defaultValue: 'Email is required. Please go back to signup.' }));
             return;
         }
 
         if (!code || code.length < 4) {
-            setError("Please enter a valid verification code");
+            setError(t('auth.verify.codeRequired', { defaultValue: 'Please enter a valid verification code' }));
             return;
         }
 
@@ -101,9 +102,8 @@ export default function VerifyForm() {
             setTimeout(() => {
                 router.push("/signin");
             }, 2000);
-        } catch (err) {
+        } catch {
             setError(t('auth.verify.error', { defaultValue: 'Invalid or expired verification code. Please try again.' }));
-            console.error("Verification error:", err);
         } finally {
             setIsSubmitting(false);
         }
@@ -128,9 +128,8 @@ export default function VerifyForm() {
 
             setCanResend(false);
             setCountdown(resendCooldown);
-        } catch (err) {
+        } catch {
             setError(t('auth.verify.resendError', { defaultValue: 'Failed to resend verification code. Please try again.' }));
-            console.error("Resend verification error:", err);
         } finally {
             setIsResending(false);
         }
@@ -145,7 +144,6 @@ export default function VerifyForm() {
 
     return (
         <div className="flex flex-col flex-1 lg:w-1/2 w-full">
-            <div className="w-full max-w-md sm:pt-10 mx-auto mb-5"></div>
             <div className="flex flex-col justify-center flex-1 w-full max-w-md mx-auto">
                 <div>
                     <div className="mb-5 sm:mb-8">
@@ -193,13 +191,12 @@ export default function VerifyForm() {
                                 <Label>
                                     {t('auth.verify.code')} <span className="text-error-500">*</span>
                                 </Label>
-                                <input
+                                <Input
                                     type="text"
                                     value={code}
                                     onChange={(e) => setCode(e.target.value.toUpperCase())}
                                     placeholder={t('auth.verify.code')}
-                                    maxLength={10}
-                                    className="h-11 w-full rounded-lg border appearance-none px-4 py-2.5 text-sm shadow-theme-xs placeholder:text-gray-400 focus:outline-hidden focus:ring-3 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30 dark:focus:border-brand-800 bg-transparent text-gray-800 border-gray-300 focus:border-brand-300 focus:ring-brand-500/10 dark:border-gray-700 text-center text-lg tracking-widest"
+                                    className="text-center text-lg tracking-widest"
                                 />
                             </div>
 

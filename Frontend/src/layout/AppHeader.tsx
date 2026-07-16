@@ -31,7 +31,7 @@ const searchablePages: SearchResult[] = [
   { title: "navigation.pipelines", path: "/scrape/pipelines", category: "Scraping" },
   { title: "navigation.searchQueries", path: "/scrape/search-querys", category: "Scraping" },
   { title: "navigation.queryGenerator", path: "/scrape/query-generator", category: "Tools" },
-  { title: "navigation.email", path: "/scrape/email", category: "Tools" },
+  { title: "navigation.emailScraper", path: "/scrape/email", category: "Tools" },
   { title: "navigation.ai", path: "/scrape/ai", category: "Tools" },
   { title: "navigation.messages", path: "/scrape/messages", category: "General" },
   { title: "navigation.email", path: "/email", category: "Email" },
@@ -146,15 +146,15 @@ const AppHeader: React.FC = () => {
               width={154}
               height={32}
               className="dark:hidden"
-              src="/images/logo/LOGO_BLACK_TEXT.svg"
-              alt="Logo"
+              src="/images/Netpick-Platform/Netpick.svg"
+              alt="Netpick"
             />
             <Image
               width={154}
               height={32}
               className="hidden dark:block"
-              src="/images/logo/LOGO_WHITE_TEXT.svg"
-              alt="Logo"
+              src="/images/Netpick-Platform/Netpick.svg"
+              alt="Netpick"
             />
           </Link>
 
@@ -183,7 +183,12 @@ const AppHeader: React.FC = () => {
                   className="h-11 w-full rounded-lg border border-gray-200 bg-transparent py-2.5 pl-12 pr-14 text-sm text-gray-800 shadow-theme-xs placeholder:text-gray-400 focus:border-brand-300 focus:outline-hidden focus:ring-3 focus:ring-brand-500/10 dark:border-gray-800 dark:bg-white/[0.03] dark:text-white/90 dark:placeholder:text-white/30 dark:focus:border-brand-800 xl:w-[430px] rtl:pr-14 rtl:pl-12"
                 />
 
-                <button className="absolute right-2.5 top-1/2 inline-flex -translate-y-1/2 items-center gap-0.5 rounded-lg border border-gray-200 bg-gray-50 px-[7px] py-[4.5px] text-xs -tracking-[0.2px] text-gray-500 dark:border-gray-800 dark:bg-white/[0.03] dark:text-gray-400 rtl:right-auto rtl:left-2.5">
+                <button
+                  type="button"
+                  tabIndex={-1}
+                  aria-hidden="true"
+                  className="absolute right-2.5 top-1/2 inline-flex -translate-y-1/2 items-center gap-0.5 rounded-lg border border-gray-200 bg-gray-50 px-[7px] py-[4.5px] text-xs -tracking-[0.2px] text-gray-500 dark:border-gray-800 dark:bg-white/[0.03] dark:text-gray-400 rtl:right-auto rtl:left-2.5"
+                >
                   <span> {t('search.shortcutCtrl')} </span>
                   <span> {t('search.shortcutK')} </span>
                 </button>

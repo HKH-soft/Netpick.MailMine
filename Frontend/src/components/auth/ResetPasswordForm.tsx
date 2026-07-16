@@ -7,32 +7,34 @@ import React, { useState } from "react";
 import { Formik, Form, Field, ErrorMessage } from "formik";
 import * as Yup from "yup";
 import AuthService from "@/services/authService";
+import { useTranslation } from "react-i18next";
 
 export default function ResetPasswordForm() {
     const [step, setStep] = useState<"email" | "code" | "newPassword" | "success">("email");
     const [email, setEmail] = useState("");
     const [code, setCode] = useState("");
     const [error, setError] = useState("");
+    const { t } = useTranslation('common');
 
     const emailValidationSchema = Yup.object({
         email: Yup.string()
-            .email("Invalid email address")
-            .required("Email is required"),
+            .email(t('auth.resetPassword.emailInvalid'))
+            .required(t('auth.resetPassword.emailRequired')),
     });
 
     const codeValidationSchema = Yup.object({
         code: Yup.string()
-            .min(4, "Code must be at least 4 characters")
-            .required("Verification code is required"),
+            .min(4, t('auth.resetPassword.codeMinLength'))
+            .required(t('auth.resetPassword.codeRequired')),
     });
 
     const passwordValidationSchema = Yup.object({
         password: Yup.string()
-            .min(12, "Password must be at least 12 characters")
-            .required("Password is required"),
+            .min(12, t('auth.resetPassword.passwordMinLength'))
+            .required(t('auth.resetPassword.passwordRequired')),
         confirmPassword: Yup.string()
-            .oneOf([Yup.ref("password")], "Passwords must match")
-            .required("Please confirm your password"),
+            .oneOf([Yup.ref("password")], t('auth.resetPassword.passwordMatch'))
+            .required(t('auth.resetPassword.confirmPasswordRequired')),
     });
 
     const handleRequestReset = async (
@@ -44,9 +46,8 @@ export default function ResetPasswordForm() {
             await AuthService.requestPasswordReset(values.email);
             setEmail(values.email);
             setStep("code");
-        } catch (err) {
-            setError("Failed to send reset code. Please try again.");
-            console.error("Reset request error:", err);
+        } catch {
+            setError(t('auth.resetPassword.sendResetError'));
         } finally {
             setSubmitting(false);
         }
@@ -61,9 +62,8 @@ export default function ResetPasswordForm() {
             await AuthService.verifyPasswordResetCode(email, values.code);
             setCode(values.code);
             setStep("newPassword");
-        } catch (err) {
-            setError("Invalid or expired code. Please try again.");
-            console.error("Code verification error:", err);
+        } catch {
+            setError(t('auth.resetPassword.verifyCodeError'));
         } finally {
             setSubmitting(false);
         }
@@ -77,9 +77,8 @@ export default function ResetPasswordForm() {
         try {
             await AuthService.confirmPasswordReset(email, code, values.password);
             setStep("success");
-        } catch (err) {
-            setError("Failed to reset password. Please try again.");
-            console.error("Password reset error:", err);
+        } catch {
+            setError(t('auth.resetPassword.resetPasswordError'));
         } finally {
             setSubmitting(false);
         }
@@ -89,33 +88,31 @@ export default function ResetPasswordForm() {
         setError("");
         try {
             await AuthService.requestPasswordReset(email);
-            alert("A new code has been sent to your email.");
-        } catch (err) {
-            setError("Failed to resend code. Please try again.");
-            console.error("Resend code error:", err);
+            alert(t('auth.resetPassword.newCodeSent'));
+        } catch {
+            setError(t('auth.resetPassword.resendCodeError'));
         }
     };
 
     return (
         <div className="flex flex-col flex-1 lg:w-1/2 w-full">
-            <div className="w-full max-w-md sm:pt-10 mx-auto mb-5"></div>
             <div className="flex flex-col justify-center flex-1 w-full max-w-md mx-auto">
                 <div>
                     <div className="mb-5 sm:mb-8">
                         <h1 className="mb-2 font-semibold text-gray-800 text-title-sm dark:text-white/90 sm:text-title-md">
-                            {step === "email" && "Forgot Password?"}
-                            {step === "code" && "Enter Verification Code"}
-                            {step === "newPassword" && "Create New Password"}
-                            {step === "success" && "Password Reset Successfully!"}
+                            {step === "email" && t('auth.resetPassword.forgotPasswordTitle')}
+                            {step === "code" && t('auth.resetPassword.enterCodeTitle')}
+                            {step === "newPassword" && t('auth.resetPassword.newPasswordTitle')}
+                            {step === "success" && t('auth.resetPassword.successTitle')}
                         </h1>
                         <p className="text-sm text-gray-500 dark:text-gray-400">
                             {step === "email" &&
-                                "Enter your email address and we'll send you a verification code."}
+                                t('auth.resetPassword.emailSubtitle')}
                             {step === "code" &&
-                                `We've sent a verification code to ${email}. Enter it below.`}
-                            {step === "newPassword" && "Enter your new password below."}
+                                t('auth.resetPassword.codeSubtitle', { email })}
+                            {step === "newPassword" && t('auth.resetPassword.newPasswordSubtitle')}
                             {step === "success" &&
-                                "Your password has been reset successfully."}
+                                t('auth.resetPassword.successSubtitle')}
                         </p>
                     </div>
 
@@ -136,12 +133,12 @@ export default function ResetPasswordForm() {
                                 <Form className="space-y-6">
                                     <div>
                                         <Label>
-                                            Email <span className="text-error-500">*</span>
+                                            {t('auth.resetPassword.emailLabel')} <span className="text-error-500">*</span>
                                         </Label>
                                         <Field
                                             name="email"
                                             type="email"
-                                            placeholder="Enter your email"
+                                            placeholder={t('auth.resetPassword.emailPlaceholder')}
                                             as={Input}
                                         />
                                         <ErrorMessage
@@ -155,7 +152,7 @@ export default function ResetPasswordForm() {
                                         className="w-full"
                                         disabled={isSubmitting || !isValid || !dirty}
                                     >
-                                        {isSubmitting ? "Sending..." : "Send Reset Code"}
+                                        {isSubmitting ? t('auth.resetPassword.sendingCode') : t('auth.resetPassword.sendCode')}
                                     </Button>
                                 </Form>
                             )}
@@ -173,12 +170,12 @@ export default function ResetPasswordForm() {
                                 <Form className="space-y-6">
                                     <div>
                                         <Label>
-                                            Verification Code <span className="text-error-500">*</span>
+                                            {t('auth.resetPassword.codeLabel')} <span className="text-error-500">*</span>
                                         </Label>
                                         <Field
                                             name="code"
                                             type="text"
-                                            placeholder="Enter verification code"
+                                            placeholder={t('auth.resetPassword.codePlaceholder')}
                                             as={Input}
                                             className="text-center tracking-widest"
                                         />
@@ -193,7 +190,7 @@ export default function ResetPasswordForm() {
                                         className="w-full"
                                         disabled={isSubmitting || !isValid || !dirty}
                                     >
-                                        {isSubmitting ? "Verifying..." : "Verify Code"}
+                                        {isSubmitting ? t('auth.resetPassword.verifying') : t('auth.resetPassword.verifyCode')}
                                     </Button>
                                     <div className="text-center">
                                         <button
@@ -202,7 +199,16 @@ export default function ResetPasswordForm() {
                                             disabled={isSubmitting}
                                             className="text-sm text-brand-500 hover:text-brand-600 dark:text-brand-400"
                                         >
-                                            Resend code
+                                            {t('auth.resetPassword.resendCode')}
+                                        </button>
+                                    </div>
+                                    <div className="text-center">
+                                        <button
+                                            type="button"
+                                            onClick={() => { setError(""); setStep("email"); }}
+                                            className="text-sm text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300"
+                                        >
+                                            {t('auth.resetPassword.back', { defaultValue: 'Back' })}
                                         </button>
                                     </div>
                                 </Form>
@@ -221,12 +227,12 @@ export default function ResetPasswordForm() {
                                 <Form className="space-y-6">
                                     <div>
                                         <Label>
-                                            New Password <span className="text-error-500">*</span>
+                                            {t('auth.resetPassword.newPasswordLabel')} <span className="text-error-500">*</span>
                                         </Label>
                                         <Field
                                             name="password"
                                             type="password"
-                                            placeholder="Enter new password"
+                                            placeholder={t('auth.resetPassword.newPasswordPlaceholder')}
                                             as={Input}
                                         />
                                         <ErrorMessage
@@ -237,12 +243,12 @@ export default function ResetPasswordForm() {
                                     </div>
                                     <div>
                                         <Label>
-                                            Confirm Password <span className="text-error-500">*</span>
+                                            {t('auth.resetPassword.confirmPasswordLabel')} <span className="text-error-500">*</span>
                                         </Label>
                                         <Field
                                             name="confirmPassword"
                                             type="password"
-                                            placeholder="Confirm new password"
+                                            placeholder={t('auth.resetPassword.confirmPasswordPlaceholder')}
                                             as={Input}
                                         />
                                         <ErrorMessage
@@ -256,8 +262,17 @@ export default function ResetPasswordForm() {
                                         className="w-full"
                                         disabled={isSubmitting || !isValid || !dirty}
                                     >
-                                        {isSubmitting ? "Resetting..." : "Reset Password"}
+                                        {isSubmitting ? t('auth.resetPassword.resetting') : t('auth.resetPassword.resetPasswordBtn')}
                                     </Button>
+                                    <div className="text-center">
+                                        <button
+                                            type="button"
+                                            onClick={() => { setError(""); setStep("code"); }}
+                                            className="text-sm text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300"
+                                        >
+                                            {t('auth.resetPassword.back', { defaultValue: 'Back' })}
+                                        </button>
+                                    </div>
                                 </Form>
                             )}
                         </Formik>
@@ -284,7 +299,7 @@ export default function ResetPasswordForm() {
                                 </div>
                             </div>
                             <Link href="/signin">
-                                <Button className="w-full">Go to Sign In</Button>
+                                <Button className="w-full">{t('auth.resetPassword.goToSignIn')}</Button>
                             </Link>
                         </div>
                     )}
@@ -292,12 +307,12 @@ export default function ResetPasswordForm() {
                     {step !== "success" && (
                         <div className="mt-6">
                             <p className="text-sm font-normal text-center text-gray-700 dark:text-gray-400">
-                                Remember your password?{" "}
+                                {t('auth.resetPassword.rememberPassword')}{" "}
                                 <Link
                                     href="/signin"
                                     className="text-brand-500 hover:text-brand-600 dark:text-brand-400"
                                 >
-                                    Sign In
+                                    {t('auth.resetPassword.signIn')}
                                 </Link>
                             </p>
                         </div>

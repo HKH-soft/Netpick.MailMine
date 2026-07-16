@@ -12,6 +12,18 @@ export default function EmailInbox() {
   if (loading) return <div className="p-4">Loading emails...</div>;
   if (error) return <div className="p-4 text-red-500">{error}</div>;
 
+  if (emails.length === 0) {
+    return (
+      <div className="flex flex-col items-center justify-center py-16 px-4">
+        <div className="text-5xl mb-4">📭</div>
+        <h3 className="text-lg font-semibold text-black dark:text-white mb-2">No emails yet</h3>
+        <p className="text-gray-500 text-center max-w-md">
+          Your inbox is empty. Emails will appear here once they arrive. Check back later.
+        </p>
+      </div>
+    );
+  }
+
   return (
     <div className="flex">
       <div className="flex-1 overflow-x-auto">
@@ -80,7 +92,10 @@ export default function EmailInbox() {
                   </span>
                 </td>
                 <td className="py-3 px-4">
-                  <button className="text-primary hover:underline text-sm">
+                  <button
+                    onClick={(e) => { e.stopPropagation(); setSelectedEmailId(selectedEmailId === email.id ? null : email.id); }}
+                    className="text-primary hover:underline text-sm"
+                  >
                     {selectedEmailId === email.id ? '✕' : '🤖'}
                   </button>
                 </td>

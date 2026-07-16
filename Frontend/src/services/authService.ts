@@ -79,17 +79,17 @@ class AuthService {
       if (refreshTime > 0) {
         console.debug(`Scheduling token refresh in ${Math.round(refreshTime / 1000)} seconds`);
         this.refreshTimeoutId = setTimeout(() => {
-          this.refreshAccessToken().catch(err => console.error('Scheduled refresh failed', err));
+          this.refreshAccessToken().catch(() => {});
         }, refreshTime);
       } else {
         // If already expired or close to expiring, try to refresh immediately
         // But only if we have a refresh token
         if (this.getRefreshToken()) {
-           this.refreshAccessToken().catch(err => console.error('Immediate refresh failed', err));
+           this.refreshAccessToken().catch(() => {});
         }
       }
-    } catch (error) {
-      console.error('Failed to schedule refresh:', error);
+    } catch {
+      // token refresh scheduling failed silently
     }
   }
 
@@ -182,11 +182,9 @@ class AuthService {
       }
       
       return true;
-    } catch (err) {
+    } catch {
       // If there's an error parsing the token, remove it from storage
       this.removeToken();
-      // Log the error for debugging purposes
-      console.error('Token validation failed:', err);
       return false;
     }
   }
@@ -213,7 +211,6 @@ class AuthService {
 
     const message = possibleMessage ?? (typeof errorData === 'string' ? errorData : `HTTP error! status: ${response.status}`);
 
-    console.error('Auth request failed:', response.status, errorData);
     throw new Error(message);
   }
 
@@ -243,7 +240,6 @@ class AuthService {
       this.setToken(data.access_token, data.refresh_token, rememberMe);
       return data;
     } catch (error) {
-      console.error('Signin failed:', error);
       throw error;
     }
   }
@@ -271,7 +267,6 @@ class AuthService {
 
       return await response.json();
     } catch (error) {
-      console.error('Signup failed:', error);
       throw error;
     }
   }
@@ -299,7 +294,6 @@ class AuthService {
 
       return await response.json();
     } catch (error) {
-      console.error('Verification failed:', error);
       throw error;
     }
   }
@@ -326,7 +320,6 @@ class AuthService {
 
       return await response.json();
     } catch (error) {
-      console.error('Resend verification failed:', error);
       throw error;
     }
   }
@@ -370,7 +363,6 @@ class AuthService {
         this.setToken(data.access_token, data.refresh_token, rememberMe);
         return data;
       } catch (error) {
-        console.error('Token refresh failed:', error);
         throw error;
       } finally {
         this.refreshPromise = null;
@@ -394,8 +386,8 @@ class AuthService {
           body: JSON.stringify({ refreshToken }),
         });
       }
-    } catch (error) {
-      console.error('Logout failed:', error);
+    } catch {
+      // logout failed silently
     } finally {
       this.removeToken();
     }
@@ -426,7 +418,6 @@ class AuthService {
       this.removeToken();
       return await response.json();
     } catch (error) {
-      console.error('Logout all devices failed:', error);
       throw error;
     }
   }

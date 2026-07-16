@@ -1,5 +1,5 @@
 "use client";
-import React, { useState, useRef, useEffect } from "react";
+import React, { useState, useRef, useEffect, useCallback } from "react";
 import FullCalendar from "@fullcalendar/react";
 import dayGridPlugin from "@fullcalendar/daygrid";
 import timeGridPlugin from "@fullcalendar/timegrid";
@@ -12,6 +12,8 @@ import {
 } from "@fullcalendar/core";
 import { useModal } from "@/hooks/useModal";
 import { Modal } from "@/components/ui/modal";
+import calendarEventService, { CalendarEvent as CalEvent } from "@/services/calendarEventService";
+import { useToast } from "@/context/ToastContext";
 
 interface CalendarEvent extends EventInput {
   extendedProps: {
@@ -20,9 +22,7 @@ interface CalendarEvent extends EventInput {
 }
 
 const Calendar: React.FC = () => {
-  const [selectedEvent, setSelectedEvent] = useState<CalendarEvent | null>(
-    null
-  );
+  const [selectedEvent, setSelectedEvent] = useState<CalendarEvent | null>(null);
   const [eventTitle, setEventTitle] = useState("");
   const [eventStartDate, setEventStartDate] = useState("");
   const [eventEndDate, setEventEndDate] = useState("");
@@ -30,6 +30,7 @@ const Calendar: React.FC = () => {
   const [events, setEvents] = useState<CalendarEvent[]>([]);
   const calendarRef = useRef<FullCalendar>(null);
   const { isOpen, openModal, closeModal } = useModal();
+  const { addToast } = useToast();
 
   const calendarsEvents = {
     Danger: "danger",
@@ -38,30 +39,26 @@ const Calendar: React.FC = () => {
     Warning: "warning",
   };
 
-  useEffect(() => {
-    // Initialize with some events
-    setEvents([
-      {
-        id: "1",
-        title: "Event Conf.",
-        start: new Date().toISOString().split("T")[0],
-        extendedProps: { calendar: "Danger" },
-      },
-      {
-        id: "2",
-        title: "Meeting",
-        start: new Date(Date.now() + 86400000).toISOString().split("T")[0],
-        extendedProps: { calendar: "Success" },
-      },
-      {
-        id: "3",
-        title: "Workshop",
-        start: new Date(Date.now() + 172800000).toISOString().split("T")[0],
-        end: new Date(Date.now() + 259200000).toISOString().split("T")[0],
-        extendedProps: { calendar: "Primary" },
-      },
-    ]);
+  const loadEvents = useCallback(async () => {
+    try {
+      const data = await calendarEventService.getAllEvents(1);
+      const mapped: CalendarEvent[] = (data.content || []).map((e: CalEvent) => ({
+        id: e.id,
+        title: e.title,
+        start: e.start,
+        end: e.end,
+        allDay: e.allDay,
+        extendedProps: { calendar: e.color || "Primary" },
+      }));
+      setEvents(mapped);
+    } catch {
+      setEvents([]);
+    }
   }, []);
+
+  useEffect(() => {
+    loadEvents();
+  }, [loadEvents]);
 
   const handleDateSelect = (selectInfo: DateSelectArg) => {
     resetModalFields();
@@ -80,33 +77,29 @@ const Calendar: React.FC = () => {
     openModal();
   };
 
-  const handleAddOrUpdateEvent = () => {
-    if (selectedEvent) {
-      // Update existing event
-      setEvents((prevEvents) =>
-        prevEvents.map((event) =>
-          event.id === selectedEvent.id
-            ? {
-                ...event,
-                title: eventTitle,
-                start: eventStartDate,
-                end: eventEndDate,
-                extendedProps: { calendar: eventLevel },
-              }
-            : event
-        )
-      );
-    } else {
-      // Add new event
-      const newEvent: CalendarEvent = {
-        id: Date.now().toString(),
-        title: eventTitle,
-        start: eventStartDate,
-        end: eventEndDate,
-        allDay: true,
-        extendedProps: { calendar: eventLevel },
-      };
-      setEvents((prevEvents) => [...prevEvents, newEvent]);
+  const handleAddOrUpdateEvent = async () => {
+    try {
+      if (selectedEvent) {
+        await calendarEventService.updateEvent(selectedEvent.id as string, {
+          title: eventTitle,
+          start: eventStartDate,
+          end: eventEndDate || undefined,
+          color: eventLevel,
+        });
+        addToast("success", "Success", "Event updated");
+      } else {
+        await calendarEventService.createEvent({
+          title: eventTitle,
+          start: eventStartDate,
+          end: eventEndDate || undefined,
+          allDay: true,
+          color: eventLevel,
+        });
+        addToast("success", "Success", "Event created");
+      }
+      loadEvents();
+    } catch {
+      addToast("error", "Error", "Failed to save event");
     }
     closeModal();
     resetModalFields();
@@ -203,7 +196,7 @@ const Calendar: React.FC = () => {
                             <span
                               className={`h-2 w-2 rounded-full bg-white ${
                                 eventLevel === key ? "block" : "hidden"
-                              }`}  
+                              }`}
                             ></span>
                           </span>
                         </span>
@@ -256,7 +249,8 @@ const Calendar: React.FC = () => {
             <button
               onClick={handleAddOrUpdateEvent}
               type="button"
-              className="btn btn-success btn-update-event flex w-full justify-center rounded-lg bg-brand-500 px-4 py-2.5 text-sm font-medium text-white hover:bg-brand-600 sm:w-auto"
+              disabled={!eventTitle.trim() || !eventStartDate}
+              className="btn btn-success btn-update-event flex w-full justify-center rounded-lg bg-brand-500 px-4 py-2.5 text-sm font-medium text-white hover:bg-brand-600 sm:w-auto disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {selectedEvent ? "Update Changes" : "Add Event"}
             </button>
@@ -281,5 +275,3 @@ const renderEventContent = (eventInfo: EventContentArg) => {
 };
 
 export default Calendar;
-
-

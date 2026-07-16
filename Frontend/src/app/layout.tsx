@@ -1,4 +1,5 @@
-import { Outfit } from 'next/font/google';
+import { Inter, Outfit, Vazirmatn } from 'next/font/google';
+import { cookies } from 'next/headers';
 import './globals.css';
 
 import { SidebarProvider } from '@/context/SidebarContext';
@@ -17,26 +18,36 @@ const outfit = Outfit({
   subsets: ["latin"],
 });
 
-const vazirmatn = Outfit({
+const inter = Inter({
   subsets: ["latin"],
+  variable: "--font-inter",
+});
+
+const vazirmatn = Vazirmatn({
+  subsets: ["latin", "arabic"],
   variable: "--font-vazirmatn",
 });
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const cookieStore = await cookies();
+  const lang = cookieStore.get('i18nextLng')?.value || 'en';
+  const dir = lang === 'fa' ? 'rtl' : 'ltr';
+
   return (
-    <html lang="en" className="dark" dir="ltr">
+    <html lang={lang} className="dark" dir={dir}>
       <head>
+        <link rel="icon" href="/images/Netpick-Platform/Netpick.svg" type="image/svg+xml" />
         <link rel="manifest" href="/manifest.json" />
         <meta name="theme-color" content="#1E40AF" />
         <meta name="apple-mobile-web-app-capable" content="yes" />
         <meta name="apple-mobile-web-app-status-bar-style" content="default" />
-        <link rel="apple-touch-icon" href="/icons/icon-192x192.png" />
+        <link rel="apple-touch-icon" href="/images/Netpick-Platform/Netpick.svg" />
       </head>
-      <body className={`${outfit.className} ${vazirmatn.className} dark:bg-gray-900`}>
+      <body className={`${outfit.className} ${inter.variable} ${vazirmatn.className} dark:bg-gray-900`}>
         <LanguageDetector />
         <PwaRegister />
         <script

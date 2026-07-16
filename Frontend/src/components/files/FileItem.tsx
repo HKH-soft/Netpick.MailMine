@@ -6,9 +6,10 @@ import { FiFile, FiDownload, FiTrash2 } from "react-icons/fi";
 
 interface FileItemProps {
   file: FileEntity;
+  onDelete?: (fileId: string) => void;
 }
 
-export default function FileItem({ file }: FileItemProps) {
+export default function FileItem({ file, onDelete }: FileItemProps) {
   const getFileIcon = (mimeType: string) => {
     if (mimeType?.startsWith("image/")) return "🖼️";
     if (mimeType?.includes("pdf")) return "📄";
@@ -37,13 +38,15 @@ export default function FileItem({ file }: FileItemProps) {
         >
           <FiDownload className="w-4 h-4" />
         </button>
-        <button
-          onClick={() => {}}
-          className="p-1 text-gray-500 hover:text-red-500"
-          title="Delete"
-        >
-          <FiTrash2 className="w-4 h-4" />
-        </button>
+        {onDelete && (
+          <button
+            onClick={(e) => { e.stopPropagation(); onDelete(file.id); }}
+            className="p-1 text-gray-500 hover:text-red-500"
+            title="Delete"
+          >
+            <FiTrash2 className="w-4 h-4" />
+          </button>
+        )}
       </div>
     </div>
   );
