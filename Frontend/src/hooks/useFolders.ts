@@ -22,9 +22,9 @@ export const useFolders = (page: number = 1, ownerId?: string) => {
         setCurrentPage(1);
       } else {
         response = await FolderService.getAllFolders(page);
-        setFolders(response?.context || []);
-        setTotalPages(response?.totalPageCount || 0);
-        setCurrentPage(response?.currentPage || 1);
+setFolders(response?.content || []);
+         setTotalPages(response?.totalPages || 0);
+         setCurrentPage(response?.currentPage || 1);
       }
       setError(null);
     } catch (err) {

@@ -4,20 +4,36 @@ import React, { useState } from "react";
 import FinanceDashboard from "@/components/finance/FinanceDashboard";
 import InvoiceList from "@/components/finance/InvoiceList";
 import { useInvoices } from "@/hooks/useInvoices";
+import InvoiceService, { InvoiceStatus } from "@/services/invoiceService";
+import { useToast } from "@/context/ToastContext";
 
 export default function FinanceFarmPage() {
   const [view, setView] = useState<"dashboard" | "invoices">("dashboard");
   const { invoices, loading, refetch } = useInvoices(1);
+  const { addToast } = useToast();
 
-  const handleDelete = async () => {
+  const handleDelete = async (id: string) => {
     if (confirm("Are you sure you want to delete this invoice?")) {
-      refetch();
+      try {
+        await InvoiceService.deleteInvoice(id);
+        addToast("success", "Success", "Invoice deleted successfully");
+        await refetch();
+      } catch (err) {
+        console.error("Failed to delete invoice:", err);
+        addToast("error", "Error", "Failed to delete invoice");
+      }
     }
   };
 
-  const handleStatusChange = async () => {
-    // Would call InvoiceService.updateInvoiceStatus(id, status)
-    refetch();
+  const handleStatusChange = async (id: string, status: InvoiceStatus) => {
+    try {
+      await InvoiceService.updateInvoiceStatus(id, status);
+      addToast("success", "Success", "Invoice status updated successfully");
+      await refetch();
+    } catch (err) {
+      console.error("Failed to update invoice status:", err);
+      addToast("error", "Error", "Failed to update invoice status");
+    }
   };
 
   return (

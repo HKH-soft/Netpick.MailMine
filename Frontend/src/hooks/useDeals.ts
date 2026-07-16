@@ -15,8 +15,8 @@ export const useDeals = (page: number = 1) => {
     try {
       setLoading(true);
       const response: PageDTO<Deal> = await DealService.getAllDeals(page);
-      setDeals(response?.context || []);
-      setTotalPages(response?.totalPageCount || 0);
+      setDeals(response?.content || []);
+      setTotalPages(response?.totalPages || 0);
       setCurrentPage(response?.currentPage || 1);
       setError(null);
     } catch (err) {

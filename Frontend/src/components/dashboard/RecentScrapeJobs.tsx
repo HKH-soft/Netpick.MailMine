@@ -18,7 +18,7 @@ export default function RecentScrapeJobs() {
         const fetchJobs = async () => {
             try {
                 const response = await scrapeJobService.getAllScrapeJobs(1);
-                setJobs(response.context.slice(0, 5)); // Get top 5
+                setJobs(response.content.slice(0, 5)); // Get top 5
             } catch (error) {
                 console.error("Failed to fetch recent jobs", error);
             }

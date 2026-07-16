@@ -19,6 +19,12 @@ public interface RefreshTokenRepository extends JpaRepository<RefreshToken, UUID
     List<RefreshToken> findByUserId(UUID userId);
 
     /**
+     * Find all non-revoked, non-expired refresh tokens for efficient hash matching.
+     */
+    @Query("SELECT rt FROM RefreshToken rt WHERE rt.revoked = false AND rt.expiresAt > :now")
+    List<RefreshToken> findValidTokens(@Param("now") Instant now);
+
+    /**
      * Revoke all refresh tokens for a user.
      */
     @Transactional

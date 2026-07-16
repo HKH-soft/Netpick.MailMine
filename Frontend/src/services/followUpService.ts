@@ -22,7 +22,7 @@ class FollowUpService {
   }
 
   createEventSource(): EventSource {
-    const token = localStorage.getItem('accessToken') || '';
+    const token = localStorage.getItem('auth_token') || '';
     return new EventSource(`${this.basePath}/stream?token=${token}`);
   }
 }

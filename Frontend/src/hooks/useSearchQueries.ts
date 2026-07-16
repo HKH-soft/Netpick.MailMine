@@ -15,8 +15,8 @@ export const useSearchQueries = (page: number = 1) => {
     try {
       setLoading(true);
       const response: PageDTO<SearchQuery> = await SearchQueryService.getAllSearchQueries(page);
-      setSearchQueries(response.context);
-      setTotalPages(response.totalPageCount);
+      setSearchQueries(response.content);
+      setTotalPages(response.totalPages);
       setCurrentPage(response.currentPage);
       setError(null);
     } catch (err) {

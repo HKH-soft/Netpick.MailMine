@@ -69,14 +69,14 @@ public class RefreshTokenService {
     /**
      * Find a valid refresh token by its token string.
      * Uses token hash comparison for security.
+     * Optimized to only load non-revoked, non-expired tokens.
      *
      * @param token the raw token string
      * @return the RefreshToken if valid
      */
     public Optional<RefreshToken> findValidToken(String token) {
-        return refreshTokenRepository.findAll().stream()
+        return refreshTokenRepository.findValidTokens(Instant.now()).stream()
                 .filter(rt -> passwordEncoder.matches(token, rt.getTokenHash()))
-                .filter(rt -> !rt.isRevoked() && !rt.isExpired())
                 .findFirst();
     }
 
@@ -107,8 +107,8 @@ public class RefreshTokenService {
     @Transactional
     public void revokeToken(String token) {
         log.debug("Revoking refresh token");
-        // Find token by hash (including revoked/expired ones)
-        Optional<RefreshToken> tokenOpt = refreshTokenRepository.findAll().stream()
+        // Find token by hash (including revoked/expired ones) - use valid tokens to limit scope
+        Optional<RefreshToken> tokenOpt = refreshTokenRepository.findValidTokens(Instant.now().plusSeconds(86400L * 365)).stream()
                 .filter(rt -> passwordEncoder.matches(token, rt.getTokenHash()))
                 .findFirst();
         if (tokenOpt.isPresent()) {

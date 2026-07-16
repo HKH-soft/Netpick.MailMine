@@ -17,7 +17,7 @@ export default function RecentContacts() {
         const fetchContacts = async () => {
             try {
                 const response = await contactService.getAllContacts(1);
-                setContacts(response.context.slice(0, 5)); // Get top 5
+                setContacts(response.content.slice(0, 5)); // Get top 5
             } catch (error) {
                 console.error("Failed to fetch recent contacts", error);
             }

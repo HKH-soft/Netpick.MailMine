@@ -45,7 +45,7 @@ const InvoiceService = {
     api.put(`${basePath}/${id}`, data),
   deleteInvoice: (id: string): Promise<void> => api.delete(`${basePath}/${id}`),
   updateInvoiceStatus: (id: string, status: InvoiceStatus): Promise<Invoice> =>
-    api.put(`${basePath}/${id}/status?status=${status}`, {}),
+    api.patch(`${basePath}/${id}/status?status=${status}`, {}),
   getFinanceSummary: (): Promise<FinanceSummary> => api.get(`${basePath}/stats`),
 };
 

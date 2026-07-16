@@ -15,6 +15,7 @@ export default function CampaignBuilder() {
   });
   const [recipients, setRecipients] = useState('');
   const [selectedCampaign, setSelectedCampaign] = useState<string | null>(null);
+  const [formErrors, setFormErrors] = useState<Record<string, string>>({});
 
   useEffect(() => {
     loadCampaigns();
@@ -24,7 +25,7 @@ export default function CampaignBuilder() {
     try {
       setLoading(true);
       const data = await campaignService.listCampaigns();
-      setCampaigns(data.context || []);
+      setCampaigns(data.content || []);
     } catch (error) {
       console.error('Failed to load campaigns:', error);
     } finally {
@@ -32,11 +33,22 @@ export default function CampaignBuilder() {
     }
   };
 
+  const validateForm = (): boolean => {
+    const errors: Record<string, string> = {};
+    if (!formData.name.trim()) errors.name = 'Campaign name is required';
+    if (!formData.subjectLine.trim()) errors.subjectLine = 'Subject line is required';
+    if (!formData.bodyHtml.trim()) errors.bodyHtml = 'Email body is required';
+    setFormErrors(errors);
+    return Object.keys(errors).length === 0;
+  };
+
   const handleCreate = async () => {
+    if (!validateForm()) return;
     try {
       await campaignService.createCampaign(formData);
       setShowCreate(false);
       setFormData({ name: '', description: '', subjectLine: '', bodyHtml: '' });
+      setFormErrors({});
       loadCampaigns();
     } catch (error) {
       console.error('Failed to create campaign:', error);
@@ -104,20 +116,26 @@ export default function CampaignBuilder() {
         <div className="bg-white dark:bg-boxdark p-4 rounded-lg mb-4 border border-stroke">
           <h3 className="font-semibold mb-3">Create Campaign</h3>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <input
-              type="text"
-              placeholder="Campaign Name"
-              value={formData.name}
-              onChange={e => setFormData({ ...formData, name: e.target.value })}
-              className="border rounded px-3 py-2 dark:bg-form-input dark:border-form-strokedark"
-            />
-            <input
-              type="text"
-              placeholder="Subject Line"
-              value={formData.subjectLine}
-              onChange={e => setFormData({ ...formData, subjectLine: e.target.value })}
-              className="border rounded px-3 py-2 dark:bg-form-input dark:border-form-strokedark"
-            />
+            <div>
+              <input
+                type="text"
+                placeholder="Campaign Name"
+                value={formData.name}
+                onChange={e => setFormData({ ...formData, name: e.target.value })}
+                className={`border rounded px-3 py-2 w-full dark:bg-form-input dark:border-form-strokedark ${formErrors.name ? 'border-red-500' : ''}`}
+              />
+              {formErrors.name && <p className="text-red-500 text-xs mt-1">{formErrors.name}</p>}
+            </div>
+            <div>
+              <input
+                type="text"
+                placeholder="Subject Line"
+                value={formData.subjectLine}
+                onChange={e => setFormData({ ...formData, subjectLine: e.target.value })}
+                className={`border rounded px-3 py-2 w-full dark:bg-form-input dark:border-form-strokedark ${formErrors.subjectLine ? 'border-red-500' : ''}`}
+              />
+              {formErrors.subjectLine && <p className="text-red-500 text-xs mt-1">{formErrors.subjectLine}</p>}
+            </div>
             <textarea
               placeholder="Description"
               value={formData.description}
@@ -125,23 +143,40 @@ export default function CampaignBuilder() {
               className="border rounded px-3 py-2 md:col-span-2 dark:bg-form-input dark:border-form-strokedark"
               rows={2}
             />
-            <textarea
-              placeholder="Email HTML Body"
-              value={formData.bodyHtml}
-              onChange={e => setFormData({ ...formData, bodyHtml: e.target.value })}
-              className="border rounded px-3 py-2 md:col-span-2 dark:bg-form-input dark:border-form-strokedark"
-              rows={6}
-            />
+            <div className="md:col-span-2">
+              <textarea
+                placeholder="Email HTML Body"
+                value={formData.bodyHtml}
+                onChange={e => setFormData({ ...formData, bodyHtml: e.target.value })}
+                className={`border rounded px-3 py-2 w-full dark:bg-form-input dark:border-form-strokedark ${formErrors.bodyHtml ? 'border-red-500' : ''}`}
+                rows={6}
+              />
+              {formErrors.bodyHtml && <p className="text-red-500 text-xs mt-1">{formErrors.bodyHtml}</p>}
+            </div>
           </div>
           <button
             onClick={handleCreate}
-            className="mt-3 bg-primary text-white px-4 py-2 rounded hover:bg-opacity-90"
+            disabled={!formData.name.trim() || !formData.subjectLine.trim() || !formData.bodyHtml.trim()}
+            className={`mt-3 px-4 py-2 rounded ${
+              !formData.name.trim() || !formData.subjectLine.trim() || !formData.bodyHtml.trim()
+                ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
+                : 'bg-primary text-white hover:bg-opacity-90'
+            }`}
           >
             Create Campaign
           </button>
         </div>
       )}
 
+      {campaigns.length === 0 ? (
+        <div className="flex flex-col items-center justify-center py-16 px-4">
+          <div className="text-5xl mb-4">📢</div>
+          <h3 className="text-lg font-semibold text-black dark:text-white mb-2">No campaigns yet</h3>
+          <p className="text-gray-500 text-center max-w-md mb-4">
+            You haven't created any campaigns yet. Click the button above to create your first campaign.
+          </p>
+        </div>
+      ) : (
       <div className="overflow-x-auto">
         <table className="w-full table-auto">
           <thead>
@@ -200,6 +235,7 @@ export default function CampaignBuilder() {
           </tbody>
         </table>
       </div>
+      )}
 
       {selectedCampaign && (
         <div className="mt-4 p-4 bg-white dark:bg-boxdark rounded-lg border border-stroke">

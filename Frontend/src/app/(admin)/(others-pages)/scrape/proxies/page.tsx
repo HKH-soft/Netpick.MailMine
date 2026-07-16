@@ -196,34 +196,46 @@ export default function Proxies() {
     ];
 
     if (loading) {
-        return <div>Loading...</div>;
+        return <div className="flex items-center justify-center p-8">
+            <div className="text-gray-500 dark:text-gray-400">Loading proxies...</div>
+        </div>;
     }
 
     if (error) {
-        return <div>Error: {error}</div>;
+        return <div className="flex items-center justify-center p-8">
+            <div className="text-red-500 dark:text-red-400">Error: {error}</div>
+        </div>;
     }
 
     return (
-        <>
+        <div>
             <PageBreadcrumb pageTitle="Proxies" />
-            <div className="mb-4 flex gap-2 flex-wrap">
-                <Button onClick={handleCreate}>Add Proxy</Button>
-                <Button onClick={() => setIsImportModalOpen(true)}>Import Proxies</Button>
-                <Button onClick={handleTestUntested}>Test Untested</Button>
-                <Button onClick={handleTestActive}>Re-test Active</Button>
-            </div>
-            <DynamicTable
-                columns={columns}
-                data={data}
-                onEdit={handleEdit}
-                onDelete={handleDelete}
-            />
-            <div className="mt-5">
-                <Pagination
-                    currentPage={currentPage}
-                    totalPages={totalPages}
-                    onPageChange={handlePageChange}
-                />
+            <div className="space-y-6">
+                <div className="mb-4 flex gap-2 flex-wrap">
+                    <Button onClick={handleCreate}>Add Proxy</Button>
+                    <Button onClick={() => setIsImportModalOpen(true)}>Import Proxies</Button>
+                    <Button onClick={handleTestUntested}>Test Untested</Button>
+                    <Button onClick={handleTestActive}>Re-test Active</Button>
+                </div>
+                {proxies.length === 0 ? (
+                    <p className="text-gray-500 dark:text-gray-400 text-center py-4">No proxies found. Add one to get started.</p>
+                ) : (
+                    <>
+                        <DynamicTable
+                            columns={columns}
+                            data={data}
+                            onEdit={handleEdit}
+                            onDelete={handleDelete}
+                        />
+                        <div className="mt-5">
+                            <Pagination
+                                currentPage={currentPage}
+                                totalPages={totalPages}
+                                onPageChange={handlePageChange}
+                            />
+                        </div>
+                    </>
+                )}
             </div>
 
             <ModalForm
@@ -280,7 +292,7 @@ export default function Proxies() {
                     </div>
                 </div>
             )}
-        </>
+        </div>
     );
 }
 

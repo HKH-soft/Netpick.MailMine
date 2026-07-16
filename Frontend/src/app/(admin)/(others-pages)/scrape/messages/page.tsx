@@ -4,188 +4,65 @@ import PageBreadcrumb from "@/components/common/PageBreadCrumb";
 import DynamicTable, { ColumnConfig } from "@/components/tables/DynamicTable";
 import Pagination from "@/components/tables/Pagination";
 import React, { useState } from "react";
-import { useScrapeJobs } from "@/hooks/useScrapeJobs";
-// import Button from "@/components/ui/button/Button"; // Uncomment when create/edit functionality is added
-// import ModalForm from "@/components/forms/ModalForm"; // Uncomment when create/edit functionality is added
-import ConfirmModal from "@/components/forms/ConfirmModal";
-import ScrapeJobService from "@/services/scrapeJobService";
-import { ScrapeJob } from "@/services/scrapeJobService";
-import { useToast } from "@/context/ToastContext";
-
-// Define types for our data
+import { useScrapeMessages } from "@/hooks/useScrapeMessages";
+import { EmailMessage } from "@/services/emailMessageService";
 
 export default function Messages() {
-  const [currentPage, setCurrentPage] = useState<number>(1);
-  // const [isCreateModalOpen, setIsCreateModalOpen] = useState(false); // Uncomment when create functionality is added
-  // const [isEditModalOpen, setIsEditModalOpen] = useState(false); // Uncomment when edit functionality is added
-  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
-  const [selectedItem, setSelectedItem] = useState<ScrapeJob | null>(null);
-  const { addToast } = useToast();
-  const { scrapeJobs, loading, error, totalPages, refetch } = useScrapeJobs(currentPage);
+  const [currentPage, setCurrentPage] = useState<number>(0);
+  const { messages, loading, error, totalPages } = useScrapeMessages(currentPage);
 
   const handlePageChange = (page: number) => {
     setCurrentPage(page);
   };
 
-  // const handleCreate = () => {
-  //   setSelectedItem(null);
-  //   setIsCreateModalOpen(true);
-  // }; // Uncomment when create functionality is added
+  const columns: ColumnConfig[] = [
+    { key: "senderEmail", header: "From", type: "text" },
+    { key: "subject", header: "Subject", type: "text" },
+    { key: "bodyText", header: "Preview", type: "text" },
+    { key: "status", header: "Status", type: "text" },
+    { key: "receivedAt", header: "Received", type: "text" },
+  ];
 
-  // const handleEdit = (row: Record<string, unknown>) => {
-  //   setSelectedItem({
-  //     id: row.id as string,
-  //     link: row.link as string,
-  //     attempt: row.attempt as number,
-  //     beenScraped: row.beenScraped as boolean,
-  //     scrapeFailed: row.scrapeFailed as boolean,
-  //     description: row.description as string,
-  //     createdAt: new Date().toISOString(),
-  //     updatedAt: new Date().toISOString()
-  //   });
-  //   setIsEditModalOpen(true);
-  // }; // Uncomment when edit functionality is added
-
-  const handleDelete = (row: Record<string, unknown>) => {
-    setSelectedItem({
-      id: row.id as string,
-      link: row.link as string,
-      attempt: row.attempt as number,
-      beenScraped: row.beenScraped as boolean,
-      scrapeFailed: row.scrapeFailed as boolean,
-      description: row.description as string,
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString()
-    });
-    setIsDeleteModalOpen(true);
-  };
-
-  // const handleCreateSubmit = async (data: Record<string, unknown>) => {
-  //   try {
-  //     await ScrapeJobService.createScrapeJob(data.link as string, data.description as string);
-  //     addToast("success", "Success", "Scrape job created successfully");
-  //     // Close the modal
-  //     setIsCreateModalOpen(false);
-  //     // Refetch the data
-  //     await refetch();
-  //   } catch (err) {
-  //     console.error("Failed to create scrape job:", err);
-  //     addToast("error", "Error", "Failed to create scrape job");
-  //   }
-  // };
-
-  // const handleEditSubmit = async (data: Record<string, unknown>) => {
-  //   if (!selectedItem) return;
-  //   try {
-  //     await ScrapeJobService.updateScrapeJob(selectedItem.id, {
-  //       link: data.link as string,
-  //       description: data.description as string
-  //     });
-  //     addToast("success", "Success", "Scrape job updated successfully");
-  //     // Close the modal
-  //     setIsEditModalOpen(false);
-  //     // Refetch the data
-  //     await refetch();
-  //   } catch (err) {
-  //     console.error("Failed to update scrape job:", err);
-  //     addToast("error", "Error", "Failed to update scrape job");
-  //   }
-  // };
-
-  const handleDeleteConfirm = async () => {
-    if (!selectedItem) return;
-    try {
-      await ScrapeJobService.deleteScrapeJob(selectedItem.id);
-      addToast("success", "Success", "Scrape job deleted successfully");
-      // Close the modal
-      setIsDeleteModalOpen(false);
-      // Refetch the data
-      await refetch();
-    } catch (err) {
-      console.error("Failed to delete scrape job:", err);
-      addToast("error", "Error", "Failed to delete scrape job");
-    }
-  };
-
-  const columns = [
-    { key: "link", header: "Link", type: "text" },
-    { key: "attempt", header: "Attempts", type: "text" },
-    { key: "status", header: "Status", type: "status" },
-    { key: "delete", header: "Delete", type: "delete" },
-  ] as const satisfies ColumnConfig[];
-
-  // Transform data to match the table structure
-  const data = scrapeJobs.map(job => ({
-    id: job.id,
-    link: job.link,
-    attempt: job.attempt.toString(),
-    status: job.beenScraped ? "Completed" : job.scrapeFailed ? "Failed" : "Pending",
+  const data = messages.map((msg: EmailMessage) => ({
+    id: msg.id,
+    senderEmail: msg.senderName ? `${msg.senderName} <${msg.senderEmail}>` : msg.senderEmail || "-",
+    subject: msg.subject || "-",
+    bodyText: msg.bodyText ? (msg.bodyText.length > 60 ? msg.bodyText.substring(0, 60) + "..." : msg.bodyText) : "-",
+    status: msg.status || "-",
+    receivedAt: msg.receivedAt ? new Date(msg.receivedAt).toLocaleString() : "-",
   }));
 
-  // const createFields = [
-  //   { name: "link", label: "Link", type: "text", required: true },
-  //   { name: "description", label: "Description", type: "textarea" },
-  // ]; // Uncomment when create functionality is added
-
-  // const editFields = [
-  //   { name: "link", label: "Link", type: "text", required: true },
-  //   { name: "description", label: "Description", type: "textarea" },
-  // ]; // Uncomment when edit functionality is added
-
   if (loading) {
-    return <div>Loading...</div>;
+    return <div className="flex items-center justify-center p-8">
+      <div className="text-gray-500 dark:text-gray-400">Loading messages...</div>
+    </div>;
   }
 
   if (error) {
-    return <div>Error: {error}</div>;
+    return <div className="flex items-center justify-center p-8">
+      <div className="text-red-500 dark:text-red-400">Error: {error}</div>
+    </div>;
   }
 
   return (
-    <>
+    <div>
       <PageBreadcrumb pageTitle="Messages" />
-      {/* Create button disabled until backend supports creating scrape jobs */}
-      {/* <div className="mb-4">
-        <Button onClick={handleCreate}>Create Scrape Job</Button>
-      </div> */}
-      <DynamicTable columns={columns} data={data} onDelete={handleDelete} />
-      <div className="mt-5">
-        <Pagination
-          currentPage={currentPage}
-          totalPages={totalPages}
-          onPageChange={handlePageChange}
-        />
+      <div className="space-y-6">
+        {messages.length === 0 ? (
+          <p className="text-gray-500 dark:text-gray-400 text-center py-4">No messages found.</p>
+        ) : (
+          <>
+            <DynamicTable columns={columns} data={data} />
+            <div className="mt-5">
+              <Pagination
+                currentPage={currentPage}
+                totalPages={totalPages}
+                onPageChange={handlePageChange}
+              />
+            </div>
+          </>
+        )}
       </div>
-
-      {/* Create functionality not available - backend endpoint missing */}
-      {/* <ModalForm
-        isOpen={isCreateModalOpen}
-        onCloseAction={() => setIsCreateModalOpen(false)}
-        onSubmit={handleCreateSubmit}
-        title="Create Scrape Job"
-        fields={createFields}
-        submitButtonText="Create"
-      /> */}
-
-      {/* Edit functionality not available - backend endpoint missing */}
-      {/* <ModalForm
-        isOpen={isEditModalOpen}
-        onCloseAction={() => setIsEditModalOpen(false)}
-        onSubmit={handleEditSubmit}
-        title="Edit Scrape Job"
-        fields={editFields}
-        initialData={selectedItem ? (selectedItem as unknown as Record<string, unknown>) : undefined}
-        submitButtonText="Update"
-      /> */}
-
-      <ConfirmModal
-        isOpen={isDeleteModalOpen}
-        onCloseAction={() => setIsDeleteModalOpen(false)}
-        onConfirm={handleDeleteConfirm}
-        title="Delete Scrape Job"
-        message={`Are you sure you want to delete the scrape job for "${selectedItem?.link}"?`}
-      />
-    </>
+    </div>
   );
 }
-
-

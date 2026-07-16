@@ -16,8 +16,8 @@ export const useScrapeDataList = (page: number = 1) => {
     try {
       setLoading(true);
       const response: PageDTO<ScrapeData> = await ScrapeDataService.getAllScrapeData(page, { signal });
-      setScrapeDataList(response?.context || []);
-      setTotalPages(response?.totalPageCount || 0);
+      setScrapeDataList(response?.content || []);
+      setTotalPages(response?.totalPages || 0);
       setCurrentPage(response?.currentPage || 1);
       setError(null);
     } catch (err: unknown) {

@@ -10,7 +10,8 @@ spring:
       max-lifetime: 1800000
       connection-timeout: 30000
   flyway:
-    enabled: false
+    enabled: true
+    baseline-on-migrate: true
   data:
     redis:
       enabled: false

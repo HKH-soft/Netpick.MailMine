@@ -15,8 +15,8 @@ export const useUsers = (page: number = 1) => {
     try {
       setLoading(true);
       const response: PageDTO<User> = await UserService.getAllUsers(page, { signal });
-      setUsers(response.context);
-      setTotalPages(response.totalPageCount);
+      setUsers(response.content);
+      setTotalPages(response.totalPages);
       setCurrentPage(response.currentPage);
       setError(null);
     } catch (err: unknown) {

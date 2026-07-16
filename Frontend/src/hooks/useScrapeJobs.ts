@@ -15,8 +15,8 @@ export const useScrapeJobs = (page: number = 1) => {
     try {
       setLoading(true);
       const response: PageDTO<ScrapeJob> = await ScrapeJobService.getAllScrapeJobs(page);
-      setScrapeJobs(response.context);
-      setTotalPages(response.totalPageCount);
+      setScrapeJobs(response.content);
+      setTotalPages(response.totalPages);
       setCurrentPage(response.currentPage);
       setError(null);
     } catch (err) {

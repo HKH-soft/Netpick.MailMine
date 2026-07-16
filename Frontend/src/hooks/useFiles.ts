@@ -20,8 +20,8 @@ export const useFiles = (page: number = 1, folderId?: string) => {
       } else {
         response = await FileService.getAllFiles(page);
       }
-      setFiles(response?.context || []);
-      setTotalPages(response?.totalPageCount || 0);
+setFiles(response?.content || []);
+       setTotalPages(response?.totalPages || 0);
       setCurrentPage(response?.currentPage || 1);
       setError(null);
     } catch (err) {

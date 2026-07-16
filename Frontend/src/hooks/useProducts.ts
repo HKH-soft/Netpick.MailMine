@@ -15,8 +15,8 @@ export const useProducts = (page: number = 1) => {
     try {
       setLoading(true);
       const response: PageDTO<Product> = await ProductService.getAllProducts(page);
-      setProducts(response?.context || []);
-      setTotalPages(response?.totalPageCount || 0);
+      setProducts(response?.content || []);
+      setTotalPages(response?.totalPages || 0);
       setCurrentPage(response?.currentPage || 1);
       setError(null);
     } catch (err) {

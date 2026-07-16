@@ -15,8 +15,8 @@ export const useProxies = (page: number = 1) => {
     try {
       setLoading(true);
       const response: PageDTO<Proxy> = await ProxyService.getAllProxies(page);
-      setProxies(response.context);
-      setTotalPages(response.totalPageCount);
+      setProxies(response.content);
+      setTotalPages(response.totalPages);
       setCurrentPage(response.currentPage);
       setError(null);
     } catch (err) {

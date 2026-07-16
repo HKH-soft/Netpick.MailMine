@@ -1,6 +1,6 @@
 // DynamicTable.tsx
 "use client";
-import React from "react";
+import React, { Key } from "react";
 import Image from "next/image";
 import Badge from "../ui/badge/Badge";
 import {
@@ -34,6 +34,7 @@ interface DynamicTableProps {
     data: Record<string, unknown>[];
     onEdit?: (row: Record<string, unknown>) => void;
     onDelete?: (row: Record<string, unknown>) => void;
+    rowKey?: string;
 }
 
 /* ---------- Component ---------- */
@@ -42,6 +43,7 @@ export default function DynamicTable({
     data,
     onEdit,
     onDelete,
+    rowKey = "id",
 }: DynamicTableProps) {
     const getCellContent = (type: ColumnType, value: unknown, row: Record<string, unknown>) => {
         switch (type) {
@@ -146,7 +148,7 @@ export default function DynamicTable({
                         {/* Table Body */}
                         <TableBody className="divide-y divide-gray-100 dark:divide-white/[0.05]">
                             {data.map((row, rIdx) => (
-                                <TableRow key={rIdx}>
+                                <TableRow key={row[rowKey] as Key ?? rIdx}>
                                     {columns.map((col) => (
                                         <TableCell
                                             key={col.key}

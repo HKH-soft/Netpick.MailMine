@@ -1,6 +1,6 @@
 // api.ts
 import AuthService from './authService';
-import { mockDashboardStats, mockCampaigns, mockContacts, mockDeals, createMockPage } from './mockData';
+import { mockDashboardStats, mockCampaigns, mockContacts, mockDeals, mockScrapeJobs, mockScrapeData, mockEmailMessages, createMockPage } from './mockData';
 
 // Use relative URL to go through Next.js proxy
 const API_BASE_URL = '';
@@ -21,9 +21,16 @@ export class ApiError<T = unknown> extends Error {
 }
 
 export interface PageDTO<T> {
-  context: T[];
-  totalPageCount: number;
+  content: T[];
+  totalPages: number;
+  totalElements: number;
   currentPage: number;
+  pageSize: number;
+  numberOfElements: number;
+  hasNext: boolean;
+  hasPrevious: boolean;
+  isFirst: boolean;
+  isLast: boolean;
 }
 
 export interface ApiResponse<T> {
@@ -70,8 +77,42 @@ function getMockData<T>(endpoint: string): T | null {
   }
 
   // Contacts
+  if (endpoint.includes('/contacts/stats')) {
+    return { total: 3 } as T;
+  }
   if (endpoint.includes('/contacts')) {
     return createMockPage(mockContacts) as T;
+  }
+
+  // Scrape job stats (must check before /scrape/jobs to avoid matching first)
+  if (endpoint.includes('/scrape_jobs/stats') || endpoint.includes('/scrape/jobs/stats')) {
+    return { total: 3, completed: 1, failed: 1, pending: 1 } as T;
+  }
+
+  // Scrape jobs
+  if (endpoint.includes('/scrape_jobs') || endpoint.includes('/scrape/jobs')) {
+    return createMockPage(mockScrapeJobs) as T;
+  }
+
+  // Scrape data
+  if (endpoint.includes('/scrape_data') || endpoint.includes('/scrape/data')) {
+    return createMockPage(mockScrapeData) as T;
+  }
+
+  // Pipelines stats (must check before /pipelines to avoid matching first)
+  if (endpoint.includes('/pipelines/stats')) {
+    return { total: 5, active: 2, completed: 2, failed: 1, totalContactsFound: 150 } as T;
+  }
+  if (endpoint.includes('/pipelines')) {
+    return createMockPage([{ id: '1', stage: 'SCRAPING', state: 'ACTIVE', itemsProcessed: 100, itemsTotal: 200, contactsFound: 50, errorsCount: 0, createdAt: '2024-06-15T10:30:00Z', updatedAt: '2024-06-15T10:35:00Z' }]) as T;
+  }
+
+  // Proxies
+  if (endpoint.includes('/proxies/stats')) {
+    return { total: 10, active: 8, inactive: 1, untested: 1, failed: 0 } as T;
+  }
+  if (endpoint.includes('/proxies')) {
+    return createMockPage([{ id: '1', protocol: 'HTTP', host: 'proxy.example.com', port: 8080, username: null, status: 'ACTIVE', lastTestedAt: '2024-06-15T10:30:00Z', lastUsedAt: null, successCount: 100, failureCount: 2, avgResponseTimeMs: 150, description: 'Main proxy', createdAt: '2024-06-15T10:30:00Z', uuid: null, encryption: null, transport: null, security: null, sni: null, localPort: null, isV2Ray: false }]) as T;
   }
 
   // Deals
@@ -97,6 +138,11 @@ function getMockData<T>(endpoint: string): T | null {
   // Projects
   if (endpoint.includes('/projects')) {
     return createMockPage([{ id: '1', name: 'Sample Project', status: 'ACTIVE', progress: 50 }]) as T;
+  }
+
+  // Email messages
+  if (endpoint.includes('/email-messages')) {
+    return { content: mockEmailMessages } as T;
   }
 
   return null;
@@ -153,16 +199,19 @@ class ApiService {
     const token = AuthService.getToken();
     
     const defaultHeaders: Record<string, string> = {
-      'Content-Type': 'application/json',
       ...(token ? { 'Authorization': `Bearer ${token}` } : {}),
+    };
+
+    const isFormData = options.body instanceof FormData;
+    const requestHeaders: Record<string, string> = {
+      ...defaultHeaders,
+      ...(isFormData ? {} : { 'Content-Type': 'application/json' }),
+      ...(options.headers as Record<string, string>),
     };
 
     const config: RequestInit = {
       ...options,
-      headers: {
-        ...defaultHeaders,
-        ...(options.headers as Record<string, string>),
-      },
+      headers: requestHeaders,
     };
 
     try {
@@ -230,9 +279,11 @@ class ApiService {
   }
 
   public post<T>(endpoint: string, data: unknown, options: RequestInit = {}): Promise<T> {
+    const isFormData = data instanceof FormData;
     return this.request<T>(endpoint, {
       method: 'POST',
-      body: JSON.stringify(data),
+      body: isFormData ? data as BodyInit : JSON.stringify(data),
+      ...(isFormData ? {} : { headers: { 'Content-Type': 'application/json', ...(options.headers || {}) } }),
       ...options,
     });
   }
@@ -240,6 +291,14 @@ class ApiService {
   public put<T>(endpoint: string, data: unknown, options: RequestInit = {}): Promise<T> {
     return this.request<T>(endpoint, {
       method: 'PUT',
+      body: JSON.stringify(data),
+      ...options,
+    });
+  }
+
+  public patch<T>(endpoint: string, data: unknown, options: RequestInit = {}): Promise<T> {
+    return this.request<T>(endpoint, {
+      method: 'PATCH',
       body: JSON.stringify(data),
       ...options,
     });

@@ -15,8 +15,8 @@ export const useTransactions = (page: number = 1) => {
     try {
       setLoading(true);
       const response: PageDTO<Transaction> = await TransactionService.getAllTransactions(page);
-      setTransactions(response?.context || []);
-      setTotalPages(response?.totalPageCount || 0);
+      setTransactions(response?.content || []);
+      setTotalPages(response?.totalPages || 0);
       setCurrentPage(response?.currentPage || 1);
       setError(null);
     } catch (err) {

@@ -15,8 +15,8 @@ export const useApiKeys = (page: number = 1) => {
     try {
       setLoading(true);
       const response: PageDTO<ApiKey> = await ApiKeyService.getAllApiKeys(page);
-      setApiKeys(response.context);
-      setTotalPages(response.totalPageCount);
+      setApiKeys(response?.content || []);
+      setTotalPages(response?.totalPages || 0);
       setCurrentPage(response.currentPage);
       setError(null);
     } catch (err) {

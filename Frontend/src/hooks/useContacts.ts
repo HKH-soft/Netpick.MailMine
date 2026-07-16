@@ -15,8 +15,8 @@ export const useContacts = (page: number = 1) => {
     try {
       setLoading(true);
       const response: PageDTO<Contact> = await ContactService.getAllContacts(page);
-      setContacts(response?.context || []);
-      setTotalPages(response?.totalPageCount || 0);
+      setContacts(response?.content || []);
+      setTotalPages(response?.totalPages || 0);
       setCurrentPage(response?.currentPage || 1);
       setError(null);
     } catch (err) {

@@ -20,7 +20,7 @@ export default function SharedInboxView() {
     try {
       setLoading(true);
       const data = await sharedInboxService.listInboxes();
-      setInboxes(data.context || []);
+      setInboxes(data.content || []);
     } catch (error) {
       console.error('Failed to load inboxes:', error);
     } finally {

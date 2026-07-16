@@ -33,31 +33,19 @@ export default function Apikeys() {
   };
 
   const handleEdit = (row: Record<string, unknown>) => {
-    setSelectedItem({
-      id: row.id as string,
-      key: row.key as string,
-      point: row.point as number,
-      searchEngineId: row.searchEngineId as string,
-      apiLink: row.apiLink as string,
-      description: row.description as string,
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString()
-    });
-    setIsEditModalOpen(true);
+    const item = apiKeys.find(k => k.id === row.id);
+    if (item) {
+      setSelectedItem(item);
+      setIsEditModalOpen(true);
+    }
   };
 
   const handleDelete = (row: Record<string, unknown>) => {
-    setSelectedItem({
-      id: row.id as string,
-      key: row.key as string,
-      point: row.point as number,
-      searchEngineId: row.searchEngineId as string,
-      apiLink: row.apiLink as string,
-      description: row.description as string,
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString()
-    });
-    setIsDeleteModalOpen(true);
+    const item = apiKeys.find(k => k.id === row.id);
+    if (item) {
+      setSelectedItem(item);
+      setIsDeleteModalOpen(true);
+    }
   };
 
   const handleCreateSubmit = async (data: Record<string, unknown>) => {
@@ -156,26 +144,38 @@ export default function Apikeys() {
   ];
 
   if (loading) {
-    return <div>Loading...</div>;
+    return <div className="flex items-center justify-center p-8">
+      <div className="text-gray-500 dark:text-gray-400">Loading API keys...</div>
+    </div>;
   }
 
   if (error) {
-    return <div>Error: {error}</div>;
+    return <div className="flex items-center justify-center p-8">
+      <div className="text-red-500 dark:text-red-400">Error: {error}</div>
+    </div>;
   }
 
   return (
-    <>
+    <div>
       <PageBreadcrumb pageTitle="API Keys" />
-      <div className="mb-4">
-        <Button onClick={handleCreate}>Create API Key</Button>
-      </div>
-      <DynamicTable columns={columns} data={data} onEdit={handleEdit} onDelete={handleDelete} />
-      <div className="mt-5">
-        <Pagination
-          currentPage={currentPage}
-          totalPages={totalPages}
-          onPageChange={handlePageChange}
-        />
+      <div className="space-y-6">
+        <div className="mb-4">
+          <Button onClick={handleCreate}>Create API Key</Button>
+        </div>
+        {apiKeys.length === 0 ? (
+          <p className="text-gray-500 dark:text-gray-400 text-center py-4">No API keys found. Create one to get started.</p>
+        ) : (
+          <>
+            <DynamicTable columns={columns} data={data} onEdit={handleEdit} onDelete={handleDelete} />
+            <div className="mt-5">
+              <Pagination
+                currentPage={currentPage}
+                totalPages={totalPages}
+                onPageChange={handlePageChange}
+              />
+            </div>
+          </>
+        )}
       </div>
 
       <ModalForm
@@ -204,7 +204,7 @@ export default function Apikeys() {
         title="Delete API Key"
         message={`Are you sure you want to delete the API key "${selectedItem?.key}"?`}
       />
-    </>
+    </div>
   );
 }
 

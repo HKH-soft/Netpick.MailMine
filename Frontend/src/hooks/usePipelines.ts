@@ -15,8 +15,8 @@ export const usePipelines = (page: number = 1) => {
     try {
       setLoading(true);
       const response: PageDTO<Pipeline> = await PipelineService.getAllPipelines(page);
-      setPipelines(response.context);
-      setTotalPages(response.totalPageCount);
+      setPipelines(response.content);
+      setTotalPages(response.totalPages);
       setCurrentPage(response.currentPage);
       setError(null);
     } catch (err) {

@@ -43,6 +43,17 @@ export interface MockDeal {
   closeDate: string;
 }
 
+export interface MockScrapeJob {
+  id: string;
+  link: string;
+  attempt: number;
+  beenScraped: boolean;
+  scrapeFailed: boolean;
+  description: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
 // Mock user data
 export const mockUser: MockUser = {
   id: 'dev-user-1',
@@ -90,31 +101,137 @@ export const mockCampaigns: MockCampaign[] = [
   },
 ];
 
-// Mock contacts
-export const mockContacts: MockContact[] = [
+// Mock contacts (matching Contact interface: emails: string[])
+export const mockContacts: { id: string; emails: string[]; createdAt: string; updatedAt: string }[] = [
   {
     id: '1',
-    name: 'John Doe',
-    email: 'john@example.com',
-    phone: '+1 (555) 123-4567',
-    company: 'Acme Corp',
-    tags: ['customer', 'vip'],
+    emails: ['john@example.com', 'john.doe@company.com'],
+    createdAt: '2024-06-15T10:30:00Z',
+    updatedAt: '2024-06-15T10:30:00Z',
   },
   {
     id: '2',
-    name: 'Jane Smith',
-    email: 'jane@example.com',
-    phone: '+1 (555) 987-6543',
-    company: 'Tech Solutions',
-    tags: ['lead', 'interested'],
+    emails: ['jane@example.com'],
+    createdAt: '2024-06-14T14:20:00Z',
+    updatedAt: '2024-06-14T14:20:00Z',
   },
   {
     id: '3',
-    name: 'Bob Wilson',
-    email: 'bob@example.com',
-    phone: '+1 (555) 456-7890',
-    company: 'Global Inc',
-    tags: ['customer'],
+    emails: ['bob@example.com', 'bob.wilson@startup.io', 'bob.wilson@personal.com'],
+    createdAt: '2024-06-13T09:15:00Z',
+    updatedAt: '2024-06-13T09:15:00Z',
+  },
+];
+
+// Mock scrape jobs
+export const mockScrapeJobs: MockScrapeJob[] = [
+  {
+    id: '1',
+    link: 'https://example.com/page1',
+    attempt: 1,
+    beenScraped: true,
+    scrapeFailed: false,
+    description: 'Scraped contact data from example.com',
+    createdAt: '2024-06-15T10:30:00Z',
+    updatedAt: '2024-06-15T10:35:00Z',
+  },
+  {
+    id: '2',
+    link: 'https://example.org/page2',
+    attempt: 2,
+    beenScraped: false,
+    scrapeFailed: true,
+    description: 'Failed to scrape - connection timeout',
+    createdAt: '2024-06-14T14:20:00Z',
+    updatedAt: '2024-06-14T14:25:00Z',
+  },
+  {
+    id: '3',
+    link: 'https://test.com/page3',
+    attempt: 1,
+    beenScraped: false,
+    scrapeFailed: false,
+    description: 'Pending scrape job',
+    createdAt: '2024-06-13T09:15:00Z',
+    updatedAt: '2024-06-13T09:15:00Z',
+  },
+];
+
+// Mock scrape data
+export const mockScrapeData = [
+  {
+    id: '1',
+    fileName: 'scraped_data_1.json',
+    attemptNumber: 1,
+    parsed: true,
+    createdAt: '2024-06-15T10:30:00Z',
+    updatedAt: '2024-06-15T10:35:00Z',
+  },
+  {
+    id: '2',
+    fileName: 'scraped_data_2.json',
+    attemptNumber: 2,
+    parsed: false,
+    createdAt: '2024-06-14T14:20:00Z',
+    updatedAt: '2024-06-14T14:25:00Z',
+  },
+];
+
+// Mock email messages
+export const mockEmailMessages = [
+  {
+    id: '1',
+    messageId: '<msg-001@example.com>',
+    threadId: 'thread-1',
+    senderEmail: 'john.doe@company.com',
+    senderName: 'John Doe',
+    recipients: ['admin@netpick.com'],
+    subject: 'Inquiry about product pricing',
+    bodyText: 'Hello, I would like to know more about your pricing options.',
+    receivedAt: '2024-06-15T10:30:00Z',
+    isRead: false,
+    isAnswered: false,
+    isFlagged: false,
+    hasAttachments: false,
+    mailboxFolder: 'INBOX',
+    status: 'INBOX' as const,
+    tags: [{ id: '1', name: 'Sales', category: 'INBOX', colorHex: '#3b82f6' }],
+  },
+  {
+    id: '2',
+    messageId: '<msg-002@example.com>',
+    threadId: 'thread-2',
+    senderEmail: 'jane.smith@example.org',
+    senderName: 'Jane Smith',
+    recipients: ['admin@netpick.com'],
+    subject: 'Support request - account access',
+    bodyText: 'I cannot access my account. Please help.',
+    receivedAt: '2024-06-14T14:20:00Z',
+    isRead: true,
+    isAnswered: true,
+    isFlagged: false,
+    hasAttachments: true,
+    mailboxFolder: 'INBOX',
+    status: 'ASSIGNED' as const,
+    tags: [{ id: '2', name: 'Support', category: 'ASSIGNED', colorHex: '#10b981' }],
+  },
+  {
+    id: '3',
+    messageId: '<msg-003@example.com>',
+    threadId: 'thread-3',
+    senderEmail: 'sales@leadcompany.com',
+    senderName: 'Sales Lead',
+    recipients: ['admin@netpick.com'],
+    subject: 'Partnership opportunity',
+    bodyText: 'We would like to discuss partnership opportunities.',
+    receivedAt: '2024-06-13T09:15:00Z',
+    isRead: false,
+    isAnswered: false,
+    isFlagged: true,
+    hasAttachments: false,
+    mailboxFolder: 'INBOX',
+    status: 'INBOX' as const,
+    tags: [{ id: '3', name: 'Lead', category: 'INBOX', colorHex: '#f59e0b' }],
   },
 ];
 
@@ -166,10 +283,19 @@ export function generateMockToken(): string {
 }
 
 // Helper to create mock paginated response
-export function createMockPage<T>(data: T[], page = 0, size = 10): { content: T[]; totalElements: number; totalPages: number } {
+export function createMockPage<T>(data: T[], page = 0, size = 10): { content: T[]; totalPages: number; totalElements: number; currentPage: number; pageSize: number; numberOfElements: number; hasNext: boolean; hasPrevious: boolean; isFirst: boolean; isLast: boolean } {
+  const content = data.slice(page * size, (page + 1) * size);
+  const totalPages = Math.ceil(data.length / size);
   return {
-    content: data.slice(page * size, (page + 1) * size),
+    content,
+    totalPages,
     totalElements: data.length,
-    totalPages: Math.ceil(data.length / size),
+    currentPage: page + 1,
+    pageSize: size,
+    numberOfElements: content.length,
+    hasNext: page + 1 < totalPages,
+    hasPrevious: page > 0,
+    isFirst: page === 0,
+    isLast: page + 1 >= totalPages,
   };
 }

@@ -15,8 +15,8 @@ export const useProjects = (page: number = 1) => {
     try {
       setLoading(true);
       const response: PageDTO<Project> = await ProjectService.getAllProjects(page);
-      setProjects(response?.context || []);
-      setTotalPages(response?.totalPageCount || 0);
+      setProjects(response?.content || []);
+      setTotalPages(response?.totalPages || 0);
       setCurrentPage(response?.currentPage || 1);
       setError(null);
     } catch (err) {

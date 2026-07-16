@@ -3,14 +3,23 @@
 import React from "react";
 import ProductList from "@/components/inventory/ProductList";
 import { useProducts } from "@/hooks/useProducts";
+import ProductService from "@/services/productService";
+import { useToast } from "@/context/ToastContext";
 
 export default function InventoryFarmPage() {
   const { products, loading, refetch } = useProducts(1);
+  const { addToast } = useToast();
 
-  const handleDelete = async () => {
+  const handleDelete = async (id: string) => {
     if (confirm("Are you sure you want to delete this product?")) {
-      // Would call ProductService.deleteProduct(id)
-      refetch();
+      try {
+        await ProductService.deleteProduct(id);
+        addToast("success", "Success", "Product deleted successfully");
+        await refetch();
+      } catch (err) {
+        console.error("Failed to delete product:", err);
+        addToast("error", "Error", "Failed to delete product");
+      }
     }
   };
 

@@ -22,8 +22,8 @@ export const useTasks = (page: number = 1, filters?: { status?: string; projectI
       } else {
         response = await TaskService.getAllTasks(page);
       }
-      setTasks(response?.context || []);
-      setTotalPages(response?.totalPageCount || 0);
+      setTasks(response?.content || []);
+      setTotalPages(response?.totalPages || 0);
       setCurrentPage(response?.currentPage || 1);
       setError(null);
     } catch (err) {

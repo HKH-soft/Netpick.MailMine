@@ -31,27 +31,19 @@ export default function SearchQueryPage() {
   };
 
   const handleEdit = (row: Record<string, unknown>) => {
-    setSelectedItem({
-      id: row.id as string,
-      sentence: row.sentence as string,
-      linkCount: parseInt(row.linkCount as string) || 0,
-      description: row.description as string,
-      created_at: new Date().toISOString(),
-      updatedAt: new Date().toISOString()
-    });
-    setIsEditModalOpen(true);
+    const item = searchQueries.find(q => q.id === row.id);
+    if (item) {
+      setSelectedItem(item);
+      setIsEditModalOpen(true);
+    }
   };
 
   const handleDelete = (row: Record<string, unknown>) => {
-    setSelectedItem({
-      id: row.id as string,
-      sentence: row.sentence as string,
-      linkCount: parseInt(row.linkCount as string) || 0,
-      description: row.description as string,
-      created_at: new Date().toISOString(),
-      updatedAt: new Date().toISOString()
-    });
-    setIsDeleteModalOpen(true);
+    const item = searchQueries.find(q => q.id === row.id);
+    if (item) {
+      setSelectedItem(item);
+      setIsDeleteModalOpen(true);
+    }
   };
 
   const handleCreateSubmit = async (data: Record<string, unknown>) => {

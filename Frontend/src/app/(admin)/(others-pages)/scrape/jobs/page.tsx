@@ -61,27 +61,39 @@ export default function ScrapeJobs() {
     }));
 
     if (loading) {
-        return <div>Loading...</div>;
+        return <div className="flex items-center justify-center p-8">
+            <div className="text-gray-500 dark:text-gray-400">Loading scrape jobs...</div>
+        </div>;
     }
 
     if (error) {
-        return <div>Error: {error}</div>;
+        return <div className="flex items-center justify-center p-8">
+            <div className="text-red-500 dark:text-red-400">Error: {error}</div>
+        </div>;
     }
 
     return (
-        <>
+        <div>
             <PageBreadcrumb pageTitle="Scrape Jobs" />
-            <DynamicTable
-                columns={columns}
-                data={data}
-                onDelete={handleDelete}
-            />
-            <div className="mt-5">
-                <Pagination
-                    currentPage={currentPage}
-                    totalPages={totalPages}
-                    onPageChange={handlePageChange}
-                />
+            <div className="space-y-6">
+                {scrapeJobs.length === 0 ? (
+                    <p className="text-gray-500 dark:text-gray-400 text-center py-4">No scrape jobs found.</p>
+                ) : (
+                    <>
+                        <DynamicTable
+                            columns={columns}
+                            data={data}
+                            onDelete={handleDelete}
+                        />
+                        <div className="mt-5">
+                            <Pagination
+                                currentPage={currentPage}
+                                totalPages={totalPages}
+                                onPageChange={handlePageChange}
+                            />
+                        </div>
+                    </>
+                )}
             </div>
 
             <ConfirmModal
@@ -91,7 +103,7 @@ export default function ScrapeJobs() {
                 title="Delete Scrape Job"
                 message={`Are you sure you want to delete this scrape job?`}
             />
-        </>
+        </div>
     );
 }
 

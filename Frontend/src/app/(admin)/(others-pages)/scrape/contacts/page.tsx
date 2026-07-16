@@ -56,27 +56,39 @@ export default function Contacts() {
   }));
 
   if (loading) {
-    return <div>Loading...</div>;
+    return <div className="flex items-center justify-center p-8">
+      <div className="text-gray-500 dark:text-gray-400">Loading contacts...</div>
+    </div>;
   }
 
   if (error) {
-    return <div>Error: {error}</div>;
+    return <div className="flex items-center justify-center p-8">
+      <div className="text-red-500 dark:text-red-400">Error: {error}</div>
+    </div>;
   }
 
   return (
-    <>
+    <div>
       <PageBreadcrumb pageTitle="Contacts" />
-      <DynamicTable
-        columns={columns}
-        data={data}
-        onDelete={handleDelete}
-      />
-      <div className="mt-5">
-        <Pagination
-          currentPage={currentPage}
-          totalPages={totalPages}
-          onPageChange={handlePageChange}
-        />
+      <div className="space-y-6">
+        {contacts.length === 0 ? (
+          <p className="text-gray-500 dark:text-gray-400 text-center py-4">No contacts found.</p>
+        ) : (
+          <>
+            <DynamicTable
+              columns={columns}
+              data={data}
+              onDelete={handleDelete}
+            />
+            <div className="mt-5">
+              <Pagination
+                currentPage={currentPage}
+                totalPages={totalPages}
+                onPageChange={handlePageChange}
+              />
+            </div>
+          </>
+        )}
       </div>
 
       <ConfirmModal
@@ -86,7 +98,7 @@ export default function Contacts() {
         title="Delete Contact"
         message={`Are you sure you want to delete this contact?`}
       />
-    </>
+    </div>
   );
 }
 
