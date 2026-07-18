@@ -7,6 +7,7 @@ interface RevealOnScrollProps {
   children: React.ReactNode;
   className?: string;
   delay?: number;
+  direction?: "up" | "down" | "left" | "scale";
 }
 
 export default function RevealOnScroll({
@@ -14,16 +15,14 @@ export default function RevealOnScroll({
   className = "",
   delay = 0,
 }: RevealOnScrollProps) {
-  const { ref, isVisible } = useScrollReveal(0.1);
+  const { ref, isVisible } = useScrollReveal(0.05);
 
   return (
     <div
       ref={ref}
-      className={`${className}`}
+      className={`${className} ${isVisible ? "reveal-visible" : "reveal-hidden"}`}
       style={{
-        opacity: isVisible ? 1 : 0,
-        transform: isVisible ? "translateY(0)" : "translateY(24px)",
-        transition: `opacity 0.6s ease-out ${delay}s, transform 0.6s ease-out ${delay}s`,
+        transitionDelay: isVisible ? `${delay}s` : "0s",
       }}
     >
       {children}

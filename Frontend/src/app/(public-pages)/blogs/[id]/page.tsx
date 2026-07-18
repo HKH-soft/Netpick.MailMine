@@ -75,72 +75,74 @@ export default async function BlogDetailPage({ params }: { params: Promise<{ id:
   if (!post) {
     return (
       <div className="text-center py-20">
-        <h1 className="text-3xl font-bold text-gray-800 dark:text-white mb-4">
+        <h1 className="text-3xl font-bold text-white mb-4">
           Post Not Found
         </h1>
-        <p className="text-gray-600 dark:text-gray-400 mb-8">
+        <p className="text-[var(--color-text-secondary)] mb-8">
           The blog post you&apos;re looking for doesn&apos;t exist.
         </p>
         <Link
           href="/blogs"
-          className="inline-flex items-center justify-center px-6 py-3 text-base font-medium text-white bg-brand-500 rounded-lg hover:bg-brand-600 transition-colors"
+          className="btn-gradient inline-flex items-center justify-center"
         >
-          Back to Blogs
+          <span>Back to Blogs</span>
         </Link>
       </div>
     );
   }
 
   return (
-    <article className="max-w-3xl mx-auto">
-      <Link
-        href="/blogs"
-        className="inline-flex items-center gap-2 text-sm font-medium text-brand-500 hover:text-brand-600 mb-8"
-      >
-        <svg
-          className="w-4 h-4"
-          fill="none"
-          stroke="currentColor"
-          viewBox="0 0 24 24"
+    <div className="py-24">
+      <article className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
+        <Link
+          href="/blogs"
+          className="inline-flex items-center gap-2 text-sm font-medium text-[var(--color-accent)] hover:text-[var(--color-accent-light)] mb-8 transition-colors duration-300"
         >
-          <path
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            strokeWidth={2}
-            d="M15 19l-7-7 7-7"
-          />
-        </svg>
-        Back to Blogs
-      </Link>
+          <svg
+            className="w-4 h-4"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth={2}
+              d="M15 19l-7-7 7-7"
+            />
+          </svg>
+          Back to Blogs
+        </Link>
 
-      <span className="inline-block px-3 py-1 text-xs font-medium text-brand-500 bg-brand-100 rounded-full mb-4">
-        {post.category}
-      </span>
+        <span className="inline-block px-3 py-1 text-xs font-medium text-[var(--color-accent)] bg-[var(--color-accent)]/10 rounded-full border border-[var(--color-accent)]/20 mb-4">
+          {post.category}
+        </span>
 
-      <h1 className="text-3xl lg:text-4xl font-bold text-gray-800 dark:text-white mb-4">
-        {post.title}
-      </h1>
+        <h1 className="text-3xl lg:text-4xl font-bold text-gradient-white mb-4">
+          {post.title}
+        </h1>
 
-      <div className="flex items-center gap-4 text-sm text-gray-500 dark:text-gray-400 mb-8">
-        <span>{post.author}</span>
-        <span>·</span>
-        <span>{post.date}</span>
-        <span>·</span>
-        <span>{post.readTime}</span>
-      </div>
-
-      <div className="rounded-2xl border border-gray-200 bg-white p-8 dark:border-gray-800 dark:bg-white/[0.03]">
-        <div className="prose prose-gray dark:prose-invert max-w-none">
-          {post.content.split("\n\n").map((paragraph, i) => (
-            <p
-              key={i}
-              className="text-gray-600 dark:text-gray-400 leading-relaxed mb-4 last:mb-0"
-            >
-              {paragraph}
-            </p>
-          ))}
+        <div className="flex items-center gap-4 text-sm text-[var(--color-text-muted)] mb-8">
+          <span>{post.author}</span>
+          <span>·</span>
+          <span>{post.date}</span>
+          <span>·</span>
+          <span>{post.readTime}</span>
         </div>
-      </div>
-    </article>
+
+        <div className="glass-card-lg p-8 md:p-10">
+          <div className="space-y-4">
+            {post.content.split("\n\n").map((paragraph, i) => (
+              <p
+                key={i}
+                className="text-[var(--color-text-secondary)] leading-relaxed last:mb-0"
+              >
+                {paragraph}
+              </p>
+            ))}
+          </div>
+        </div>
+      </article>
+    </div>
   );
 }

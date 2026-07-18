@@ -57,7 +57,11 @@ public class LabelService {
     }
 
     public void delete(UUID labelId) {
-        labelRepository.deleteById(labelId);
+        labelRepository.softDelete(labelId);
+    }
+
+    public void restore(UUID labelId) {
+        labelRepository.restore(labelId);
     }
 
     public void addLabelToTask(UUID taskId, UUID labelId) {

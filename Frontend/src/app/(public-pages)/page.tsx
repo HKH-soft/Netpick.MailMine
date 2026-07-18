@@ -10,7 +10,7 @@ import ResourceGrid from "@/components/landing/ResourceGrid";
 import CTABanner from "@/components/landing/ui/CTABanner";
 
 export const metadata: Metadata = {
-  title: "Netpick — Advanced Email Intelligence Platform",
+  title: "Netpick - Advanced Email Intelligence Platform",
   description:
     "Extract, analyze, and automate your email data workflows with advanced scraping, real-time analytics, and intelligent pipeline automation.",
 };
@@ -19,13 +19,14 @@ export default function LandingPage() {
   return (
     <div>
       <Hero />
+      <div className="section-depth-top" />
       <LogoTicker />
-      <ValueProps />
-      <FeatureStack />
-      <IndustryCards />
-      <Stats />
-      <GetStarted />
-      <ResourceGrid />
+      <ValueProps className="depth-gradient-1" />
+      <FeatureStack className="section-depth-top" />
+      <IndustryCards className="depth-gradient-1" />
+      <Stats className="section-depth-top" />
+      <GetStarted className="depth-gradient-1" />
+      <ResourceGrid className="section-depth-top" />
       <section className="py-24 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto">
         <CTABanner
           title="Start building with Netpick today"

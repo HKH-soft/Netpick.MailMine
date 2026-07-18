@@ -46,7 +46,7 @@ class EmailMessageService {
   }
 
   public async getEmailsByTag(tagId: string, page: number = 0, size: number = 20): Promise<EmailMessage[]> {
-    const response = await api.get<{ content: EmailMessage[] }>(`${this.basePath}/by-tag/${tagId}?page=${page}&size=${size}`);
+    const response = await api.get<{ content: EmailMessage[] }>(`${this.basePath}/by-tag/${encodeURIComponent(tagId)}?page=${page}&size=${size}`);
     return response.content || [];
   }
 }

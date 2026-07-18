@@ -8,6 +8,7 @@ import ir.netpick.platform.financefarm.dto.FinanceSummaryDTO;
 import ir.netpick.platform.financefarm.model.Invoice;
 import ir.netpick.platform.financefarm.model.InvoiceLineItem;
 import ir.netpick.platform.financefarm.model.InvoiceStatus;
+import ir.netpick.platform.financefarm.repository.InvoiceLineItemRepository;
 import ir.netpick.platform.financefarm.repository.InvoiceRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -25,6 +26,7 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class InvoiceService {
     private final InvoiceRepository invoiceRepository;
+    private final InvoiceLineItemRepository lineItemRepository;
 
     public PageDTO<Invoice> getAll(int pageNumber) {
         Pageable pageable = PageRequest.of(pageNumber - 1, GeneralConstants.PAGE_SIZE,
@@ -84,14 +86,22 @@ public class InvoiceService {
         return invoiceRepository.save(invoice);
     }
 
-    public void addLineItem(UUID invoiceId, InvoiceLineItem lineItem) {
+    public InvoiceLineItem addLineItem(UUID invoiceId, InvoiceLineItem lineItem) {
+        // Verify invoice exists
+        invoiceRepository.findById(invoiceId)
+                .orElseThrow(() -> new ResourceNotFoundException("Invoice with id [%s] was not found".formatted(invoiceId)));
+
         lineItem.setInvoiceId(invoiceId);
         lineItem.setId(null);
         // Calculate total
         if (lineItem.getQuantity() != null && lineItem.getUnitPrice() != null) {
             lineItem.setTotal(lineItem.getUnitPrice().multiply(BigDecimal.valueOf(lineItem.getQuantity())));
         }
-        // Note: Would need InvoiceLineItemRepository to save
+        return lineItemRepository.save(lineItem);
+    }
+
+    public void deleteLineItem(UUID lineItemId) {
+        lineItemRepository.softDelete(lineItemId);
     }
 
     public FinanceSummaryDTO getFinanceSummary() {
@@ -115,7 +125,7 @@ public class InvoiceService {
     }
 
     private String generateInvoiceNumber() {
-        String timestamp = String.valueOf(System.currentTimeMillis()).substring(8);
-        return "INV-" + timestamp;
+        // Use UUID for unique invoice numbers to avoid race conditions
+        return "INV-" + UUID.randomUUID().toString().substring(0, 8).toUpperCase();
     }
 }

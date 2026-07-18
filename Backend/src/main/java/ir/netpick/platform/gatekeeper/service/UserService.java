@@ -55,6 +55,7 @@ public class UserService {
     private final RoleRepository roleRepository;
     private final UserDTOMapper userDTOMapper;
     private final VerificationService verificationService;
+    private final PasswordHistoryService passwordHistoryService;
 
     // Precompiled patterns for efficiency
     private static final Pattern EMAIL_PATTERN = Pattern.compile(
@@ -486,8 +487,17 @@ public class UserService {
                     "Password validation failed: " + errorMessages);
         }
 
+        // Check password history
+        if (passwordHistoryService.isPasswordReused(user, password)) {
+            log.warn("Password reuse attempted for user: {}", user.getEmail());
+            throw new RequestValidationException(
+                    "Password has been used recently. Please choose a different password.");
+        }
+
         user.setPasswordHash(passwordEncoder.encode(password));
         userRepository.save(user);
+        // Record in password history
+        passwordHistoryService.recordPassword(user, user.getPasswordHash());
         log.info("Password updated successfully for user: {}", user.getEmail());
     }
 

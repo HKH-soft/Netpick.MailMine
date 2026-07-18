@@ -109,6 +109,24 @@ security:
     access-expiration-minutes: 15
     refresh-expiration-days: 7
     issuer: ${JWT_ISSUER}
+  mfa:
+    issuer: ${MFA_ISSUER:Netpick}
+    backup-codes-count: 10
+    totp-step: 30
+    totp-digits: 6
+    totp-window: 1
+  sessions:
+    max-concurrent: ${MAX_CONCURRENT_SESSIONS:5}
+  anomaly:
+    enabled: ${ANOMALY_DETECTION_ENABLED:true}
+    max-failures-per-hour: 10
+    risk-score-threshold: 50
+  password:
+    history-size: ${PASSWORD_HISTORY_SIZE:5}
+  webhook:
+    enabled: ${SECURITY_WEBHOOK_ENABLED:false}
+    url: ${SECURITY_WEBHOOK_URL:}
+    secret: ${SECURITY_WEBHOOK_SECRET:}
 
 google:
   search:

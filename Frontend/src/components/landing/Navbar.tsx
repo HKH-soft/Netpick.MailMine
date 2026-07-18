@@ -67,42 +67,45 @@ export default function Navbar() {
 
   return (
     <header
-      className={`sticky top-0 z-50 transition-all duration-300 ${
-        scrolled
-          ? "bg-black/95 backdrop-blur-md border-b border-zinc-800"
-          : "bg-transparent"
-      }`}
+      className="sticky top-0 z-50 transition-all duration-500"
+      style={{
+        background: scrolled ? "rgba(0, 0, 0, 0.72)" : "transparent",
+        backdropFilter: scrolled ? "blur(20px) saturate(180%)" : "none",
+        WebkitBackdropFilter: scrolled ? "blur(20px) saturate(180%)" : "none",
+        borderBottom: scrolled ? "1px solid rgba(255, 255, 255, 0.05)" : "1px solid transparent",
+      }}
     >
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16">
-          {/* Logo */}
-          <Link href="/" className="flex items-center gap-2.5 shrink-0">
+          <Link href="/" className="flex items-center gap-2.5 shrink-0 group">
             <Image
               src="/images/Netpick-Platform/Netpick.svg"
               alt="Netpick"
               width={28}
               height={28}
+              className="transition-all duration-300 group-hover:opacity-80"
             />
-            <span className="text-xl font-bold text-white">Netpick</span>
+            <span className="text-lg font-bold text-white tracking-tight">Netpick</span>
           </Link>
 
-          {/* Desktop Nav */}
-          <nav className="hidden lg:flex items-center gap-1">
+          <nav className="hidden lg:flex items-center gap-0.5">
             {navLinks.map((link) => (
               <div key={link.name} className="relative group">
                 <a
                   href={link.href}
-                  className={`px-3 py-2 text-sm font-medium rounded-lg transition-colors ${
-                    pathname === link.href || pathname.startsWith(link.href + "/")
-                      ? "text-white bg-white/5"
-                      : "text-zinc-400 hover:text-white hover:bg-white/5"
-                  }`}
+                  className="relative px-3 py-2 text-[13px] font-medium rounded-lg transition-all duration-300"
+                  style={{
+                    color: pathname === link.href || pathname.startsWith(link.href + "/") ? "#ffffff" : "var(--color-text-muted)",
+                  }}
                 >
-                  {link.name}
+                  <span className="relative z-10">{link.name}</span>
                   {link.dropdown && (
-                    <svg className="inline-block ml-1 w-3 h-3 opacity-50" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <svg className="inline-block ml-0.5 w-3 h-3 opacity-40 transition-transform duration-200 group-hover:rotate-180" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
                     </svg>
+                  )}
+                  {pathname === link.href && (
+                    <span className="absolute bottom-0.5 left-3 right-3 h-px" style={{ background: "var(--color-accent)" }} />
                   )}
                 </a>
                 {link.dropdown && (
@@ -112,34 +115,34 @@ export default function Navbar() {
             ))}
           </nav>
 
-          {/* CTA */}
           <div className="hidden lg:flex items-center gap-3">
             <Link
               href="/signin"
-              className="text-sm font-medium text-zinc-400 hover:text-white transition-colors px-3 py-2"
+              className="text-[13px] font-medium px-4 py-2 rounded-full transition-all duration-300 hover:text-white"
+              style={{ color: "var(--color-text-muted)" }}
             >
               Sign In
             </Link>
             <Link
               href="/signup"
-              className="text-sm font-semibold text-black bg-brand-400 hover:bg-brand-300 px-5 py-2.5 rounded-lg transition-colors"
+              className="btn-gradient text-[13px] px-5 py-2"
             >
-              Get Started
+              <span>Get started</span>
             </Link>
           </div>
 
-          {/* Mobile Hamburger */}
           <button
             onClick={() => setMobileOpen(!mobileOpen)}
-            className="lg:hidden p-2 text-zinc-400 hover:text-white"
+            className="lg:hidden p-2 rounded-lg transition-all duration-300 hover:bg-white/[0.06]"
+            style={{ color: "var(--color-text-muted)" }}
             aria-label="Toggle menu"
           >
             {mobileOpen ? (
-              <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
               </svg>
             ) : (
-              <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
               </svg>
             )}
@@ -147,43 +150,46 @@ export default function Navbar() {
         </div>
       </div>
 
-      {/* Mobile Menu */}
-      {mobileOpen && (
-        <div className="lg:hidden border-t border-zinc-800 bg-black">
-          <div className="px-4 py-4 space-y-1">
-            {navLinks.map((link) => (
-              <a
-                key={link.name}
-                href={link.href}
-                className={`block px-3 py-2.5 text-sm font-medium rounded-lg ${
-                  pathname === link.href
-                    ? "text-white bg-white/5"
-                    : "text-zinc-400 hover:text-white hover:bg-white/5"
-                }`}
-                onClick={() => setMobileOpen(false)}
-              >
-                {link.name}
-              </a>
-            ))}
-            <div className="pt-4 border-t border-zinc-800 space-y-2">
-              <a
-                href="/signin"
-                className="block px-3 py-2.5 text-sm font-medium text-zinc-400 hover:text-white"
-                onClick={() => setMobileOpen(false)}
-              >
-                Sign In
-              </a>
-              <a
-                href="/signup"
-                className="block px-3 py-2.5 text-sm font-semibold text-center text-black bg-brand-400 rounded-lg"
-                onClick={() => setMobileOpen(false)}
-              >
-                Get Started
-              </a>
-            </div>
+      {/* Mobile menu */}
+      <div
+        className="lg:hidden overflow-hidden transition-all duration-400"
+        style={{
+          maxHeight: mobileOpen ? "500px" : "0",
+          opacity: mobileOpen ? 1 : 0,
+        }}
+      >
+        <div
+          className="mx-4 mb-4 rounded-2xl p-4 space-y-1"
+          style={{
+            background: "rgba(17, 17, 17, 0.95)",
+            backdropFilter: "blur(20px)",
+            WebkitBackdropFilter: "blur(20px)",
+            border: "1px solid rgba(255,255,255,0.06)",
+          }}
+        >
+          {navLinks.map((link) => (
+            <a
+              key={link.name}
+              href={link.href}
+              className="block px-3 py-2.5 text-sm font-medium rounded-xl transition-all duration-300"
+              style={{
+                color: pathname === link.href ? "#ffffff" : "var(--color-text-muted)",
+              }}
+              onClick={() => setMobileOpen(false)}
+            >
+              {link.name}
+            </a>
+          ))}
+          <div className="pt-3 mt-2 space-y-2" style={{ borderTop: "1px solid rgba(255, 255, 255, 0.06)" }}>
+            <a href="/signin" className="block px-3 py-2.5 text-sm font-medium rounded-xl transition-all duration-300 hover:text-white" style={{ color: "var(--color-text-muted)" }} onClick={() => setMobileOpen(false)}>
+              Sign In
+            </a>
+            <a href="/signup" className="btn-gradient block text-center text-sm px-5 py-2.5" onClick={() => setMobileOpen(false)}>
+              <span>Get started</span>
+            </a>
           </div>
         </div>
-      )}
+      </div>
     </header>
   );
 }

@@ -48,6 +48,8 @@ public class ImapSyncService {
             return;
         }
 
+        Store store = null;
+        Folder inbox = null;
         try {
             Properties props = new Properties();
             props.setProperty("mail.store.protocol", "imaps");
@@ -56,10 +58,10 @@ public class ImapSyncService {
             props.setProperty("mail.imaps.ssl.enable", "true");
 
             Session session = Session.getInstance(props);
-            Store store = session.getStore("imaps");
+            store = session.getStore("imaps");
             store.connect(imapUsername, imapPassword);
 
-            Folder inbox = store.getFolder("INBOX");
+            inbox = store.getFolder("INBOX");
             inbox.open(Folder.READ_ONLY);
 
             Message[] messages = inbox.getMessages();
@@ -75,21 +77,40 @@ public class ImapSyncService {
             }
 
             log.info("Processed {} new emails from IMAP", processed);
-            inbox.close(false);
-            store.close();
         } catch (Exception e) {
             log.error("Failed to sync emails from IMAP: {}", e.getMessage(), e);
+        } finally {
+            // Ensure resources are cleaned up
+            if (inbox != null && inbox.isOpen()) {
+                try {
+                    inbox.close(false);
+                } catch (Exception e) {
+                    log.warn("Failed to close IMAP folder: {}", e.getMessage());
+                }
+            }
+            if (store != null && store.isConnected()) {
+                try {
+                    store.close();
+                } catch (Exception e) {
+                    log.warn("Failed to close IMAP store: {}", e.getMessage());
+                }
+            }
         }
     }
 
     private boolean isNewMessage(Message message) throws MessagingException {
-        String messageId = message.getHeader("Message-ID")[0];
+        String[] headers = message.getHeader("Message-ID");
+        if (headers == null || headers.length == 0) {
+            return false;
+        }
+        String messageId = headers[0];
         return emailMessageRepository.findByMessageId(messageId).isEmpty();
     }
 
     private EmailMessage mapToEmailMessage(Message message) throws Exception {
         EmailMessage email = new EmailMessage();
-        email.setMessageId(message.getHeader("Message-ID")[0]);
+        String[] headers = message.getHeader("Message-ID");
+        email.setMessageId(headers != null && headers.length > 0 ? headers[0] : null);
         email.setThreadId(getHeaderValue(message, "References"));
         email.setSubject(message.getSubject());
         email.setReceivedAt(LocalDateTime.ofInstant(

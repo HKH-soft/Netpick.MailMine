@@ -48,6 +48,7 @@ public class RedisRateLimitingService implements RateLimiting {
             return true;
         }
 
+        // Block when attempts reach MAX_LOGIN_ATTEMPTS (5 attempts allowed before block)
         return attempts < MAX_LOGIN_ATTEMPTS;
     }
 

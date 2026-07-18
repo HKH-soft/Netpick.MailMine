@@ -41,14 +41,14 @@ const ProductService = {
   getAllProducts: (page: number = 1): Promise<PageDTO<Product>> =>
     api.get(`${basePath}?page=${page}`),
   getProductById: (id: string): Promise<Product> => api.get(`${basePath}/${id}`),
-  getProductBySku: (sku: string): Promise<Product> => api.get(`${basePath}/sku/${sku}`),
+  getProductBySku: (sku: string): Promise<Product> => api.get(`${basePath}/sku/${encodeURIComponent(sku)}`),
   getLowStockProducts: (): Promise<Product[]> => api.get(`${basePath}/low-stock`),
   createProduct: (data: Partial<Product>): Promise<Product> => api.post(basePath, data),
   updateProduct: (id: string, data: Partial<Product>): Promise<Product> =>
     api.put(`${basePath}/${id}`, data),
   deleteProduct: (id: string): Promise<void> => api.delete(`${basePath}/${id}`),
   adjustStock: (id: string, quantity: number, type: StockMovementType, reason?: string): Promise<Product> =>
-    api.put(`${basePath}/${id}/stock?quantity=${quantity}&type=${type}${reason ? `&reason=${reason}` : ""}`, {}),
+    api.put(`${basePath}/${id}/stock?quantity=${quantity}&type=${type}${reason ? `&reason=${encodeURIComponent(reason)}` : ""}`, {}),
 };
 
 const StockMovementService = {

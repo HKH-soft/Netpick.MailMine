@@ -43,11 +43,11 @@ class DealService {
     return await api.get<Deal>(`${this.basePath}/${id}`);
   }
 
-  /**
-   * Get deals by stage
-   */
+/**
+    * Get deals by stage
+    */
   public async getDealsByStage(stage: string, page: number = 1): Promise<PageDTO<Deal>> {
-    return await api.get<PageDTO<Deal>>(`${this.basePath}/stage/${stage}?page=${page}`);
+    return await api.get<PageDTO<Deal>>(`${this.basePath}/stage/${encodeURIComponent(stage)}?page=${page}`);
   }
 
   /**

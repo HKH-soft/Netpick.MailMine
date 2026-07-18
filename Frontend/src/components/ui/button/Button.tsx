@@ -35,15 +35,15 @@ const Button: React.FC<ButtonProps> = ({
   // Variant Classes
   const variantClasses = {
     primary:
-      "bg-brand-500 text-white shadow-theme-xs hover:bg-brand-600 disabled:bg-brand-300",
+      "bg-[var(--color-accent)] text-white hover:bg-[var(--color-accent-light)] disabled:opacity-50 shadow-[var(--shadow-card-hover)] hover:shadow-[var(--shadow-card-active)]",
     outline:
-      "bg-white text-gray-700 ring-1 ring-inset ring-gray-300 hover:bg-gray-50 dark:bg-gray-800 dark:text-gray-400 dark:ring-gray-700 dark:hover:bg-white/[0.03] dark:hover:text-gray-300",
+      "bg-transparent text-white border border-white/20 hover:border-white/50 hover:bg-white/5",
   };
 
   return (
     <button
       type={type}
-      className={`inline-flex items-center justify-center font-medium gap-2 rounded-lg transition focus-visible:ring-2 focus-visible:ring-brand-500 focus-visible:ring-offset-2 ${className} ${sizeClasses[size]
+      className={`inline-flex items-center justify-center font-medium gap-2 rounded-[100px] transition-all duration-[var(--duration-normal)] ease-[var(--ease-sui)] focus-visible:ring-2 focus-visible:ring-[var(--color-accent)] focus-visible:ring-offset-2 ${className} ${sizeClasses[size]
         } ${variantClasses[variant]} ${disabled || loading ? "cursor-not-allowed opacity-50" : ""
         }`}
       onClick={onClick}

@@ -91,13 +91,18 @@ export async function PATCH(request: NextRequest) {
 }
 
 export async function OPTIONS() {
-  // Handle preflight requests
-  return new NextResponse(null, {
-    status: 204,
-    headers: {
-      'Access-Control-Allow-Origin': '*',
-      'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, PATCH, OPTIONS',
-      'Access-Control-Allow-Headers': 'Content-Type, Authorization',
-    },
-  });
-}
+   // Handle preflight requests
+   const allowedOrigins = process.env.CORS_ALLOWED_ORIGINS?.split(',') || 
+                          process.env.NODE_ENV === 'development' 
+                            ? ['http://localhost:3000'] 
+                            : [];
+   
+   return new NextResponse(null, {
+     status: 204,
+     headers: {
+       'Access-Control-Allow-Origin': allowedOrigins.length > 0 ? allowedOrigins[0] : 'same-origin',
+       'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, PATCH, OPTIONS',
+       'Access-Control-Allow-Headers': 'Content-Type, Authorization',
+     },
+   });
+ }

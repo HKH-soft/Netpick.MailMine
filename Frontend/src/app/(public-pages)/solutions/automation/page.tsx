@@ -41,19 +41,18 @@ const useCases = [
 export default function AutomationPage() {
   return (
     <div>
-      {/* Hero */}
-      <section className="relative py-24 md:py-32 overflow-hidden">
-        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-brand-500/10 via-black to-black" />
-        <div className="relative mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+      <section className="relative py-24 md:py-32 overflow-hidden aurora-bg noise-overlay">
+        <div className="absolute inset-0 bg-gradient-to-b from-transparent via-[var(--color-bg-base)]/80 to-[var(--color-bg-base)]" />
+        <div className="relative z-10 mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <RevealOnScroll>
             <div className="max-w-3xl">
-              <span className="inline-block text-sm font-semibold tracking-widest uppercase text-brand-400 mb-4">
+              <span className="inline-block text-xs font-semibold tracking-[0.2em] uppercase text-[var(--color-accent-light)] mb-6 px-4 py-2 rounded-full border border-[var(--color-accent)]/20 bg-[var(--color-accent)]/5 backdrop-blur-sm">
                 Solutions
               </span>
-              <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-white mb-6">
+              <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-gradient-white mb-6" style={{ fontFamily: "var(--font-heading)" }}>
                 Email Automation
               </h1>
-              <p className="text-lg text-zinc-400 leading-relaxed">
+              <p className="text-lg text-[var(--color-text-secondary)] leading-relaxed max-w-2xl">
                 Visual pipeline builder, smart routing, and CRM sync to automate
                 your entire email data workflow from start to finish.
               </p>
@@ -62,8 +61,9 @@ export default function AutomationPage() {
         </div>
       </section>
 
-      {/* Challenge vs Solution */}
-      <section className="py-24 border-t border-zinc-800/50">
+      <div className="section-divider mx-auto max-w-7xl" />
+
+      <section className="py-24">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <div className="grid lg:grid-cols-2 gap-12">
             <div>
@@ -71,9 +71,9 @@ export default function AutomationPage() {
               <div className="space-y-4">
                 {challenges.map((c, i) => (
                   <RevealOnScroll key={c.title} delay={i * 0.1}>
-                    <div className="rounded-xl border border-zinc-800 bg-zinc-900/30 p-5">
-                      <h3 className="font-semibold text-white mb-1">{c.title}</h3>
-                      <p className="text-sm text-zinc-400">{c.description}</p>
+                    <div className="glass-card p-5 border-[rgba(240,68,56,0.08)] bg-[rgba(240,68,56,0.03)] hover:border-[rgba(240,68,56,0.15)] hover:bg-[rgba(240,68,56,0.05)]">
+                      <h3 className="font-semibold text-[var(--color-text-primary)] mb-1">{c.title}</h3>
+                      <p className="text-sm text-[var(--color-text-secondary)]">{c.description}</p>
                     </div>
                   </RevealOnScroll>
                 ))}
@@ -84,9 +84,9 @@ export default function AutomationPage() {
               <div className="space-y-4">
                 {solutions.map((s, i) => (
                   <RevealOnScroll key={s.title} delay={i * 0.1}>
-                    <div className="rounded-xl border border-brand-500/20 bg-brand-500/5 p-5">
-                      <h3 className="font-semibold text-white mb-1">{s.title}</h3>
-                      <p className="text-sm text-zinc-400">{s.description}</p>
+                    <div className="glass-card p-5 border-[rgba(41,141,255,0.12)] bg-[rgba(41,141,255,0.04)] hover:border-[rgba(41,141,255,0.25)] hover:bg-[rgba(41,141,255,0.07)] glow-accent">
+                      <h3 className="font-semibold text-[var(--color-text-primary)] mb-1">{s.title}</h3>
+                      <p className="text-sm text-[var(--color-text-secondary)]">{s.description}</p>
                     </div>
                   </RevealOnScroll>
                 ))}
@@ -96,17 +96,21 @@ export default function AutomationPage() {
         </div>
       </section>
 
-      {/* How It Works */}
-      <section className="py-24 border-t border-zinc-800/50">
+      <div className="section-divider mx-auto max-w-7xl" />
+
+      <section className="py-24">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <SectionHeader tag="How It Works" title="Automate in four steps" subtitle="From design to production in minutes." />
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mt-12">
             {steps.map((step, i) => (
               <RevealOnScroll key={step.number} delay={i * 0.1}>
-                <div className="rounded-2xl border border-zinc-800 bg-zinc-900/30 p-6 h-full">
-                  <span className="text-sm font-mono text-zinc-600">{step.number}</span>
-                  <h3 className="text-lg font-semibold text-white mt-2 mb-2">{step.title}</h3>
-                  <p className="text-zinc-400 text-sm leading-relaxed">{step.description}</p>
+                <div className="glass-card p-6 h-full relative group">
+                  <span className="text-3xl font-bold text-gradient-accent block mb-3" style={{ fontFamily: "var(--font-heading)" }}>{step.number}</span>
+                  <h3 className="text-lg font-semibold text-[var(--color-text-primary)] mb-2">{step.title}</h3>
+                  <p className="text-[var(--color-text-secondary)] text-sm leading-relaxed">{step.description}</p>
+                  {i < steps.length - 1 && (
+                    <div className="hidden lg:block absolute top-1/2 -right-2 w-4 h-[1px] bg-gradient-to-r from-[var(--color-accent)]/30 to-transparent" />
+                  )}
                 </div>
               </RevealOnScroll>
             ))}
@@ -114,16 +118,17 @@ export default function AutomationPage() {
         </div>
       </section>
 
-      {/* Use Cases */}
-      <section className="py-24 border-t border-zinc-800/50">
+      <div className="section-divider mx-auto max-w-7xl" />
+
+      <section className="py-24">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <SectionHeader tag="Use Cases" title="Opportunities" subtitle="Automate any email workflow imaginable." />
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mt-12">
             {useCases.map((uc, i) => (
               <RevealOnScroll key={uc.title} delay={i * 0.1}>
-                <div className="rounded-2xl border border-zinc-800 bg-zinc-900/30 p-6 h-full">
-                  <h3 className="text-lg font-semibold text-white mb-2">{uc.title}</h3>
-                  <p className="text-zinc-400 text-sm leading-relaxed">{uc.description}</p>
+                <div className="glass-card p-6 h-full">
+                  <h3 className="text-lg font-semibold text-[var(--color-text-primary)] mb-2">{uc.title}</h3>
+                  <p className="text-[var(--color-text-secondary)] text-sm leading-relaxed">{uc.description}</p>
                 </div>
               </RevealOnScroll>
             ))}
@@ -131,7 +136,6 @@ export default function AutomationPage() {
         </div>
       </section>
 
-      {/* CTA */}
       <section className="py-24 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto">
         <CTABanner
           title="Automate your email workflows"

@@ -51,19 +51,17 @@ const integrations = [
 export default function DevelopersPage() {
   return (
     <div>
-      {/* Hero */}
-      <section className="relative py-24 md:py-32 overflow-hidden">
-        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-brand-500/10 via-black to-black" />
-        <div className="relative mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+      <section className="relative py-24 md:py-32 overflow-hidden aurora-bg">
+        <div className="relative z-10 mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <RevealOnScroll>
             <div className="max-w-3xl">
-              <span className="inline-block text-sm font-semibold tracking-widest uppercase text-brand-400 mb-4">
+              <span className="inline-block text-xs font-semibold tracking-widest uppercase text-gradient-accent mb-4">
                 Developers
               </span>
-              <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-white mb-6">
+              <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-gradient-white mb-6">
                 Build with Netpick
               </h1>
-              <p className="text-lg text-zinc-400 leading-relaxed">
+              <p className="text-lg text-[var(--color-text-secondary)] leading-relaxed">
                 Powerful APIs, comprehensive documentation, and first-class SDKs to
                 integrate email intelligence into any application.
               </p>
@@ -72,8 +70,9 @@ export default function DevelopersPage() {
         </div>
       </section>
 
-      {/* Stats */}
-      <section className="py-16 border-t border-zinc-800/50">
+      <div className="section-divider" />
+
+      <section className="py-16">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
             {stats.map((stat) => (
@@ -83,8 +82,9 @@ export default function DevelopersPage() {
         </div>
       </section>
 
-      {/* Code Preview */}
-      <section className="py-24 border-t border-zinc-800/50">
+      <div className="section-divider" />
+
+      <section className="py-24">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <SectionHeader
             tag="Quick Start"
@@ -102,8 +102,9 @@ export default function DevelopersPage() {
         </div>
       </section>
 
-      {/* Integrations */}
-      <section className="py-24 border-t border-zinc-800/50">
+      <div className="section-divider" />
+
+      <section className="py-24">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <SectionHeader
             tag="Integrations"
@@ -113,9 +114,9 @@ export default function DevelopersPage() {
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
             {integrations.map((item, i) => (
               <RevealOnScroll key={item.name} delay={i * 0.1}>
-                <div className="rounded-2xl border border-zinc-800 bg-zinc-900/30 p-6 h-full">
-                  <h3 className="text-lg font-semibold text-white mb-2">{item.name}</h3>
-                  <p className="text-zinc-400 text-sm leading-relaxed">{item.description}</p>
+                <div className="glass-card p-6 h-full">
+                  <h3 className="text-lg font-semibold text-gradient-white mb-2">{item.name}</h3>
+                  <p className="text-[var(--color-text-secondary)] text-sm leading-relaxed">{item.description}</p>
                 </div>
               </RevealOnScroll>
             ))}
@@ -123,7 +124,8 @@ export default function DevelopersPage() {
         </div>
       </section>
 
-      {/* CTA */}
+      <div className="section-divider" />
+
       <section className="py-24 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto">
         <CTABanner
           title="Ready to start building?"

@@ -19,15 +19,15 @@ export default function ResourceCard({
   return (
     <Link
       href={href}
-      className={`group block rounded-2xl border border-zinc-800 bg-zinc-900/50 p-6 transition-all duration-300 hover:border-brand-500/30 hover:bg-zinc-900 ${className}`}
+      className={`glass-card block p-6 group ${className}`}
     >
-      <span className="inline-block px-2.5 py-1 text-xs font-medium text-brand-400 bg-brand-500/10 rounded-full mb-3">
+      <span className="inline-block px-3 py-1 text-xs font-medium text-[var(--color-accent)] bg-[var(--color-accent)]/10 rounded-full border border-[var(--color-accent)]/20 mb-4">
         {tag}
       </span>
-      <h3 className="text-lg font-semibold text-white mb-2 group-hover:text-brand-400 transition-colors">
+      <h3 className="text-lg font-semibold text-gradient-white mb-2 group-hover:text-[var(--color-accent)] transition-colors duration-300">
         {title}
       </h3>
-      <p className="text-zinc-400 text-sm leading-relaxed">{excerpt}</p>
+      <p className="text-[var(--color-text-secondary)] text-sm leading-relaxed">{excerpt}</p>
     </Link>
   );
 }

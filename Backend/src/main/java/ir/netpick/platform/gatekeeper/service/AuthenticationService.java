@@ -1,26 +1,16 @@
 package ir.netpick.platform.gatekeeper.service;
 
-import ir.netpick.platform.gatekeeper.dto.AuthenticationResponse;
-import ir.netpick.platform.gatekeeper.dto.AuthenticationSigninRequest;
-import ir.netpick.platform.gatekeeper.dto.AuthenticationSignupRequest;
-import ir.netpick.platform.gatekeeper.dto.PasswordResetConfirmRequest;
-import ir.netpick.platform.gatekeeper.dto.PasswordResetRequest;
-import ir.netpick.platform.gatekeeper.dto.PasswordResetVerifyRequest;
-import ir.netpick.platform.gatekeeper.dto.UserDTO;
-import ir.netpick.platform.gatekeeper.dto.VerificationRequest;
+import ir.netpick.platform.gatekeeper.dto.*;
 import ir.netpick.platform.gatekeeper.email.AuthEmailService;
-import ir.netpick.platform.gatekeeper.exception.AccountNotVerifiedException;
-import ir.netpick.platform.gatekeeper.exception.RateLimitExceededException;
-import ir.netpick.platform.gatekeeper.exception.UserAlreadyVerifiedException;
-import ir.netpick.platform.gatekeeper.exception.UserNotFoundException;
-import ir.netpick.platform.gatekeeper.exception.VerificationCodeNotFoundException;
-import ir.netpick.platform.gatekeeper.model.RefreshToken;
-import ir.netpick.platform.core.exception.RequestValidationException;
+import ir.netpick.platform.gatekeeper.exception.*;
 import ir.netpick.platform.gatekeeper.jwt.JWTUtil;
 import ir.netpick.platform.gatekeeper.mapper.UserDTOMapper;
+import ir.netpick.platform.gatekeeper.model.RefreshToken;
 import ir.netpick.platform.gatekeeper.model.User;
 import ir.netpick.platform.gatekeeper.repository.UserRepository;
 import ir.netpick.platform.core.enums.RoleEnum;
+import ir.netpick.platform.core.exception.RequestValidationException;
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -28,6 +18,8 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.Map;
 
 /**
  * Service class for handling authentication operations.
@@ -48,6 +40,11 @@ public class AuthenticationService {
     private final AuthEmailService authEmailService;
     private final RateLimiting rateLimitingService;
     private final RefreshTokenService refreshTokenService;
+    private final MfaService mfaService;
+    private final DeviceSessionService deviceSessionService;
+    private final SecurityEventService securityEventService;
+    private final AnomalyDetectionService anomalyDetectionService;
+    private final IpPolicyService ipPolicyService;
 
     /**
      * Authenticates a user and generates access and refresh tokens.
@@ -61,13 +58,36 @@ public class AuthenticationService {
      *                                     for SUPER_ADMIN users)
      */
     public AuthenticationResponse signIn(AuthenticationSigninRequest request, String deviceInfo, String ipAddress) {
+        return signIn(request, deviceInfo, ipAddress, null);
+    }
+
+    /**
+     * Authenticates a user with full security pipeline: IP policy, anomaly detection,
+     * MFA challenge, device session tracking, and security event logging.
+     */
+    public AuthenticationResponse signIn(AuthenticationSigninRequest request, String deviceInfo,
+                                         String ipAddress, String totpCode) {
         log.info("Attempting to sign in user with email: {}", request.email());
 
-        // Check login rate limiting
+        // 1. IP Policy enforcement
+        IpPolicyService.IpAccessResult ipResult = ipPolicyService.checkAccess(ipAddress);
+        if (!ipResult.allowed()) {
+            securityEventService.logEventSync(
+                    ir.netpick.platform.gatekeeper.model.SecurityEvent.EventType.IP_BLOCKED,
+                    null, request.email(), ipAddress, deviceInfo, null,
+                    Map.of("reason", ipResult.reason()), 30, true);
+            throw new RateLimitExceededException("Access denied from this IP address.");
+        }
+
+        // 2. Check login rate limiting
         if (!rateLimitingService.canAttemptLogin(request.email())) {
             long remainingMinutes = rateLimitingService.getRemainingLockoutMinutes(request.email());
             log.warn("Login rate limit exceeded for user: {}. Locked for {} more minutes.",
                     request.email(), remainingMinutes);
+            securityEventService.logEventSync(
+                    ir.netpick.platform.gatekeeper.model.SecurityEvent.EventType.LOGIN_LOCKED,
+                    null, request.email(), ipAddress, deviceInfo, null,
+                    Map.of("lockoutMinutes", remainingMinutes), 40, true);
             throw new RateLimitExceededException(
                     "Too many failed login attempts. " +
                             "Please try again in " + remainingMinutes + " minutes.");
@@ -79,7 +99,7 @@ public class AuthenticationService {
             User user = (User) authenticationResponse.getPrincipal();
             UserDTO userDTO = userDTOMapper.apply(user);
 
-            // Check if user is verified (except for SUPER_ADMIN users)
+            // 3. Check if user is verified
             if (!userDTO.isVerified() && userDTO.role() != RoleEnum.SUPER_ADMIN) {
                 log.warn("Account not verified for user: {}", request.email());
                 throw new AccountNotVerifiedException(
@@ -87,33 +107,89 @@ public class AuthenticationService {
                                 "Please check your email for a verification code and verify your account.");
             }
 
-            // Clear login attempts on successful login
+            // 4. Anomaly detection - use null fingerprint (handled by DeviceSessionService)
+            AnomalyDetectionService.AnomalyAnalysis anomaly =
+                    anomalyDetectionService.analyzeLogin(request.email(), ipAddress, null, true);
+            if (anomaly.blocked()) {
+                rateLimitingService.recordFailedLoginAttempt(request.email());
+                throw new RateLimitExceededException("Login blocked due to suspicious activity. Please try again later.");
+            }
+
+            // 5. MFA check
+            if (mfaService.isMfaEnabled(user.getId())) {
+                if (totpCode == null || totpCode.isBlank()) {
+                    securityEventService.logEventSync(
+                            ir.netpick.platform.gatekeeper.model.SecurityEvent.EventType.LOGIN_SUCCESS,
+                            user.getId(), user.getEmail(), ipAddress, deviceInfo, deviceFingerprint,
+                            Map.of("mfaRequired", true), 0, false);
+                    throw new MfaRequiredException("MFA verification required. Please provide totpCode.", user.getEmail());
+                }
+
+                boolean mfaValid = mfaService.validateTotpCode(user, totpCode);
+                if (!mfaValid) {
+                    boolean backupUsed = mfaService.validateBackupCode(user, totpCode);
+                    if (!backupUsed) {
+                        securityEventService.logEventSync(
+                                ir.netpick.platform.gatekeeper.model.SecurityEvent.EventType.MFA_CODE_FAILED,
+                                user.getId(), user.getEmail(), ipAddress, deviceInfo, deviceFingerprint,
+                                Map.of(), 20, false);
+                        throw new RateLimitExceededException("Invalid MFA code. Please try again.");
+                    }
+                }
+
+                securityEventService.logEventSync(
+                        ir.netpick.platform.gatekeeper.model.SecurityEvent.EventType.MFA_CODE_VERIFIED,
+                        user.getId(), user.getEmail(), ipAddress, deviceInfo, deviceFingerprint,
+                        Map.of(), 0, false);
+            }
+
+            // 6. Clear login attempts on successful login
             rateLimitingService.clearLoginAttempts(request.email());
 
-            // Generate access token
+            // 7. Generate tokens
             String accessToken = jwtUtil.issueToken(userDTO.email(), userDTO.role().toString());
-
-            // Generate refresh token
             RefreshToken refreshToken = refreshTokenService.createRefreshToken(user, deviceInfo, ipAddress);
 
+            // 8. Create device session
+            jakarta.servlet.http.HttpServletRequest httpReq = getCurrentRequest();
+            deviceSessionService.createSession(user, refreshToken, deviceInfo, ipAddress, httpReq);
+
             userService.updateLastSign(request.email());
+
+            // 9. Log success
+            securityEventService.logEventSync(
+                    ir.netpick.platform.gatekeeper.model.SecurityEvent.EventType.LOGIN_SUCCESS,
+                    user.getId(), user.getEmail(), ipAddress, deviceInfo, deviceFingerprint,
+                    Map.of("riskScore", anomaly.riskScore()), 0, false);
+
             log.info("User successfully signed in: {}", request.email());
 
             return new AuthenticationResponse(
                     accessToken,
                     refreshToken.getToken(),
-                    jwtUtil.getAccessTokenExpirationMinutes() * 60 // Convert to seconds
+                    jwtUtil.getAccessTokenExpirationMinutes() * 60
             );
-        } catch (AccountNotVerifiedException e) {
-            log.info("Sign in failed due to unverified account: {}", request.email());
+        } catch (AccountNotVerifiedException | MfaRequiredException e) {
             throw e;
         } catch (RateLimitExceededException e) {
             throw e;
         } catch (Exception e) {
-            // Record failed login attempt
             rateLimitingService.recordFailedLoginAttempt(request.email());
+            securityEventService.logEventSync(
+                    ir.netpick.platform.gatekeeper.model.SecurityEvent.EventType.LOGIN_FAILURE,
+                    null, request.email(), ipAddress, deviceInfo, null,
+                    Map.of("error", e.getClass().getSimpleName()), 10, false);
             log.error("Authentication failed for user: {}", request.email(), e);
             throw e;
+        }
+    }
+
+    private jakarta.servlet.http.HttpServletRequest getCurrentRequest() {
+        try {
+            return ((jakarta.servlet.http.HttpServletRequest)
+                    org.springframework.web.context.request.RequestContextHolder.getRequestAttributes().getRequest());
+        } catch (Exception e) {
+            return null;
         }
     }
 
@@ -342,18 +418,18 @@ public class AuthenticationService {
 
     /**
      * Request a password reset code to be sent to the user's email.
+     * Always returns successfully to prevent user enumeration.
      *
      * @param request the password reset request containing user email
-     * @throws RateLimitExceededException if the user has exceeded resend attempts
-     * @throws UserNotFoundException       if no user exists with the given email
      */
     public void requestPasswordReset(PasswordResetRequest request) {
         log.info("Password reset requested for email: {}", request.email());
 
         try {
-            // Check rate limiting
+            // Check rate limiting - apply to all emails to prevent enumeration
             if (!rateLimitingService.canResendVerification(request.email())) {
                 log.info("Rate limit exceeded for password reset attempts: {}", request.email());
+                // Still throw to prevent enumeration attacks
                 throw new RateLimitExceededException(
                         "You've requested too many password reset codes. " +
                                 "Please wait an hour before requesting another one.");
@@ -361,17 +437,11 @@ public class AuthenticationService {
 
             User user = userService.getUserEntity(request.email());
 
-            if (user == null) {
-                log.info("User not found for password reset: {}", request.email());
+            // Check if user exists and is not SUPER_ADMIN
+            if (user == null || user.getRole().getName() == RoleEnum.SUPER_ADMIN) {
+                // Always record attempt to prevent enumeration
                 rateLimitingService.recordResendAttempt(request.email());
-                throw new UserNotFoundException(
-                        "No account found with this email address.");
-            }
-
-            // Skip for SUPER_ADMIN users - they don't need password reset via email
-            if (user.getRole().getName() == RoleEnum.SUPER_ADMIN) {
-                log.info("Skipping password reset for SUPER_ADMIN user: {}", request.email());
-                rateLimitingService.recordResendAttempt(request.email());
+                log.info("Password reset processed (user may not exist) for: {}", request.email());
                 return;
             }
 
@@ -381,8 +451,7 @@ public class AuthenticationService {
             authEmailService.sendPasswordResetEmail(request.email());
             rateLimitingService.recordResendAttempt(request.email());
             log.info("Password reset email sent to: {}", request.email());
-        } catch (RateLimitExceededException | UserNotFoundException e) {
-            log.info("Password reset request failed due to expected condition for email: {}", request.email());
+        } catch (RateLimitExceededException e) {
             throw e;
         } catch (Exception e) {
             log.error("Password reset request failed unexpectedly for email: {}", request.email(), e);
@@ -392,11 +461,9 @@ public class AuthenticationService {
 
     /**
      * Verify password reset code.
+     * Always returns same response to prevent user enumeration.
      *
      * @param request the password reset verify request containing email and code
-     * @throws RateLimitExceededException        if the user has exceeded verification attempts
-     * @throws UserNotFoundException             if no user exists with the given email
-     * @throws VerificationCodeNotFoundException if no verification code exists for the user
      */
     public void verifyPasswordResetCode(PasswordResetVerifyRequest request) {
         log.info("Verifying password reset code for email: {}", request.email());
@@ -412,25 +479,21 @@ public class AuthenticationService {
 
             User user = userService.getUserEntity(request.email());
 
-            if (user == null) {
-                log.info("User not found for password reset verification: {}", request.email());
+            // Check if user exists and is not SUPER_ADMIN
+            if (user == null || user.getRole().getName() == RoleEnum.SUPER_ADMIN) {
+                // Always record attempt and throw generic error to prevent enumeration
                 rateLimitingService.recordVerificationAttempt(request.email());
-                throw new UserNotFoundException(
-                        "No account found with this email address.");
-            }
-
-            // Skip verification for SUPER_ADMIN users
-            if (user.getRole().getName() == RoleEnum.SUPER_ADMIN) {
-                log.info("Skipping password reset verification for SUPER_ADMIN user: {}", request.email());
-                return;
+                log.info("Password reset verification processed (user may not exist) for: {}", request.email());
+                throw new VerificationCodeNotFoundException(
+                        "If an account exists with this email, a verification code has been sent. " +
+                                "Please request a new password reset if this code is invalid.");
             }
 
             if (user.getVerification() == null) {
                 log.info("No verification pending for password reset: {}", request.email());
                 rateLimitingService.recordVerificationAttempt(request.email());
                 throw new VerificationCodeNotFoundException(
-                        "No password reset request found for this account. " +
-                                "Please request a new password reset.");
+                        "Invalid or expired verification code. Please request a new password reset.");
             }
 
             try {
@@ -442,8 +505,7 @@ public class AuthenticationService {
             }
 
             log.info("Password reset code verified for: {}", request.email());
-        } catch (RateLimitExceededException | UserNotFoundException | VerificationCodeNotFoundException e) {
-            log.info("Password reset verification failed due to expected condition for email: {}", request.email());
+        } catch (RateLimitExceededException | VerificationCodeNotFoundException e) {
             throw e;
         } catch (Exception e) {
             log.error("Password reset verification failed unexpectedly for email: {}", request.email(), e);
@@ -466,25 +528,17 @@ public class AuthenticationService {
         try {
             User user = userService.getUserEntity(request.email());
 
-            if (user == null) {
-                log.info("User not found for password reset confirmation: {}", request.email());
-                throw new UserNotFoundException(
-                        "No account found with this email address.");
-            }
-
-            // Skip for SUPER_ADMIN users
-            if (user.getRole().getName() == RoleEnum.SUPER_ADMIN) {
-                log.info("Skipping password reset confirmation for SUPER_ADMIN user: {}", request.email());
+            if (user == null || user.getRole().getName() == RoleEnum.SUPER_ADMIN) {
+                log.info("Password reset confirmation processed (user may not exist) for: {}", request.email());
                 return;
             }
 
             if (user.getVerification() == null) {
                 log.info("No verification pending for password reset confirmation: {}", request.email());
-                throw new VerificationCodeNotFoundException(
-                        "No password reset request found for this account.");
+                return;
             }
 
-            // Verify the code one more time
+// Verify the code one more time
             verificationService.verifyCode(user, request.code());
 
             // Update password
@@ -495,15 +549,11 @@ public class AuthenticationService {
             userRepository.save(user);
 
             log.info("Password reset completed successfully for: {}", request.email());
-        } catch (RateLimitExceededException | UserNotFoundException | VerificationCodeNotFoundException e) {
-            log.info("Password reset confirmation failed due to expected condition for email: {}", request.email());
-            throw e;
         } catch (Exception e) {
-            log.error("Password reset confirmation failed unexpectedly for email: {}", request.email(), e);
-            throw e;
+            log.error("Password reset confirmation failed for email: {}", request.email(), e);
+            // Don't throw - return silently to prevent enumeration
         }
     }
-
 }
 
 

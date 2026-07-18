@@ -43,11 +43,11 @@ export default function StatCounter({ value, label, suffix = "" }: StatCounterPr
   }, [isVisible, value]);
 
   return (
-    <div ref={ref} className="text-center">
-      <div className="text-4xl md:text-5xl font-bold text-white mb-2 font-mono">
+    <div ref={ref} className={`text-center ${isVisible ? "glow-accent" : ""} rounded-2xl p-6 transition-all duration-700`} style={{ transitionTimingFunction: "cubic-bezier(0.16, 1, 0.3, 1)" }}>
+      <div className="text-4xl md:text-5xl font-bold text-gradient-accent mb-3 font-mono">
         {displayed}{suffix}
       </div>
-      <div className="text-zinc-400 text-sm">{label}</div>
+      <div className="text-[var(--color-text-muted)] text-sm tracking-wide uppercase">{label}</div>
     </div>
   );
 }

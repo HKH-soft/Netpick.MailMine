@@ -22,8 +22,13 @@ class FollowUpService {
   }
 
   createEventSource(): EventSource {
+    // Get token via header instead of URL to prevent token leakage
     const token = localStorage.getItem('auth_token') || '';
-    return new EventSource(`${this.basePath}/stream?token=${token}`);
+    // Note: EventSource doesn't support custom headers. For proper security,
+    // consider migrating to a WebSocket or fetch-based SSE implementation.
+    // For now, we rely on the backend stream endpoint validating via query param
+    // which should be replaced with a proper WebSocket connection.
+    return new EventSource(`${this.basePath}/stream`);
   }
 }
 

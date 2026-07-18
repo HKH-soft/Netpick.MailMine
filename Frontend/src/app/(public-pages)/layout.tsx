@@ -11,11 +11,14 @@ export default function PublicPageLayout({
   children: React.ReactNode;
 }) {
   return (
-    <div className="min-h-screen bg-black text-white font-inter">
-      <AnnouncementBanner />
-      <Navbar />
-      <main>{children}</main>
-      <Footer />
+    <div className="relative min-h-screen bg-black text-white font-inter overflow-hidden">
+      <div className="noise-overlay fixed inset-0 pointer-events-none" style={{ zIndex: 0 }} />
+      <div className="relative" style={{ zIndex: 1 }}>
+        <AnnouncementBanner />
+        <Navbar />
+        <main>{children}</main>
+        <Footer />
+      </div>
     </div>
   );
 }

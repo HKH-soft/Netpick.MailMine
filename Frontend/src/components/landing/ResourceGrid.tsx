@@ -1,7 +1,7 @@
 import React from "react";
 import RevealOnScroll from "./ui/RevealOnScroll";
 import SectionHeader from "./ui/SectionHeader";
-import ResourceCard from "./ui/ResourceCard";
+import Link from "next/link";
 
 const resources = [
   {
@@ -30,26 +30,39 @@ const resources = [
   },
 ];
 
-export default function ResourceGrid() {
+export default function ResourceGrid({ className = "" }: { className?: string }) {
   return (
-    <section className="py-24 border-t border-zinc-800/50">
+    <section className={`py-28 ${className}`}>
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <SectionHeader
           tag="Resources"
-          title="Learn and build"
+          title="Stay in the loop"
           subtitle="Tutorials, guides, and documentation to help you get the most out of Netpick."
         />
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
           {resources.map((resource, i) => (
-            <RevealOnScroll key={resource.title} delay={i * 0.1}>
-              <ResourceCard
-                tag={resource.tag}
-                title={resource.title}
-                excerpt={resource.excerpt}
+            <RevealOnScroll key={resource.title} delay={i * 0.08}>
+              <Link
                 href={resource.href}
-                className="h-full"
-              />
+                className="glass-card block p-6 h-full group"
+              >
+                <span
+                  className="inline-block px-2.5 py-1 text-[11px] font-medium rounded-md mb-3"
+                  style={{
+                    background: "rgba(34,197,94,0.08)",
+                    color: "var(--color-accent)",
+                  }}
+                >
+                  {resource.tag}
+                </span>
+                <h3 className="text-[15px] font-semibold mb-2 text-white leading-snug">
+                  {resource.title}
+                </h3>
+                <p className="text-[13px] leading-relaxed" style={{ color: "var(--color-text-secondary)" }}>
+                  {resource.excerpt}
+                </p>
+              </Link>
             </RevealOnScroll>
           ))}
         </div>

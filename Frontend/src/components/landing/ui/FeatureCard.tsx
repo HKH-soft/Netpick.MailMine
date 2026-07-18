@@ -14,14 +14,12 @@ export default function FeatureCard({
   className = "",
 }: FeatureCardProps) {
   return (
-    <div
-      className={`group rounded-2xl border border-zinc-800 bg-zinc-900/50 p-6 transition-all duration-300 hover:border-brand-500/30 hover:bg-zinc-900 ${className}`}
-    >
-      <div className="w-12 h-12 rounded-xl bg-brand-500/10 flex items-center justify-center mb-4 text-brand-400 group-hover:bg-brand-500/20 transition-colors">
+    <div className={`glass-card p-6 group ${className}`}>
+      <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-[var(--color-accent)]/20 to-[var(--color-accent)]/5 flex items-center justify-center mb-5 text-[var(--color-accent)] border border-[var(--color-accent)]/10 group-hover:border-[var(--color-accent)]/30 group-hover:shadow-[0_0_20px_rgba(41,141,255,0.15)] transition-all duration-400">
         {icon}
       </div>
-      <h3 className="text-lg font-semibold text-white mb-2">{title}</h3>
-      <p className="text-zinc-400 text-sm leading-relaxed">{description}</p>
+      <h3 className="text-lg font-semibold text-gradient-white mb-2">{title}</h3>
+      <p className="text-[var(--color-text-secondary)] text-sm leading-relaxed">{description}</p>
     </div>
   );
 }

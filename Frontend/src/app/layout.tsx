@@ -1,4 +1,4 @@
-import { Inter, Outfit, Vazirmatn } from 'next/font/google';
+import { Inter, Outfit, Space_Grotesk, Vazirmatn } from 'next/font/google';
 import { cookies } from 'next/headers';
 import './globals.css';
 
@@ -23,6 +23,12 @@ const inter = Inter({
   variable: "--font-inter",
 });
 
+const spaceGrotesk = Space_Grotesk({
+  subsets: ["latin"],
+  variable: "--font-heading",
+  display: "swap",
+});
+
 const vazirmatn = Vazirmatn({
   subsets: ["latin", "arabic"],
   variable: "--font-vazirmatn",
@@ -42,12 +48,12 @@ export default async function RootLayout({
       <head>
         <link rel="icon" href="/images/Netpick-Platform/Netpick.svg" type="image/svg+xml" />
         <link rel="manifest" href="/manifest.json" />
-        <meta name="theme-color" content="#1E40AF" />
+        <meta name="theme-color" content="#011829" />
         <meta name="apple-mobile-web-app-capable" content="yes" />
-        <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+        <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
         <link rel="apple-touch-icon" href="/images/Netpick-Platform/Netpick.svg" />
       </head>
-      <body className={`${outfit.className} ${inter.variable} ${vazirmatn.className} dark:bg-gray-900`}>
+      <body className={`${outfit.className} ${inter.variable} ${spaceGrotesk.variable} ${vazirmatn.className}`} style={{ backgroundColor: 'var(--color-bg-base)', color: 'var(--color-text-primary)' }}>
         <LanguageDetector />
         <PwaRegister />
         <script

@@ -26,8 +26,8 @@ class AttachmentService {
     return await api.get<Attachment[]>(`${this.basePath}/search?query=${encodeURIComponent(query)}`);
   }
 
-  public async deleteAttachment(filename: string): Promise<void> {
-    await api.delete(`${this.basePath}/${filename}`);
+public async deleteAttachment(filename: string): Promise<void> {
+    await api.delete(`${this.basePath}/${encodeURIComponent(filename)}`);
   }
 }
 

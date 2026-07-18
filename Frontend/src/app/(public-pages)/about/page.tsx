@@ -47,19 +47,17 @@ const team = [
 export default function AboutPage() {
   return (
     <div>
-      {/* Hero */}
-      <section className="relative py-24 md:py-32 overflow-hidden">
-        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-brand-500/10 via-black to-black" />
-        <div className="relative mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+      <section className="relative py-24 md:py-32 overflow-hidden aurora-bg">
+        <div className="relative z-10 mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <RevealOnScroll>
-            <div className="max-w-3xl">
-              <span className="inline-block text-sm font-semibold tracking-widest uppercase text-brand-400 mb-4">
+            <div className="max-w-3xl glass-card-lg p-10 md:p-14">
+              <span className="inline-block text-xs font-semibold tracking-widest uppercase text-gradient-accent mb-4">
                 About Netpick
               </span>
-              <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-white mb-6">
+              <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-gradient-white mb-6">
                 Email intelligence, built with purpose
               </h1>
-              <p className="text-lg text-zinc-400 leading-relaxed">
+              <p className="text-lg text-[var(--color-text-secondary)] leading-relaxed">
                 Netpick was founded in 2024 with a simple mission: make email data collection
                 and analysis accessible, ethical, and powerful for businesses of all sizes.
               </p>
@@ -68,8 +66,9 @@ export default function AboutPage() {
         </div>
       </section>
 
-      {/* Principles */}
-      <section className="py-24 border-t border-zinc-800/50">
+      <div className="section-divider" />
+
+      <section className="py-24">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <SectionHeader
             tag="Principles"
@@ -79,11 +78,11 @@ export default function AboutPage() {
           <div className="space-y-4">
             {principles.map((p, i) => (
               <RevealOnScroll key={p.number} delay={i * 0.1}>
-                <div className="rounded-2xl border border-zinc-800 bg-zinc-900/30 p-6 md:p-8 flex flex-col md:flex-row gap-6 items-start">
-                  <span className="text-sm font-mono text-zinc-600 shrink-0">{p.number}</span>
+                <div className="glass-card p-6 md:p-8 flex flex-col md:flex-row gap-6 items-start">
+                  <span className="text-sm font-mono text-gradient-accent shrink-0">{p.number}</span>
                   <div>
-                    <h3 className="text-xl font-semibold text-white mb-2">{p.title}</h3>
-                    <p className="text-zinc-400 leading-relaxed">{p.description}</p>
+                    <h3 className="text-xl font-semibold text-gradient-white mb-2">{p.title}</h3>
+                    <p className="text-[var(--color-text-secondary)] leading-relaxed">{p.description}</p>
                   </div>
                 </div>
               </RevealOnScroll>
@@ -92,8 +91,9 @@ export default function AboutPage() {
         </div>
       </section>
 
-      {/* Values */}
-      <section className="py-24 border-t border-zinc-800/50">
+      <div className="section-divider" />
+
+      <section className="py-24">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <SectionHeader
             tag="Values"
@@ -102,9 +102,9 @@ export default function AboutPage() {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {values.map((v, i) => (
               <RevealOnScroll key={v.title} delay={i * 0.1}>
-                <div className="rounded-2xl border border-zinc-800 bg-zinc-900/30 p-6 h-full">
-                  <h3 className="text-lg font-semibold text-white mb-2">{v.title}</h3>
-                  <p className="text-zinc-400 text-sm leading-relaxed">{v.description}</p>
+                <div className="glass-card p-6 h-full">
+                  <h3 className="text-lg font-semibold text-gradient-white mb-2">{v.title}</h3>
+                  <p className="text-[var(--color-text-secondary)] text-sm leading-relaxed">{v.description}</p>
                 </div>
               </RevealOnScroll>
             ))}
@@ -112,8 +112,9 @@ export default function AboutPage() {
         </div>
       </section>
 
-      {/* Team */}
-      <section className="py-24 border-t border-zinc-800/50">
+      <div className="section-divider" />
+
+      <section className="py-24">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <SectionHeader
             tag="Team"
@@ -122,10 +123,14 @@ export default function AboutPage() {
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             {team.map((member, i) => (
               <RevealOnScroll key={member.name} delay={i * 0.1}>
-                <div className="rounded-2xl border border-zinc-800 bg-zinc-900/30 p-6 text-center">
-                  <div className="w-20 h-20 bg-zinc-800 rounded-full mx-auto mb-4" />
-                  <h4 className="text-lg font-semibold text-white">{member.name}</h4>
-                  <p className="text-zinc-500 text-sm">{member.role}</p>
+                <div className="glass-card p-6 text-center">
+                  <div className="w-20 h-20 rounded-full mx-auto mb-4 bg-gradient-to-br from-[var(--color-accent)]/30 to-purple-500/20 border border-[var(--color-glass-border)] flex items-center justify-center">
+                    <span className="text-2xl font-bold text-gradient-accent">
+                      {member.name.split(" ").map(n => n[0]).join("")}
+                    </span>
+                  </div>
+                  <h4 className="text-lg font-semibold text-gradient-white">{member.name}</h4>
+                  <p className="text-[var(--color-text-muted)] text-sm">{member.role}</p>
                 </div>
               </RevealOnScroll>
             ))}
@@ -133,7 +138,8 @@ export default function AboutPage() {
         </div>
       </section>
 
-      {/* CTA */}
+      <div className="section-divider" />
+
       <section className="py-24 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto">
         <CTABanner
           title="Join us in building the future"

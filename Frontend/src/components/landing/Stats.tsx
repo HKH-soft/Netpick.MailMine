@@ -9,20 +9,27 @@ const stats = [
   { value: "150", label: "Integrations", suffix: "+" },
 ];
 
-export default function Stats() {
+export default function Stats({ className = "" }: { className?: string }) {
   return (
-    <section className="py-24 border-t border-zinc-800/50">
+    <section className={`py-28 ${className}`}>
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <RevealOnScroll>
-          <div className="rounded-3xl border border-zinc-800 bg-zinc-900/30 p-8 md:p-16">
+          <div className="glass-card-lg p-8 md:p-16">
             <div className="grid grid-cols-2 md:grid-cols-4 gap-8 md:gap-12">
-              {stats.map((stat) => (
-                <StatCounter
-                  key={stat.label}
-                  value={stat.value}
-                  label={stat.label}
-                  suffix={stat.suffix}
-                />
+              {stats.map((stat, i) => (
+                <div key={stat.label} className="relative">
+                  {i > 0 && (
+                    <div
+                      className="hidden md:block absolute left-0 top-1/2 -translate-y-1/2 -translate-x-6 w-px h-10"
+                      style={{ background: "rgba(255,255,255,0.04)" }}
+                    />
+                  )}
+                  <StatCounter
+                    value={stat.value}
+                    label={stat.label}
+                    suffix={stat.suffix}
+                  />
+                </div>
               ))}
             </div>
           </div>

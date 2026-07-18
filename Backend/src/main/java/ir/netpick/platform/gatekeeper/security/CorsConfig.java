@@ -11,22 +11,28 @@ import java.util.List;
 @Configuration
 public class CorsConfig {
 
-    @Value("#{'${cors.allowed-origins:*}'.split(',')}")
+    @Value("#{'${cors.allowed-origins:}'.split(',')}")
     private List<String> allowedOrigins;
-    @Value("#{'${cors.allowed-methods:GET,POST,PUT,DELETE,OPTIONS}'.split(',')}")
-    private List<String> allowedMethods;
-    @Value("#{'${cors.allowed-headers:*}'.split(',')}")
-    private List<String> allowedHeaders;
-    @Value("#{'${cors.exposed-headers:}'.split(',')}")
-    private List<String> exposedHeaders;
 
     @Bean
     public UrlBasedCorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
-        configuration.setAllowedOrigins(allowedOrigins);
-        configuration.setAllowedMethods(allowedMethods);
-        configuration.setAllowedHeaders(allowedHeaders);
-        configuration.setExposedHeaders(exposedHeaders);
+
+        // Remove empty strings from the list
+        List<String> origins = allowedOrigins.stream()
+                .filter(s -> s != null && !s.isEmpty())
+                .toList();
+
+        // Fail closed: if no origins configured, use same-origin only
+        if (origins.isEmpty()) {
+            configuration.setAllowedOriginPatterns(List.of("same-origin"));
+        } else {
+            configuration.setAllowedOrigins(origins);
+        }
+
+        configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"));
+        configuration.setAllowedHeaders(List.of("Content-Type", "Authorization"));
+        configuration.setAllowCredentials(true);
 
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", configuration);

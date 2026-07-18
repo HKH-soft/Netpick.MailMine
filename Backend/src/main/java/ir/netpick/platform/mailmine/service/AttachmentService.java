@@ -48,7 +48,12 @@ public class AttachmentService {
 
         validateFile(file);
 
-        String extension = getFileExtension(file.getOriginalFilename());
+        String originalFilename = file.getOriginalFilename();
+        String extension = getFileExtension(originalFilename);
+        
+        // Sanitize filename to prevent path traversal
+        String safeOriginalName = sanitizeFilename(originalFilename);
+        
         String datePath = LocalDate.now().format(DateTimeFormatter.ofPattern("yyyy/MM/dd"));
         Path uploadPath = Path.of(uploadDir, datePath);
 
@@ -60,9 +65,8 @@ public class AttachmentService {
         file.transferTo(filePath.toFile());
 
         Map<String, Object> result = new LinkedHashMap<>();
-        result.put("filename", file.getOriginalFilename());
+        result.put("filename", safeOriginalName);
         result.put("storedFilename", filename);
-        result.put("path", filePath.toString());
         result.put("size", file.getSize());
         result.put("contentType", file.getContentType());
         result.put("emailId", emailId.toString());
@@ -71,6 +75,18 @@ public class AttachmentService {
         emailMessageRepository.save(email);
 
         return result;
+    }
+
+    /**
+     * Sanitize filename to prevent path traversal attacks.
+     */
+    private String sanitizeFilename(String filename) {
+        if (filename == null) return "unknown";
+        // Remove path separators and null bytes
+        String sanitized = filename.replaceAll("[/\\\\:*?\"<>|\0]", "_");
+        // Remove leading dots to prevent hidden files
+        sanitized = sanitized.replaceAll("^\\.", "_");
+        return sanitized;
     }
 
     /**
@@ -132,10 +148,20 @@ public class AttachmentService {
     }
 
     /**
-     * Delete attachment
+     * Delete attachment - with path validation to prevent traversal attacks
      */
     public void deleteAttachment(String storedFilename) throws IOException {
-        Files.deleteIfExists(Path.of(uploadDir, storedFilename));
+        // Normalize and validate the filename to prevent path traversal
+        String normalized = storedFilename.replace("..", "").replace("/", "").replace("\\", "");
+        if (!normalized.equals(storedFilename)) {
+            throw new SecurityException("Invalid filename");
+        }
+        Path filePath = Path.of(uploadDir, storedFilename).normalize();
+        // Ensure the resolved path is still within upload directory
+        if (!filePath.startsWith(Path.of(uploadDir).normalize())) {
+            throw new SecurityException("Path traversal not allowed");
+        }
+        Files.deleteIfExists(filePath);
     }
 
     private void validateFile(MultipartFile file) {

@@ -83,21 +83,41 @@ public class TransactionService {
         try (BufferedReader reader = new BufferedReader(new InputStreamReader(file.getInputStream()))) {
             String line;
             boolean isFirst = true;
+            int lineNumber = 0;
             while ((line = reader.readLine()) != null) {
+                lineNumber++;
                 if (isFirst) {
                     isFirst = false;
                     continue; // Skip header
                 }
                 String[] parts = line.split(",");
                 if (parts.length >= 4) {
-                    Transaction transaction = new Transaction();
-                    transaction.setAmount(new BigDecimal(parts[0].trim()));
-                    transaction.setType(TransactionType.valueOf(parts[1].trim().toUpperCase()));
-                    transaction.setCategory(parts[2].trim());
-                    transaction.setDescription(parts.length > 3 ? parts[3].trim() : "");
-                    transaction.setDate(LocalDateTime.parse(parts.length > 4 ? parts[4].trim() : LocalDateTime.now().toString()));
-                    transaction.setCreatedBy(createdBy);
-                    transactions.add(transaction);
+                    try {
+                        Transaction transaction = new Transaction();
+                        transaction.setAmount(new BigDecimal(parts[0].trim()));
+                        transaction.setType(TransactionType.valueOf(parts[1].trim().toUpperCase()));
+                        transaction.setCategory(parts[2].trim());
+                        transaction.setDescription(parts.length > 3 ? parts[3].trim() : "");
+                        
+                        // Safe date parsing with fallback
+                        String dateStr = parts.length > 4 ? parts[4].trim() : null;
+                        if (dateStr != null && !dateStr.isEmpty()) {
+                            try {
+                                transaction.setDate(LocalDateTime.parse(dateStr));
+                            } catch (Exception e) {
+                                // Fallback to current time on parsing failure
+                                transaction.setDate(LocalDateTime.now());
+                            }
+                        } else {
+                            transaction.setDate(LocalDateTime.now());
+                        }
+                        
+                        transaction.setCreatedBy(createdBy);
+                        transactions.add(transaction);
+                    } catch (Exception e) {
+                        // Log and skip malformed lines instead of crashing
+                        // In production, consider adding error reporting
+                    }
                 }
             }
         }

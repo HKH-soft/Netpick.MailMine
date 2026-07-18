@@ -9,6 +9,7 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
 import java.security.Key;
+import java.security.SecureRandom;
 import java.time.Duration;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
@@ -43,6 +44,8 @@ public class JWTKeyRotationService {
     // Old keys kept for verification during grace period
     private final ConcurrentHashMap<String, Key> verificationKeys = new ConcurrentHashMap<>();
     private final ScheduledExecutorService scheduler = Executors.newSingleThreadScheduledExecutor();
+    private static final int JWT_KEY_LENGTH = 256; // bits
+    private static final SecureRandom SECURE_RANDOM = new SecureRandom();
 
     public JWTKeyRotationService(RedisTemplate<String, Object> redisTemplate) {
         this.redisTemplate = redisTemplate;
@@ -50,6 +53,11 @@ public class JWTKeyRotationService {
 
     @PostConstruct
     private void initializeKeys() {
+        // Validate minimum key length for HS256 (must be 256 bits = 32 bytes)
+        if (primarySecretKey == null || primarySecretKey.length() < 32) {
+            throw new IllegalStateException("JWT secret key must be at least 32 characters (256 bits) for HS256 algorithm. "
+                    + "Set security.jwt.secret-key environment variable.");
+        }
         activeKeyId = UUID.randomUUID().toString();
         activeSigningKey = Keys.hmacShaKeyFor(primarySecretKey.getBytes());
         log.info("Initialized JWT signing key with ID: {}", activeKeyId);
@@ -115,10 +123,10 @@ public class JWTKeyRotationService {
         verificationKeys.put(activeKeyId, activeSigningKey);
         log.info("Archived old JWT key: {}", activeKeyId);
 
-        // Generate new key
+        // Generate NEW random key for actual key rotation
         String oldKeyId = activeKeyId;
         activeKeyId = UUID.randomUUID().toString();
-        activeSigningKey = Keys.hmacShaKeyFor(primarySecretKey.getBytes());
+        activeSigningKey = Keys.hmacShaKeyFor(generateRandomKeyBytes());
 
         // Update Redis
         redisTemplate.opsForValue().set("jwt:active-key-id", activeKeyId);
@@ -128,6 +136,15 @@ public class JWTKeyRotationService {
         cleanupOldKeyAfterGracePeriod(oldKeyId);
 
         log.info("Rotated JWT signing key. Old: {}, New: {}", oldKeyId, activeKeyId);
+    }
+
+    /**
+     * Generate a cryptographically secure random key for JWT signing.
+     */
+    private byte[] generateRandomKeyBytes() {
+        byte[] keyBytes = new byte[JWT_KEY_LENGTH / 8]; // 256 bits = 32 bytes
+        SECURE_RANDOM.nextBytes(keyBytes);
+        return keyBytes;
     }
 
     private void cleanupOldKeyAfterGracePeriod(String oldKeyId) {

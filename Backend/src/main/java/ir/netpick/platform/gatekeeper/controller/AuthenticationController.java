@@ -7,16 +7,8 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import ir.netpick.platform.gatekeeper.dto.AuthConfigResponse;
-import ir.netpick.platform.gatekeeper.dto.AuthenticationResponse;
-import ir.netpick.platform.gatekeeper.dto.AuthenticationSigninRequest;
-import ir.netpick.platform.gatekeeper.dto.AuthenticationSignupRequest;
-import ir.netpick.platform.gatekeeper.dto.MessageResponse;
-import ir.netpick.platform.gatekeeper.dto.PasswordResetConfirmRequest;
-import ir.netpick.platform.gatekeeper.dto.PasswordResetRequest;
-import ir.netpick.platform.gatekeeper.dto.PasswordResetVerifyRequest;
-import ir.netpick.platform.gatekeeper.dto.RefreshTokenRequest;
-import ir.netpick.platform.gatekeeper.dto.VerificationRequest;
+import ir.netpick.platform.gatekeeper.dto.*;
+import ir.netpick.platform.gatekeeper.exception.MfaRequiredException;
 import ir.netpick.platform.gatekeeper.service.AuthenticationService;
 import ir.netpick.platform.gatekeeper.service.RateLimiting;
 import jakarta.servlet.http.HttpServletRequest;
@@ -83,21 +75,33 @@ public class AuthenticationController {
                 .ok(new MessageResponse("User registered successfully. Please check your email for verification."));
     }
 
-    @Operation(summary = "Sign in", description = "Authenticate user and receive access and refresh tokens")
+    @Operation(summary = "Sign in", description = "Authenticate user and receive access and refresh tokens. If MFA is enabled, provide totpCode.")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Login successful", content = @Content(schema = @Schema(implementation = AuthenticationResponse.class))),
             @ApiResponse(responseCode = "401", description = "Invalid credentials or account not verified"),
+            @ApiResponse(responseCode = "403", description = "MFA verification required (mfa_required=true in response)"),
             @ApiResponse(responseCode = "429", description = "Too many failed login attempts")
     })
     @PostMapping("sign-in")
-    public ResponseEntity<AuthenticationResponse> signIn(
+    public ResponseEntity<?> signIn(
             @RequestBody AuthenticationSigninRequest request,
             HttpServletRequest httpRequest) {
         String deviceInfo = httpRequest.getHeader("User-Agent");
         String ipAddress = getClientIpAddress(httpRequest);
 
-        AuthenticationResponse response = authenticationService.signIn(request, deviceInfo, ipAddress);
-        return ResponseEntity.ok(response);
+        try {
+            AuthenticationResponse response = authenticationService.signIn(
+                    request, deviceInfo, ipAddress, request.totpCode());
+            return ResponseEntity.ok(response);
+        } catch (MfaRequiredException e) {
+            return ResponseEntity.status(403).body(new java.util.Map[]{
+                    java.util.Map.of(
+                            "mfa_required", true,
+                            "email", e.getEmail(),
+                            "message", "MFA verification required. Please provide totpCode in your next request."
+                    )
+            });
+        }
     }
 
     @Operation(summary = "Refresh access token", description = "Get a new access token using a valid refresh token. The old refresh token will be rotated.")

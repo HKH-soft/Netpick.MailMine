@@ -6,6 +6,8 @@ import jakarta.persistence.Embeddable;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.nio.charset.StandardCharsets;
+import java.security.MessageDigest;
 import java.time.LocalDateTime;
 
 @Getter
@@ -64,7 +66,30 @@ public class Verification {
     }
 
     public boolean matches(String inputCode) {
-        return code != null && code.equals(inputCode.toUpperCase());
+        if (code == null || inputCode == null) {
+            return false;
+        }
+        // Normalize both codes for case-insensitive comparison
+        String normalizedCode = code.toUpperCase();
+        String normalizedInput = inputCode.toUpperCase();
+        // Use constant-time comparison to prevent timing attacks
+        return constantTimeEquals(normalizedCode, normalizedInput);
+    }
+
+    /**
+     * Constant-time comparison to prevent timing attacks on verification codes.
+     */
+    private boolean constantTimeEquals(String a, String b) {
+        if (a.length() != b.length()) {
+            return false;
+        }
+        byte[] aBytes = a.getBytes(StandardCharsets.US_ASCII);
+        byte[] bBytes = b.getBytes(StandardCharsets.US_ASCII);
+        try {
+            return MessageDigest.isEqual(aBytes, bBytes);
+        } catch (Exception e) {
+            return false;
+        }
     }
 
     public void updateLastSent() {

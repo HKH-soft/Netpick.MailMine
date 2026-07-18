@@ -1,6 +1,7 @@
 package ir.netpick.platform.financefarm.controller;
 
 import ir.netpick.platform.core.PageDTO;
+import ir.netpick.platform.core.enums.RoleEnum;
 import ir.netpick.platform.financefarm.dto.FinanceSummaryDTO;
 import ir.netpick.platform.financefarm.model.Invoice;
 import ir.netpick.platform.financefarm.model.InvoiceStatus;
@@ -8,6 +9,7 @@ import ir.netpick.platform.financefarm.service.InvoiceService;
 import ir.netpick.platform.gatekeeper.model.User;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
@@ -29,13 +31,19 @@ public class FinanceController {
     public ResponseEntity<PageDTO<Invoice>> getAllInvoices(
             @RequestParam(defaultValue = "1") int page,
             @AuthenticationPrincipal User user) {
-        return ResponseEntity.ok(invoiceService.getAll(page));
+        // Filter by authenticated user's ownership
+        return ResponseEntity.ok(invoiceService.getByCreatedBy(user.getId(), page));
     }
 
     @GetMapping("/{id}")
     @PreAuthorize("isAuthenticated()")
     public ResponseEntity<Invoice> getInvoice(@PathVariable UUID id, @AuthenticationPrincipal User user) {
-        return ResponseEntity.ok(invoiceService.getById(id));
+        Invoice invoice = invoiceService.getById(id);
+        // Verify ownership
+        if (!invoice.getCreatedBy().equals(user.getId()) && user.getRole().getName() != RoleEnum.SUPER_ADMIN) {
+            throw new AccessDeniedException("Access denied to this invoice");
+        }
+        return ResponseEntity.ok(invoice);
     }
 
     @PostMapping
@@ -51,12 +59,22 @@ public class FinanceController {
             @PathVariable UUID id,
             @RequestBody Invoice invoice,
             @AuthenticationPrincipal User user) {
+        Invoice existing = invoiceService.getById(id);
+        // Verify ownership
+        if (!existing.getCreatedBy().equals(user.getId()) && user.getRole().getName() != RoleEnum.SUPER_ADMIN) {
+            throw new AccessDeniedException("Access denied to this invoice");
+        }
         return ResponseEntity.ok(invoiceService.update(id, invoice));
     }
 
     @DeleteMapping("/{id}")
     @PreAuthorize("isAuthenticated()")
     public ResponseEntity<Void> deleteInvoice(@PathVariable UUID id, @AuthenticationPrincipal User user) {
+        Invoice invoice = invoiceService.getById(id);
+        // Verify ownership
+        if (!invoice.getCreatedBy().equals(user.getId()) && user.getRole().getName() != RoleEnum.SUPER_ADMIN) {
+            throw new AccessDeniedException("Access denied to this invoice");
+        }
         invoiceService.delete(id);
         return ResponseEntity.noContent().build();
     }
@@ -67,6 +85,11 @@ public class FinanceController {
             @PathVariable UUID id,
             @RequestParam InvoiceStatus status,
             @AuthenticationPrincipal User user) {
+        Invoice invoice = invoiceService.getById(id);
+        // Verify ownership
+        if (!invoice.getCreatedBy().equals(user.getId()) && user.getRole().getName() != RoleEnum.SUPER_ADMIN) {
+            throw new AccessDeniedException("Access denied to this invoice");
+        }
         return ResponseEntity.ok(invoiceService.updateStatus(id, status));
     }
 

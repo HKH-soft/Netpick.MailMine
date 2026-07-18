@@ -2,13 +2,20 @@
 
 import { useEffect, useRef, useState } from "react";
 
-export function useScrollReveal(threshold = 0.1) {
+export function useScrollReveal(threshold = 0.05) {
   const ref = useRef<HTMLDivElement>(null);
-  const [isVisible, setIsVisible] = useState(false);
+  const [isVisible, setIsVisible] = useState(true);
 
   useEffect(() => {
     const el = ref.current;
     if (!el) return;
+
+    const rect = el.getBoundingClientRect();
+    const inView = rect.top < window.innerHeight + 100;
+
+    if (inView) return;
+
+    setIsVisible(false);
 
     const observer = new IntersectionObserver(
       ([entry]) => {
@@ -17,7 +24,7 @@ export function useScrollReveal(threshold = 0.1) {
           observer.unobserve(el);
         }
       },
-      { threshold }
+      { threshold, rootMargin: "100px 0px 100px 0px" }
     );
 
     observer.observe(el);

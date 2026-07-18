@@ -41,8 +41,8 @@ class AnalyticsService {
     return await api.get<DashboardSummary>(`${this.basePath}/dashboard`);
   }
 
-  async getDailyStats(date: string): Promise<DailyStats> {
-    return await api.get<DailyStats>(`${this.basePath}/daily?date=${date}`);
+async getDailyStats(date: string): Promise<DailyStats> {
+     return await api.get<DailyStats>(`${this.basePath}/daily?date=${encodeURIComponent(date)}`);
   }
 
   async getWeeklyStats(): Promise<WeeklyStats> {
