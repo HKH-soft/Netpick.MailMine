@@ -4,7 +4,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
 
-public record TaskDTO(
+public record TaskDetailDTO(
     UUID id,
     String title,
     String description,
@@ -18,5 +18,6 @@ public record TaskDTO(
     LocalDateTime updatedAt,
     LocalDateTime completedAt,
     Integer order,
-    List<LabelDTO> labels
+    List<LabelDTO> labels,
+    List<CommentDTO> comments
 ) {}

@@ -83,4 +83,12 @@ public class TaskController {
     public ResponseEntity<?> getByProject(@PathVariable UUID projectId, @RequestParam(defaultValue = "1") int page) {
         return ResponseEntity.ok(taskService.getByProject(projectId, page));
     }
+
+    @PutMapping("/{id}/reorder")
+    public ResponseEntity<?> reorderTask(@PathVariable UUID id, @RequestBody ReorderRequest request) {
+        taskService.move(id, TaskStatus.valueOf(request.status()), request.order());
+        return ResponseEntity.ok().build();
+    }
+
+    public record ReorderRequest(String status, Integer order) {}
 }

@@ -79,4 +79,11 @@ public class TaskService {
         task.setOrder(newOrder);
         taskRepository.save(task);
     }
+
+    public void move(UUID taskId, TaskStatus status, Integer order) {
+        Task task = getById(taskId);
+        task.setStatus(status);
+        task.setOrder(order);
+        taskRepository.save(task);
+    }
 }

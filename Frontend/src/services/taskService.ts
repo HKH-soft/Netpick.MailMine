@@ -1,6 +1,13 @@
 // taskService.ts
 import api, { PageDTO } from './api';
 
+export interface Label {
+  id: string;
+  name: string;
+  color: string;
+  projectId?: string;
+}
+
 export interface Task {
   id: string;
   title: string;
@@ -15,6 +22,7 @@ export interface Task {
   updatedAt: string;
   completedAt?: string;
   order?: number;
+  labels?: Label[];
 }
 
 export type TaskStatus = "TODO" | "IN_PROGRESS" | "IN_REVIEW" | "DONE" | "BLOCKED";
@@ -76,6 +84,13 @@ class TaskService {
    */
   public async restoreTask(id: string): Promise<void> {
     await api.put(`${this.basePath}/${id}/restore`, {});
+  }
+
+  /**
+   * Reorder task (drag-drop support)
+   */
+  public async reorderTask(id: string, status: string, order: number): Promise<void> {
+    await api.put(`${this.basePath}/${id}/reorder`, { status, order });
   }
 }
 

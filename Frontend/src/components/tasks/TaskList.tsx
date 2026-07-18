@@ -23,6 +23,7 @@ const TASK_STATUSES = [
   { value: "IN_PROGRESS", label: "In Progress" },
   { value: "IN_REVIEW", label: "In Review" },
   { value: "DONE", label: "Done" },
+  { value: "BLOCKED", label: "Blocked" },
 ];
 
 const createFields = [
@@ -140,14 +141,31 @@ export default function TaskList() {
     }
   };
 
-  const columns: ColumnConfig[] = [
+  const getStatusColor = (status: string) => {
+    switch (status) {
+      case "TODO":
+        return "light";
+      case "IN_PROGRESS":
+        return "info";
+      case "IN_REVIEW":
+        return "warning";
+      case "DONE":
+        return "success";
+      case "BLOCKED":
+        return "error";
+      default:
+        return "light";
+    }
+};
+
+const columns: ColumnConfig[] = [
     { key: "title", header: "Title", type: "text" },
     { 
       key: "status", 
       header: "Status", 
       type: "status",
       render: (value) => (
-        <Badge size="sm" color={getPriorityColor(String(value))}>
+        <Badge size="sm" color={getStatusColor(String(value))}>
           {String(value).replace("_", " ")}
         </Badge>
       )
