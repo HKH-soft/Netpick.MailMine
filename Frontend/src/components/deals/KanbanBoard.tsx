@@ -143,7 +143,7 @@ export default function KanbanBoard() {
       </div>
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 overflow-x-auto">
         {STAGES.map(stage => (
-          <div key={stage} className="bg-gray-50 dark:bg-white/[0.03] rounded-lg p-4">
+          <div key={stage} className="bg-gray-50 dark:bg-gray-900 rounded-lg p-4">
             <div className="flex items-center justify-between mb-4">
               <h3 className="font-semibold text-gray-800 dark:text-white/90">
                 {stage.replace("_", " ")}
@@ -156,7 +156,7 @@ export default function KanbanBoard() {
               {dealsByStage[stage].map(deal => (
                 <div
                   key={deal.id}
-                  className="bg-white dark:bg-white/[0.05] rounded-lg p-3 shadow-sm border border-gray-200 dark:border-white/[0.08] cursor-pointer hover:shadow-md transition-shadow"
+                  className="bg-white dark:bg-gray-900 rounded-lg p-3 shadow-sm border border-gray-200 dark:border-gray-800 cursor-pointer hover:shadow-md transition-shadow"
                   onClick={() => handleCardClick(deal)}
                 >
                   <h4 className="font-medium text-gray-800 dark:text-white/90 mb-2">

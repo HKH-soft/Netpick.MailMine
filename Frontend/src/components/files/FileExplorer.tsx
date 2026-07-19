@@ -4,6 +4,7 @@ import React, { useState } from "react";
 import { useFolders } from "@/hooks/useFolders";
 import { useFiles } from "@/hooks/useFiles";
 import FileGrid from "./FileGrid";
+import FileUploadDropzone from "./FileUploadDropzone";
 import FolderService from "@/services/folderService";
 import FileService from "@/services/fileService";
 import { useToast } from "@/context/ToastContext";
@@ -54,8 +55,14 @@ export default function FileExplorer() {
     }
   };
 
+  const handleUploadComplete = () => {
+    refetchFiles();
+  };
+
   return (
     <div className="space-y-4">
+      <FileUploadDropzone folderId={currentFolder} onUploadComplete={handleUploadComplete} />
+      
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2 text-sm text-gray-500">
           <span

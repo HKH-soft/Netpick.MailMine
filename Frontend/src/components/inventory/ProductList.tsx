@@ -37,7 +37,7 @@ export default function ProductList({ products, loading, onEdit, onDelete, onAdj
           {products.map((product) => {
             const isLow = product.quantity <= (product.minQuantity || 0);
             return (
-              <tr key={product.id} className="hover:bg-gray-50 dark:hover:bg-white/[0.02]">
+              <tr key={product.id} className="hover:bg-gray-50 dark:hover:bg-gray-800">
                 <td className="px-4 py-3 text-sm text-gray-800 dark:text-white/90">{product.productName}</td>
                 <td className="px-4 py-3 text-sm text-gray-500">{product.sku}</td>
                 <td className="px-4 py-3 text-sm">

@@ -4,7 +4,6 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import ir.netpick.platform.gatekeeper.dto.*;
-import ir.netpick.platform.gatekeeper.model.IpPolicy;
 import ir.netpick.platform.gatekeeper.model.SecurityEvent;
 import ir.netpick.platform.gatekeeper.model.User;
 import ir.netpick.platform.gatekeeper.service.DeviceSessionService;

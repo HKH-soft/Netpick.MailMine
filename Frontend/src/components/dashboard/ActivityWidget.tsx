@@ -50,20 +50,20 @@ export default function ActivityWidget() {
       {items.map((item) => (
         <div
           key={item.id}
-          className="flex items-start gap-3 p-3 rounded-xl hover:bg-white/[0.03] transition-colors duration-200"
+          className="flex items-start gap-3 p-3 rounded-xl hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors duration-200"
         >
           <div
             className="w-2 h-2 rounded-full mt-1.5 shrink-0"
             style={{ background: typeColors[item.type] }}
           />
           <div className="flex-1 min-w-0">
-            <p className="text-[13px] text-white/70 leading-snug">{item.text}</p>
-            <p className="text-[11px] text-white/30 mt-0.5">{item.time}</p>
+            <p className="text-[13px] text-gray-700 dark:text-gray-300 leading-snug">{item.text}</p>
+            <p className="text-[11px] text-gray-500 dark:text-gray-400 mt-0.5">{item.time}</p>
           </div>
         </div>
       ))}
       {items.length === 0 && (
-        <div className="text-center py-8 text-white/20 text-[13px]">No recent activity</div>
+        <div className="text-center py-8 text-gray-400 dark:text-gray-500 text-[13px]">No recent activity</div>
       )}
     </div>
   );

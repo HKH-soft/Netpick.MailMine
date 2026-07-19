@@ -44,7 +44,7 @@ export default function InvoiceList({ invoices, loading, onEdit, onDelete }: Inv
         </thead>
         <tbody className="divide-y divide-gray-200 dark:divide-gray-700">
           {invoices.map((invoice) => (
-            <tr key={invoice.id} className="hover:bg-gray-50 dark:hover:bg-white/[0.02]">
+            <tr key={invoice.id} className="hover:bg-gray-50 dark:hover:bg-gray-800">
               <td className="px-4 py-3 text-sm text-gray-800 dark:text-white/90">{invoice.invoiceNumber}</td>
               <td className="px-4 py-3 text-sm text-gray-800 dark:text-white/90">{invoice.customerName}</td>
               <td className="px-4 py-3 text-sm font-medium text-gray-800 dark:text-white/90">${invoice.totalAmount?.toFixed(2) || "0.00"}</td>

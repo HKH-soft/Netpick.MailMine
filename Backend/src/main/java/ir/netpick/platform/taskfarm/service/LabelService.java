@@ -81,7 +81,7 @@ public class LabelService {
     public List<Label> getLabelsForTask(UUID taskId) {
         List<TaskLabel> taskLabels = taskLabelRepository.findByTaskId(taskId);
         return taskLabels.stream()
-                .map(TaskLabel::getLabel)
+                .map(tl -> tl.getLabel())
                 .toList();
     }
 }

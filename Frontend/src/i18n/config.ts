@@ -30,4 +30,9 @@ i18n
     },
   });
 
+// Expose i18n for debugging
+if (typeof window !== 'undefined') {
+  (window as any).i18n = i18n;
+}
+
 export default i18n;

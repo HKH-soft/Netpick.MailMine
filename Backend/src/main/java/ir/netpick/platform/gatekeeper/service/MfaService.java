@@ -2,7 +2,6 @@ package ir.netpick.platform.gatekeeper.service;
 
 import ir.netpick.platform.gatekeeper.dto.MfaSetupResponse;
 import ir.netpick.platform.gatekeeper.dto.MfaStatusResponse;
-import ir.netpick.platform.gatekeeper.exception.InvalidTokenException;
 import ir.netpick.platform.gatekeeper.model.BackupCode;
 import ir.netpick.platform.gatekeeper.model.MfaSettings;
 import ir.netpick.platform.gatekeeper.model.User;

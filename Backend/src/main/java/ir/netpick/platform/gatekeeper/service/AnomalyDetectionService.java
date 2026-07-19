@@ -1,8 +1,6 @@
 package ir.netpick.platform.gatekeeper.service;
 
 import ir.netpick.platform.gatekeeper.model.SecurityEvent;
-import ir.netpick.platform.gatekeeper.model.User;
-import ir.netpick.platform.gatekeeper.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;

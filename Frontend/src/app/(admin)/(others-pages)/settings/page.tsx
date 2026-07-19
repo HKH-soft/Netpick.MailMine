@@ -5,6 +5,7 @@ import Button from "@/components/ui/button/Button";
 import { useTheme } from "@/context/ThemeContext";
 import { useAuth } from "@/context/AuthContext";
 import { useCurrentUser } from "@/hooks/useCurrentUser";
+import { useExtensions, ExtensionId } from "@/context/ExtensionContext";
 import Link from "next/link";
 import React, { useState, useEffect } from "react";
 
@@ -36,6 +37,7 @@ export default function SettingsPage() {
   const { theme, toggleTheme } = useTheme();
   const { logout } = useAuth();
   const { deleteCurrentUser, loading: userLoading } = useCurrentUser();
+  const { extensions, toggleExtension } = useExtensions();
   const [settings, setSettings] = useState<SettingsState>(loadSettings);
 
   useEffect(() => {
@@ -61,8 +63,8 @@ export default function SettingsPage() {
     <div>
       <PageBreadcrumb pageTitle="Settings" />
       <div className="space-y-6">
-        <div className="rounded-2xl border border-gray-200 bg-white p-5 dark:border-gray-800 dark:bg-white/[0.03] lg:p-6">
-          <h3 className="mb-5 text-lg font-semibold text-gray-800 dark:text-white/90 lg:mb-7">
+        <div className="rounded-2xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 p-5 lg:p-6">
+          <h3 className="mb-5 text-lg font-semibold text-gray-800 dark:text-white lg:mb-7">
             App Preferences
           </h3>
           <div className="space-y-5">
@@ -98,8 +100,8 @@ export default function SettingsPage() {
           </div>
         </div>
 
-        <div className="rounded-2xl border border-gray-200 bg-white p-5 dark:border-gray-800 dark:bg-white/[0.03] lg:p-6">
-          <h3 className="mb-5 text-lg font-semibold text-gray-800 dark:text-white/90 lg:mb-7">
+        <div className="rounded-2xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 p-5 lg:p-6">
+          <h3 className="mb-5 text-lg font-semibold text-gray-800 dark:text-white lg:mb-7">
             Notification Settings
           </h3>
           <div className="space-y-5">
@@ -139,8 +141,8 @@ export default function SettingsPage() {
           </div>
         </div>
 
-        <div className="rounded-2xl border border-gray-200 bg-white p-5 dark:border-gray-800 dark:bg-white/[0.03] lg:p-6">
-          <h3 className="mb-5 text-lg font-semibold text-gray-800 dark:text-white/90 lg:mb-7">
+        <div className="rounded-2xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 p-5 lg:p-6">
+          <h3 className="mb-5 text-lg font-semibold text-gray-800 dark:text-white lg:mb-7">
             Account Settings
           </h3>
           <div className="space-y-5">
@@ -177,6 +179,34 @@ export default function SettingsPage() {
                 {userLoading ? "Deleting..." : "Delete Account"}
               </Button>
             </div>
+          </div>
+        </div>
+
+        <div className="rounded-2xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 p-5 lg:p-6">
+          <h3 className="mb-5 text-lg font-semibold text-gray-800 dark:text-white lg:mb-7">
+            Extension Settings
+          </h3>
+          <p className="mb-4 text-xs text-gray-500 dark:text-gray-400">
+            Enable or disable extensions in the sidebar navigation.
+          </p>
+          <div className="space-y-5">
+            {Object.entries(extensions).map(([id, ext]) => (
+              <div key={id} className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm font-medium text-gray-700 dark:text-gray-400">
+                    {ext.name}
+                  </p>
+                  <p className="text-xs text-gray-500 dark:text-gray-400">
+                    {ext.enabled ? "Enabled" : "Disabled"}
+                  </p>
+                </div>
+                <Switch
+                  label=""
+                  defaultChecked={ext.enabled}
+                  onChange={() => toggleExtension(id as ExtensionId)}
+                />
+              </div>
+            ))}
           </div>
         </div>
       </div>

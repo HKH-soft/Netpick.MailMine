@@ -44,3 +44,5 @@ certbot-certs/
 mailmine.code-workspace
 .kilo/
 .playwright-mcp/
+*.docx
+*.project

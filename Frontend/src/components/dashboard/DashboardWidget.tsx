@@ -46,28 +46,33 @@ const RESPONSIVE_SPAN: Record<number, string> = {
 };
 
 export default function DashboardWidget({
-  id, title, icon, children, colSpan = 6, rowSpan = 1,
-  collapsed = false, pinned = false, editMode = false,
-  onRemove, onMove, onResize, onCollapse, onPin, position = 0,
-}: DashboardWidgetProps) {
-  const ref = useRef<HTMLDivElement>(null);
-  const [hovered, setHovered] = useState(false);
+   id, title, icon, children, colSpan = 6, rowSpan = 1,
+   collapsed = false, pinned = false, editMode = false,
+   onRemove, onMove, onResize, onCollapse, onPin, position = 0,
+ }: DashboardWidgetProps) {
+   const ref = useRef<HTMLDivElement>(null);
+   const [hovered, setHovered] = useState(false);
+   const lastMovedPositionRef = useRef<number | null>(null);
 
-  const [{ isDragging }, drag] = useDrag({
-    type: "WIDGET",
-    item: { id, type: "WIDGET", position },
-    canDrag: editMode,
-    collect: (monitor) => ({ isDragging: monitor.isDragging() }),
-  });
+   const [{ isDragging }, drag] = useDrag({
+     type: "WIDGET",
+     item: { id, type: "WIDGET", position },
+     canDrag: editMode,
+     collect: (monitor) => ({ isDragging: monitor.isDragging() }),
+   });
 
-  const [, drop] = useDrop({
-    accept: "WIDGET",
-    hover: (item: DragItem) => {
-      if (!editMode || item.position === position || !onMove) return;
-      onMove(item.position, position);
-      item.position = position;
-    },
-  });
+   const [, drop] = useDrop({
+     accept: "WIDGET",
+     hover: (item: DragItem) => {
+       if (!editMode || item.position === position || !onMove) return;
+       // Prevent jittering by only moving when we've crossed to a new position
+       if (lastMovedPositionRef.current !== position) {
+         onMove(item.position, position);
+         item.position = position;
+         lastMovedPositionRef.current = position;
+       }
+     },
+   });
 
   drag(drop(ref));
 
@@ -88,35 +93,29 @@ export default function DashboardWidget({
         ${ROW_CLASSES[rowSpan] || "row-span-1"}
         rounded-2xl border transition-all duration-300
         ${isDragging ? "opacity-40 scale-95" : "opacity-100"}
-        ${editMode ? "ring-1 ring-white/[0.04]" : ""}
+        ${editMode ? "ring-1 ring-gray-200 dark:ring-gray-800" : ""}
+        bg-gray-50 dark:bg-gray-900
+        border-gray-200 dark:border-gray-800
+        hover:bg-gray-100 dark:hover:bg-gray-800
+        hover:border-gray-300 dark:hover:border-gray-700
       `}
-      style={{
-        background: hovered
-          ? "linear-gradient(180deg, rgba(255,255,255,0.05) 0%, rgba(255,255,255,0.025) 100%)"
-          : "linear-gradient(180deg, rgba(255,255,255,0.03) 0%, rgba(255,255,255,0.015) 100%)",
-        borderColor: hovered ? "rgba(255,255,255,0.1)" : "rgba(255,255,255,0.06)",
-        boxShadow: hovered
-          ? "0 4px 24px rgba(0,0,0,0.25), 0 0 0 1px rgba(34,197,94,0.03)"
-          : "0 1px 2px rgba(0,0,0,0.1)",
-        minHeight: rowSpan === 2 ? "320px" : "auto",
-      }}
     >
       {/* Title bar */}
-      <div className="flex items-center justify-between px-5 py-3.5 border-b border-white/[0.04]">
+      <div className="flex items-center justify-between px-5 py-3.5 border-b border-gray-200 dark:border-gray-800">
         <div className="flex items-center gap-2.5">
           {editMode && (
-            <div className="cursor-grab active:cursor-grabbing p-1 -ml-1 rounded hover:bg-white/[0.05] transition-colors">
-              <svg className="w-3.5 h-3.5 text-white/30" viewBox="0 0 16 16" fill="currentColor">
+            <div className="cursor-grab active:cursor-grabbing p-1 -ml-1 rounded hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors">
+              <svg className="w-3.5 h-3.5 text-gray-400 dark:text-gray-500" viewBox="0 0 16 16" fill="currentColor">
                 <circle cx="5" cy="3" r="1.5"/><circle cx="11" cy="3" r="1.5"/>
                 <circle cx="5" cy="8" r="1.5"/><circle cx="11" cy="8" r="1.5"/>
                 <circle cx="5" cy="13" r="1.5"/><circle cx="11" cy="13" r="1.5"/>
               </svg>
             </div>
           )}
-          {icon && <span className="text-white/40">{icon}</span>}
-          <h3 className="text-[13px] font-semibold text-white/80 tracking-tight">{title}</h3>
+          {icon && <span className="text-gray-400 dark:text-gray-500">{icon}</span>}
+          <h3 className="text-[13px] font-semibold text-gray-900 dark:text-white tracking-tight">{title}</h3>
           {pinned && (
-            <svg className="w-3 h-3 text-green-500/60" fill="currentColor" viewBox="0 0 24 24">
+            <svg className="w-3 h-3 text-green-500" fill="currentColor" viewBox="0 0 24 24">
               <path d="M16 12V4h1V2H7v2h1v8l-2 2v2h5.2v6h1.6v-6H18v-2l-2-2z"/>
             </svg>
           )}
@@ -124,28 +123,28 @@ export default function DashboardWidget({
         {editMode && (
           <div className="flex items-center gap-1">
             {onCollapse && (
-              <button onClick={() => onCollapse(id)} className="p-1.5 rounded-lg hover:bg-white/[0.06] text-white/30 hover:text-white/60 transition-colors" title={collapsed ? "Expand" : "Collapse"}>
+              <button onClick={() => onCollapse(id)} className="p-1.5 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-400 dark:text-gray-500 hover:text-gray-900 dark:hover:text-white transition-colors" title={collapsed ? "Expand" : "Collapse"}>
                 <svg className={`w-3.5 h-3.5 transition-transform ${collapsed ? "rotate-180" : ""}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7"/>
                 </svg>
               </button>
             )}
             {onPin && (
-              <button onClick={() => onPin(id)} className={`p-1.5 rounded-lg hover:bg-white/[0.06] transition-colors ${pinned ? "text-green-500/60" : "text-white/30 hover:text-white/60"}`} title="Pin">
+              <button onClick={() => onPin(id)} className={`p-1.5 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors ${pinned ? "text-green-500" : "text-gray-400 dark:text-gray-500 hover:text-gray-900 dark:hover:text-white"}`} title="Pin">
                 <svg className="w-3.5 h-3.5" fill={pinned ? "currentColor" : "none"} stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 12V4h1V2H7v2h1v8l-2 2v2h5.2v6h1.6v-6H18v-2l-2-2z"/>
                 </svg>
               </button>
             )}
             {onResize && (
-              <button onClick={cycleSize} className="p-1.5 rounded-lg hover:bg-white/[0.06] text-white/30 hover:text-white/60 transition-colors" title="Resize">
+              <button onClick={cycleSize} className="p-1.5 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-400 dark:text-gray-500 hover:text-gray-900 dark:hover:text-white transition-colors" title="Resize">
                 <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4"/>
                 </svg>
               </button>
             )}
             {onRemove && (
-              <button onClick={() => onRemove(id)} className="p-1.5 rounded-lg hover:bg-red-500/10 text-white/30 hover:text-red-400 transition-colors" title="Remove">
+              <button onClick={() => onRemove(id)} className="p-1.5 rounded-lg hover:bg-red-50 dark:hover:bg-red-900/20 text-gray-400 dark:text-gray-500 hover:text-red-500 dark:hover:text-red-400 transition-colors" title="Remove">
                 <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12"/>
                 </svg>

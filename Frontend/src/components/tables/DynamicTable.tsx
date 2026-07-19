@@ -99,7 +99,7 @@ export default function DynamicTable({
                     <Button
                         size="sm"
                         variant="outline"
-                        className="border-gray-200 text-gray-700 hover:bg-gray-100 dark:border-white/[0.08] dark:text-gray-300 dark:hover:bg-white/[0.08] w-full"
+                        className="border-gray-200 text-gray-700 hover:bg-gray-100 dark:border-gray-700 dark:text-gray-300 dark:hover:bg-gray-800 w-full"
                         onClick={() => onEdit && onEdit(row)}
                     >
                         Edit
@@ -126,12 +126,12 @@ export default function DynamicTable({
     };
 
     return (
-        <div className="overflow-hidden rounded-xl border border-gray-200 bg-white dark:border-white/[0.05] dark:bg-white/[0.03]">
+        <div className="overflow-hidden rounded-xl border border-gray-200 bg-white dark:border-gray-800 dark:bg-gray-900">
             <div className="max-w-full overflow-x-auto">
                 <div className="min-w-[1102px]">
                     <Table>
                         {/* Table Header */}
-                        <TableHeader className="border-b border-gray-100 dark:border-white/[0.05]">
+                        <TableHeader className="border-b border-gray-100 dark:border-gray-800">
                             <TableRow>
                                 {columns.map((c) => (
                                     <TableCell
@@ -146,7 +146,7 @@ export default function DynamicTable({
                         </TableHeader>
 
                         {/* Table Body */}
-                        <TableBody className="divide-y divide-gray-100 dark:divide-white/[0.05]">
+                        <TableBody className="divide-y divide-gray-100 dark:divide-gray-800">
                             {data.map((row, rIdx) => (
                                 <TableRow key={row[rowKey] as Key ?? rIdx}>
                                     {columns.map((col) => (

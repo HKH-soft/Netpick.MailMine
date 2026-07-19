@@ -33,7 +33,17 @@
     "invoices": "فاکتورها",
     "customsDeclarations": "اعلامیه‌های گمرکی",
     "exchangeRates": "نرخ‌های ارز",
-    "notifications": "اطلاع‌رسانی‌ها"
+    "notifications": "اطلاع‌رسانی‌ها",
+    "dealPick": "دیل‌پیک",
+    "deals": "معاملات",
+    "taskPick": "تاسک‌پیک",
+    "tasks": "کارها",
+    "projects": "پروژه‌ها",
+    "filePick": "فایل‌پیک",
+    "files": "فایل‌ها",
+    "financePick": "فینانس‌پیک",
+    "inventoryPick": "اینونتوری‌پیک",
+    "inventory": "موجودی"
   },
   "auth": {
     "signIn": {
@@ -176,6 +186,13 @@
     "notification": "اطلاع‌رسانی",
     "telegram": "تلگرام",
     "sms": "پیامک"
+  },
+  "dashboard": {
+    "totalContacts": "مخاطبان کل",
+    "remainingJobs": "کارهای باقی‌مانده",
+    "activePipelines": "خطوط فرآیندی فعال",
+    "activeProxies": "پروکسی‌های فعال",
+    "total": "کل"
   },
   "search": {
     "placeholder": "جستجو یا دستوری را تایپ کنید...",

@@ -27,7 +27,18 @@
     "proxies": "Proxies",
     "ai": "AI",
     "calendar": "Calendar",
-    "messages": "Messages"
+    "messages": "Messages",
+    "dealPick": "DealPick",
+    "deals": "Deals",
+    "taskPick": "TaskPick",
+    "tasks": "Tasks",
+    "projects": "Projects",
+    "filePick": "FilePick",
+    "files": "Files",
+    "financePick": "FinancePick",
+    "invoices": "Invoices",
+    "inventoryPick": "InventoryPick",
+    "inventory": "Inventory"
   },
   "auth": {
     "signIn": {
@@ -158,6 +169,13 @@
   "common": {
     "new": "New",
     "pro": "Pro"
+  },
+  "dashboard": {
+    "totalContacts": "Total Contacts",
+    "remainingJobs": "Remaining Jobs",
+    "activePipelines": "Active Pipelines",
+    "activeProxies": "Active Proxies",
+    "total": "Total"
   },
   "search": {
     "placeholder": "Search or type command...",

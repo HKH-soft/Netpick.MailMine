@@ -6,6 +6,7 @@ import Image from "next/image";
 import { usePathname } from "next/navigation";
 import { useScrolled } from "@/hooks/useScrolled";
 import MegaDropdown from "./MegaDropdown";
+import LanguageSwitcher from "@/components/common/LanguageSwitcher";
 
 const navLinks = [
   {
@@ -116,6 +117,7 @@ export default function Navbar() {
           </nav>
 
           <div className="hidden lg:flex items-center gap-3">
+            <LanguageSwitcher />
             <Link
               href="/signin"
               className="text-[13px] font-medium px-4 py-2 rounded-full transition-all duration-300 hover:text-white"

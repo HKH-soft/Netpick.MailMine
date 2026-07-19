@@ -3,66 +3,77 @@ import React, { useEffect, useRef, useState, useCallback, useMemo } from "react"
 import Link from "next/link";
 import Image from "next/image";
 import { usePathname } from "next/navigation";
+import { useTranslation } from "react-i18next";
 import { useSidebar } from "../context/SidebarContext";
+import { useExtensions, ExtensionId } from "../context/ExtensionContext";
 import AuthService from "../services/authService";
-import { ChevronDownIcon, GridIcon } from "../icons/index";
+import { ChevronDownIcon, GridIcon, SettingsIcon } from "../icons/index";
 
 type NavItem = {
-  name: string;
+  nameKey: string;
   icon: React.ReactNode;
   path?: string;
-  subItems?: { name: string; path: string; pro?: boolean; new?: boolean }[];
+  extensionId?: string;
+  subItems?: { nameKey: string; path: string; pro?: boolean; new?: boolean }[];
 };
 
 const navItems: NavItem[] = [
   {
     icon: <GridIcon />,
-    name: "Core",
+    nameKey: "navigation.core",
     subItems: [
-      { name: "Dashboard", path: "/dashboard", pro: false },
-      { name: "Statistics", path: "/statistics", pro: false },
+      { nameKey: "navigation.dashboard", path: "/dashboard", pro: false },
+      { nameKey: "navigation.statistics", path: "/statistics", pro: false },
     ],
   },
   {
     icon: <Image src="/images/Netpick-Platform/GateKeeper.svg" alt="" width={20} height={20} />,
-    name: "Gatekeeper",
+    nameKey: "navigation.gatekeeper",
+    extensionId: "gatekeeper",
     subItems: [
-      { name: "User Profile", path: "/profile", pro: false },
-      { name: "Users", path: "/users", pro: false },
-      { name: "Settings", path: "/settings", pro: false },
+      { nameKey: "navigation.userProfile", path: "/profile", pro: false },
+      { nameKey: "navigation.users", path: "/users", pro: false },
     ],
   },
   {
-    name: "MailMine",
+    nameKey: "navigation.mailMine",
     icon: <Image src="/images/Netpick-Platform/MailMine.svg" alt="" width={20} height={20} />,
+    extensionId: "mailmine",
     subItems: [
-      { name: "Email", path: "/email", pro: false },
-      { name: "Analytics", path: "/analytics", pro: false, new: true },
-      { name: "Campaigns", path: "/campaigns", pro: false, new: true },
-      { name: "Shared Inboxes", path: "/shared-inboxes", pro: false, new: true },
-      { name: "Follow-ups", path: "/follow-ups", pro: false, new: true },
-      { name: "Email Auth Check", path: "/email-auth", pro: false, new: true },
-      { name: "Control", path: "/scrape/control", pro: false },
-      { name: "Pipelines", path: "/scrape/pipelines", pro: false },
-      { name: "Jobs", path: "/scrape/jobs", pro: false },
-      { name: "Data", path: "/scrape/data", pro: false },
-      { name: "Contacts", path: "/scrape/contacts", pro: false },
-      { name: "Api keys", path: "/scrape/api-keys", pro: false },
-      { name: "Search Queries", path: "/scrape/search-querys", pro: false },
-      { name: "Query Generator", path: "/scrape/query-generator", pro: false, new: true },
-      { name: "Proxies", path: "/scrape/proxies", pro: false },
-      { name: "AI", path: "/scrape/ai", pro: false, new: true },
+      { nameKey: "navigation.email", path: "/email", pro: false },
+      { nameKey: "navigation.analytics", path: "/analytics", pro: false, new: true },
+      { nameKey: "navigation.campaigns", path: "/campaigns", pro: false, new: true },
+      { nameKey: "navigation.sharedInboxes", path: "/shared-inboxes", pro: false, new: true },
+      { nameKey: "navigation.followUps", path: "/follow-ups", pro: false, new: true },
+      { nameKey: "navigation.emailAuthCheck", path: "/email-auth", pro: false, new: true },
+      { nameKey: "navigation.control", path: "/scrape/control", pro: false },
+      { nameKey: "navigation.pipelines", path: "/scrape/pipelines", pro: false },
+      { nameKey: "navigation.jobs", path: "/scrape/jobs", pro: false },
+      { nameKey: "navigation.data", path: "/scrape/data", pro: false },
+      { nameKey: "navigation.contacts", path: "/scrape/contacts", pro: false },
+      { nameKey: "navigation.apiKeys", path: "/scrape/api-keys", pro: false },
+      { nameKey: "navigation.searchQueries", path: "/scrape/search-querys", pro: false },
+      { nameKey: "navigation.queryGenerator", path: "/scrape/query-generator", pro: false, new: true },
+      { nameKey: "navigation.proxies", path: "/scrape/proxies", pro: false },
+      { nameKey: "navigation.ai", path: "/scrape/ai", pro: false, new: true },
     ],
   },
-  { icon: <GridIcon />, name: "DealPick", subItems: [{ name: "Deals", path: "/dealfarm", pro: false }] },
-  { icon: <GridIcon />, name: "TaskPick", subItems: [{ name: "Tasks", path: "/taskfarm", pro: false }, { name: "Projects", path: "/taskfarm/projects", pro: false }] },
-  { icon: <GridIcon />, name: "FilePick", subItems: [{ name: "Files", path: "/filefarm", pro: false }] },
-  { icon: <GridIcon />, name: "FinancePick", subItems: [{ name: "Invoices", path: "/financefarm", pro: false }] },
-  { icon: <GridIcon />, name: "InventoryPick", subItems: [{ name: "Inventory", path: "/inventoryfarm", pro: false }] },
+  { icon: <Image src="/images/Netpick-Platform/DealPick.svg" alt="" width={20} height={20} />, nameKey: "navigation.dealPick", extensionId: "dealfarm", subItems: [{ nameKey: "navigation.deals", path: "/dealfarm", pro: false }] },
+  { icon: <Image src="/images/Netpick-Platform/TaskPick.svg" alt="" width={20} height={20} />, nameKey: "navigation.taskPick", extensionId: "taskfarm", subItems: [{ nameKey: "navigation.tasks", path: "/taskfarm", pro: false }, { nameKey: "navigation.projects", path: "/taskfarm/projects", pro: false }] },
+  { icon: <Image src="/images/Netpick-Platform/FilePick.svg" alt="" width={20} height={20} />, nameKey: "navigation.filePick", extensionId: "filefarm", subItems: [{ nameKey: "navigation.files", path: "/filefarm", pro: false }] },
+  { icon: <Image src="/images/Netpick-Platform/FinancePick.svg" alt="" width={20} height={20} />, nameKey: "navigation.financePick", extensionId: "financefarm", subItems: [{ nameKey: "navigation.invoices", path: "/financefarm", pro: false }] },
+  { icon: <Image src="/images/Netpick-Platform/InventoryPick.svg" alt="" width={20} height={20} />, nameKey: "navigation.inventoryPick", extensionId: "inventoryfarm", subItems: [{ nameKey: "navigation.inventory", path: "/inventoryfarm", pro: false }] },
+  {
+    icon: <SettingsIcon />,
+    nameKey: "navigation.settings",
+    path: "/settings",
+  },
 ];
 
 const AppSidebar: React.FC = () => {
+  const { t } = useTranslation('common');
   const { isExpanded, isMobileOpen, isHovered, setIsHovered } = useSidebar();
+  const { isExtensionEnabled } = useExtensions();
   const pathname = usePathname();
   const [userRole, setUserRole] = useState<string | null>(null);
   const [openSubmenu, setOpenSubmenu] = useState<{ type: "main" | "others"; index: number } | null>(null);
@@ -85,12 +96,15 @@ const AppSidebar: React.FC = () => {
 
   const filteredNavItems = useMemo(() => {
     return navItems.filter(item => {
-      if (item.name === "Access") {
+      if (t(item.nameKey) === "Access") {
         return userRole === "SUPER_ADMIN" || userRole === "ADMIN";
+      }
+      if (item.extensionId && !isExtensionEnabled(item.extensionId as ExtensionId)) {
+        return false;
       }
       return true;
     });
-  }, [userRole]);
+  }, [userRole, isExtensionEnabled, t]);
 
   const isActive = useCallback((path: string) => path === pathname, [pathname]);
 
@@ -132,29 +146,29 @@ const AppSidebar: React.FC = () => {
   const renderMenuItems = (items: NavItem[], menuType: "main" | "others") => (
     <ul className="flex flex-col gap-0.5">
       {items.map((nav, index) => (
-        <li key={nav.name}>
+        <li key={nav.nameKey}>
           {nav.subItems ? (
             <button
               onClick={() => handleSubmenuToggle(index, menuType)}
               className={`w-full flex items-center gap-3 px-3 py-2 rounded-xl text-[13px] font-medium transition-all duration-200 group
                 ${openSubmenu?.type === menuType && openSubmenu?.index === index
-                  ? "bg-green-500/[0.08] text-green-400"
-                  : "text-white/40 hover:text-white/70 hover:bg-white/[0.04]"
+                  ? "bg-green-50 dark:bg-green-900/20 text-green-600 dark:text-green-400"
+                  : "text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800"
                 }
                 ${isCollapsed ? "lg:justify-center lg:px-2" : ""}
               `}
             >
               <span className={`shrink-0 transition-colors ${
                 openSubmenu?.type === menuType && openSubmenu?.index === index
-                  ? "text-green-400" : "text-white/30 group-hover:text-white/50"
+                  ? "text-green-500 dark:text-green-400" : "text-gray-400 dark:text-gray-500 group-hover:text-gray-600 dark:group-hover:text-gray-400"
               }`}>
                 {nav.icon}
               </span>
               {!isCollapsed && (
                 <>
-                  <span className="flex-1 text-left truncate">{nav.name}</span>
+                  <span className="flex-1 text-left truncate">{t(nav.nameKey)}</span>
                   <ChevronDownIcon className={`w-4 h-4 transition-transform duration-200 shrink-0 ${
-                    openSubmenu?.type === menuType && openSubmenu?.index === index ? "rotate-180 text-green-400/60" : "text-white/20"
+                    openSubmenu?.type === menuType && openSubmenu?.index === index ? "rotate-180 text-green-500/60" : "text-gray-400 dark:text-gray-500"
                   }`} />
                 </>
               )}
@@ -165,18 +179,18 @@ const AppSidebar: React.FC = () => {
                 href={nav.path}
                 className={`flex items-center gap-3 px-3 py-2 rounded-xl text-[13px] font-medium transition-all duration-200 group
                   ${isActive(nav.path)
-                    ? "bg-green-500/[0.08] text-green-400"
-                    : "text-white/40 hover:text-white/70 hover:bg-white/[0.04]"
+                    ? "bg-green-50 dark:bg-green-900/20 text-green-600 dark:text-green-400"
+                    : "text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800"
                   }
                   ${isCollapsed ? "lg:justify-center lg:px-2" : ""}
                 `}
               >
                 <span className={`shrink-0 transition-colors ${
-                  isActive(nav.path) ? "text-green-400" : "text-white/30 group-hover:text-white/50"
+                  isActive(nav.path) ? "text-green-500 dark:text-green-400" : "text-gray-400 dark:text-gray-500 group-hover:text-gray-600 dark:group-hover:text-gray-400"
                 }`}>
                   {nav.icon}
                 </span>
-                {!isCollapsed && <span className="truncate">{nav.name}</span>}
+                {!isCollapsed && <span className="truncate">{t(nav.nameKey)}</span>}
               </Link>
             )
           )}
@@ -189,26 +203,26 @@ const AppSidebar: React.FC = () => {
                   ? `${subMenuHeight[`${menuType}-${index}`]}px` : "0px",
               }}
             >
-              <ul className="mt-0.5 ml-5 pl-3 space-y-0.5 border-l border-white/[0.04]">
-                {nav.subItems.map((subItem) => (
-                  <li key={subItem.name}>
-                    <Link
-                      href={subItem.path}
-                      className={`flex items-center justify-between px-3 py-1.5 rounded-lg text-[12px] transition-all duration-200 ${
-                        isActive(subItem.path)
-                          ? "bg-green-500/[0.06] text-green-400 font-medium"
-                          : "text-white/30 hover:text-white/60 hover:bg-white/[0.03]"
-                      }`}
-                    >
-                      <span className="truncate">{subItem.name}</span>
-                      <span className="flex items-center gap-1 ml-1 shrink-0">
-                        {subItem.new && (
-                          <span className="text-[9px] font-semibold uppercase tracking-wider px-1.5 py-0.5 rounded bg-green-500/10 text-green-400">new</span>
-                        )}
-                        {subItem.pro && (
-                          <span className="text-[9px] font-semibold uppercase tracking-wider px-1.5 py-0.5 rounded bg-amber-500/10 text-amber-400">pro</span>
-                        )}
-                      </span>
+<ul className="mt-0.5 ml-5 pl-3 space-y-0.5 border-l border-gray-200 dark:border-gray-800">
+                 {nav.subItems.map((subItem) => (
+                   <li key={subItem.nameKey}>
+                     <Link
+                       href={subItem.path}
+                       className={`flex items-center justify-between px-3 py-1.5 rounded-lg text-[12px] transition-all duration-200 ${
+                         isActive(subItem.path)
+                           ? "bg-green-50 dark:bg-green-900/20 text-green-600 dark:text-green-400 font-medium"
+                           : "text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800"
+                       }`}
+                     >
+                       <span className="truncate">{t(subItem.nameKey)}</span>
+<span className="flex items-center gap-1 ml-1 shrink-0">
+                         {subItem.new && (
+                           <span className="text-[9px] font-semibold uppercase tracking-wider px-1.5 py-0.5 rounded bg-green-50 dark:bg-green-900/20 text-green-600 dark:text-green-400">{t('common.new')}</span>
+                         )}
+                         {subItem.pro && (
+                           <span className="text-[9px] font-semibold uppercase tracking-wider px-1.5 py-0.5 rounded bg-amber-50 dark:bg-amber-900/20 text-amber-600 dark:text-amber-400">{t('common.pro')}</span>
+                         )}
+                       </span>
                     </Link>
                   </li>
                 ))}
@@ -228,20 +242,20 @@ const AppSidebar: React.FC = () => {
       )}
 
       <aside
-        className={`fixed top-0 left-0 h-screen z-50 transition-all duration-300 ease-out
+        className={`fixed top-0 h-screen z-50 transition-all duration-300 ease-out app-sidebar
           ${isMobileOpen
             ? "translate-x-0 w-[290px]"
             : isExpanded || isHovered
-              ? "translate-x-0 w-[290px]"
-              : "translate-x-0 w-[72px]"
+            ? "translate-x-0 w-[290px]"
+            : "translate-x-0 w-[72px]"
           }
-          lg:translate-x-0
+          lg:translate-x-0 ltr:left-0 rtl:right-0
         `}
         style={{
           background: isMobileOpen
-            ? "rgba(8, 8, 8, 0.97)"
-            : "rgba(8, 8, 8, 0.95)",
-          borderRight: "1px solid rgba(255, 255, 255, 0.04)",
+            ? "rgba(0, 0, 0, 0.97)"
+            : "rgba(0, 0, 0, 0.95)",
+          borderRight: "1px solid rgba(0, 0, 0, 0.08)",
           backdropFilter: "blur(20px) saturate(180%)",
           WebkitBackdropFilter: "blur(20px) saturate(180%)",
         }}
@@ -263,7 +277,7 @@ const AppSidebar: React.FC = () => {
           <nav>
             <div className="mb-1">
               {!isCollapsed && (
-                <h2 className="mb-3 px-3 text-[10px] font-semibold uppercase tracking-wider text-white/20">Menu</h2>
+                <h2 className="mb-3 px-3 text-[10px] font-semibold uppercase tracking-wider text-gray-400 dark:text-gray-500">{t('navigation.menu')}</h2>
               )}
               {renderMenuItems(filteredNavItems, "main")}
             </div>
@@ -274,7 +288,7 @@ const AppSidebar: React.FC = () => {
         <div className="absolute bottom-4 left-0 right-0 flex justify-center">
           <button
             onClick={() => setIsHovered(!isExpanded)}
-            className="hidden lg:flex items-center justify-center w-8 h-8 rounded-lg bg-white/[0.04] hover:bg-white/[0.08] text-white/20 hover:text-white/50 transition-all duration-200"
+            className="hidden lg:flex items-center justify-center w-8 h-8 rounded-lg bg-gray-900 dark:bg-gray-800 hover:bg-gray-800 dark:hover:bg-gray-700 text-gray-400 dark:text-gray-500 hover:text-gray-300 dark:hover:text-gray-400 transition-all duration-200"
           >
             <svg className={`w-4 h-4 transition-transform duration-300 ${isExpanded ? "rotate-0" : "rotate-180"}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M11 19l-7-7 7-7m8 14l-7-7 7-7" />

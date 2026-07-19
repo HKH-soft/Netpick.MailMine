@@ -8,7 +8,6 @@ import ir.netpick.platform.gatekeeper.model.User;
 import ir.netpick.platform.gatekeeper.service.DeviceSessionService;
 import ir.netpick.platform.gatekeeper.service.MfaService;
 import ir.netpick.platform.core.exception.RequestValidationException;
-import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;

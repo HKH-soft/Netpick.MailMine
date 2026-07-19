@@ -4,7 +4,6 @@ import ir.netpick.platform.gatekeeper.dto.SecurityDashboardDTO;
 import ir.netpick.platform.gatekeeper.dto.SecurityEventDTO;
 import ir.netpick.platform.gatekeeper.model.SecurityEvent;
 import ir.netpick.platform.gatekeeper.repository.SecurityEventRepository;
-import ir.netpick.platform.core.AuditTrailRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;

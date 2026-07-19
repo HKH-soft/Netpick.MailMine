@@ -45,7 +45,7 @@ export default function FinanceDashboard() {
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
       {stats.map((stat, index) => (
-        <div key={index} className="rounded-lg border border-gray-200 bg-white p-5 dark:border-gray-800 dark:bg-white/[0.03]">
+        <div key={index} className="rounded-lg border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 p-5">
           <div className="flex items-center justify-between">
             <span className="text-sm text-gray-500 dark:text-gray-400">{stat.title}</span>
             {stat.icon}

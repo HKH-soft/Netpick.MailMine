@@ -24,20 +24,14 @@ const AppHeader: React.FC = () => {
 
   return (
     <header
-      className="sticky top-0 z-40 flex w-full transition-all duration-300"
-      style={{
-        background: "rgba(0, 0, 0, 0.6)",
-        backdropFilter: "blur(16px) saturate(180%)",
-        WebkitBackdropFilter: "blur(16px) saturate(180%)",
-        borderBottom: "1px solid rgba(255, 255, 255, 0.04)",
-      }}
+      className="sticky top-0 z-40 flex w-full transition-all duration-300 bg-white/60 dark:bg-black/60 backdrop-blur-xl dark:backdrop-blur-xl border-b border-gray-200 dark:border-gray-800"
     >
       <div className="flex items-center justify-between w-full px-4 md:px-6 h-14">
         {/* Left: mobile menu + search */}
         <div className="flex items-center gap-3">
           <button
             onClick={handleToggle}
-            className="flex items-center justify-center w-9 h-9 rounded-xl text-white/40 hover:text-white/70 hover:bg-white/[0.05] transition-all duration-200 lg:hidden"
+            className="flex items-center justify-center w-9 h-9 rounded-xl text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 transition-all duration-200 lg:hidden"
             aria-label="Toggle Sidebar"
           >
             {isMobileOpen ? <CloseIcon /> : <MenuToggleIcon />}
@@ -46,11 +40,11 @@ const AppHeader: React.FC = () => {
           {/* Search bar */}
           <button
             onClick={openCommandPalette}
-            className="hidden md:flex items-center gap-3 h-9 px-3.5 rounded-xl border border-white/[0.06] bg-white/[0.03] hover:bg-white/[0.05] hover:border-white/[0.1] transition-all duration-200 group min-w-[240px]"
+            className="hidden md:flex items-center gap-3 h-9 px-3.5 rounded-xl border border-gray-200 dark:border-gray-800 bg-gray-50 dark:bg-gray-900 hover:bg-gray-100 dark:hover:bg-gray-800 hover:border-gray-300 dark:hover:border-gray-700 transition-all duration-200 group min-w-[240px]"
           >
-            <SearchIcon className="w-4 h-4 text-white/25 group-hover:text-white/40 transition-colors" />
-            <span className="text-[13px] text-white/25 group-hover:text-white/35 transition-colors">Search...</span>
-            <kbd className="ml-auto text-[10px] text-white/15 bg-white/[0.04] px-1.5 py-0.5 rounded border border-white/[0.06] font-mono">Ctrl K</kbd>
+            <SearchIcon className="w-4 h-4 text-gray-400 dark:text-gray-500 group-hover:text-gray-500 dark:group-hover:text-gray-400 transition-colors" />
+            <span className="text-[13px] text-gray-400 dark:text-gray-500 group-hover:text-gray-500 dark:group-hover:text-gray-400 transition-colors">Search...</span>
+            <kbd className="ml-auto text-[10px] text-gray-400 dark:text-gray-500 bg-gray-100 dark:bg-gray-800 px-1.5 py-0.5 rounded border border-gray-200 dark:border-gray-700 font-mono">Ctrl K</kbd>
           </button>
         </div>
 

@@ -18,12 +18,12 @@ export default function QuickActionsWidget() {
         <Link
           key={action.label}
           href={action.href}
-          className="flex flex-col items-center gap-2.5 p-4 rounded-xl border border-white/[0.04] bg-white/[0.02] hover:bg-white/[0.05] hover:border-white/[0.08] transition-all duration-300 group"
+          className="flex flex-col items-center gap-2.5 p-4 rounded-xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 hover:bg-gray-50 dark:hover:bg-gray-800 hover:border-gray-300 dark:hover:border-gray-700 transition-all duration-300 group"
         >
-          <span className="text-green-500/70 group-hover:text-green-400 transition-colors duration-300">
+          <span className="text-green-500/70 group-hover:text-green-500 transition-colors duration-300">
             {action.icon}
           </span>
-          <span className="text-[12px] font-medium text-white/60 group-hover:text-white/80 transition-colors duration-300 text-center">
+          <span className="text-[12px] font-medium text-gray-600 dark:text-gray-400 group-hover:text-gray-800 dark:group-hover:text-gray-300 transition-colors duration-300 text-center">
             {action.label}
           </span>
         </Link>

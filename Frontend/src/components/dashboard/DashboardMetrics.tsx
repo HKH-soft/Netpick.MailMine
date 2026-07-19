@@ -1,5 +1,6 @@
 "use client";
 import React, { useEffect, useState, useRef } from "react";
+import { useTranslation } from "react-i18next";
 import { GroupIcon, BoxIconLine, GridIcon, PlugInIcon } from "@/icons";
 import contactService, { ContactStats } from "@/services/contactService";
 import scrapeJobService, { ScrapeJobStats } from "@/services/scrapeJobService";
@@ -28,6 +29,7 @@ function AnimatedCounter({ value }: { value: number }) {
 }
 
 export const DashboardMetrics = () => {
+  const { t } = useTranslation('common');
   const [contactStats, setContactStats] = useState<ContactStats | null>(null);
   const [jobStats, setJobStats] = useState<ScrapeJobStats | null>(null);
   const [pipelineStats, setPipelineStats] = useState<PipelineStats | null>(null);
@@ -54,10 +56,10 @@ export const DashboardMetrics = () => {
   }, []);
 
   const metrics = [
-    { icon: GroupIcon, label: "Total Contacts", value: contactStats?.total || 0, color: "text-green-400" },
-    { icon: BoxIconLine, label: "Remaining Jobs", value: jobStats?.pending || 0, subtext: `Total: ${jobStats?.total || 0}`, color: "text-green-400" },
-    { icon: GridIcon, label: "Active Pipelines", value: pipelineStats?.active || 0, subtext: `Total: ${pipelineStats?.total || 0}`, color: "text-green-400" },
-    { icon: PlugInIcon, label: "Active Proxies", value: proxyStats?.active || 0, subtext: `Total: ${proxyStats?.total || 0}`, color: "text-green-400" },
+    { icon: GroupIcon, label: t('dashboard.totalContacts'), value: contactStats?.total || 0, color: "text-green-400" },
+    { icon: BoxIconLine, label: t('dashboard.remainingJobs'), value: jobStats?.pending || 0, subtext: `${t('dashboard.total')}: ${jobStats?.total || 0}`, color: "text-green-400" },
+    { icon: GridIcon, label: t('dashboard.activePipelines'), value: pipelineStats?.active || 0, subtext: `${t('dashboard.total')}: ${pipelineStats?.total || 0}`, color: "text-green-400" },
+    { icon: PlugInIcon, label: t('dashboard.activeProxies'), value: proxyStats?.active || 0, subtext: `${t('dashboard.total')}: ${proxyStats?.total || 0}`, color: "text-green-400" },
   ];
 
   return (
@@ -65,19 +67,19 @@ export const DashboardMetrics = () => {
       {metrics.map((metric, index) => (
         <div
           key={index}
-          className="p-4 rounded-xl border border-white/[0.05] bg-white/[0.02] hover:bg-white/[0.04] hover:border-white/[0.08] transition-all duration-300"
+          className="p-4 rounded-xl border border-gray-200/[0.1] bg-gray-50 dark:border-gray-800/[0.1] dark:bg-gray-900 hover:bg-gray-100 dark:hover:bg-gray-800 hover:border-gray-200/[0.2] dark:hover:border-gray-800/[0.2] transition-all duration-300"
           style={{ animationDelay: `${index * 80}ms`, animation: "fadeInUp 0.5s ease-out forwards", opacity: 0 }}
         >
-          <div className="flex items-center justify-center w-9 h-9 rounded-xl bg-green-500/[0.08] mb-3">
-            <metric.icon className={`size-4 ${metric.color}`} />
+          <div className="flex items-center justify-center w-9 h-9 p-1 rounded-xl bg-green-500/[0.08] mb-3">
+            <metric.icon className={`size-5 ${metric.color}`} />
           </div>
           <div>
-            <span className="text-[11px] text-white/30 block font-medium">{metric.label}</span>
-            <span className="font-bold text-white/90 text-lg block leading-tight mt-0.5">
+            <span className="text-[11px] text-gray-500 dark:text-gray-400 block font-medium">{metric.label}</span>
+            <span className="font-bold text-gray-900 dark:text-white text-lg block leading-tight mt-0.5">
               <AnimatedCounter value={metric.value} />
             </span>
             {metric.subtext && (
-              <span className="text-[11px] text-white/20 block mt-0.5">{metric.subtext}</span>
+              <span className="text-[11px] text-gray-400 dark:text-gray-500 block mt-0.5">{metric.subtext}</span>
             )}
           </div>
         </div>

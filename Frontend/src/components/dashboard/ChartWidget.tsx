@@ -37,8 +37,8 @@ export default function ChartWidget() {
             onClick={() => setRange(r)}
             className={`px-3 py-1 text-[11px] font-medium rounded-full transition-all duration-200 ${
               range === r
-                ? "bg-green-500/15 text-green-400 border border-green-500/20"
-                : "text-white/30 hover:text-white/50 hover:bg-white/[0.04] border border-transparent"
+                ? "bg-green-50 dark:bg-green-900/20 text-green-600 dark:text-green-400 border border-green-200 dark:border-green-500/20"
+                : "text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 border border-transparent"
             }`}
           >
             {r}

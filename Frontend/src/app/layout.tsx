@@ -13,6 +13,8 @@ import SidebarProviderWrapper from '@/components/common/SidebarProviderWrapper';
 import InactivityHandler from '@/components/auth/InactivityHandler';
 import LanguageDetector from '@/components/common/LanguageDetector';
 import PwaRegister from '@/components/common/PwaRegister';
+import ExtensionProviderWrapper from '@/components/common/ExtensionProviderWrapper';
+import I18nProviderWrapper from '@/components/common/I18nProviderWrapper';
 
 const outfit = Outfit({
   subsets: ["latin"],
@@ -44,7 +46,7 @@ export default async function RootLayout({
   const dir = lang === 'fa' ? 'rtl' : 'ltr';
 
   return (
-    <html lang={lang} className="dark" dir={dir}>
+    <html lang={lang} dir={dir}>
       <head>
         <link rel="icon" href="/images/Netpick-Platform/Netpick.svg" type="image/svg+xml" />
         <link rel="manifest" href="/manifest.json" />
@@ -53,8 +55,7 @@ export default async function RootLayout({
         <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
         <link rel="apple-touch-icon" href="/images/Netpick-Platform/Netpick.svg" />
       </head>
-      <body className={`${outfit.className} ${inter.variable} ${spaceGrotesk.variable} ${vazirmatn.className}`} style={{ backgroundColor: 'var(--color-bg-base)', color: 'var(--color-text-primary)' }}>
-        <LanguageDetector />
+<body className={`${outfit.className} ${inter.variable} ${spaceGrotesk.variable} ${vazirmatn.className}`} style={{ backgroundColor: 'var(--color-bg-base)', color: 'var(--color-text-primary)' }}>
         <PwaRegister />
         <script
           dangerouslySetInnerHTML={{
@@ -73,24 +74,29 @@ export default async function RootLayout({
             `,
           }}
         />
-        <QueryProvider>
-          <AuthProvider>
-            <ThemeProvider>
-              <ToastProvider>
-                <AuthProviderWrapper>
-                  <InactivityHandler />
-                  <ThemeProviderWrapper>
-                    <SidebarProvider>
-                      <SidebarProviderWrapper>
-                        {children}
-                      </SidebarProviderWrapper>
-                    </SidebarProvider>
-                  </ThemeProviderWrapper>
-                </AuthProviderWrapper>
-              </ToastProvider>
-            </ThemeProvider>
-          </AuthProvider>
-        </QueryProvider>
+        <I18nProviderWrapper>
+          <LanguageDetector />
+          <QueryProvider>
+            <AuthProvider>
+              <ThemeProvider>
+                <ToastProvider>
+                  <AuthProviderWrapper>
+                    <InactivityHandler />
+                    <ThemeProviderWrapper>
+                      <SidebarProvider>
+                        <ExtensionProviderWrapper>
+                          <SidebarProviderWrapper>
+                            {children}
+                          </SidebarProviderWrapper>
+                        </ExtensionProviderWrapper>
+                      </SidebarProvider>
+                    </ThemeProviderWrapper>
+                  </AuthProviderWrapper>
+                </ToastProvider>
+              </ThemeProvider>
+            </AuthProvider>
+          </QueryProvider>
+        </I18nProviderWrapper>
       </body>
     </html>
   );

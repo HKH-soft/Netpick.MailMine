@@ -10,7 +10,7 @@ import ir.netpick.platform.gatekeeper.model.User;
 import ir.netpick.platform.gatekeeper.repository.UserRepository;
 import ir.netpick.platform.core.enums.RoleEnum;
 import ir.netpick.platform.core.exception.RequestValidationException;
-import jakarta.servlet.http.HttpServletRequest;
+import org.springframework.web.context.request.ServletRequestAttributes;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -115,12 +115,12 @@ public class AuthenticationService {
                 throw new RateLimitExceededException("Login blocked due to suspicious activity. Please try again later.");
             }
 
-            // 5. MFA check
+// 5. MFA check
             if (mfaService.isMfaEnabled(user.getId())) {
                 if (totpCode == null || totpCode.isBlank()) {
                     securityEventService.logEventSync(
                             ir.netpick.platform.gatekeeper.model.SecurityEvent.EventType.LOGIN_SUCCESS,
-                            user.getId(), user.getEmail(), ipAddress, deviceInfo, deviceFingerprint,
+                            user.getId(), user.getEmail(), ipAddress, deviceInfo, null,
                             Map.of("mfaRequired", true), 0, false);
                     throw new MfaRequiredException("MFA verification required. Please provide totpCode.", user.getEmail());
                 }
@@ -131,7 +131,7 @@ public class AuthenticationService {
                     if (!backupUsed) {
                         securityEventService.logEventSync(
                                 ir.netpick.platform.gatekeeper.model.SecurityEvent.EventType.MFA_CODE_FAILED,
-                                user.getId(), user.getEmail(), ipAddress, deviceInfo, deviceFingerprint,
+                                user.getId(), user.getEmail(), ipAddress, deviceInfo, null,
                                 Map.of(), 20, false);
                         throw new RateLimitExceededException("Invalid MFA code. Please try again.");
                     }
@@ -139,7 +139,7 @@ public class AuthenticationService {
 
                 securityEventService.logEventSync(
                         ir.netpick.platform.gatekeeper.model.SecurityEvent.EventType.MFA_CODE_VERIFIED,
-                        user.getId(), user.getEmail(), ipAddress, deviceInfo, deviceFingerprint,
+                        user.getId(), user.getEmail(), ipAddress, deviceInfo, null,
                         Map.of(), 0, false);
             }
 
@@ -159,7 +159,7 @@ public class AuthenticationService {
             // 9. Log success
             securityEventService.logEventSync(
                     ir.netpick.platform.gatekeeper.model.SecurityEvent.EventType.LOGIN_SUCCESS,
-                    user.getId(), user.getEmail(), ipAddress, deviceInfo, deviceFingerprint,
+                    user.getId(), user.getEmail(), ipAddress, deviceInfo, null,
                     Map.of("riskScore", anomaly.riskScore()), 0, false);
 
             log.info("User successfully signed in: {}", request.email());
@@ -186,8 +186,7 @@ public class AuthenticationService {
 
     private jakarta.servlet.http.HttpServletRequest getCurrentRequest() {
         try {
-            return ((jakarta.servlet.http.HttpServletRequest)
-                    org.springframework.web.context.request.RequestContextHolder.getRequestAttributes().getRequest());
+            return ((ServletRequestAttributes) org.springframework.web.context.request.RequestContextHolder.getRequestAttributes()).getRequest();
         } catch (Exception e) {
             return null;
         }

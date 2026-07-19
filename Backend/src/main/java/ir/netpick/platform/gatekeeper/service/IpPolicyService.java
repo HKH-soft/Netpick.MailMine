@@ -5,7 +5,6 @@ import ir.netpick.platform.gatekeeper.dto.IpPolicyDTO;
 import ir.netpick.platform.gatekeeper.model.IpPolicy;
 import ir.netpick.platform.gatekeeper.model.User;
 import ir.netpick.platform.gatekeeper.repository.IpPolicyRepository;
-import ir.netpick.platform.core.exception.DuplicateResourceException;
 import ir.netpick.platform.core.exception.RequestValidationException;
 import ir.netpick.platform.core.exception.ResourceNotFoundException;
 import lombok.RequiredArgsConstructor;

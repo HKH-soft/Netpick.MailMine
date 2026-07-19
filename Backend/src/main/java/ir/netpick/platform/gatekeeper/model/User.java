@@ -67,6 +67,9 @@ public class User extends BaseEntity implements UserDetails {
     @Column(name = "is_verified", nullable = false)
     private Boolean isVerified = false;
 
+    @Column(name = "mfa_enabled", nullable = false)
+    private Boolean mfaEnabled = false;
+
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         SimpleGrantedAuthority authority = new SimpleGrantedAuthority("ROLE_" + role.getName());

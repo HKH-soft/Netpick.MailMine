@@ -83,9 +83,7 @@ public class TransactionService {
         try (BufferedReader reader = new BufferedReader(new InputStreamReader(file.getInputStream()))) {
             String line;
             boolean isFirst = true;
-            int lineNumber = 0;
             while ((line = reader.readLine()) != null) {
-                lineNumber++;
                 if (isFirst) {
                     isFirst = false;
                     continue; // Skip header

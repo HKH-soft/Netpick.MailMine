@@ -148,10 +148,8 @@ export {
   SupportIcon,
   SignoutIcon,
   MenuToggleIcon,
-  // 删除了重复的 CloseIcon 导出
   DotsHorizontalIcon,
   SearchIcon,
-  // 删除了重复的 BellIcon 导出
   GripVerticalIcon,
   MaximizeIcon,
 };

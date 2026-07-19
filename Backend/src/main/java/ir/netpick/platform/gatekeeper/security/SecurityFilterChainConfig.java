@@ -13,6 +13,7 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.security.web.header.writers.PermissionsPolicyHeaderWriter;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
 @Configuration
@@ -75,17 +76,17 @@ public class SecurityFilterChainConfig {
                 // Enhanced security headers
                 http.headers(headers -> {
                         headers.contentSecurityPolicy(csp -> csp.policyDirectives(
-                                        "default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self'; connect-src 'self'; frame-ancestors 'none';"));
+                                "default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self'; connect-src 'self'; frame-ancestors 'none';"));
                         headers.frameOptions(frame -> frame.deny());
                         headers.httpStrictTransportSecurity(hsts -> hsts
-                                        .includeSubDomains(true)
-                                        .maxAgeInSeconds(31536000)
-                                        .preload(true));
+                                .includeSubDomains(true)
+                                .maxAgeInSeconds(31536000)
+                                .preload(true));
                         headers.contentTypeOptions(contentType -> {});
                         headers.referrerPolicy(referrer -> referrer.policy(
-                                        org.springframework.security.web.header.writers.ReferrerPolicyHeaderWriter.ReferrerPolicy.STRICT_ORIGIN_WHEN_CROSS_ORIGIN));
-                        headers.permissionsPolicy(permissions -> permissions
-                                        .policy("accelerometer=(), camera=(), geolocation=(), gyroscope=(), magnetometer=(), microphone=(), payment=(), usb=()"));
+                                org.springframework.security.web.header.writers.ReferrerPolicyHeaderWriter.ReferrerPolicy.STRICT_ORIGIN_WHEN_CROSS_ORIGIN));
+                        headers.addHeaderWriter(new PermissionsPolicyHeaderWriter(
+                                "accelerometer=(), camera=(), geolocation=(), gyroscope=(), magnetometer=(), microphone=(), payment=(), usb=()"));
                 });
                 return http.build();
         }

@@ -3,7 +3,6 @@ package ir.netpick.platform.gatekeeper.dto;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import java.time.LocalDateTime;
-import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
