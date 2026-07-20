@@ -50,13 +50,14 @@
   "devDependencies": {
     "@eslint/eslintrc": "^3",
     "@svgr/webpack": "^8.1.0",
-    "@testing-library/jest-dom": "^0.12",
-    "@testing-library/react": "^15.0.0",
-    "@testing-library/user-event": "^14.5.0",
+    "@testing-library/jest-dom": "^6.9.1",
+    "@testing-library/react": "^16.3.2",
+    "@testing-library/user-event": "^14.6.1",
     "@types/node": "^20",
     "@types/react": "^19",
     "@types/react-dom": "^19",
     "@types/react-transition-group": "^4.4.12",
+    "@vitest/coverage-v8": "^4.1.10",
     "cross-env": "^10.1.0",
     "eslint": "^9",
     "eslint-config-next": "^15.5.20",
@@ -64,8 +65,7 @@
     "postcss": "^8.5.10",
     "tailwindcss": "^4.0.0",
     "typescript": "^5",
-    "vitest": "^1.6.0",
-    "@vitest/coverage-v8": "^1.6.0"
+    "vitest": "^4.1.10"
   },
   "overrides": {
     "@react-jvectormap/core": {

@@ -3,6 +3,7 @@ FROM node:22.16-alpine AS deps
 WORKDIR /app
 
 COPY package*.json ./
+COPY .npmrc ./
 RUN npm ci
 
 # ===== 2. Build Stage =====
