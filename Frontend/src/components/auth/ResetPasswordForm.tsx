@@ -99,7 +99,7 @@ export default function ResetPasswordForm() {
             <div className="flex flex-col justify-center flex-1 w-full max-w-md mx-auto">
                 <div>
                     <div className="mb-5 sm:mb-8">
-                        <h1 className="mb-2 font-semibold text-gray-800 text-title-sm dark:text-white/90 sm:text-title-md">
+                        <h1 className="mb-2 font-semibold text-gray-800 text-title-sm dark:text-white/90 sm:text-title-md" data-testid="reset-password-title">
                             {step === "email" && t('auth.resetPassword.forgotPasswordTitle')}
                             {step === "code" && t('auth.resetPassword.enterCodeTitle')}
                             {step === "newPassword" && t('auth.resetPassword.newPasswordTitle')}
@@ -151,6 +151,7 @@ export default function ResetPasswordForm() {
                                         type="submit"
                                         className="w-full"
                                         disabled={isSubmitting || !isValid || !dirty}
+                                        data-testid="reset-password-submit"
                                     >
                                         {isSubmitting ? t('auth.resetPassword.sendingCode') : t('auth.resetPassword.sendCode')}
                                     </Button>
@@ -189,6 +190,7 @@ export default function ResetPasswordForm() {
                                         type="submit"
                                         className="w-full"
                                         disabled={isSubmitting || !isValid || !dirty}
+                                        data-testid="reset-password-submit"
                                     >
                                         {isSubmitting ? t('auth.resetPassword.verifying') : t('auth.resetPassword.verifyCode')}
                                     </Button>
@@ -198,6 +200,7 @@ export default function ResetPasswordForm() {
                                             onClick={handleResendCode}
                                             disabled={isSubmitting}
                                             className="text-sm text-brand-500 hover:text-brand-600 dark:text-brand-400"
+                                            data-testid="resend-code"
                                         >
                                             {t('auth.resetPassword.resendCode')}
                                         </button>
@@ -207,6 +210,7 @@ export default function ResetPasswordForm() {
                                             type="button"
                                             onClick={() => { setError(""); setStep("email"); }}
                                             className="text-sm text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300"
+                                            data-testid="back-to-email"
                                         >
                                             {t('auth.resetPassword.back', { defaultValue: 'Back' })}
                                         </button>
@@ -261,6 +265,7 @@ export default function ResetPasswordForm() {
                                         type="submit"
                                         className="w-full"
                                         disabled={isSubmitting || !isValid || !dirty}
+                                        data-testid="reset-password-submit"
                                     >
                                         {isSubmitting ? t('auth.resetPassword.resetting') : t('auth.resetPassword.resetPasswordBtn')}
                                     </Button>
@@ -269,6 +274,7 @@ export default function ResetPasswordForm() {
                                             type="button"
                                             onClick={() => { setError(""); setStep("code"); }}
                                             className="text-sm text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300"
+                                            data-testid="back-to-code"
                                         >
                                             {t('auth.resetPassword.back', { defaultValue: 'Back' })}
                                         </button>

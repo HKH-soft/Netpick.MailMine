@@ -15,8 +15,9 @@ interface InputProps {
   disabled?: boolean;
   success?: boolean;
   error?: boolean;
-  hint?: string; // Optional hint text
+  hint?: string;
   required?: boolean;
+  "data-testid"?: string;
 }
 
 const Input: FC<InputProps> = ({
@@ -36,6 +37,7 @@ const Input: FC<InputProps> = ({
   error = false,
   hint,
   required = false,
+  "data-testid": dataTestId,
 }) => {
   // Determine input styles based on state (disabled, success, error)
   let inputClasses = `h-11 w-full rounded-lg border appearance-none px-4 py-2.5 text-sm shadow-theme-xs placeholder:text-gray-400 focus:outline-hidden focus:ring-3 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30 dark:focus:border-brand-800 ${className}`;
@@ -66,6 +68,7 @@ const Input: FC<InputProps> = ({
         step={step}
         disabled={disabled}
         required={required}
+        data-testid={dataTestId}
         className={inputClasses}
       />
 

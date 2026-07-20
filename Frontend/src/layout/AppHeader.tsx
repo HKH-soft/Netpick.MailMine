@@ -41,6 +41,7 @@ const AppHeader: React.FC = () => {
           <button
             onClick={openCommandPalette}
             className="hidden md:flex items-center gap-3 h-9 px-3.5 rounded-xl border border-gray-200 dark:border-gray-800 bg-gray-50 dark:bg-gray-900 hover:bg-gray-100 dark:hover:bg-gray-800 hover:border-gray-300 dark:hover:border-gray-700 transition-all duration-200 group min-w-[240px]"
+            data-testid="search-button"
           >
             <SearchIcon className="w-4 h-4 text-gray-400 dark:text-gray-500 group-hover:text-gray-500 dark:group-hover:text-gray-400 transition-colors" />
             <span className="text-[13px] text-gray-400 dark:text-gray-500 group-hover:text-gray-500 dark:group-hover:text-gray-400 transition-colors">Search...</span>
@@ -49,7 +50,7 @@ const AppHeader: React.FC = () => {
         </div>
 
         {/* Right: actions */}
-        <div className="flex items-center gap-1.5">
+        <div className="flex items-center gap-1.5" data-testid="header-actions">
           <ThemeToggleButton />
           <LanguageSwitcher />
           <NotificationDropdown />

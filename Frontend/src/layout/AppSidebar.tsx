@@ -242,6 +242,7 @@ const AppSidebar: React.FC = () => {
       )}
 
       <aside
+        data-testid="app-sidebar"
         className={`fixed top-0 h-screen z-50 transition-all duration-300 ease-out app-sidebar
           ${isMobileOpen
             ? "translate-x-0 w-[290px]"
@@ -289,6 +290,8 @@ const AppSidebar: React.FC = () => {
           <button
             onClick={() => setIsHovered(!isExpanded)}
             className="hidden lg:flex items-center justify-center w-8 h-8 rounded-lg bg-gray-900 dark:bg-gray-800 hover:bg-gray-800 dark:hover:bg-gray-700 text-gray-400 dark:text-gray-500 hover:text-gray-300 dark:hover:text-gray-400 transition-all duration-200"
+            data-testid="sidebar-collapse"
+            aria-label="Toggle sidebar"
           >
             <svg className={`w-4 h-4 transition-transform duration-300 ${isExpanded ? "rotate-0" : "rotate-180"}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M11 19l-7-7 7-7m8 14l-7-7 7-7" />

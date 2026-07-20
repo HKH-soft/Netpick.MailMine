@@ -105,6 +105,9 @@ export default function SignInForm() {
                         <span
                           onClick={() => setShowPassword(!showPassword)}
                           className="absolute z-30 -translate-y-1/2 cursor-pointer right-4 top-1/2"
+                          data-testid="password-toggle"
+                          role="button"
+                          aria-label={showPassword ? "Hide password" : "Show password"}
                         >
                           {showPassword ? (
                             <EyeIcon className="fill-gray-500 dark:fill-gray-400" />
@@ -122,10 +125,11 @@ export default function SignInForm() {
                           {t('auth.signIn.rememberMe')}
                         </span>
                       </div>
-                      <Link
-                        href="/reset-password"
-                        className="text-sm text-brand-500 hover:text-brand-600 dark:text-brand-400"
-                      >
+                <Link
+                  href="/reset-password"
+                  className="text-sm text-brand-500 hover:text-brand-600 dark:text-brand-400"
+                  data-testid="forgot-password-link"
+                >
                         {t('auth.signIn.forgotPassword')}
                       </Link>
                     </div>
@@ -136,6 +140,7 @@ export default function SignInForm() {
                         size="sm"
                         disabled={isSubmitting || !isValid || !dirty}
                         loading={isSubmitting}
+                        data-testid="signin-submit"
                       >
                         {isSubmitting ? t('auth.signIn.submitting') : t('auth.signIn.submit')}
                       </Button>
@@ -151,6 +156,7 @@ export default function SignInForm() {
                 <Link
                   href="/signup"
                   className="text-brand-500 hover:text-brand-600 dark:text-brand-400"
+                  data-testid="signup-link"
                 >
                   {t('auth.signIn.signUp')}
                 </Link>

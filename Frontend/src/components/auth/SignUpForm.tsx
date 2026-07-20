@@ -128,6 +128,9 @@ export default function SignUpForm() {
                         <span
                           onClick={() => setShowPassword(!showPassword)}
                           className="absolute z-30 -translate-y-1/2 cursor-pointer right-4 top-1/2"
+                          data-testid="password-toggle"
+                          role="button"
+                          aria-label={showPassword ? "Hide password" : "Show password"}
                         >
                           {showPassword ? (
                             <EyeIcon className="fill-gray-500 dark:fill-gray-400" />
@@ -192,6 +195,7 @@ export default function SignUpForm() {
                         className="flex items-center justify-center w-full"
                         disabled={isSubmitting || !isValid || !dirty}
                         loading={isSubmitting}
+                        data-testid="signup-submit"
                       >
                         {isSubmitting ? t('auth.signUp.submitting') : t('auth.signUp.submit')}
                       </Button>
@@ -207,6 +211,7 @@ export default function SignUpForm() {
                 <Link
                   href="/signin"
                   className="text-brand-500 hover:text-brand-600 dark:text-brand-400"
+                  data-testid="signin-link"
                 >
                   {t('auth.signUp.signIn')}
                 </Link>

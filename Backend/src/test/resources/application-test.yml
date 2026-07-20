@@ -1,45 +1,62 @@
-# Test profile configuration
+ACTUATOR_USERNAME: testadmin
+ACTUATOR_PASSWORD: testpassword
+JWT_SECRET_KEY: test-secret-key-for-testing-purposes-only-256-bits-long
+JWT_ISSUER: test-issuer
+MFA_ISSUER: test
+DB_DRIVER: org.h2.Driver
+DB_URL: jdbc:h2:mem:testdb;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE
+POSTGRES_URL: localhost:5432/test
+DATABASE_NAME: test
+POSTGRES_USERNAME: sa
+POSTGRES_PASSWORD: ""
+CORS_ALLOWED_ORIGINS: http://localhost:3000
+CORS_ALLOWED_METHODS: GET,POST,PUT,DELETE
+CORS_ALLOWED_HEADERS: "*"
+CORS_EXPOSED_HEADERS: "*"
+
 spring:
   datasource:
+    url: jdbc:h2:mem:testdb;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE
     driver-class-name: org.h2.Driver
-    url: jdbc:h2:mem:testdb;MODE=PostgreSQL;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE;NON_KEYWORDS=KEY,VALUE;INIT=RUNSCRIPT FROM 'classpath:init.sql'
     username: sa
-    password: password
+    password:
   jpa:
-    database-platform: org.hibernate.dialect.H2Dialect
     hibernate:
       ddl-auto: create-drop
     properties:
       hibernate:
         format_sql: true
-        globally_quoted_identifiers: true
+        dialect: org.hibernate.dialect.H2Dialect
   flyway:
     enabled: false
+  cache:
+    type: simple
+  data:
+    redis:
+      repositories:
+        enabled: false
   mail:
     host: localhost
     port: 25
-    username: test
-    password: test
-  # Disable Redis for tests (use in-memory caching instead)
-  cache:
-    type: none
-  data:
-    redis:
-      host: localhost
-      port: 6379
+    username:
+    password:
+  docker:
+    compose:
+      enabled: false
+  security:
+    user:
+      name: testuser
+      password: testpassword
+
+rate-limiting:
+  use-redis: false
 
 security:
   jwt:
-    secret-key: test-secret-key-that-is-at-least-256-bits-long-for-hmac-sha256-algorithm
     access-expiration-minutes: 15
     refresh-expiration-days: 7
     issuer: test-issuer
 
-cors:
-  allowed-origins: "*"
-  allowed-methods: "*"
-  allowed-headers: "*"
-  exposed-headers: "*"
-
-rate-limiting:
-  use-redis: false
+logging:
+  level:
+    root: WARN
