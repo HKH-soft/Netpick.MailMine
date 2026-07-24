@@ -15,7 +15,7 @@ import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
 
-@Service
+@Service("mailMineAttachmentService")
 @RequiredArgsConstructor
 @Slf4j
 public class AttachmentService {

@@ -26,7 +26,7 @@ public interface InvoiceRepository extends JpaRepository<Invoice, UUID> {
     Page<Invoice> findByStatusAndDeletedFalse(InvoiceStatus status, Pageable pageable);
 
     // Find invoices by creator with pagination
-    Page<Invoice> findByCreatedByIdAndDeletedFalse(UUID createdBy, Pageable pageable);
+    Page<Invoice> findByCreatedByAndDeletedFalse(UUID createdBy, Pageable pageable);
 
     // Count invoices by status
     @Query("select count(i) from Invoice i where i.deleted = false and i.status = ?1")

@@ -113,6 +113,10 @@
 			<scope>runtime</scope>
 		</dependency>
 		<dependency>
+			<groupId>org.hibernate.orm</groupId>
+			<artifactId>hibernate-community-dialects</artifactId>
+		</dependency>
+		<dependency>
 			<groupId>io.github.fanyong920</groupId>
 			<artifactId>jvppeteer</artifactId>
 			<version>3.4.1</version>

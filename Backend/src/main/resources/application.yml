@@ -7,8 +7,8 @@ spring:
     name: netpick
   security:
     user:
-      name: ${ACTUATOR_USERNAME}
-      password: ${ACTUATOR_PASSWORD}
+      name: ${ACTUATOR_USERNAME:admin}
+      password: ${ACTUATOR_PASSWORD:devpassword}
   output:
     ansi:
       enabled: always
@@ -32,8 +32,8 @@ spring:
   mail:
     host: smtp.gmail.com
     port: 587
-    username: ${GMAIL_USERNAME}
-    password: ${GMAIL_PASSWORD}
+    username: ${GMAIL_USERNAME:dev@gmail.com}
+    password: ${GMAIL_PASSWORD:dev-password}
     properties:
       mail:
         smtp:
@@ -48,8 +48,8 @@ spring:
   datasource:
     driver-class-name: ${DB_DRIVER:org.postgresql.Driver}
     url: ${DB_URL:jdbc:postgresql://${POSTGRES_URL}/${DATABASE_NAME}}
-    username: ${POSTGRES_USERNAME}
-    password: ${POSTGRES_PASSWORD}
+    username: ${POSTGRES_USERNAME:dev}
+    password: ${POSTGRES_PASSWORD:dev}
     hikari:
       pool-name: NetpickPool
       maximum-pool-size: 10
@@ -77,10 +77,10 @@ rate-limiting:
   use-redis: true
 
 cors:
-  allowed-origins: ${CORS_ALLOWED_ORIGINS}
-  allowed-methods: ${CORS_ALLOWED_METHODS}
-  allowed-headers: ${CORS_ALLOWED_HEADERS}
-  exposed-headers: ${CORS_EXPOSED_HEADERS}
+  allowed-origins: ${CORS_ALLOWED_ORIGINS:http://localhost:3000}
+  allowed-methods: ${CORS_ALLOWED_METHODS:GET,POST,PUT,DELETE,OPTIONS}
+  allowed-headers: ${CORS_ALLOWED_HEADERS:*}
+  exposed-headers: ${CORS_EXPOSED_HEADERS:*}
 
 management:
   endpoints:
@@ -105,10 +105,10 @@ management:
 
 security:
   jwt:
-    secret-key: ${JWT_SECRET_KEY}
+    secret-key: ${JWT_SECRET_KEY:dev-only-secret-key-do-not-use-in-production-32chars!!}
     access-expiration-minutes: 15
     refresh-expiration-days: 7
-    issuer: ${JWT_ISSUER}
+    issuer: ${JWT_ISSUER:netpick-dev}
   mfa:
     issuer: ${MFA_ISSUER:Netpick}
     backup-codes-count: 10
@@ -180,12 +180,12 @@ scraper:
   disable-sandbox: false
 
 gemini:
-  api-key: ${GOOGLE_API_KEY}
+  api-key: ${GOOGLE_API_KEY:}
   model: gemini-2.0-flash
   timeout-seconds: 30
   max-prompt-length: 10000
 
 v2ray:
-  executable: ${XRAY_EXECUTABLE_PATH}
+  executable: ${XRAY_EXECUTABLE_PATH:}
   config-dir: ${java.io.tmpdir}/netpick/v2ray-configs
   base-port: 30000

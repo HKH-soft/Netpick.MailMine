@@ -17,7 +17,7 @@ import java.io.IOException;
 import java.nio.file.Path;
 import java.util.UUID;
 
-@RestController
+@RestController("taskFarmAttachmentController")
 @RequestMapping("/api/v1/taskfarm/attachments")
 @RequiredArgsConstructor
 @PreAuthorize("hasAnyRole('ADMIN', 'SUPER_ADMIN')")

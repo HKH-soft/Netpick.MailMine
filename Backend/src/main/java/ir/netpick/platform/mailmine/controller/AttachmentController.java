@@ -12,7 +12,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
-@RestController
+@RestController("mailMineAttachmentController")
 @RequestMapping("/api/v1/mailmine/attachments")
 @RequiredArgsConstructor
 @PreAuthorize("hasRole('ADMIN') or hasRole('SUPER_ADMIN')")

@@ -14,5 +14,5 @@ public interface CustomsDeclarationRepository extends JpaRepository<CustomsDecla
     Optional<CustomsDeclaration> findByDeclarationNumber(String declarationNumber);
     Page<CustomsDeclaration> findByDeletedFalse(Pageable pageable);
     Page<CustomsDeclaration> findByStatusAndDeletedFalse(String status, Pageable pageable);
-    Page<CustomsDeclaration> findByCreatedByIdAndDeletedFalse(UUID createdBy, Pageable pageable);
+    Page<CustomsDeclaration> findByCreatedByAndDeletedFalse(UUID createdBy, Pageable pageable);
 }

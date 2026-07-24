@@ -46,7 +46,7 @@ public class TransactionService {
     public PageDTO<Transaction> getByCreatedBy(UUID createdBy, int pageNumber) {
         Pageable pageable = PageRequest.of(pageNumber - 1, GeneralConstants.PAGE_SIZE,
                 Sort.by("date").descending());
-        Page<Transaction> page = transactionRepository.findByCreatedByIdAndDeletedFalse(createdBy, pageable);
+        Page<Transaction> page = transactionRepository.findByCreatedByAndDeletedFalse(createdBy, pageable);
         return PageDTOMapper.map(page);
     }
 

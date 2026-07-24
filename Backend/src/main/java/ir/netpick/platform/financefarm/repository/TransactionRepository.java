@@ -29,7 +29,7 @@ public interface TransactionRepository extends JpaRepository<Transaction, UUID> 
     List<Transaction> findByDateBetweenAndDeletedFalse(LocalDateTime startDate, LocalDateTime endDate);
 
     // Find transactions by creator with pagination
-    Page<Transaction> findByCreatedByIdAndDeletedFalse(UUID createdBy, Pageable pageable);
+    Page<Transaction> findByCreatedByAndDeletedFalse(UUID createdBy, Pageable pageable);
 
     // Sum amount by type
     @Query("select sum(t.amount) from Transaction t where t.deleted = false and t.type = ?1")

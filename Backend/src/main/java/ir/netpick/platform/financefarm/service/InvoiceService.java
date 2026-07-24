@@ -45,7 +45,7 @@ public class InvoiceService {
     public PageDTO<Invoice> getByCreatedBy(UUID createdBy, int pageNumber) {
         Pageable pageable = PageRequest.of(pageNumber - 1, GeneralConstants.PAGE_SIZE,
                 Sort.by("createdAt").descending());
-        Page<Invoice> page = invoiceRepository.findByCreatedByIdAndDeletedFalse(createdBy, pageable);
+        Page<Invoice> page = invoiceRepository.findByCreatedByAndDeletedFalse(createdBy, pageable);
         return PageDTOMapper.map(page);
     }
 

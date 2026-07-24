@@ -26,6 +26,13 @@ exit /b 1
 :run
 set "BACKEND_DIR=%~dp0Backend"
 
+REM Verify Backend directory exists
+if not exist "%BACKEND_DIR%" (
+    echo ERROR: Backend directory not found at "%BACKEND_DIR%"
+    endlocal
+    exit /b 1
+)
+
 echo === Starting MailMine Backend [profile: %PROFILE%] ===
 
 REM Shift profile out, forward remaining args
@@ -39,4 +46,13 @@ goto :collect_args
 
 :start
 cd /d "%BACKEND_DIR%"
+if errorlevel 1 (
+    echo ERROR: Failed to change directory to "%BACKEND_DIR%"
+    endlocal
+    exit /b 1
+)
+
 call mvnw.cmd spring-boot:run -Dspring-boot.run.profiles=%PROFILE% !EXTRA_ARGS!
+set "MVN_EXIT=%ERRORLEVEL%"
+endlocal
+exit /b %MVN_EXIT%
