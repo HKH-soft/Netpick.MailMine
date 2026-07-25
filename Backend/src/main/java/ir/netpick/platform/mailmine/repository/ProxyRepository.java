@@ -37,12 +37,12 @@ public interface ProxyRepository extends JpaRepository<Proxy, UUID> {
 
     @Modifying
     @Transactional
-    @Query("UPDATE Proxy p SET p.deleted = true WHERE p.id = :id")
+    @Query("UPDATE Proxy p SET p.deleted = true WHERE p.deleted = false AND p.id = :id")
     void softDelete(UUID id);
 
     @Modifying
     @Transactional
-    @Query("UPDATE Proxy p SET p.deleted = false WHERE p.id = :id")
+    @Query("UPDATE Proxy p SET p.deleted = false WHERE p.deleted = true AND p.id = :id")
     void restore(UUID id);
 
     long countByStatusAndDeletedFalse(ProxyStatus status);

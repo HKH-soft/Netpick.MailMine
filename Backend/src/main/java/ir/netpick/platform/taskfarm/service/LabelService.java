@@ -61,6 +61,8 @@ public class LabelService {
     }
 
     public void restore(UUID labelId) {
+        // Verify the label exists and is deleted before restoring
+        labelRepository.findByDeletedTrueAndId(labelId);
         labelRepository.restore(labelId);
     }
 

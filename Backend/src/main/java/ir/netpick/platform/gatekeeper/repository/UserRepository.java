@@ -25,6 +25,8 @@ public interface UserRepository extends JpaRepository<User, UUID> {
 
     Optional<UUID> findIdByEmail(String email);
 
+    Optional<UUID> findIdByDeletedFalseAndEmail(String email);
+
     // ==================== Exists Operations ====================
 
     boolean existsUserByEmail(String email);
@@ -58,6 +60,12 @@ public interface UserRepository extends JpaRepository<User, UUID> {
 
     @Transactional
     void deleteByEmail(String email);
+
+    // ==================== Delete-aware Find Operations ====================
+
+    Optional<User> findByIdAndDeletedTrue(UUID id);
+
+    Optional<User> findByDeletedTrueAndEmail(String email);
 }
 
 

@@ -25,4 +25,7 @@ public interface InvoiceLineItemRepository extends JpaRepository<InvoiceLineItem
     @Modifying
     @Query("update InvoiceLineItem i set i.deleted = false where i.id = ?1 and i.deleted = true")
     void restore(UUID id);
+
+    // Find soft-deleted by ID (bypasses @SQLRestriction)
+    InvoiceLineItem findByDeletedTrueAndId(UUID id);
 }

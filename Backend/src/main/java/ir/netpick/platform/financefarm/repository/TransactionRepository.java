@@ -46,4 +46,7 @@ public interface TransactionRepository extends JpaRepository<Transaction, UUID> 
     @Modifying
     @Query("update Transaction t set t.deleted = false where t.id = ?1 and t.deleted = true")
     void restore(UUID id);
+
+    // Find soft-deleted by ID (bypasses @SQLRestriction)
+    Transaction findByDeletedTrueAndId(UUID id);
 }

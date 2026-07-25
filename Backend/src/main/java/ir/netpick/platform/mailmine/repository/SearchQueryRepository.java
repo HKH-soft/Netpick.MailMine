@@ -23,6 +23,9 @@ public interface SearchQueryRepository extends JpaRepository<SearchQuery, UUID> 
     // Find all deleted search queries with pagination
     Page<SearchQuery> findByDeletedTrue(Pageable pageable);
 
+    // Find deleted search query by ID (bypasses @SQLRestriction)
+    SearchQuery findByDeletedTrueAndId(UUID id);
+
     @Transactional
     @Modifying
     @Query("update SearchQuery s set s.deleted = True where s.deleted = false and s.id = ?1")
@@ -35,11 +38,3 @@ public interface SearchQueryRepository extends JpaRepository<SearchQuery, UUID> 
 
     List<SearchQuery> findByLinkCountLessThan(@NonNull Integer link_count);
 }
-
-
-
-
-
-
-
-

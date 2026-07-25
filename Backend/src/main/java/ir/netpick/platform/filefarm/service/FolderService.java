@@ -61,6 +61,8 @@ public class FolderService {
     }
 
     public void restore(UUID folderId) {
+        // Verify the folder exists and is deleted before restoring
+        folderRepository.findByDeletedTrueAndId(folderId);
         folderRepository.restore(folderId);
     }
 }

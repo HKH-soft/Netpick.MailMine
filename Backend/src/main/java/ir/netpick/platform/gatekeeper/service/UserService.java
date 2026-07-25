@@ -248,7 +248,7 @@ public class UserService {
      */
     private UUID emailToUserId(String email) {
         log.debug("Converting email to user ID for email: {}", email);
-        return userRepository.findIdByEmail(email)
+        return userRepository.findIdByDeletedFalseAndEmail(email)
                 .orElseThrow(() -> new ResourceNotFoundException("User not found for email: " + email));
     }
 
@@ -274,7 +274,7 @@ public class UserService {
                             "Email, name and password are required to create an account.");
         }
 
-        if (userRepository.existsUserByEmail(email)) {
+        if (userRepository.existsUserByDeletedFalseAndEmail(email)) {
             log.info("Registration attempt with existing email: {}", email);
             throw new DuplicateResourceException(
                     "An account with this email address already exists. " +
@@ -616,7 +616,7 @@ public class UserService {
     @Transactional
     public void restoreUser(UUID userId) {
         log.info("Restoring user with ID: {}", userId);
-        User user = userRepository.findById(userId)
+        User user = userRepository.findByIdAndDeletedTrue(userId)
                 .orElseThrow(() -> {
                     log.warn("User not found for restoration with ID: {}", userId);
                     return new ResourceNotFoundException(

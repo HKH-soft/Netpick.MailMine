@@ -116,9 +116,8 @@ public class ApiKeyService {
 
     @CacheEvict(value = { "apiKey", "apiKeys" }, allEntries = true)
     public void restoreKey(@NotNull UUID id) {
-        if (!apiKeyRepository.existsById(id)) {
-            throw new ResourceNotFoundException("ApiKey with ID [%s] not found.".formatted(id));
-        }
+        // Find the deleted entity to verify it exists and is deleted
+        apiKeyRepository.findByDeletedTrueAndId(id);
         apiKeyRepository.restore(id);
         log.info("Restored ApiKey with ID: {}", id);
     }

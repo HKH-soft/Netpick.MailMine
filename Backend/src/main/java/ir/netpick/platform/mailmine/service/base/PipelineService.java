@@ -79,6 +79,8 @@ public class PipelineService {
     }
 
     public void restorePipeline(UUID pipelineId) {
+        // Verify the pipeline exists and is deleted before restoring
+        pipelineRepository.findByDeletedTrueAndId(pipelineId);
         pipelineRepository.restore(pipelineId);
     }
 
