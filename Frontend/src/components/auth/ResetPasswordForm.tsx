@@ -14,6 +14,7 @@ export default function ResetPasswordForm() {
     const [email, setEmail] = useState("");
     const [code, setCode] = useState("");
     const [error, setError] = useState("");
+    const [success, setSuccess] = useState("");
     const { t } = useTranslation('common');
 
     const emailValidationSchema = Yup.object({
@@ -86,9 +87,10 @@ export default function ResetPasswordForm() {
 
     const handleResendCode = async () => {
         setError("");
+        setSuccess("");
         try {
             await AuthService.requestPasswordReset(email);
-            alert(t('auth.resetPassword.newCodeSent'));
+            setSuccess(t('auth.resetPassword.newCodeSent'));
         } catch {
             setError(t('auth.resetPassword.resendCodeError'));
         }
@@ -117,8 +119,20 @@ export default function ResetPasswordForm() {
                     </div>
 
                     {error && (
-                        <div className="mb-4 p-3 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg">
+                        <div className="mb-4 p-3 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg" role="alert" aria-live="polite">
                             <p className="text-red-600 dark:text-red-400 text-sm">{error}</p>
+                        </div>
+                    )}
+
+                    {success && (
+                        <div className="mb-4 p-3 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg" role="status" aria-live="polite">
+                            <p className="text-green-600 dark:text-green-400 text-sm">{success}</p>
+                        </div>
+                    )}
+
+                    {success && (
+                        <div className="mb-4 p-3 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg" role="status" aria-live="polite">
+                            <p className="text-green-600 dark:text-green-400 text-sm">{success}</p>
                         </div>
                     )}
 

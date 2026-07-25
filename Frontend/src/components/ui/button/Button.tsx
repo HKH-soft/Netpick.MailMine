@@ -7,7 +7,7 @@ interface ButtonProps {
   variant?: "primary" | "outline";
   startIcon?: ReactNode;
   endIcon?: ReactNode;
-  onClick?: () => void;
+  onClick?: (e: React.MouseEvent<HTMLButtonElement>) => void;
   disabled?: boolean;
   loading?: boolean;
   className?: string;
@@ -46,7 +46,7 @@ const Button: React.FC<ButtonProps> = ({
     <button
       type={type}
       data-testid={dataTestId}
-      className={`inline-flex items-center justify-center font-medium gap-2 rounded-[100px] transition-all duration-[var(--duration-normal)] ease-[var(--ease-sui)] focus-visible:ring-2 focus-visible:ring-[var(--color-accent)] focus-visible:ring-offset-2 ${className} ${sizeClasses[size]
+      className={`inline-flex items-center justify-center font-medium gap-2 rounded-[100px] transition-[background-color,box-shadow,opacity] duration-[var(--duration-normal)] ease-[var(--ease-sui)] focus-visible:ring-2 focus-visible:ring-[var(--color-accent)] focus-visible:ring-offset-2 ${className} ${sizeClasses[size]
         } ${variantClasses[variant]} ${disabled || loading ? "cursor-not-allowed opacity-50" : ""
         }`}
       onClick={onClick}

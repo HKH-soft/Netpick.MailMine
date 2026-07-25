@@ -79,7 +79,7 @@ export default function SignUpForm() {
               {({ isSubmitting, isValid, dirty }) => (
                 <Form>
                   {error && (
-                    <div className="mb-4 p-3 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg">
+                    <div className="mb-4 p-3 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg" role="alert" aria-live="polite">
                         <p className="text-red-600 dark:text-red-400 text-sm">{error}</p>
                     </div>
                   )}
@@ -125,11 +125,11 @@ export default function SignUpForm() {
                           as={Input}
                           autoComplete="new-password"
                         />
-                        <span
+                        <button
+                          type="button"
                           onClick={() => setShowPassword(!showPassword)}
                           className="absolute z-30 -translate-y-1/2 cursor-pointer right-4 top-1/2"
                           data-testid="password-toggle"
-                          role="button"
                           aria-label={showPassword ? "Hide password" : "Show password"}
                         >
                           {showPassword ? (
@@ -137,7 +137,7 @@ export default function SignUpForm() {
                           ) : (
                             <EyeCloseIcon className="fill-gray-500 dark:fill-gray-400" />
                           )}
-                        </span>
+                        </button>
                       </div>
                       <ErrorMessage name="password" component="div" className="text-red-500 text-sm mt-1" />
                       <Field name="password">
@@ -173,11 +173,12 @@ export default function SignUpForm() {
                     {/* <!-- Checkbox --> */}
                     <div className="flex items-center gap-3">
                       <Checkbox
+                        id="agree-terms"
                         className="w-5 h-5"
                         checked={isChecked}
                         onChange={setIsChecked}
                       />
-                      <p className="inline-block font-normal text-gray-500 dark:text-gray-400">
+                      <label htmlFor="agree-terms" className="inline-block font-normal text-gray-500 dark:text-gray-400 cursor-pointer">
                         {t('auth.signUp.agree')}{" "}
                         <span className="text-gray-800 dark:text-white/90">
                           {t('auth.signUp.terms')}
@@ -186,7 +187,7 @@ export default function SignUpForm() {
                         <span className="text-gray-800 dark:text-white">
                           {t('auth.signUp.privacy')}
                         </span>
-                      </p>
+                      </label>
                     </div>
                     {/* <!-- Button --> */}
                     <div>

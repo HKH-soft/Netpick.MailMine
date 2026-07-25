@@ -19,11 +19,12 @@ const Toast: React.FC<ToastProps> = ({ type, title, message, onClose }) => {
   }, [onClose]);
 
   return (
-    <div className="relative shadow-lg rounded-xl max-w-md">
+    <div className="relative shadow-lg rounded-xl max-w-md" role="status" aria-live="polite">
       <Alert variant={type} title={title} message={message} />
       <button
         onClick={onClose}
         className="absolute top-2 right-2 text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200"
+        aria-label="Close notification"
       >
         <svg
           className="w-5 h-5"

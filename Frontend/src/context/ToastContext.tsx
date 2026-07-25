@@ -1,6 +1,6 @@
 "use client";
 
-import React, { createContext, useContext, useState, ReactNode } from "react";
+import React, { createContext, useContext, useState, useRef, useEffect, useCallback, ReactNode } from "react";
 import Toast from "@/components/ui/toast/Toast";
 
 type ToastType = "success" | "error" | "warning" | "info";
@@ -29,32 +29,41 @@ export const useToast = () => {
 
 export const ToastProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   const [toasts, setToasts] = useState<ToastItem[]>([]);
+  const timersRef = useRef<Map<string, ReturnType<typeof setTimeout>>>(new Map());
 
-  const addToast = (type: ToastType, title: string, message: string) => {
+  const removeToast = useCallback((id: string) => {
+    const timer = timersRef.current.get(id);
+    if (timer) {
+      clearTimeout(timer);
+      timersRef.current.delete(id);
+    }
+    setToasts((prev) => prev.filter((toast) => toast.id !== id));
+  }, []);
+
+  const addToast = useCallback((type: ToastType, title: string, message: string) => {
     const id = typeof window !== 'undefined' ? crypto.randomUUID() : Math.random().toString(36).substring(2, 9);
-    const newToast: ToastItem = {
-      id,
-      type,
-      title,
-      message,
-    };
+    const newToast: ToastItem = { id, type, title, message };
 
     setToasts((prev) => [...prev, newToast]);
 
-    // Auto remove toast after 5 seconds
-    setTimeout(() => {
+    const timer = setTimeout(() => {
       removeToast(id);
     }, 5000);
-  };
+    timersRef.current.set(id, timer);
+  }, [removeToast]);
 
-  const removeToast = (id: string) => {
-    setToasts((prev) => prev.filter((toast) => toast.id !== id));
-  };
+  // Cleanup all timers on unmount
+  useEffect(() => {
+    return () => {
+      timersRef.current.forEach((timer) => clearTimeout(timer));
+      timersRef.current.clear();
+    };
+  }, []);
 
   return (
     <ToastContext.Provider value={{ addToast, removeToast }}>
       {children}
-      <div className="fixed top-20 right-4 z-[9999] space-y-2">
+      <div className="fixed top-20 right-4 z-[9999] space-y-2" role="log" aria-label="Notifications">
         {toasts.map((toast) => (
           <Toast
             key={toast.id}

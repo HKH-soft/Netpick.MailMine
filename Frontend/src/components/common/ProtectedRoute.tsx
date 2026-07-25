@@ -4,6 +4,7 @@ import React, { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/context/AuthContext";
 import AuthService from "@/services/authService";
+import { useTranslation } from "react-i18next";
 
 interface ProtectedRouteProps {
   children: React.ReactNode;
@@ -22,6 +23,7 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
   const { isAuthenticated } = useAuth();
   const [hasCheckedAuth, setHasCheckedAuth] = useState(false);
   const router = useRouter();
+  const { t } = useTranslation('common');
 
   useEffect(() => {
     // Skip if we've already checked auth to prevent multiple executions
@@ -142,11 +144,11 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
   }, [isAuthenticated, allowedRoles, hasCheckedAuth, router]);
 
   if (isLoading) {
-    return <div className="flex items-center justify-center h-screen">Loading...</div>;
+    return <div className="flex items-center justify-center h-screen">{t('common.loading', { defaultValue: 'Loading…' })}</div>;
   }
 
   if (!isAuthorized) {
-    return <div className="flex items-center justify-center h-screen">Access Denied</div>;
+    return <div className="flex items-center justify-center h-screen">{t('common.accessDenied', { defaultValue: 'Access Denied' })}</div>;
   }
 
   return <>{children}</>;

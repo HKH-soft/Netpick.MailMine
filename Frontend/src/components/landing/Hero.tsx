@@ -46,6 +46,7 @@ export default function Hero() {
   return (
     <section
       ref={sectionRef}
+      id="hero"
       className="relative overflow-hidden flex items-center"
       onMouseMove={handleMouseMove}
       style={{

@@ -45,7 +45,7 @@ export default function EmailAuthCheck() {
       {result && (
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           {/* SPF */}
-          <div className="bg-white dark:bg-boxdark p-4 rounded-lg border border-stroke">
+          <div className="bg-white dark:bg-boxdark p-4 rounded-lg border border-gray-200 dark:border-strokedark">
             <h3 className="font-semibold mb-2">SPF</h3>
             <div className="space-y-1">
               <div className="flex justify-between">
@@ -72,7 +72,7 @@ export default function EmailAuthCheck() {
           </div>
 
           {/* DMARC */}
-          <div className="bg-white dark:bg-boxdark p-4 rounded-lg border border-stroke">
+          <div className="bg-white dark:bg-boxdark p-4 rounded-lg border border-gray-200 dark:border-strokedark">
             <h3 className="font-semibold mb-2">DMARC</h3>
             <div className="space-y-1">
               <div className="flex justify-between">

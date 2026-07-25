@@ -69,12 +69,14 @@ const Input: FC<InputProps> = ({
         disabled={disabled}
         required={required}
         data-testid={dataTestId}
+        aria-describedby={hint ? (id ? `${id}-hint` : undefined) : undefined}
         className={inputClasses}
       />
 
       {/* Optional Hint Text */}
       {hint && (
         <p
+          id={id ? `${id}-hint` : undefined}
           className={`mt-1.5 text-xs ${
             error
               ? "text-error-500"

@@ -18,10 +18,11 @@ const ThemeProviderWrapper: React.FC<ThemeProviderWrapperProps> = ({
     setIsMounted(true);
   }, []);
 
-  // Render loading state until component is mounted and theme is initialized
-  // This prevents hydration errors
+  // Render minimal skeleton until mounted + theme initialized to avoid layout shift
   if (!isMounted || !isInitialized) {
-    return <LoadingSpinner />;
+    return (
+      <div className="min-h-screen animate-pulse bg-gray-100 dark:bg-gray-900" aria-busy="true" aria-label="Loading theme" />
+    );
   }
 
   return <>{children}</>;

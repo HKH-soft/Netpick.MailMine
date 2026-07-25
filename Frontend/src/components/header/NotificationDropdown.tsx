@@ -75,6 +75,8 @@ export default function NotificationDropdown() {
       <button
         className="relative dropdown-toggle flex items-center justify-center text-gray-500 transition-colors bg-white border border-gray-200 rounded-full hover:text-gray-700 h-11 w-11 hover:bg-gray-100 dark:border-gray-800 dark:bg-gray-900 dark:text-gray-400 dark:hover:bg-gray-800 dark:hover:text-white"
         onClick={handleClick}
+        aria-label={`Notifications${notifying ? " (unread)" : ""}`}
+        aria-expanded={isOpen}
       >
         <span
           className={`absolute right-0 top-0.5 z-10 h-2 w-2 rounded-full bg-orange-400 ${
@@ -97,17 +99,18 @@ export default function NotificationDropdown() {
           <button
             onClick={toggleDropdown}
             className="text-gray-500 transition dropdown-toggle dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200"
+            aria-label="Close notifications"
           >
             <CloseIcon className="fill-current" />
           </button>
         </div>
         <ul className="flex flex-col h-auto overflow-y-auto custom-scrollbar">
           {loading ? (
-            <li className="p-4 text-center text-sm text-gray-500 dark:text-gray-400">
-              Loading...
+            <li className="p-4 text-center text-sm text-gray-500 dark:text-gray-400" aria-live="polite">
+              Loading…
             </li>
           ) : notifications.length === 0 ? (
-            <li className="p-4 text-center text-sm text-gray-500 dark:text-gray-400">
+            <li className="p-4 text-center text-sm text-gray-500 dark:text-gray-400" aria-live="polite">
               No new notifications
             </li>
           ) : (

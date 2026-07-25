@@ -18,6 +18,7 @@ import I18nProviderWrapper from '@/components/common/I18nProviderWrapper';
 
 const outfit = Outfit({
   subsets: ["latin"],
+  display: "swap",
 });
 
 const inter = Inter({
@@ -46,7 +47,7 @@ export default async function RootLayout({
   const dir = lang === 'fa' ? 'rtl' : 'ltr';
 
   return (
-    <html lang={lang} dir={dir}>
+    <html lang={lang} dir={dir} suppressHydrationWarning>
       <head>
         <link rel="icon" href="/images/Netpick-Platform/Netpick.svg" type="image/svg+xml" />
         <link rel="manifest" href="/manifest.json" />

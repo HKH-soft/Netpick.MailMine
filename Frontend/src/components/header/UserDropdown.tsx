@@ -8,7 +8,7 @@ import UserService from "@/services/userService";
 import { useAuth } from "@/context/AuthContext";
 import { ChevronDownSmIcon, UserProfileIcon, SettingsIcon, SupportIcon, SignoutIcon } from "@/icons";
 
-// 定义用户类型
+import { useTranslation } from "react-i18next";
 interface User {
   name: string;
   email: string;
@@ -75,6 +75,8 @@ export default function UserDropdown() {
       <button
         onClick={toggleDropdown}
         className="flex items-center text-gray-700 dark:text-gray-400 dropdown-toggle"
+        aria-label="User menu"
+        aria-expanded={isOpen}
       >
         <span className="mr-3 overflow-hidden rounded-full h-11 w-11 bg-black dark:bg-white">
         </span>
@@ -107,7 +109,7 @@ export default function UserDropdown() {
               className="flex items-center gap-3 px-3 py-2 font-medium text-gray-700 rounded-lg group text-theme-sm hover:bg-gray-100 hover:text-gray-700 dark:text-gray-400 dark:hover:bg-white/5 dark:hover:text-gray-300"
             >
               <UserProfileIcon className="fill-gray-500 group-hover:fill-gray-700 dark:fill-gray-400 dark:group-hover:fill-gray-300" />
-              Edit profile
+              {t('userMenu.editProfile', { defaultValue: 'Edit profile' })}
             </DropdownItem>
           </li>
           <li>
@@ -118,7 +120,7 @@ export default function UserDropdown() {
               className="flex items-center gap-3 px-3 py-2 font-medium text-gray-700 rounded-lg group text-theme-sm hover:bg-gray-100 hover:text-gray-700 dark:text-gray-400 dark:hover:bg-white/5 dark:hover:text-gray-300"
             >
               <SettingsIcon className="fill-gray-500 group-hover:fill-gray-700 dark:fill-gray-400 dark:group-hover:fill-gray-300" />
-              Account settings
+              {t('userMenu.accountSettings', { defaultValue: 'Account settings' })}
             </DropdownItem>
           </li>
           <li>
@@ -129,7 +131,7 @@ export default function UserDropdown() {
               className="flex items-center gap-3 px-3 py-2 font-medium text-gray-700 rounded-lg group text-theme-sm hover:bg-gray-100 hover:text-gray-700 dark:text-gray-400 dark:hover:bg-white/5 dark:hover:text-gray-300"
             >
               <SupportIcon className="fill-gray-500 group-hover:fill-gray-700 dark:fill-gray-400 dark:group-hover:fill-gray-300" />
-              Support
+              {t('userMenu.support', { defaultValue: 'Support' })}
             </DropdownItem>
           </li>
         </ul>
@@ -138,7 +140,7 @@ export default function UserDropdown() {
           className="flex items-center gap-3 px-3 py-2 mt-3 font-medium text-gray-700 rounded-lg group text-theme-sm hover:bg-gray-100 hover:text-gray-700 dark:text-gray-400 dark:hover:bg-white/5 dark:hover:text-gray-300 w-full text-left"
         >
           <SignoutIcon className="fill-gray-500 group-hover:fill-gray-700 dark:group-hover:fill-gray-300" />
-          Sign out
+          {t('userMenu.signOut', { defaultValue: 'Sign out' })}
         </button>
       </Dropdown>
     </div>

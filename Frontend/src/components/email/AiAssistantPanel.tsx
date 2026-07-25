@@ -88,13 +88,13 @@ export default function AiAssistantPanel({ emailId, onClose }: AiAssistantPanelP
   ] as const;
 
   return (
-    <div className="bg-white dark:bg-boxdark border-l border-stroke h-full overflow-y-auto">
-      <div className="flex justify-between items-center p-4 border-b border-stroke">
+    <div className="bg-white dark:bg-boxdark border-l border-gray-200 dark:border-strokedark h-full overflow-y-auto">
+      <div className="flex justify-between items-center p-4 border-b border-gray-200 dark:border-strokedark">
         <h3 className="font-semibold text-black dark:text-white">AI Assistant</h3>
-        <button onClick={onClose} className="text-gray-500 hover:text-black">✕</button>
+                <button onClick={onClose} className="text-gray-500 hover:text-black dark:hover:text-white">✕</button>
       </div>
 
-      <div className="flex border-b border-stroke">
+      <div className="flex border-b border-gray-200 dark:border-strokedark">
         {tabs.map((tab) => (
           <button
             key={tab.key}
@@ -102,7 +102,7 @@ export default function AiAssistantPanel({ emailId, onClose }: AiAssistantPanelP
             className={`flex-1 py-2 text-sm font-medium ${
               activeTab === tab.key
                 ? 'text-primary border-b-2 border-primary'
-                : 'text-gray-500 hover:text-black'
+                : 'text-gray-500 hover:text-black dark:hover:text-white'
             }`}
           >
             {tab.icon} {tab.label}
@@ -188,7 +188,7 @@ export default function AiAssistantPanel({ emailId, onClose }: AiAssistantPanelP
                   <span className={`font-medium ${
                     sentiment.sentiment === 'positive' ? 'text-green-500' :
                     sentiment.sentiment === 'negative' ? 'text-red-500' :
-                    sentiment.sentiment === 'angry' ? 'text-red-700' : 'text-gray-500'
+                    sentiment.sentiment === 'angry' ? 'text-red-700' : 'text-gray-500 dark:text-gray-400'
                   }`}>
                     {sentiment.sentiment}
                   </span>
@@ -198,7 +198,7 @@ export default function AiAssistantPanel({ emailId, onClose }: AiAssistantPanelP
                   <span className={`font-medium ${
                     sentiment.urgency === 'critical' ? 'text-red-700' :
                     sentiment.urgency === 'high' ? 'text-red-500' :
-                    sentiment.urgency === 'medium' ? 'text-yellow-500' : 'text-gray-500'
+                    sentiment.urgency === 'medium' ? 'text-yellow-500' : 'text-gray-500 dark:text-gray-400'
                   }`}>
                     {sentiment.urgency}
                   </span>
@@ -232,10 +232,10 @@ export default function AiAssistantPanel({ emailId, onClose }: AiAssistantPanelP
                 <div className="flex justify-between items-center p-2 bg-gray-50 dark:bg-meta-4 rounded">
                   <span className="text-sm">Risk Level</span>
                   <span className={`font-medium px-2 py-1 rounded ${
-                    spamResult.risk_level === 'critical' ? 'bg-red-200 text-red-800' :
-                    spamResult.risk_level === 'high' ? 'bg-orange-200 text-orange-800' :
-                    spamResult.risk_level === 'medium' ? 'bg-yellow-200 text-yellow-800' :
-                    'bg-green-200 text-green-800'
+                    spamResult.risk_level === 'critical' ? 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400' :
+                    spamResult.risk_level === 'high' ? 'bg-orange-100 text-orange-800 dark:bg-orange-900/30 dark:text-orange-400' :
+                    spamResult.risk_level === 'medium' ? 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-400' :
+                    'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400'
                   }`}>
                     {spamResult.risk_level}
                   </span>

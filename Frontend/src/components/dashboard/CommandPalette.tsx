@@ -81,7 +81,7 @@ export default function CommandPalette() {
   }, {});
 
   return (
-    <div className="fixed inset-0 z-[9999] flex items-start justify-center pt-[15vh]" onClick={() => setOpen(false)}>
+    <div className="fixed inset-0 z-[9999] flex items-start justify-center pt-[15vh]" onClick={() => setOpen(false)} role="dialog" aria-modal="true" aria-label="Command palette">
       <div className="fixed inset-0 bg-black/60 backdrop-blur-sm dark:bg-black/60" />
       <div
         className="relative w-full max-w-lg rounded-2xl border border-gray-200 dark:border-gray-800 overflow-hidden bg-white dark:bg-gray-950 shadow-xl dark:shadow-2xl"
@@ -98,6 +98,7 @@ export default function CommandPalette() {
             onKeyDown={handleKeyDown}
             placeholder="Search commands, pages, actions..."
             className="flex-1 bg-transparent text-[14px] text-gray-900 dark:text-white placeholder:text-gray-400 dark:placeholder:text-gray-500 outline-none"
+            aria-label="Search commands"
           />
           <kbd className="text-[11px] text-gray-400 dark:text-gray-500 bg-gray-100 dark:bg-gray-800 px-1.5 py-0.5 rounded border border-gray-200 dark:border-gray-700">ESC</kbd>
         </div>

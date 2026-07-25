@@ -88,14 +88,16 @@ export const Modal: React.FC<ModalProps> = ({
         style={{
           border: "1px solid rgba(0, 0, 0, 0.08)",
           boxShadow: "0 20px 60px rgba(0,0,0,0.15), 0 0 0 1px rgba(0,0,0,0.04)",
+          overscrollBehavior: "contain",
         }}
         onClick={(e) => e.stopPropagation()}
-        tabIndex={-1}
+        tabIndex={0}
       >
         {showCloseButton && (
           <button
             onClick={onCloseAction}
             className="absolute right-3 top-3 z-999 flex h-9.5 w-9.5 items-center justify-center rounded-full bg-gray-100 dark:bg-gray-800 text-gray-500 dark:text-gray-400 transition-colors hover:bg-gray-200 dark:hover:bg-gray-700 hover:text-gray-700 dark:hover:text-gray-300 sm:right-6 sm:top-6 sm:h-11 sm:w-11"
+            aria-label="Close"
           >
             <svg
               width="24"

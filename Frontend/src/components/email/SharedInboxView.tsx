@@ -65,7 +65,7 @@ export default function SharedInboxView() {
       </div>
 
       {showCreate && (
-        <div className="bg-white dark:bg-boxdark p-4 rounded-lg mb-4 border border-stroke">
+        <div className="bg-white dark:bg-boxdark p-4 rounded-lg mb-4 border border-gray-200 dark:border-strokedark">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <input
               type="text"
@@ -103,14 +103,14 @@ export default function SharedInboxView() {
           <div
             key={inbox.id}
             className={`bg-white dark:bg-boxdark p-4 rounded-lg border cursor-pointer transition-all ${
-              selectedInbox?.id === inbox.id ? 'border-primary' : 'border-stroke hover:border-gray-300'
+              selectedInbox?.id === inbox.id ? 'border-primary' : 'border-gray-200 dark:border-strokedark hover:border-gray-300 dark:hover:border-gray-600'
             }`}
             onClick={() => setSelectedInbox(inbox)}
           >
             <div className="flex justify-between items-start mb-2">
               <h3 className="font-semibold text-black dark:text-white">{inbox.name}</h3>
               <span className={`text-xs px-2 py-1 rounded ${
-                inbox.isActive ? 'bg-green-200 text-green-800' : 'bg-gray-200 text-gray-800'
+                inbox.isActive ? 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400' : 'bg-gray-100 text-gray-800 dark:bg-gray-800 dark:text-gray-300'
               }`}>
                 {inbox.isActive ? 'Active' : 'Inactive'}
               </span>
@@ -127,7 +127,7 @@ export default function SharedInboxView() {
       </div>
 
       {selectedInbox && (
-        <div className="mt-6 bg-white dark:bg-boxdark p-4 rounded-lg border border-stroke">
+        <div className="mt-6 bg-white dark:bg-boxdark p-4 rounded-lg border border-gray-200 dark:border-strokedark">
           <h3 className="font-semibold mb-3">Assign Email - {selectedInbox.name}</h3>
           <div className="flex gap-4">
             <input

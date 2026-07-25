@@ -29,7 +29,7 @@ export default function EmailInbox() {
       <div className="flex-1 overflow-x-auto">
         <table className="w-full table-auto">
           <thead>
-            <tr className="bg-gray-2 dark:bg-meta-4">
+            <tr className="bg-gray-200 dark:bg-meta-4">
               <th className="min-w-[220px] py-3 px-4 text-left font-medium text-black dark:text-white">
                 Sender
               </th>
@@ -54,7 +54,7 @@ export default function EmailInbox() {
             {emails.map((email) => (
               <tr
                 key={email.id}
-                className={`border-b border-[#eee] dark:border-strokedark cursor-pointer hover:bg-gray-50 dark:hover:bg-meta-4 ${
+                className={`border-b border-[#eee] dark:border-strokedark cursor-pointer hover:bg-gray-50 dark:hover:bg-white/5 ${
                   selectedEmailId === email.id ? 'bg-primary/5 dark:bg-primary/10' : ''
                 }`}
                 onClick={() => setSelectedEmailId(selectedEmailId === email.id ? null : email.id)}
@@ -86,7 +86,7 @@ export default function EmailInbox() {
                 </td>
                 <td className="py-3 px-4">
                   <span className={`inline-block rounded px-2 py-1 text-xs ${
-                    email.isAnswered ? 'bg-green-200' : 'bg-yellow-200'
+                    email.isAnswered ? 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400' : 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-400'
                   }`}>
                     {email.isAnswered ? 'Replied' : 'Pending'}
                   </span>
@@ -106,7 +106,7 @@ export default function EmailInbox() {
       </div>
 
       {selectedEmailId && (
-        <div className="w-96 flex-shrink-0 border-l border-stroke">
+        <div className="w-96 flex-shrink-0 border-l border-gray-200 dark:border-strokedark">
           <AiAssistantPanel
             emailId={selectedEmailId}
             onClose={() => setSelectedEmailId(null)}

@@ -24,7 +24,7 @@ export default function FileItem({ file, onDelete }: FileItemProps) {
   };
 
   return (
-    <div className="flex flex-col items-center p-3 border border-gray-200 rounded-lg hover:bg-gray-50 group">
+    <div className="flex flex-col items-center p-3 border border-gray-200 dark:border-strokedark rounded-lg hover:bg-gray-50 dark:hover:bg-white/5 group">
       <div className="text-4xl mb-2">{getFileIcon(file.mimeType)}</div>
       <span className="text-sm text-center truncate w-full" title={file.originalFileName}>
         {file.originalFileName}

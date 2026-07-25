@@ -72,7 +72,7 @@ export default function SignInForm() {
               {({ isSubmitting, isValid, dirty }) => (
                 <Form>
                   {error && (
-                    <div className="mb-4 p-3 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg">
+                    <div className="mb-4 p-3 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg" role="alert" aria-live="polite">
                         <p className="text-red-600 dark:text-red-400 text-sm">{error}</p>
                     </div>
                   )}
@@ -84,7 +84,7 @@ export default function SignInForm() {
                       <Field
                         name="email"
                         type="email"
-                        placeholder="info@gmail.com"
+                        placeholder="info@gmail.com…"
                         as={Input}
                         autoComplete="email"
                       />
@@ -102,11 +102,11 @@ export default function SignInForm() {
                           as={Input}
                           autoComplete="current-password"
                         />
-                        <span
+                        <button
+                          type="button"
                           onClick={() => setShowPassword(!showPassword)}
                           className="absolute z-30 -translate-y-1/2 cursor-pointer right-4 top-1/2"
                           data-testid="password-toggle"
-                          role="button"
                           aria-label={showPassword ? "Hide password" : "Show password"}
                         >
                           {showPassword ? (
@@ -114,16 +114,16 @@ export default function SignInForm() {
                           ) : (
                             <EyeCloseIcon className="fill-gray-500 dark:fill-gray-400" />
                           )}
-                        </span>
+                        </button>
                       </div>
                       <ErrorMessage name="password" component="div" className="text-red-500 text-sm mt-1" />
                     </div>
                     <div className="flex items-center justify-between">
                       <div className="flex items-center gap-3">
-                        <Checkbox checked={isChecked} onChange={setIsChecked} />
-                        <span className="block font-normal text-gray-700 text-theme-sm dark:text-gray-400">
+                        <Checkbox id="remember-me" checked={isChecked} onChange={setIsChecked} />
+                        <label htmlFor="remember-me" className="block font-normal text-gray-700 text-theme-sm dark:text-gray-400 cursor-pointer">
                           {t('auth.signIn.rememberMe')}
-                        </span>
+                        </label>
                       </div>
                 <Link
                   href="/reset-password"

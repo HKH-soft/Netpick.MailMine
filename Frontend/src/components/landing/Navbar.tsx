@@ -92,7 +92,7 @@ export default function Navbar() {
           <nav className="hidden lg:flex items-center gap-0.5">
             {navLinks.map((link) => (
               <div key={link.name} className="relative group">
-                <a
+                <Link
                   href={link.href}
                   className="relative px-3 py-2 text-[13px] font-medium rounded-lg transition-all duration-300"
                   style={{
@@ -108,7 +108,7 @@ export default function Navbar() {
                   {pathname === link.href && (
                     <span className="absolute bottom-0.5 left-3 right-3 h-px" style={{ background: "var(--color-accent)" }} />
                   )}
-                </a>
+                </Link>
                 {link.dropdown && (
                   <MegaDropdown categories={link.dropdown.categories} />
                 )}
@@ -170,7 +170,7 @@ export default function Navbar() {
           }}
         >
           {navLinks.map((link) => (
-            <a
+            <Link
               key={link.name}
               href={link.href}
               className="block px-3 py-2.5 text-sm font-medium rounded-xl transition-all duration-300"
@@ -180,15 +180,15 @@ export default function Navbar() {
               onClick={() => setMobileOpen(false)}
             >
               {link.name}
-            </a>
+            </Link>
           ))}
           <div className="pt-3 mt-2 space-y-2" style={{ borderTop: "1px solid rgba(255, 255, 255, 0.06)" }}>
-            <a href="/signin" className="block px-3 py-2.5 text-sm font-medium rounded-xl transition-all duration-300 hover:text-white" style={{ color: "var(--color-text-muted)" }} onClick={() => setMobileOpen(false)}>
+            <Link href="/signin" className="block px-3 py-2.5 text-sm font-medium rounded-xl transition-all duration-300 hover:text-white" style={{ color: "var(--color-text-muted)" }} onClick={() => setMobileOpen(false)}>
               Sign In
-            </a>
-            <a href="/signup" className="btn-gradient block text-center text-sm px-5 py-2.5" onClick={() => setMobileOpen(false)}>
+            </Link>
+            <Link href="/signup" className="btn-gradient block text-center text-sm px-5 py-2.5" onClick={() => setMobileOpen(false)}>
               <span>Get started</span>
-            </a>
+            </Link>
           </div>
         </div>
       </div>

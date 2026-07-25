@@ -93,12 +93,12 @@ export default function CampaignBuilder() {
 
   const getStatusColor = (status: string) => {
     switch (status) {
-      case 'DRAFT': return 'bg-gray-200 text-gray-800';
-      case 'SCHEDULED': return 'bg-blue-200 text-blue-800';
-      case 'SENDING': return 'bg-yellow-200 text-yellow-800';
-      case 'SENT': return 'bg-green-200 text-green-800';
-      case 'FAILED': return 'bg-red-200 text-red-800';
-      default: return 'bg-gray-200 text-gray-800';
+      case 'DRAFT': return 'bg-gray-100 text-gray-800 dark:bg-gray-800 dark:text-gray-300';
+      case 'SCHEDULED': return 'bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-400';
+      case 'SENDING': return 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-400';
+      case 'SENT': return 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400';
+      case 'FAILED': return 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400';
+      default: return 'bg-gray-100 text-gray-800 dark:bg-gray-800 dark:text-gray-300';
     }
   };
 
@@ -117,7 +117,7 @@ export default function CampaignBuilder() {
       </div>
 
       {showCreate && (
-        <div className="bg-white dark:bg-boxdark p-4 rounded-lg mb-4 border border-stroke">
+        <div className="bg-white dark:bg-boxdark p-4 rounded-lg mb-4 border border-gray-200 dark:border-strokedark">
           <h3 className="font-semibold mb-3">Create Campaign</h3>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
@@ -184,7 +184,7 @@ export default function CampaignBuilder() {
       <div className="overflow-x-auto">
         <table className="w-full table-auto">
           <thead>
-            <tr className="bg-gray-2 dark:bg-meta-4">
+            <tr className="bg-gray-200 dark:bg-meta-4">
               <th className="py-3 px-4 text-left font-medium text-black dark:text-white">Name</th>
               <th className="py-3 px-4 text-left font-medium text-black dark:text-white">Status</th>
               <th className="py-3 px-4 text-left font-medium text-black dark:text-white">Recipients</th>
@@ -195,7 +195,7 @@ export default function CampaignBuilder() {
           </thead>
           <tbody>
             {campaigns.map((campaign) => (
-              <tr key={campaign.id} className="border-b border-[#eee] dark:border-strokedark">
+              <tr key={campaign.id} className="border-b border-gray-200 dark:border-strokedark">
                 <td className="py-3 px-4">
                   <p className="font-medium text-black dark:text-white">{campaign.name}</p>
                   <p className="text-sm text-gray-500">{campaign.subjectLine}</p>
@@ -242,7 +242,7 @@ export default function CampaignBuilder() {
       )}
 
       {selectedCampaign && (
-        <div className="mt-4 p-4 bg-white dark:bg-boxdark rounded-lg border border-stroke">
+        <div className="mt-4 p-4 bg-white dark:bg-boxdark rounded-lg border border-gray-200 dark:border-strokedark">
           <h3 className="font-semibold mb-2">Add Recipients</h3>
           <textarea
             placeholder="Enter email addresses (one per line)"

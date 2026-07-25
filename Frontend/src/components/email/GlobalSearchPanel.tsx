@@ -97,13 +97,13 @@ export default function GlobalSearchPanel() {
       </div>
 
       {isOpen && results && (
-        <div className="absolute top-full left-0 right-0 mt-2 bg-white dark:bg-boxdark rounded-lg shadow-lg border border-stroke z-50 max-h-96 overflow-y-auto">
-          <div className="p-2 border-b border-stroke">
+        <div className="absolute top-full left-0 right-0 mt-2 bg-white dark:bg-boxdark rounded-lg shadow-lg border border-gray-200 dark:border-strokedark z-50 max-h-96 overflow-y-auto">
+          <div className="p-2 border-b border-gray-200 dark:border-strokedark">
             <div className="flex justify-between items-center">
               <span className="text-sm font-medium text-black dark:text-white">
                 {results.totalResults} result(s)
               </span>
-              <button onClick={() => setIsOpen(false)} className="text-gray-500 hover:text-black">✕</button>
+              <button onClick={() => setIsOpen(false)} className="text-gray-500 hover:text-black dark:hover:text-white">✕</button>
             </div>
           </div>
           {results.emails.length > 0 && (
