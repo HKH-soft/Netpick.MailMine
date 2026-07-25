@@ -57,7 +57,7 @@ groups:
           summary: "High number of active database connections"
           description: "Active DB connections: {{ $value }} (check for connection leaks)."
 
-      # Redis connection issues (if using Lettuce/Jedis metrics)
+      # Redis connection failure
       - alert: RedisConnectionFailure
         expr: rate(lettuce_command_completion_seconds_count{status="failed"}[5m]) > 0
         for: 2m
@@ -139,3 +139,17 @@ groups:
         annotations:
           summary: "DNS resolution failing"
           description: "Cannot resolve {{ $labels.instance }} via DNS."
+
+  - name: postgres_alerts
+    interval: 30s
+    rules:
+      # PostgreSQL down
+      - alert: PostgresDown
+        expr: up{job="postgres"} == 0
+        for: 1m
+        labels:
+          severity: critical
+          service: postgres
+        annotations:
+          summary: "PostgreSQL service is down"
+          description: "PostgreSQL ({{ $labels.instance }}) has been down for more than 1 minute."
