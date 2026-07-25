@@ -27,6 +27,9 @@ public interface PipelineRepository extends JpaRepository<Pipeline, UUID> {
     // Find all deleted pipelines with pagination
     Page<Pipeline> findByDeletedTrue(Pageable pageable);
 
+    // Find deleted pipeline by ID (bypasses @SQLRestriction)
+    Pipeline findByDeletedTrueAndId(UUID id);
+
     @Transactional
     @Modifying
     @Query("update Pipeline c set c.deleted = True where c.deleted = false and c.id = ?1")
@@ -34,14 +37,6 @@ public interface PipelineRepository extends JpaRepository<Pipeline, UUID> {
 
     @Transactional
     @Modifying
-    @Query("update Pipeline c set c.deleted = False where c.id = ?1 and c.deleted = true")
+    @Query("update Pipeline c set c.deleted = False where c.deleted = true and c.id = ?1")
     void restore(UUID id);
 }
-
-
-
-
-
-
-
-

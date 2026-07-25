@@ -161,6 +161,8 @@ public class ScrapeJobService {
     }
 
     public void restore(@NotNull UUID jobId) {
+        // Verify the scrape job exists and is deleted before restoring
+        scrapeJobRepository.findByDeletedTrueAndId(jobId);
         scrapeJobRepository.restore(jobId);
     }
 

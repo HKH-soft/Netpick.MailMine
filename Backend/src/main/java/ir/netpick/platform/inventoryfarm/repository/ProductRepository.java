@@ -39,4 +39,7 @@ public interface ProductRepository extends JpaRepository<Product, UUID> {
     @Modifying
     @Query("update Product p set p.deleted = false where p.id = ?1 and p.deleted = true")
     void restore(UUID id);
+
+    // Find soft-deleted by ID (bypasses @SQLRestriction)
+    Product findByDeletedTrueAndId(UUID id);
 }

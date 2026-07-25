@@ -64,6 +64,15 @@ public class ContactService {
                         () -> new ResourceNotFoundException("Contact with id [%s] was not found".formatted(contactId)));
     }
 
+    /**
+     * Get a contact that was soft-deleted (for restore operations).
+     */
+    public Contact getDeletedContact(UUID contactId) {
+        return contactRepository.findByDeletedTrueAndId(contactId)
+                .orElseThrow(
+                        () -> new ResourceNotFoundException("Deleted contact with id [%s] was not found".formatted(contactId)));
+    }
+
     public void createContact(Contact contact) {
         contactRepository.save(contact);
     }
@@ -79,6 +88,8 @@ public class ContactService {
     }
 
     public void restoreContact(UUID contactId) {
+        // Verify the contact exists and is deleted before restoring
+        getDeletedContact(contactId);
         contactRepository.restore(contactId);
     }
 

@@ -24,6 +24,9 @@ public interface ScrapeJobRepository extends JpaRepository<ScrapeJob, UUID> {
 
     Optional<ScrapeJob> findByLink(String link);
 
+    // Find deleted scrape job by ID (bypasses @SQLRestriction)
+    ScrapeJob findByDeletedTrueAndId(UUID id);
+
     // DEPRECATED: Use findPendingJobs instead
     @Deprecated
     List<ScrapeJob> findByAttemptLessThanEqual(int attempt);
@@ -75,11 +78,3 @@ public interface ScrapeJobRepository extends JpaRepository<ScrapeJob, UUID> {
     @Query("update ScrapeJob s set s.deleted = False where s.deleted = true and s.id = ?1")
     void restore(UUID id);
 }
-
-
-
-
-
-
-
-

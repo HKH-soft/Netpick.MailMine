@@ -67,6 +67,8 @@ public class DealService {
     }
 
     public void restore(UUID dealId) {
+        // Verify the deal exists and is deleted before restoring
+        dealRepository.findByDeletedTrueAndId(dealId);
         dealRepository.restore(dealId);
     }
 

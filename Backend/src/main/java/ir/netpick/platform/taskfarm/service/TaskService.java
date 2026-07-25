@@ -71,6 +71,8 @@ public class TaskService {
     }
 
     public void restore(UUID taskId) {
+        // Verify the task exists and is deleted before restoring
+        taskRepository.findByDeletedTrueAndId(taskId);
         taskRepository.restore(taskId);
     }
 

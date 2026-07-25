@@ -35,4 +35,7 @@ public interface FolderRepository extends JpaRepository<Folder, UUID> {
     @Modifying
     @Query("update Folder f set f.deleted = false where f.id = ?1 and f.deleted = true")
     void restore(UUID id);
+
+    // Find soft-deleted by ID (bypasses @SQLRestriction)
+    Folder findByDeletedTrueAndId(UUID id);
 }

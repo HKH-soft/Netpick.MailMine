@@ -58,6 +58,8 @@ public class StockMovementService {
     }
 
     public void restore(UUID movementId) {
+        // Verify the stock movement exists and is deleted before restoring
+        stockMovementRepository.findByDeletedTrueAndId(movementId);
         stockMovementRepository.restore(movementId);
     }
 }

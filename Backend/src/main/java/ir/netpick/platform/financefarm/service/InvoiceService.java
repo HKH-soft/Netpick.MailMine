@@ -74,6 +74,8 @@ public class InvoiceService {
     }
 
     public void restore(UUID invoiceId) {
+        // Verify the invoice exists and is deleted before restoring
+        invoiceRepository.findByDeletedTrueAndId(invoiceId);
         invoiceRepository.restore(invoiceId);
     }
 
@@ -102,6 +104,12 @@ public class InvoiceService {
 
     public void deleteLineItem(UUID lineItemId) {
         lineItemRepository.softDelete(lineItemId);
+    }
+
+    public void restoreLineItem(UUID lineItemId) {
+        // Verify the line item exists and is deleted before restoring
+        lineItemRepository.findByDeletedTrueAndId(lineItemId);
+        lineItemRepository.restore(lineItemId);
     }
 
     public FinanceSummaryDTO getFinanceSummary() {

@@ -138,6 +138,8 @@ public class FileService {
     }
 
     public void restore(UUID fileId) {
+        // Verify the file exists and is deleted before restoring
+        fileRepository.findByDeletedTrueAndId(fileId);
         fileRepository.restore(fileId);
     }
 }

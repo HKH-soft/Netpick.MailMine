@@ -110,6 +110,8 @@ public class ScrapeDataService {
     }
 
     public void restoreData(UUID scrapeDataId) {
+        // Verify the scrape data exists and is deleted before restoring
+        scrapeDataRepository.findByDeletedTrueAndId(scrapeDataId);
         scrapeDataRepository.restore(scrapeDataId);
     }
 
