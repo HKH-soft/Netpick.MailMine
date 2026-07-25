@@ -35,4 +35,7 @@ public interface ProjectRepository extends JpaRepository<Project, UUID> {
     @Modifying
     @Query("update Project p set p.deleted = false where p.id = ?1 and p.deleted = true")
     void restore(UUID id);
+
+    // Find soft-deleted project by ID (bypasses @SQLRestriction)
+    Project findByDeletedTrueAndId(UUID id);
 }

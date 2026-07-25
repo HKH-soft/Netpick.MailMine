@@ -46,6 +46,9 @@ public interface ProxyRepository extends JpaRepository<Proxy, UUID> {
     void restore(UUID id);
 
     long countByStatusAndDeletedFalse(ProxyStatus status);
+
+    // Find soft-deleted proxy by ID (bypasses @SQLRestriction)
+    Proxy findByDeletedTrueAndId(UUID id);
 }
 
 
