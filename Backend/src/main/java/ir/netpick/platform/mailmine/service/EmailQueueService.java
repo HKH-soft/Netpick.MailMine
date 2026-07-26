@@ -60,8 +60,6 @@ public class EmailQueueService {
         for (EmailQueueItem item : pending) {
             try {
                 processItem(item);
-                item.setStatus(EmailQueueItem.QueueStatus.SENT);
-                item.setSentAt(LocalDateTime.now());
                 emailQueueItemRepository.save(item);
                 redisTemplate.opsForZSet().remove(QUEUE_KEY, item.getId().toString());
             } catch (Exception e) {
@@ -77,12 +75,15 @@ public class EmailQueueService {
         request.setBody(item.getBody());
         request.setAttachment(item.getAttachment());
         request.setRecipients(item.getRecipients());
-        
+
         if (item.getAttachment() != null) {
             emailService.sendMailWithAttachment(request);
         } else {
             emailService.sendSimpleMail(request);
         }
+
+        item.setStatus(EmailQueueItem.QueueStatus.SENT);
+        item.setSentAt(LocalDateTime.now());
     }
 
     private void handleFailure(EmailQueueItem item, Exception e) {

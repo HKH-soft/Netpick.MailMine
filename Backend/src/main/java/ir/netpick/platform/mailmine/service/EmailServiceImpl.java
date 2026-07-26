@@ -50,7 +50,6 @@ public class EmailServiceImpl implements EmailService {
     }
 
     @Override
-    @Async
     public void sendMailWithAttachment(EmailRequest request) {
         log.info("Sending email with attachment to: {}", request.getRecipient());
         MimeMessage mimeMessage = javaMailSender.createMimeMessage();

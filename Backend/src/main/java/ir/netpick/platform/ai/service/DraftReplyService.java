@@ -1,5 +1,6 @@
 package ir.netpick.platform.ai.service;
 
+import ir.netpick.platform.ai.util.AiUtils;
 import ir.netpick.platform.core.exception.ResourceNotFoundException;
 import ir.netpick.platform.mailmine.model.EmailMessage;
 import ir.netpick.platform.mailmine.model.EmailTemplate;
@@ -69,9 +70,9 @@ public class DraftReplyService {
                 .orElseThrow(() -> new ResourceNotFoundException("Email not found: " + emailId));
 
         String prompt = String.format(DRAFT_PROMPT,
-                email.getSenderEmail(),
-                email.getSubject(),
-                email.getBodyText() != null ? truncate(email.getBodyText(), 3000) : "No content",
+                AiUtils.sanitizeForPrompt(email.getSenderEmail()),
+                AiUtils.sanitizeForPrompt(email.getSubject()),
+                AiUtils.sanitizeForPrompt(email.getBodyText() != null ? truncate(email.getBodyText(), 3000) : "No content"),
                 "");
 
         String draft = geminiService.generateText(prompt);
@@ -89,10 +90,10 @@ public class DraftReplyService {
                 .orElseThrow(() -> new ResourceNotFoundException("Template not found: " + templateId));
 
         String prompt = String.format(DRAFT_WITH_TEMPLATE_PROMPT,
-                template.getBodyTemplate(),
-                email.getSenderEmail(),
-                email.getSubject(),
-                email.getBodyText() != null ? truncate(email.getBodyText(), 3000) : "No content");
+                AiUtils.sanitizeForPrompt(template.getBodyTemplate()),
+                AiUtils.sanitizeForPrompt(email.getSenderEmail()),
+                AiUtils.sanitizeForPrompt(email.getSubject()),
+                AiUtils.sanitizeForPrompt(email.getBodyText() != null ? truncate(email.getBodyText(), 3000) : "No content"));
 
         String draft = geminiService.generateText(prompt);
         return CompletableFuture.completedFuture(draft);
@@ -116,9 +117,9 @@ public class DraftReplyService {
             
             Return ONLY the 5 subject lines, one per line, no numbering or bullet points.
             """,
-                email.getSubject(),
-                email.getSenderEmail(),
-                email.getBodyText() != null ? truncate(email.getBodyText(), 1000) : "");
+                AiUtils.sanitizeForPrompt(email.getSubject()),
+                AiUtils.sanitizeForPrompt(email.getSenderEmail()),
+                AiUtils.sanitizeForPrompt(email.getBodyText() != null ? truncate(email.getBodyText(), 1000) : ""));
 
         String response = geminiService.generateText(prompt);
         List<String> subjects = Arrays.stream(response.split("\n"))
@@ -159,10 +160,10 @@ public class DraftReplyService {
                 .orElseThrow(() -> new ResourceNotFoundException("Email not found: " + emailId));
 
         String prompt = String.format(DRAFT_PROMPT,
-                email.getSenderEmail(),
-                email.getSubject(),
-                email.getBodyText() != null ? truncate(email.getBodyText(), 3000) : "No content",
-                "Company information: " + companyContext);
+                AiUtils.sanitizeForPrompt(email.getSenderEmail()),
+                AiUtils.sanitizeForPrompt(email.getSubject()),
+                AiUtils.sanitizeForPrompt(email.getBodyText() != null ? truncate(email.getBodyText(), 3000) : "No content"),
+                "Company information: " + AiUtils.sanitizeForPrompt(companyContext));
 
         String draft = geminiService.generateText(prompt);
         return CompletableFuture.completedFuture(draft);

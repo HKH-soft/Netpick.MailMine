@@ -28,7 +28,7 @@ public class DataProcessor {
 
     // Progress tracking
     private final AtomicInteger processedCount = new AtomicInteger(0);
-    private int totalCount = 0;
+    private volatile int totalCount = 0;
 
     private static final int BATCH_SIZE = 100; // Process in batches to avoid OOM
 

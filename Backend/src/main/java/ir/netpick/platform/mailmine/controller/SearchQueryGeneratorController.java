@@ -6,6 +6,7 @@ import ir.netpick.platform.mailmine.model.SearchQuery;
 import ir.netpick.platform.mailmine.service.mid.SearchQueryGenerator;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -13,6 +14,7 @@ import java.util.Map;
 
 @RestController
 @RequestMapping("/api/v1/core/search-queries/generate")
+@PreAuthorize("hasAnyRole('ADMIN', 'SUPER_ADMIN')")
 @RequiredArgsConstructor
 public class SearchQueryGeneratorController {
 
@@ -24,7 +26,7 @@ public class SearchQueryGeneratorController {
      */
     @PostMapping
     public ResponseEntity<Map<String, Object>> generateQueries(@RequestBody GenerateRequest request) {
-        int count = request.count() != null ? request.count() : 10;
+        int count = Math.min(request.count() != null ? request.count() : 10, 50);
         List<String> queries = searchQueryGenerator.generateQueries(request.topic(), request.target(), count);
         return ResponseEntity.ok(Map.of(
                 "queries", queries,
@@ -36,7 +38,7 @@ public class SearchQueryGeneratorController {
      */
     @PostMapping("/save")
     public ResponseEntity<Map<String, Object>> generateAndSaveQueries(@RequestBody GenerateRequest request) {
-        int count = request.count() != null ? request.count() : 10;
+        int count = Math.min(request.count() != null ? request.count() : 10, 50);
         List<SearchQuery> saved = searchQueryGenerator.generateAndSaveQueries(request.topic(), request.target(), count);
         List<SearchQueryResponse> responses = saved.stream().map(searchQueryDTOMapper).toList();
         return ResponseEntity.ok(Map.of(
@@ -49,7 +51,7 @@ public class SearchQueryGeneratorController {
      */
     @PostMapping("/variations")
     public ResponseEntity<Map<String, Object>> generateVariations(@RequestBody VariationRequest request) {
-        int count = request.count() != null ? request.count() : 5;
+        int count = Math.min(request.count() != null ? request.count() : 5, 50);
         List<String> variations = searchQueryGenerator.generateVariations(request.originalQuery(), count);
         return ResponseEntity.ok(Map.of(
                 "original", request.originalQuery(),
@@ -62,7 +64,7 @@ public class SearchQueryGeneratorController {
      */
     @PostMapping("/site")
     public ResponseEntity<Map<String, Object>> generateSiteQueries(@RequestBody SiteQueryRequest request) {
-        int count = request.count() != null ? request.count() : 10;
+        int count = Math.min(request.count() != null ? request.count() : 10, 50);
         List<String> queries = searchQueryGenerator.generateSiteQueries(request.topic(), request.site(), count);
         return ResponseEntity.ok(Map.of(
                 "site", request.site(),
@@ -75,7 +77,7 @@ public class SearchQueryGeneratorController {
      */
     @PostMapping("/emails")
     public ResponseEntity<Map<String, Object>> generateEmailQueries(@RequestBody EmailQueryRequest request) {
-        int count = request.count() != null ? request.count() : 10;
+        int count = Math.min(request.count() != null ? request.count() : 10, 50);
         List<String> queries = searchQueryGenerator.generateEmailQueries(request.industry(), request.region(), count);
         return ResponseEntity.ok(Map.of(
                 "industry", request.industry(),

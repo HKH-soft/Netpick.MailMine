@@ -1,5 +1,6 @@
 package ir.netpick.platform.ai.service;
 
+import ir.netpick.platform.ai.util.AiUtils;
 import ir.netpick.platform.core.exception.ResourceNotFoundException;
 import ir.netpick.platform.mailmine.model.EmailMessage;
 import ir.netpick.platform.mailmine.repository.EmailMessageRepository;
@@ -53,9 +54,9 @@ public class SpamDetectionService {
                 .orElseThrow(() -> new ResourceNotFoundException("Email not found: " + emailId));
 
         String prompt = String.format(SPAM_DETECTION_PROMPT,
-                sanitizeForPrompt(email.getSenderEmail()),
-                sanitizeForPrompt(email.getSubject()),
-                sanitizeForPrompt(email.getBodyText() != null ? truncate(email.getBodyText(), 3000) : "No content"));
+                AiUtils.sanitizeForPrompt(email.getSenderEmail()),
+                AiUtils.sanitizeForPrompt(email.getSubject()),
+                AiUtils.sanitizeForPrompt(email.getBodyText() != null ? truncate(email.getBodyText(), 3000) : "No content"));
 
         String response = geminiService.generateText(prompt);
         Map<String, Object> result = parseSpamResponse(response);
@@ -73,7 +74,7 @@ public class SpamDetectionService {
 
         for (UUID emailId : emailIds) {
             try {
-                Map<String, Object> result = analyzeEmail(emailId).join();
+                Map<String, Object> result = analyzeEmailSync(emailId);
                 results.put(emailId.toString(), result);
 
                 if (Boolean.TRUE.equals(result.get("is_spam"))) spamCount++;
@@ -93,12 +94,35 @@ public class SpamDetectionService {
         return CompletableFuture.completedFuture(summary);
     }
 
+    private Map<String, Object> analyzeEmailSync(UUID emailId) {
+        EmailMessage email = emailMessageRepository.findById(emailId)
+                .orElseThrow(() -> new ResourceNotFoundException("Email not found: " + emailId));
+
+        String prompt = String.format(SPAM_DETECTION_PROMPT,
+                AiUtils.sanitizeForPrompt(email.getSenderEmail()),
+                AiUtils.sanitizeForPrompt(email.getSubject()),
+                AiUtils.sanitizeForPrompt(email.getBodyText() != null ? truncate(email.getBodyText(), 3000) : "No content"));
+
+        String response = geminiService.generateText(prompt);
+        Map<String, Object> result = parseSpamResponse(response);
+        result.put("emailId", emailId.toString());
+        result.put("sender", email.getSenderEmail());
+
+        return result;
+    }
+
     /**
      * Check if sender is suspicious based on domain reputation
      */
     public Map<String, Object> checkSenderReputation(String email) {
         Map<String, Object> reputation = new LinkedHashMap<>();
         reputation.put("email", email);
+
+        if (!AiUtils.isValidEmailFormat(email)) {
+            reputation.put("isDisposable", false);
+            reputation.put("domain", "invalid");
+            return reputation;
+        }
 
         String domain = email.substring(email.indexOf("@") + 1).toLowerCase();
 
@@ -116,35 +140,6 @@ public class SpamDetectionService {
         return reputation;
     }
 
-    /**
-     * Sanitize text to prevent prompt injection attacks.
-     * Removes or escapes characters that could manipulate LLM behavior.
-     */
-    private String sanitizeForPrompt(String text) {
-        if (text == null) return "";
-        String result = text;
-        result = result.replace("````", "");
-        String[] lines = result.split("\n");
-        StringBuilder cleaned = new StringBuilder();
-        for (String line : lines) {
-            String trimmed = line.strip();
-            if (trimmed.isEmpty()) continue;
-            boolean isJsonLike = false;
-            if (trimmed.startsWith("\"")) {
-                isJsonLike = trimmed.contains("\":");
-            } else if (trimmed.contains(":")) {
-                String key = trimmed.substring(0, trimmed.indexOf(":")).strip();
-                isJsonLike = !key.isEmpty() && key.chars().allMatch(Character::isLetterOrDigit);
-            }
-            if (!isJsonLike) {
-                cleaned.append(line).append("\n");
-            }
-        }
-        result = cleaned.toString();
-        result = result.replaceAll("(?i)(ignore|disregard|forget|system|assistant|previous|instructions?)", "");
-        return result.trim();
-    }
-
     private Map<String, Object> parseSpamResponse(String response) {
         try {
             Map<String, Object> result = new LinkedHashMap<>();
@@ -156,9 +151,9 @@ public class SpamDetectionService {
             result.put("is_spam", extractJsonBoolean(json, "is_spam"));
             result.put("is_phishing", extractJsonBoolean(json, "is_phishing"));
             result.put("is_scam", extractJsonBoolean(json, "is_scam"));
-            result.put("risk_level", extractJsonValue(json, "risk_level"));
-            result.put("confidence", Double.parseDouble(extractJsonValue(json, "confidence")));
-            result.put("recommendation", extractJsonValue(json, "recommendation"));
+            result.put("risk_level", AiUtils.extractJsonValue(json, "risk_level"));
+            result.put("confidence", Double.parseDouble(AiUtils.extractJsonValue(json, "confidence")));
+            result.put("recommendation", AiUtils.extractJsonValue(json, "recommendation"));
 
             return result;
         } catch (Exception e) {
@@ -173,30 +168,8 @@ public class SpamDetectionService {
         }
     }
 
-    private String extractJsonValue(String json, String key) {
-        String search = "\"" + key + "\":";
-        int start = json.indexOf(search);
-        if (start == -1) return "";
-
-        start += search.length();
-        while (start < json.length() && json.charAt(start) == ' ') start++;
-
-        if (start >= json.length()) return "";
-
-        char quote = json.charAt(start);
-        if (quote == '"') {
-            start++;
-            int end = json.indexOf('"', start);
-            return end > start ? json.substring(start, end) : "";
-        } else {
-            int end = start;
-            while (end < json.length() && json.charAt(end) != ',' && json.charAt(end) != '}') end++;
-            return json.substring(start, end).trim();
-        }
-    }
-
     private boolean extractJsonBoolean(String json, String key) {
-        String value = extractJsonValue(json, key);
+        String value = AiUtils.extractJsonValue(json, key);
         return "true".equalsIgnoreCase(value);
     }
 
@@ -205,11 +178,3 @@ public class SpamDetectionService {
         return text.length() > maxLength ? text.substring(0, maxLength) + "..." : text;
     }
 }
-
-
-
-
-
-
-
-

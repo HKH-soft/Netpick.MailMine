@@ -81,9 +81,7 @@ public class CustomsDeclarationService {
     }
 
     public void delete(UUID id) {
-        CustomsDeclaration declaration = getById(id);
-        declaration.setDeleted(true);
-        customsDeclarationRepository.save(declaration);
+        customsDeclarationRepository.softDelete(id);
     }
 
     public CustomsDeclaration submitForApproval(UUID id) {

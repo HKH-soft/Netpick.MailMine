@@ -9,11 +9,13 @@ import ir.netpick.platform.mailmine.repository.EmailTagRepository;
 import ir.netpick.platform.ai.service.GeminiService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.*;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -99,15 +101,16 @@ public class EmailClassificationService {
 
     @Transactional
     public void classifyUnprocessedEmails() {
-        List<EmailMessage> unprocessed = emailMessageRepository.findAll()
-                .stream()
-                .filter(e -> e.getEmailTags() == null || e.getEmailTags().isEmpty())
-                .limit(100)
-                .collect(Collectors.toList());
-
-        for (EmailMessage email : unprocessed) {
-            classifyEmail(email);
-        }
+        int batchSize = 500;
+        Pageable pageable = PageRequest.of(0, batchSize);
+        Page<EmailMessage> page;
+        do {
+            page = emailMessageRepository.findUnprocessedEmails(pageable);
+            for (EmailMessage email : page.getContent()) {
+                classifyEmail(email);
+            }
+            pageable = page.nextPageable();
+        } while (page.hasNext());
     }
 }
 

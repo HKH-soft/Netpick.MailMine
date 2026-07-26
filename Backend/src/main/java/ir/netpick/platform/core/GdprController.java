@@ -44,11 +44,26 @@ public class GdprController {
     }
 
     @GetMapping("/audit-trail/recent")
-    public ResponseEntity<List<AuditTrail>> getRecentAuditTrail(
+    public ResponseEntity<List<AuditTrailDTO>> getRecentAuditTrail(
             @RequestParam(defaultValue = "100") int limit) {
-        return ResponseEntity.ok(
-                auditTrailRepository.findByCreatedAtAfter(
-                        java.time.LocalDateTime.now().minusDays(7)));
+        List<AuditTrail> trails = auditTrailRepository.findByCreatedAtAfter(
+                java.time.LocalDateTime.now().minusDays(7));
+        List<AuditTrailDTO> dtos = trails.stream()
+                .limit(limit)
+                .map(trail -> new AuditTrailDTO(
+                        trail.getId(),
+                        trail.getEntityType(),
+                        trail.getEntityId(),
+                        trail.getAction(),
+                        trail.getPerformedById(),
+                        "[REDACTED]",
+                        trail.getOldValues() != null ? "[REDACTED]" : null,
+                        trail.getNewValues() != null ? "[REDACTED]" : null,
+                        "[REDACTED]",
+                        trail.getUserAgent() != null ? "[REDACTED]" : null,
+                        trail.getCreatedAt()))
+                .toList();
+        return ResponseEntity.ok(dtos);
     }
 }
 

@@ -1,5 +1,7 @@
 package ir.netpick.platform.core;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
@@ -17,6 +19,10 @@ public interface AuditTrailRepository extends JpaRepository<AuditTrail, UUID> {
     List<AuditTrail> findByCreatedAtAfter(LocalDateTime since);
 
     List<AuditTrail> findByEntityTypeAndCreatedAtAfterOrderByCreatedAtDesc(String entityType, LocalDateTime since);
+
+    List<AuditTrail> findByCreatedAtBefore(LocalDateTime cutoff);
+
+    Page<AuditTrail> findByCreatedAtBefore(LocalDateTime cutoff, Pageable pageable);
 }
 
 

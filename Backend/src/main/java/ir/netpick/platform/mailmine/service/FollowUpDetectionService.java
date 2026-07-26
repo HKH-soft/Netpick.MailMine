@@ -77,14 +77,17 @@ public class FollowUpDetectionService {
      * Send notification to all registered listeners
      */
     private void notifyListeners(Map<String, Object> notification) {
-        notificationListeners.forEach((id, listener) -> {
+        Iterator<Map.Entry<String, Consumer<Map<String, Object>>>> it =
+                notificationListeners.entrySet().iterator();
+        while (it.hasNext()) {
+            Map.Entry<String, Consumer<Map<String, Object>>> entry = it.next();
             try {
-                listener.accept(notification);
+                entry.getValue().accept(notification);
             } catch (Exception e) {
-                log.error("Failed to notify listener {}: {}", id, e.getMessage());
-                notificationListeners.remove(id);
+                log.error("Failed to notify listener {}: {}", entry.getKey(), e.getMessage());
+                it.remove();
             }
-        });
+        }
     }
 
     public long getHoursSinceLastReply(EmailMessage email) {
@@ -100,7 +103,7 @@ public class FollowUpDetectionService {
         // Urgent (>96h)
         LocalDateTime urgentThreshold = LocalDateTime.now().minusHours(URGENT_THRESHOLD_HOURS);
         List<EmailMessage> urgent = emailMessageRepository.findUnrepliedEmailsOlderThan(urgentThreshold);
-        for (EmailMessage email : urgent) {
+        for (EmailMessage email : urgent.stream().limit(100).toList()) {
             Map<String, Object> item = new LinkedHashMap<>();
             item.put("emailId", email.getId().toString());
             item.put("subject", email.getSubject());
@@ -115,7 +118,7 @@ public class FollowUpDetectionService {
         // Normal follow-up (48-96h)
         LocalDateTime normalThreshold = LocalDateTime.now().minusHours(FOLLOW_UP_THRESHOLD_HOURS);
         List<EmailMessage> normal = emailMessageRepository.findUnrepliedEmailsOlderThan(normalThreshold);
-        for (EmailMessage email : normal) {
+        for (EmailMessage email : normal.stream().limit(100).toList()) {
             long hours = ChronoUnit.HOURS.between(email.getReceivedAt(), LocalDateTime.now());
             if (hours < URGENT_THRESHOLD_HOURS) {
                 Map<String, Object> item = new LinkedHashMap<>();

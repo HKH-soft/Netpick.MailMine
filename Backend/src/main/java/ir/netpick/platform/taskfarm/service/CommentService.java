@@ -51,6 +51,6 @@ public class CommentService {
     }
 
     public void delete(UUID commentId) {
-        commentRepository.deleteById(commentId);
+        commentRepository.softDelete(commentId);
     }
 }

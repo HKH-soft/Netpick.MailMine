@@ -4,6 +4,7 @@ import ir.netpick.platform.mailmine.model.Campaign;
 import ir.netpick.platform.mailmine.service.CampaignService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
@@ -75,8 +76,12 @@ public class CampaignController {
     }
 
     @GetMapping("/{id}/recipients")
-    public ResponseEntity<?> getCampaignRecipients(@PathVariable UUID id) {
-        return ResponseEntity.ok(campaignService.getRecipients(id));
+    public ResponseEntity<?> getCampaignRecipients(
+            @PathVariable UUID id,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "20") int size) {
+        size = Math.min(size, 100);
+        return ResponseEntity.ok(campaignService.getRecipients(id, PageRequest.of(page, size)));
     }
 }
 

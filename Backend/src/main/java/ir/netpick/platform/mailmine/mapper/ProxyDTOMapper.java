@@ -32,10 +32,7 @@ public class ProxyDTOMapper implements Function<Proxy, ProxyResponse> {
                 proxy.getSecurity(),
                 proxy.getSni(),
                 proxy.getLocalPort(),
-                proxy.isV2RayProtocol(),
-                // Vercel Relay fields
-                proxy.getVercelToken(),
-                proxy.getRelaySessionId());
+                proxy.isV2RayProtocol());
     }
 }
 

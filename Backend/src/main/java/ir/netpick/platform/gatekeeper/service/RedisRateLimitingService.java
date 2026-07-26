@@ -5,9 +5,11 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.data.redis.core.script.DefaultRedisScript;
 import org.springframework.stereotype.Service;
 
 import java.time.Duration;
+import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -21,6 +23,12 @@ import java.util.concurrent.TimeUnit;
 public class RedisRateLimitingService implements RateLimiting {
 
     private final RedisTemplate<String, Object> redisTemplate;
+
+    // Lua script for atomic increment with expiration
+    private static final String INCREMENT_WITH_EXPIRE =
+        "local c = redis.call('INCR', KEYS[1]) " +
+        "if c == 1 then redis.call('EXPIRE', KEYS[1], ARGV[1]) end " +
+        "return c";
 
     // Resend rate limiting constants
     private static final int RESEND_MAX_PER_HOUR = 3;
@@ -58,12 +66,10 @@ public class RedisRateLimitingService implements RateLimiting {
     @Override
     public void recordFailedLoginAttempt(String email) {
         String key = LOGIN_ATTEMPTS_PREFIX + email;
-        Long attempts = redisTemplate.opsForValue().increment(key);
-
-        if (attempts == 1) {
-            // Set expiration on first attempt
-            redisTemplate.expire(key, Duration.ofMinutes(LOGIN_LOCKOUT_MINUTES));
-        }
+        Long attempts = redisTemplate.execute(
+            new DefaultRedisScript<>(INCREMENT_WITH_EXPIRE, Long.class),
+            List.of(key),
+            String.valueOf(Duration.ofMinutes(LOGIN_LOCKOUT_MINUTES).getSeconds()));
 
         log.warn("Failed login attempt #{} for user: {}", attempts, email);
     }
@@ -115,12 +121,10 @@ public class RedisRateLimitingService implements RateLimiting {
     @Override
     public void recordVerificationAttempt(String email) {
         String key = VERIFICATION_ATTEMPTS_PREFIX + email;
-        Long attempts = redisTemplate.opsForValue().increment(key);
-
-        if (attempts == 1) {
-            // Set expiration on first attempt (10 minutes cooldown)
-            redisTemplate.expire(key, Duration.ofMinutes(10));
-        }
+        Long attempts = redisTemplate.execute(
+            new DefaultRedisScript<>(INCREMENT_WITH_EXPIRE, Long.class),
+            List.of(key),
+            String.valueOf(600)); // 10 minutes in seconds
 
         log.debug("Recorded verification attempt for user: {}", email);
     }
@@ -168,12 +172,10 @@ public class RedisRateLimitingService implements RateLimiting {
         String attemptsKey = RESEND_ATTEMPTS_PREFIX + email;
         String lastTimeKey = RESEND_LAST_TIME_PREFIX + email;
 
-        Long attempts = redisTemplate.opsForValue().increment(attemptsKey);
-
-        if (attempts == 1) {
-            // Set expiration on first attempt (1 hour)
-            redisTemplate.expire(attemptsKey, Duration.ofHours(1));
-        }
+        Long attempts = redisTemplate.execute(
+            new DefaultRedisScript<>(INCREMENT_WITH_EXPIRE, Long.class),
+            List.of(attemptsKey),
+            String.valueOf(Duration.ofHours(1).getSeconds()));
 
         // Update last resend time
         redisTemplate.opsForValue().set(lastTimeKey, System.currentTimeMillis(), Duration.ofHours(1));

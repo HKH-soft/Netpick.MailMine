@@ -8,6 +8,7 @@ import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
+import java.nio.charset.StandardCharsets;
 import java.security.Key;
 import java.security.SecureRandom;
 import java.time.Duration;
@@ -59,7 +60,7 @@ public class JWTKeyRotationService {
                     + "Set security.jwt.secret-key environment variable.");
         }
         activeKeyId = UUID.randomUUID().toString();
-        activeSigningKey = Keys.hmacShaKeyFor(primarySecretKey.getBytes());
+        activeSigningKey = Keys.hmacShaKeyFor(primarySecretKey.getBytes(StandardCharsets.UTF_8));
         log.info("Initialized JWT signing key with ID: {}", activeKeyId);
     }
 
@@ -84,7 +85,21 @@ public class JWTKeyRotationService {
         if (activeKeyId.equals(keyId)) {
             return activeSigningKey;
         }
-        return verificationKeys.get(keyId);
+        
+        Key key = verificationKeys.get(keyId);
+        if (key != null) {
+            return key;
+        }
+        
+        // Fallback: check Redis for old keys (cross-instance support)
+        Object redisKey = redisTemplate.opsForValue().get("jwt:keys:" + keyId);
+        if (redisKey instanceof byte[] keyBytes) {
+            Key restoredKey = Keys.hmacShaKeyFor(keyBytes);
+            verificationKeys.put(keyId, restoredKey);
+            return restoredKey;
+        }
+        
+        return null;
     }
 
     /**
@@ -116,15 +131,28 @@ public class JWTKeyRotationService {
     private void storeActiveKey() {
         redisTemplate.opsForValue().set("jwt:active-key-id", activeKeyId);
         redisTemplate.opsForValue().set("jwt:key-created-at", String.valueOf(System.currentTimeMillis()));
+        
+        // Persist active key bytes to Redis for cross-instance verification
+        if (activeSigningKey != null) {
+            byte[] keyBytes = activeSigningKey.getEncoded();
+            redisTemplate.opsForValue().set("jwt:keys:" + activeKeyId, keyBytes);
+        }
     }
 
     private void performKeyRotation() {
-        // Archive current key for grace period
+        String oldKeyId = activeKeyId;
+        
+        // Persist old key to Redis for cross-instance verification
+        if (activeSigningKey != null) {
+            byte[] oldKeyBytes = activeSigningKey.getEncoded();
+            redisTemplate.opsForValue().set("jwt:keys:" + oldKeyId, oldKeyBytes);
+            redisTemplate.expire("jwt:keys:" + oldKeyId, Duration.ofDays(gracePeriodDays));
+        }
+        
+        // Archive current key for in-memory verification
         verificationKeys.put(activeKeyId, activeSigningKey);
-        log.info("Archived old JWT key: {}", activeKeyId);
 
         // Generate NEW random key for actual key rotation
-        String oldKeyId = activeKeyId;
         activeKeyId = UUID.randomUUID().toString();
         activeSigningKey = Keys.hmacShaKeyFor(generateRandomKeyBytes());
 

@@ -79,23 +79,33 @@ public class JWTUtil {
     }
 
     private Claims getClaims(String token) {
-        // Parse token to get header with key ID
-        var parsed = Jwts.parser()
-                .verifyWith((SecretKey) keyRotationService.getSigningKey())
-                .build()
-                .parseSignedClaims(token);
-        
-        String keyId = parsed.getHeader().getKeyId();
-        
-        // Use appropriate verification key based on key ID
-        Key verificationKey = keyRotationService.getVerificationKey(keyId);
-        
-        return Jwts
-                .parser()
-                .verifyWith((SecretKey) verificationKey)
-                .build()
-                .parseSignedClaims(token)
-                .getPayload();
+        // Try current signing key first
+        Key currentKey = keyRotationService.getSigningKey();
+        try {
+            return Jwts.parser()
+                    .verifyWith((SecretKey) currentKey)
+                    .build()
+                    .parseSignedClaims(token)
+                    .getPayload();
+        } catch (Exception e) {
+            // If current key fails, try old keys from Redis
+            String keyId = Jwts.parser()
+                    .verifyWith((SecretKey) currentKey)
+                    .build()
+                    .parseSignedClaims(token)
+                    .getHeader()
+                    .getKeyId();
+            
+            Key oldKey = keyRotationService.getVerificationKey(keyId);
+            if (oldKey != null) {
+                return Jwts.parser()
+                        .verifyWith((SecretKey) oldKey)
+                        .build()
+                        .parseSignedClaims(token)
+                        .getPayload();
+            }
+            throw e;
+        }
     }
 
     public boolean isTokenValid(String token, UserDetails userDetails) {

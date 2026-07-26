@@ -15,6 +15,9 @@ import java.net.UnknownHostException;
 @Service
 public class GeminiService {
 
+    @Value("${gemini.api-key}")
+    private String apiKey;
+
     @Value("${gemini.model:gemini-2.0-flash}")
     private String model;
 
@@ -48,7 +51,7 @@ public class GeminiService {
         }
 
         try (Client client = Client.builder()
-                .apiKey(System.getenv("GOOGLE_API_KEY"))
+                .apiKey(apiKey)
                 .build()) {
             log.debug("Attempting to generate text with Gemini API, timeout: {}s", timeoutSeconds);
             GenerateContentResponse response = client.models.generateContent(model, prompt, null);

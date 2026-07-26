@@ -15,6 +15,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -72,6 +73,7 @@ public class ProductService {
         productRepository.restore(productId);
     }
 
+    @Transactional
     public Product adjustStock(UUID productId, int quantityChange, StockMovementType type, String reason, UUID movedBy) {
         Product product = getById(productId);
         int newQuantity = product.getQuantity() + quantityChange;

@@ -3,6 +3,7 @@ package ir.netpick.platform.mailmine.service;
 import ir.netpick.platform.mailmine.model.EmailMessage;
 import ir.netpick.platform.mailmine.repository.EmailMessageRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -25,7 +26,7 @@ public class CustomerSegmentationService {
 
         // Get all unique senders from the last 90 days
         List<EmailMessage> recentEmails = emailMessageRepository
-                .findByReceivedAtAfter(ninetyDaysAgo);
+                .findByReceivedAtAfter(ninetyDaysAgo, PageRequest.of(0, 1000)).getContent();
 
         Map<String, Long> senderCounts = recentEmails.stream()
                 .collect(Collectors.groupingBy(m -> m.getSenderEmail(), Collectors.counting()));
@@ -87,7 +88,7 @@ public class CustomerSegmentationService {
     public List<Map<String, Object>> getTopCustomers(int limit) {
         LocalDateTime ninetyDaysAgo = LocalDateTime.now().minusDays(90);
         List<EmailMessage> recentEmails = emailMessageRepository
-                .findByReceivedAtAfter(ninetyDaysAgo);
+                .findByReceivedAtAfter(ninetyDaysAgo, PageRequest.of(0, 1000)).getContent();
 
         Map<String, Long> senderCounts = recentEmails.stream()
                 .collect(Collectors.groupingBy(m -> m.getSenderEmail(), Collectors.counting()));

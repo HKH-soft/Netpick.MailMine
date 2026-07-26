@@ -157,14 +157,14 @@ public class MailAnalyticsService {
     }
 
     private long countReplied(LocalDateTime start, LocalDateTime end) {
-        return emailMessageRepository.findAll(PageRequest.of(0, 10000)).getContent().stream()
+        return emailMessageRepository.findAll(PageRequest.of(0, 1000)).getContent().stream()
                 .filter(e -> e.getIsAnswered())
                 .filter(e -> e.getReceivedAt().isAfter(start) && e.getReceivedAt().isBefore(end))
                 .count();
     }
 
     private long countRead(LocalDateTime start, LocalDateTime end) {
-        return emailMessageRepository.findAll(PageRequest.of(0, 10000)).getContent().stream()
+        return emailMessageRepository.findAll(PageRequest.of(0, 1000)).getContent().stream()
                 .filter(e -> e.getIsRead())
                 .filter(e -> e.getReceivedAt().isAfter(start) && e.getReceivedAt().isBefore(end))
                 .count();
@@ -172,7 +172,7 @@ public class MailAnalyticsService {
 
     private double calculateAverageResponseTime(LocalDateTime start, LocalDateTime end) {
         List<EmailMessage> emails = emailMessageRepository.findAll(
-                PageRequest.of(0, 10000)).getContent().stream()
+                PageRequest.of(0, 1000)).getContent().stream()
                 .filter(e -> e.getIsAnswered() && e.getLastReplyAt() != null)
                 .filter(e -> e.getReceivedAt().isAfter(start) && e.getReceivedAt().isBefore(end))
                 .toList();
@@ -188,7 +188,7 @@ public class MailAnalyticsService {
     }
 
     private long countUnanswered() {
-        return emailMessageRepository.findAll(PageRequest.of(0, 10000)).getContent().stream()
+        return emailMessageRepository.findAll(PageRequest.of(0, 1000)).getContent().stream()
                 .filter(e -> !e.getIsAnswered())
                 .filter(e -> e.getStatus() == EmailMessage.EmailStatus.INBOX)
                 .count();

@@ -119,6 +119,6 @@ public class TransactionService {
                 }
             }
         }
-        return transactions;
+        return transactionRepository.saveAll(transactions);
     }
 }

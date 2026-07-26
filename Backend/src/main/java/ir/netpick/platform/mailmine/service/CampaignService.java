@@ -145,8 +145,8 @@ public class CampaignService {
         }
     }
 
-    public List<CampaignRecipient> getRecipients(UUID campaignId) {
-        return campaignRecipientRepository.findByCampaignId(campaignId);
+    public Page<CampaignRecipient> getRecipients(UUID campaignId, Pageable pageable) {
+        return campaignRecipientRepository.findByCampaignId(campaignId, pageable);
     }
 
     public Campaign getCampaignStats(UUID campaignId) {

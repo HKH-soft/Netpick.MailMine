@@ -5,12 +5,14 @@ import ir.netpick.platform.financefarm.model.CustomsDeclaration;
 import ir.netpick.platform.financefarm.service.CustomsDeclarationService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.UUID;
 
 @RestController
-@RequestMapping("/api/customs-declarations")
+@RequestMapping("/api/v1/financefarm/customs-declarations")
+@PreAuthorize("hasAnyRole('ADMIN', 'SUPER_ADMIN')")
 @RequiredArgsConstructor
 public class CustomsDeclarationController {
 

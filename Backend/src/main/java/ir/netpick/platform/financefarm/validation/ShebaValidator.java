@@ -1,5 +1,6 @@
 package ir.netpick.platform.financefarm.validation;
 
+import java.math.BigInteger;
 import java.util.Arrays;
 import java.util.List;
 
@@ -153,25 +154,21 @@ public class ShebaValidator {
      * Validate Sheba checksum using MOD97 algorithm.
      */
     private static boolean validateMod97(String sheba) {
-        try {
-            // Move first 4 chars to end
-            String rearranged = sheba.substring(4) + sheba.substring(0, 4);
+        // Move first 4 chars to end
+        String rearranged = sheba.substring(4) + sheba.substring(0, 4);
 
-            // Convert letters to numbers (A=10, B=11, ..., Z=35)
-            StringBuilder numeric = new StringBuilder();
-            for (char c : rearranged.toCharArray()) {
-                if (Character.isDigit(c)) {
-                    numeric.append(c);
-                } else {
-                    numeric.append(Character.getNumericValue(c));
-                }
+        // Convert letters to numbers (A=10, B=11, ..., Z=35)
+        StringBuilder numeric = new StringBuilder();
+        for (char c : rearranged.toCharArray()) {
+            if (Character.isDigit(c)) {
+                numeric.append(c);
+            } else {
+                numeric.append(Character.getNumericValue(c));
             }
-
-            // Calculate MOD97
-            return Long.parseLong(numeric.toString()) % 97 == 1;
-        } catch (NumberFormatException e) {
-            return false;
         }
+
+        // Calculate MOD97
+        return new BigInteger(numeric.toString()).mod(new BigInteger("97")).intValue() == 1;
     }
 
     /**

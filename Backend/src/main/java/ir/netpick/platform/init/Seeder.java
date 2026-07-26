@@ -79,17 +79,15 @@ public class Seeder implements ApplicationListener<ContextRefreshedEvent> {
         .filter(user -> user.getRole() == null || !validRoleIds.contains(user.getRole().getId()))
         .toList();
 
-    if (orphanedUsers.isEmpty()) {
-      return;
-    }
+if (orphanedUsers.isEmpty()) {
+       return;
+     }
 
-    log.warn("Deleting {} user(s) with invalid role references", orphanedUsers.size());
-    for (User orphan : orphanedUsers) {
-      log.warn("Orphaned user: email={}", orphan.getEmail());
-      userRepository.deleteById(orphan.getId());
-    }
-    userRepository.flush();
-  }
+     log.warn("Found {} user(s) with invalid role references (not deleting)", orphanedUsers.size());
+     for (User orphan : orphanedUsers) {
+       log.warn("Orphaned user: email={}", orphan.getEmail());
+     }
+   }
 
   private void createSuperAdmin() {
     String email = "super.admin@netpick.ir";
@@ -106,7 +104,12 @@ public class Seeder implements ApplicationListener<ContextRefreshedEvent> {
       return;
     }
 
-    User user = new User(email, passwordEncoder.encode("password"), "superAdmin",
+    String password = System.getenv("SUPER_ADMIN_PASSWORD");
+    if (password == null || password.isBlank()) {
+      password = java.util.UUID.randomUUID().toString();
+      log.warn("SUPER_ADMIN_PASSWORD not set — generated random password");
+    }
+    User user = new User(email, passwordEncoder.encode(password), "superAdmin",
         optionalRole.get());
     user.setIsVerified(true);
     userRepository.save(user);

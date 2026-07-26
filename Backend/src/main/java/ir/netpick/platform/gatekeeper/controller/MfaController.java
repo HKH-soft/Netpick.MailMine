@@ -14,7 +14,10 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 @RestController
 @RequestMapping("/api/v1/gatekeeper/mfa")
@@ -24,6 +27,44 @@ public class MfaController {
 
     private final MfaService mfaService;
     private final DeviceSessionService deviceSessionService;
+
+    private static final int MAX_MFA_VERIFY_ATTEMPTS = 5;
+    private static final int MFA_VERIFY_COOLDOWN_MINUTES = 5;
+    private final Map<String, MfaVerifyAttempts> mfaVerifyAttemptCounts = new ConcurrentHashMap<>();
+
+    private static class MfaVerifyAttempts {
+        private final int attempts;
+        private final LocalDateTime lastAttempt;
+
+        public MfaVerifyAttempts(int attempts, LocalDateTime lastAttempt) {
+            this.attempts = attempts;
+            this.lastAttempt = lastAttempt;
+        }
+
+        public int getAttempts() {
+            return attempts;
+        }
+
+        public LocalDateTime getLastAttempt() {
+            return lastAttempt;
+        }
+    }
+
+    private void checkMfaRateLimit(User user) {
+        MfaVerifyAttempts attempts = mfaVerifyAttemptCounts.get(user.getEmail());
+        if (attempts != null && attempts.getAttempts() >= MAX_MFA_VERIFY_ATTEMPTS) {
+            if (attempts.getLastAttempt().plusMinutes(MFA_VERIFY_COOLDOWN_MINUTES).isAfter(LocalDateTime.now())) {
+                throw new RequestValidationException("Too many MFA attempts. Please wait " + MFA_VERIFY_COOLDOWN_MINUTES + " minutes.");
+            }
+            mfaVerifyAttemptCounts.remove(user.getEmail());
+        }
+    }
+
+    private void recordMfaVerifyAttempt(User user) {
+        mfaVerifyAttemptCounts.merge(user.getEmail(),
+                new MfaVerifyAttempts(1, LocalDateTime.now()),
+                (existing, ignored) -> new MfaVerifyAttempts(existing.getAttempts() + 1, LocalDateTime.now()));
+    }
 
     @Operation(summary = "Get MFA status", description = "Check current MFA configuration status for the authenticated user")
     @SecurityRequirement(name = "Bearer Authentication")
@@ -55,10 +96,13 @@ public class MfaController {
     public ResponseEntity<MessageResponse> verifyMfa(
             @AuthenticationPrincipal User user,
             @Valid @RequestBody MfaVerifyRequest request) {
+        checkMfaRateLimit(user);
         boolean valid = mfaService.validateTotpCode(user, request.totpCode());
         if (!valid) {
+            recordMfaVerifyAttempt(user);
             throw new RequestValidationException("Invalid TOTP code");
         }
+        mfaVerifyAttemptCounts.remove(user.getEmail());
         return ResponseEntity.ok(new MessageResponse("TOTP code verified successfully"));
     }
 
@@ -68,10 +112,13 @@ public class MfaController {
     public ResponseEntity<MessageResponse> verifyBackupCode(
             @AuthenticationPrincipal User user,
             @Valid @RequestBody MfaBackupCodeRequest request) {
+        checkMfaRateLimit(user);
         boolean valid = mfaService.validateBackupCode(user, request.backupCode());
         if (!valid) {
+            recordMfaVerifyAttempt(user);
             throw new RequestValidationException("Invalid or already used backup code");
         }
+        mfaVerifyAttemptCounts.remove(user.getEmail());
         return ResponseEntity.ok(new MessageResponse("Backup code verified successfully"));
     }
 

@@ -1,10 +1,13 @@
 package ir.netpick.platform.mailmine.service.mid;
 
+import java.net.InetAddress;
 import java.net.URI;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicInteger;
+
+import ir.netpick.platform.core.exception.RequestValidationException;
 
 import com.microsoft.playwright.Browser;
 import org.springframework.beans.factory.annotation.Value;
@@ -53,7 +56,7 @@ public class Scraper {
 
     // Progress tracking
     private final AtomicInteger processedCount = new AtomicInteger(0);
-    private int totalCount = 0;
+    private volatile int totalCount = 0;
 
     public int getDataCount() {
         return (int) scrapeDataService.countAll();
@@ -136,6 +139,27 @@ public class Scraper {
         }
     }
 
+    private boolean isUrlSafe(String url) {
+        try {
+            URI uri = URI.create(url);
+            String host = uri.getHost();
+            if (host == null) return false;
+            InetAddress addr = InetAddress.getByName(host);
+            if (addr.isAnyLocalAddress() || addr.isLoopbackAddress() ||
+                addr.isLinkLocalAddress() || addr.isSiteLocalAddress()) {
+                return false;
+            }
+            String ip = addr.getHostAddress();
+            if (ip.startsWith("169.254.") || ip.equals("0.0.0.0")) {
+                return false;
+            }
+            String scheme = uri.getScheme();
+            return "http".equals(scheme) || "https".equals(scheme);
+        } catch (Exception e) {
+            return false;
+        }
+    }
+
     private void processJobWithProxy(ScrapeJob scrapeJob, Playwright playwright, boolean headless) {
         // Get a proxy for this job
         Optional<ir.netpick.platform.mailmine.model.Proxy> proxyOpt = useProxy ? proxyService.getNextProxy()
@@ -169,7 +193,7 @@ public class Scraper {
         // Apply proxy if available
         if (proxyOpt.isPresent() && proxyModel != null) {
             launchOptions.setProxy(new Proxy(proxyModel.toProxyUrl()));
-            log.debug("Using proxy: {}", proxyModel.toProxyUrl());
+            log.debug("Using proxy: {}:{}", proxyModel.getHost(), proxyModel.getPort());
         } else if (useProxy) {
             log.warn("No active proxy available, scraping without proxy");
         }
@@ -188,6 +212,9 @@ public class Scraper {
                 page.setDefaultTimeout(ScrapeConstants.PAGE_LOAD_TIMEOUT_SECONDS * 1000);
 
                 // Navigate to URL
+                if (!isUrlSafe(scrapeJob.getLink())) {
+                    throw new RequestValidationException("URL not allowed");
+                }
                 page.navigate(scrapeJob.getLink());
 
                 // Wait for body

@@ -2,6 +2,8 @@ package ir.netpick.platform.mailmine.repository;
 
 import ir.netpick.platform.mailmine.model.CampaignRecipient;
 import ir.netpick.platform.mailmine.model.CampaignRecipient.RecipientStatus;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -14,6 +16,8 @@ import java.util.UUID;
 public interface CampaignRecipientRepository extends JpaRepository<CampaignRecipient, UUID> {
 
     List<CampaignRecipient> findByCampaignId(UUID campaignId);
+
+    Page<CampaignRecipient> findByCampaignId(UUID campaignId, Pageable pageable);
 
     List<CampaignRecipient> findByCampaignIdAndStatus(UUID campaignId, RecipientStatus status);
 

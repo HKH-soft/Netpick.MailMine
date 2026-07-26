@@ -2,6 +2,9 @@ package ir.netpick.platform.core;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
@@ -57,11 +60,19 @@ public class GdprRetentionService {
 
         switch (config.getEntityType()) {
             case "AUDIT_TRAIL":
-                List<ir.netpick.platform.core.AuditTrail> oldAudits =
-                        auditTrailRepository.findByCreatedAtAfter(cutoff);
-                // Soft-delete by keeping but marking — in practice, hard delete for GDPR
-                auditTrailRepository.deleteAll(oldAudits);
-                result.put("deleted", oldAudits.size());
+                int batchSize = 500;
+                Pageable pageable = PageRequest.of(0, batchSize);
+                Page<ir.netpick.platform.core.AuditTrail> page;
+                int totalDeleted = 0;
+                do {
+                    page = auditTrailRepository.findByCreatedAtBefore(cutoff, pageable);
+                    if (page.hasContent()) {
+                        auditTrailRepository.deleteAll(page.getContent());
+                        totalDeleted += page.getContent().size();
+                    }
+                    pageable = page.nextPageable();
+                } while (page.hasNext());
+                result.put("deleted", totalDeleted);
                 result.put("cutoffDate", cutoff.toString());
                 break;
 

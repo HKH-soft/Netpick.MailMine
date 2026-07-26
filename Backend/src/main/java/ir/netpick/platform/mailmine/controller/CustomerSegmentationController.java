@@ -12,7 +12,7 @@ import java.util.Map;
 @RestController
 @RequestMapping("/api/v1/mailmine/segments")
 @RequiredArgsConstructor
-@PreAuthorize("hasRole('ADMIN') or hasRole('SUPER_ADMIN')")
+@PreAuthorize("hasAnyRole('ADMIN', 'SUPER_ADMIN')")
 public class CustomerSegmentationController {
 
     private final CustomerSegmentationService segmentationService;
@@ -25,6 +25,7 @@ public class CustomerSegmentationController {
     @GetMapping("/top-customers")
     public ResponseEntity<List<Map<String, Object>>> getTopCustomers(
             @RequestParam(defaultValue = "10") int limit) {
+        limit = Math.min(limit, 100);
         return ResponseEntity.ok(segmentationService.getTopCustomers(limit));
     }
 }

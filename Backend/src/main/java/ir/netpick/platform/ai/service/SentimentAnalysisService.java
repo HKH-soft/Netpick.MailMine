@@ -1,5 +1,6 @@
 package ir.netpick.platform.ai.service;
 
+import ir.netpick.platform.ai.util.AiUtils;
 import ir.netpick.platform.core.exception.ResourceNotFoundException;
 import ir.netpick.platform.mailmine.model.EmailMessage;
 import ir.netpick.platform.mailmine.repository.EmailMessageRepository;
@@ -43,9 +44,9 @@ public class SentimentAnalysisService {
                 .orElseThrow(() -> new ResourceNotFoundException("Email not found: " + emailId));
 
         String prompt = String.format(SENTIMENT_PROMPT,
-                sanitizeForPrompt(email.getSenderEmail()),
-                sanitizeForPrompt(email.getSubject()),
-                sanitizeForPrompt(email.getBodyText() != null ? truncate(email.getBodyText(), 2000) : "No content"));
+                AiUtils.sanitizeForPrompt(email.getSenderEmail()),
+                AiUtils.sanitizeForPrompt(email.getSubject()),
+                AiUtils.sanitizeForPrompt(email.getBodyText() != null ? truncate(email.getBodyText(), 2000) : "No content"));
 
         String response = geminiService.generateText(prompt);
         Map<String, Object> result = parseSentimentResponse(response);
@@ -70,7 +71,7 @@ public class SentimentAnalysisService {
 
         List<Map<String, Object>> emailSentiments = new ArrayList<>();
         for (EmailMessage email : thread) {
-            Map<String, Object> sentiment = analyzeEmail(email.getId()).join();
+            Map<String, Object> sentiment = analyzeEmailSync(email.getId());
             sentiment.put("date", email.getReceivedAt().toString());
             emailSentiments.add(sentiment);
         }
@@ -123,20 +124,36 @@ public class SentimentAnalysisService {
         return Math.min(score, 100);
     }
 
+    private Map<String, Object> analyzeEmailSync(UUID emailId) {
+        EmailMessage email = emailMessageRepository.findById(emailId)
+                .orElseThrow(() -> new ResourceNotFoundException("Email not found: " + emailId));
+
+        String prompt = String.format(SENTIMENT_PROMPT,
+                AiUtils.sanitizeForPrompt(email.getSenderEmail()),
+                AiUtils.sanitizeForPrompt(email.getSubject()),
+                AiUtils.sanitizeForPrompt(email.getBodyText() != null ? truncate(email.getBodyText(), 2000) : "No content"));
+
+        String response = geminiService.generateText(prompt);
+        Map<String, Object> result = parseSentimentResponse(response);
+        result.put("emailId", emailId.toString());
+        result.put("sender", email.getSenderEmail());
+        result.put("subject", email.getSubject());
+
+        return result;
+    }
+
     private Map<String, Object> parseSentimentResponse(String response) {
         try {
-            // Simple JSON parsing without external library
             Map<String, Object> result = new LinkedHashMap<>();
             String json = response.trim();
             if (json.startsWith("```")) {
                 json = json.replaceAll("```json\\n?", "").replaceAll("```\\n?", "").trim();
             }
 
-            // Extract fields using basic string parsing
-            result.put("sentiment", extractJsonValue(json, "sentiment"));
-            result.put("confidence", Double.parseDouble(extractJsonValue(json, "confidence")));
-            result.put("urgency", extractJsonValue(json, "urgency"));
-            result.put("emotion", extractJsonValue(json, "emotion"));
+            result.put("sentiment", AiUtils.extractJsonValue(json, "sentiment"));
+            result.put("confidence", Double.parseDouble(AiUtils.extractJsonValue(json, "confidence")));
+            result.put("urgency", AiUtils.extractJsonValue(json, "urgency"));
+            result.put("emotion", AiUtils.extractJsonValue(json, "emotion"));
 
             return result;
         } catch (Exception e) {
@@ -150,62 +167,9 @@ public class SentimentAnalysisService {
         }
     }
 
-    private String extractJsonValue(String json, String key) {
-        String search = "\"" + key + "\":";
-        int start = json.indexOf(search);
-        if (start == -1) return "";
-
-        start += search.length();
-        // Skip whitespace
-        while (start < json.length() && json.charAt(start) == ' ') start++;
-
-        if (start >= json.length()) return "";
-
-        char quote = json.charAt(start);
-        if (quote == '"') {
-            start++;
-            int end = json.indexOf('"', start);
-            return end > start ? json.substring(start, end) : "";
-        } else {
-            // Number or boolean
-            int end = start;
-            while (end < json.length() && json.charAt(end) != ',' && json.charAt(end) != '}') end++;
-            return json.substring(start, end).trim();
-        }
-    }
-
     private String truncate(String text, int maxLength) {
         if (text == null) return "";
         return text.length() > maxLength ? text.substring(0, maxLength) + "..." : text;
-    }
-
-    /**
-     * Sanitize text to prevent prompt injection attacks.
-     * Removes or escapes characters that could manipulate LLM behavior.
-     */
-    private String sanitizeForPrompt(String text) {
-        if (text == null) return "";
-        String result = text;
-        result = result.replace("``````", "");
-        String[] lines = result.split("\n");
-        StringBuilder cleaned = new StringBuilder();
-        for (String line : lines) {
-            String trimmed = line.strip();
-            if (trimmed.isEmpty()) continue;
-            boolean isJsonLike = false;
-            if (trimmed.startsWith("\"")) {
-                isJsonLike = trimmed.contains("\":");
-            } else if (trimmed.contains(":")) {
-                String key = trimmed.substring(0, trimmed.indexOf(":")).strip();
-                isJsonLike = !key.isEmpty() && key.chars().allMatch(Character::isLetterOrDigit);
-            }
-            if (!isJsonLike) {
-                cleaned.append(line).append("\n");
-            }
-        }
-        result = cleaned.toString();
-        result = result.replaceAll("(?i)(ignore|disregard|forget|system|assistant|previous|instructions?)", "");
-        return result.trim();
     }
 }
 

@@ -171,7 +171,7 @@ class CommentServiceTest {
         void shouldDeleteComment() {
             commentService.delete(testCommentId);
 
-            verify(commentRepository).deleteById(testCommentId);
+            verify(commentRepository).softDelete(testCommentId);
         }
     }
 }

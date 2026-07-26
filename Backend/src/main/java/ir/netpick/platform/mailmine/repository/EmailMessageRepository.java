@@ -40,6 +40,14 @@ public interface EmailMessageRepository extends JpaRepository<EmailMessage, UUID
             String subject, String senderEmail, Pageable pageable);
 
     List<EmailMessage> findByReceivedAtAfter(java.time.LocalDateTime date);
+
+    @Query("SELECT e FROM EmailMessage e WHERE e.emailTags IS EMPTY")
+    Page<EmailMessage> findUnprocessedEmails(Pageable pageable);
+
+    @Query("SELECT e FROM EmailMessage e WHERE e.receivedAt < :threshold AND e.isAnswered = false AND e.status = 'INBOX'")
+    Page<EmailMessage> findUnrepliedEmailsOlderThan(@Param("threshold") LocalDateTime threshold, Pageable pageable);
+
+    Page<EmailMessage> findByReceivedAtAfter(java.time.LocalDateTime date, Pageable pageable);
 }
 
 

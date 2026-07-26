@@ -4,6 +4,7 @@ import ir.netpick.platform.taskfarm.dto.AttachmentDTO;
 import ir.netpick.platform.taskfarm.model.Attachment;
 import ir.netpick.platform.taskfarm.service.AttachmentService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.UrlResource;
 import org.springframework.http.HttpHeaders;
@@ -25,6 +26,9 @@ public class AttachmentController {
 
     private final AttachmentService attachmentService;
 
+    @Value("${taskfarm.upload.dir:uploads/taskfarm/attachments/}")
+    private String uploadDir;
+
     @GetMapping("/task/{taskId}")
     public ResponseEntity<?> getByTask(@PathVariable UUID taskId) {
         return ResponseEntity.ok(attachmentService.getByTask(taskId));
@@ -41,8 +45,12 @@ public class AttachmentController {
     @GetMapping("/{id}/download")
     public ResponseEntity<?> download(@PathVariable UUID id) throws IOException {
         Attachment attachment = attachmentService.getById(id);
-        Path path = Path.of(attachment.getFilePath());
-        Resource resource = new UrlResource(path.toUri());
+        Path uploadDirPath = Path.of(uploadDir).toAbsolutePath().normalize();
+        Path filePath = Path.of(attachment.getFilePath()).toAbsolutePath().normalize();
+        if (!filePath.startsWith(uploadDirPath)) {
+            throw new SecurityException("Access denied");
+        }
+        Resource resource = new UrlResource(filePath.toUri());
         return ResponseEntity.ok()
                 .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + attachment.getOriginalFilename() + "\"")
                 .contentType(MediaType.parseMediaType(attachment.getContentType()))

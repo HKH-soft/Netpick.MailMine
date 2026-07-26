@@ -23,7 +23,7 @@ import java.util.UUID;
 @RestController
 @RequestMapping("/api/v1/gatekeeper/admin/security")
 @RequiredArgsConstructor
-@PreAuthorize("hasRole('ADMIN') or hasRole('SUPER_ADMIN')")
+@PreAuthorize("hasAnyRole('ADMIN', 'SUPER_ADMIN')")
 @Tag(name = "Security Administration", description = "Admin endpoints for security monitoring and management")
 public class SecurityAdminController {
 
@@ -45,6 +45,7 @@ public class SecurityAdminController {
             @RequestParam(defaultValue = "24") int hours,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "20") int size) {
+        size = Math.min(size, 100);
         return ResponseEntity.ok(securityEventService.getRecentEvents(hours, page, size));
     }
 
@@ -55,6 +56,7 @@ public class SecurityAdminController {
             @PathVariable UUID userId,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "20") int size) {
+        size = Math.min(size, 100);
         return ResponseEntity.ok(securityEventService.getEventsByUser(userId, page, size));
     }
 
@@ -65,6 +67,7 @@ public class SecurityAdminController {
             @RequestParam(defaultValue = "50") int minRisk,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "20") int size) {
+        size = Math.min(size, 100);
         return ResponseEntity.ok(securityEventService.getHighRiskEvents(minRisk, page, size));
     }
 

@@ -48,7 +48,6 @@ public class FileController {
         file.setOriginalFileName(request.originalFileName());
         file.setMimeType(request.mimeType());
         file.setFileSize(request.fileSize());
-        file.setFilePath(request.filePath());
         file.setFolderId(request.folderId());
         file.setOwnerId(request.ownerId());
         return ResponseEntity.ok(fileService.update(id, file));

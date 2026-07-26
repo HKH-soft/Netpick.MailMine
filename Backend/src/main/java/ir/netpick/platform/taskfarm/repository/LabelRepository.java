@@ -7,6 +7,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.UUID;
@@ -18,10 +19,12 @@ public interface LabelRepository extends JpaRepository<Label, UUID> {
 
     Page<Label> findByDeletedFalse(Pageable pageable);
 
+    @Transactional
     @Modifying
     @Query("UPDATE Label l SET l.deleted = true WHERE l.id = :id")
     void softDelete(UUID id);
 
+    @Transactional
     @Modifying
     @Query("UPDATE Label l SET l.deleted = false WHERE l.id = :id")
     void restore(UUID id);

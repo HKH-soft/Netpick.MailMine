@@ -4,6 +4,7 @@ import ir.netpick.platform.mailmine.model.EmailTag;
 import ir.netpick.platform.mailmine.service.EmailTagService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -26,9 +27,12 @@ public class EmailTagController {
     }
 
     @GetMapping("/category/{category}")
-    public ResponseEntity<List<EmailTag>> listByCategory(
-            @PathVariable EmailTag.TagCategory category) {
-        return ResponseEntity.ok(emailTagService.listByCategory(category));
+    public ResponseEntity<Page<EmailTag>> listByCategory(
+            @PathVariable EmailTag.TagCategory category,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "50") int size) {
+        size = Math.min(size, 100);
+        return ResponseEntity.ok(emailTagService.listByCategory(category, PageRequest.of(page, size)));
     }
 
     @GetMapping("/{id}")

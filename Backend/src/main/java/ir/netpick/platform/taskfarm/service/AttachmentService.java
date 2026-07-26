@@ -1,5 +1,6 @@
 package ir.netpick.platform.taskfarm.service;
 
+import ir.netpick.platform.core.exception.RequestValidationException;
 import ir.netpick.platform.core.exception.ResourceNotFoundException;
 import ir.netpick.platform.taskfarm.model.Attachment;
 import ir.netpick.platform.taskfarm.repository.AttachmentRepository;
@@ -39,7 +40,17 @@ public class AttachmentService {
             Files.createDirectories(uploadPath);
         }
 
-        String filename = UUID.randomUUID() + "_" + file.getOriginalFilename();
+        String originalFilename = file.getOriginalFilename();
+        if (originalFilename == null || originalFilename.isBlank()) {
+            throw new RequestValidationException("File name is required");
+        }
+        originalFilename = Paths.get(originalFilename).getFileName().toString();
+
+        if (file.getSize() > 10 * 1024 * 1024) {
+            throw new RequestValidationException("File size exceeds 10MB limit");
+        }
+
+        String filename = UUID.randomUUID() + "_" + originalFilename;
         Path filePath = uploadPath.resolve(filename);
         Files.copy(file.getInputStream(), filePath);
 
@@ -47,7 +58,7 @@ public class AttachmentService {
         attachment.setId(null);
         attachment.setTaskId(taskId);
         attachment.setFilename(filename);
-        attachment.setOriginalFilename(file.getOriginalFilename());
+        attachment.setOriginalFilename(originalFilename);
         attachment.setFilePath(filePath.toString());
         attachment.setFileSize(file.getSize());
         attachment.setContentType(file.getContentType());
@@ -58,11 +69,11 @@ public class AttachmentService {
 
     public void delete(UUID attachmentId) {
         Attachment attachment = getById(attachmentId);
+        attachmentRepository.softDelete(attachmentId);
         Path filePath = Paths.get(attachment.getFilePath());
         try {
             Files.deleteIfExists(filePath);
         } catch (IOException ignored) {
         }
-        attachmentRepository.delete(attachment);
     }
 }

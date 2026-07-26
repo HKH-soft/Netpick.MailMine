@@ -44,7 +44,6 @@ public class SecurityFilterChainConfig {
                                                 "/api/v1/gatekeeper/auth/verify",
                                                 "/api/v1/gatekeeper/auth/resend-verification",
                                                 "/api/v1/gatekeeper/auth/refresh",
-                                                "/api/v1/gatekeeper/auth/logout",
                                                 "/api/v1/gatekeeper/auth/password-reset/request",
                                                 "/api/v1/gatekeeper/auth/password-reset/verify",
                                                 "/api/v1/gatekeeper/auth/password-reset/confirm")

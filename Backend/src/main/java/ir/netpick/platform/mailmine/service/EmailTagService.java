@@ -34,6 +34,10 @@ public class EmailTagService {
         return emailTagRepository.findByCategory(category);
     }
 
+    public Page<EmailTag> listByCategory(EmailTag.TagCategory category, Pageable pageable) {
+        return emailTagRepository.findByCategory(category, pageable);
+    }
+
     public EmailTag getById(UUID id) {
         return emailTagRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Tag not found: " + id));
