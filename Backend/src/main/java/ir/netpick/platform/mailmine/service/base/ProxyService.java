@@ -103,8 +103,6 @@ public class ProxyService {
     }
 
     public void restore(UUID id) {
-        // Verify the proxy exists and is deleted before restoring
-        proxyRepository.findByDeletedTrueAndId(id);
         proxyRepository.restore(id);
         log.info("Restored proxy with ID: {}", id);
     }
@@ -251,7 +249,7 @@ public class ProxyService {
         }
 
         try (Playwright playwright = Playwright.create()) {
-            log.debug("Playwright created, launching browser with proxy: {}:{}", proxy.getHost(), proxy.getPort());
+            log.debug("Playwright created, launching browser with proxy: {}", proxy.toProxyUrl());
 
             BrowserType.LaunchOptions launchOptions = new BrowserType.LaunchOptions()
                     .setHeadless(true)
@@ -330,7 +328,7 @@ public class ProxyService {
             }
         }
 
-        log.debug("Selected proxy: {}:{}", proxy.getHost(), proxy.getPort());
+        log.debug("Selected proxy: {}", proxy.toProxyUrl());
         return Optional.of(proxy);
     }
 
@@ -409,7 +407,7 @@ public class ProxyService {
         // Disable proxy if too many failures
         if (proxy.getFailureCount() > 5 && proxy.getSuccessCount() < proxy.getFailureCount()) {
             proxy.setStatus(ProxyStatus.FAILED);
-            log.warn("Proxy {}:{} disabled due to too many failures", proxy.getHost(), proxy.getPort());
+            log.warn("Proxy {} disabled due to too many failures", proxy.toProxyUrl());
         }
 
         proxyRepository.save(proxy);
@@ -495,7 +493,7 @@ public class ProxyService {
                         }
                     }
                 }
-                log.debug("Selected healthy proxy: {}:{}", proxy.getHost(), proxy.getPort());
+                log.debug("Selected healthy proxy: {}", proxy.toProxyUrl());
                 return Optional.of(proxy);
             }
         }
