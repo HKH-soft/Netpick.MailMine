@@ -36,6 +36,9 @@ public interface ScrapeDataRepository extends JpaRepository<ScrapeData, UUID> {
     // Find all deleted data with pagination
     Page<ScrapeData> findByDeletedTrue(Pageable pageable);
 
+    // Find deleted scrape data by ID (bypasses @SQLRestriction)
+    ScrapeData findByDeletedTrueAndId(UUID id);
+
     @Transactional
     @Modifying
     @Query("update ScrapeData s set s.deleted = True where s.deleted = false and s.id = ?1")
@@ -46,11 +49,3 @@ public interface ScrapeDataRepository extends JpaRepository<ScrapeData, UUID> {
     @Query("update ScrapeData s set s.deleted = False where s.deleted = true and s.id = ?1")
     void restore(UUID id);
 }
-
-
-
-
-
-
-
-

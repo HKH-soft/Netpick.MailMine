@@ -75,6 +75,8 @@ public class TransactionService {
     }
 
     public void restore(UUID transactionId) {
+        // Verify the transaction exists and is deleted before restoring
+        transactionRepository.findByDeletedTrueAndId(transactionId);
         transactionRepository.restore(transactionId);
     }
 

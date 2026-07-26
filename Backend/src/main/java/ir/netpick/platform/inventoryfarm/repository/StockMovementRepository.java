@@ -37,4 +37,7 @@ public interface StockMovementRepository extends JpaRepository<StockMovement, UU
     @Modifying
     @Query("update StockMovement sm set sm.deleted = false where sm.id = ?1 and sm.deleted = true")
     void restore(UUID id);
+
+    // Find soft-deleted by ID (bypasses @SQLRestriction)
+    StockMovement findByDeletedTrueAndId(UUID id);
 }

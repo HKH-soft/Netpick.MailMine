@@ -19,13 +19,16 @@ public interface LabelRepository extends JpaRepository<Label, UUID> {
 
     Page<Label> findByDeletedFalse(Pageable pageable);
 
+    // Find deleted label by ID (bypasses @SQLRestriction)
+    Label findByDeletedTrueAndId(UUID id);
+
     @Transactional
     @Modifying
-    @Query("UPDATE Label l SET l.deleted = true WHERE l.id = :id")
+    @Query("UPDATE Label l SET l.deleted = true WHERE l.deleted = false AND l.id = :id")
     void softDelete(UUID id);
 
     @Transactional
     @Modifying
-    @Query("UPDATE Label l SET l.deleted = false WHERE l.id = :id")
+    @Query("UPDATE Label l SET l.deleted = false WHERE l.deleted = true AND l.id = :id")
     void restore(UUID id);
 }

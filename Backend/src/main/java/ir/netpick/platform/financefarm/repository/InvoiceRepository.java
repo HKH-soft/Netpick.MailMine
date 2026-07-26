@@ -47,4 +47,7 @@ public interface InvoiceRepository extends JpaRepository<Invoice, UUID> {
     @Modifying
     @Query("update Invoice i set i.deleted = false where i.id = ?1 and i.deleted = true")
     void restore(UUID id);
+
+    // Find soft-deleted by ID (bypasses @SQLRestriction)
+    Invoice findByDeletedTrueAndId(UUID id);
 }

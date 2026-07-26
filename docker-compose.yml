@@ -242,6 +242,33 @@ services:
         max-size: "10m"
         max-file: "3"
 
+  # ===== PostgreSQL Exporter (database metrics) =====
+  postgres-exporter:
+    image: quay.io/prometheuscommunity/postgres-exporter:latest
+    container_name: postgres-exporter
+    restart: always
+    env_file:
+      - ./.config/docker/postgres.env
+    environment:
+      - DATA_SOURCE_NAME: "postgresql://${POSTGRES_USERNAME}:${POSTGRES_PASSWORD}@postgres:5432/${DATABASE_NAME}?sslmode=disable"
+    networks:
+      - monitoring-net
+    depends_on:
+      - postgres
+    deploy:
+      resources:
+        limits:
+          cpus: "0.5"
+          memory: 128M
+        reservations:
+          cpus: "0.1"
+          memory: 64M
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+
   # ===== Blackbox Exporter (endpoint probing) =====
   blackbox-exporter:
     image: prom/blackbox-exporter:v0.26.0
@@ -276,6 +303,7 @@ services:
     volumes:
       - grafana-data:/var/lib/grafana
       - ./app-config/grafana/provisioning:/etc/grafana/provisioning:ro
+      - ./app-config/grafana/provisioning/alerting:/etc/grafana/provisioning/alerting:ro
     ports:
       - "3001:3000"
     networks:

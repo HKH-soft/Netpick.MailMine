@@ -21,6 +21,8 @@ public interface ApiKeyRepository extends JpaRepository<ApiKey, UUID> {
     // Find all deleted api keys with pagination
     Page<ApiKey> findByDeletedTrue(Pageable pageable);
 
+    ApiKey findByDeletedTrueAndId(UUID id);
+
     @Transactional
     @Modifying
     @Query("update ApiKey s set s.deleted = True where s.deleted = false and s.id = ?1")

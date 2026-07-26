@@ -18,7 +18,7 @@ public class AuthenticationUserDetailsService implements UserDetailsService {
     @Override
     public UserDetails loadUserByUsername(String email)
             throws UsernameNotFoundException {
-        return userRepository.findByEmail(email)
+        return userRepository.findByDeletedFalseAndEmail(email)
                 .orElseThrow(
                         () -> new UsernameNotFoundException("User with email: [%s] was not found!".formatted(email)));
     }

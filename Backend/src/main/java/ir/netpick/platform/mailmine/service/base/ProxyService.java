@@ -103,6 +103,8 @@ public class ProxyService {
     }
 
     public void restore(UUID id) {
+        // Verify the proxy exists and is deleted before restoring
+        proxyRepository.findByDeletedTrueAndId(id);
         proxyRepository.restore(id);
         log.info("Restored proxy with ID: {}", id);
     }

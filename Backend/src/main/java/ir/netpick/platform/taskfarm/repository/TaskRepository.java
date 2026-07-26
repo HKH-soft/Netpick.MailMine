@@ -31,6 +31,9 @@ public interface TaskRepository extends JpaRepository<Task, UUID> {
     // Find tasks by due date range
     Page<Task> findByDueDateBetweenAndDeletedFalse(LocalDateTime start, LocalDateTime end, Pageable pageable);
 
+    // Find deleted task by ID (bypasses @SQLRestriction)
+    Task findByDeletedTrueAndId(UUID id);
+
     // Soft delete
     @Transactional
     @Modifying
@@ -40,6 +43,6 @@ public interface TaskRepository extends JpaRepository<Task, UUID> {
     // Restore
     @Transactional
     @Modifying
-    @Query("update Task t set t.deleted = false where t.id = ?1 and t.deleted = true")
+    @Query("update Task t set t.deleted = false where t.deleted = true and t.id = ?1")
     void restore(UUID id);
 }

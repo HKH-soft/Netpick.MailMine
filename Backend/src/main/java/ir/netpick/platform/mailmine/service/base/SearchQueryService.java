@@ -120,9 +120,8 @@ public class SearchQueryService {
 
     @CacheEvict(value = { "searchQuery", "searchQueries" }, allEntries = true)
     public void restoreSearchQuery(@NotNull UUID id) {
-        if (!searchQueryRepository.existsById(id)) {
-            throw new ResourceNotFoundException("SearchQuery with ID [%s] not found.".formatted(id));
-        }
+        // Verify the search query exists and is deleted before restoring
+        searchQueryRepository.findByDeletedTrueAndId(id);
         searchQueryRepository.restore(id);
         log.info("Restored SearchQuery with ID: {}", id);
     }

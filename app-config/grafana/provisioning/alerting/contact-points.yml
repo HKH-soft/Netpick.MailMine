@@ -1,0 +1,31 @@
+apiVersion: 1
+
+contactPoints:
+  - name: telegram-alerts
+    uid: telegram-alerts-uid
+    settings:
+      uploadImage: true
+    receivers:
+      - grafanaTelegram:
+          type: telegram
+          settings:
+            botToken: "${TELEGRAM_BOT_TOKEN}"
+            chatID: "${TELEGRAM_CHAT_ID}"
+            message: |
+              {{ len .Alerts }} {{ if eq .Status "firing" }}alerts {{ else }}alert {{ end }}for {{ .GroupLabels.SortedLabels | join ", " }}:
+              {{ range .Alerts -}}
+              *{{ .Labels.alertname }}*: {{ .Annotations.description }}
+              {{ end }}
+
+  - name: discord-alerts
+    uid: discord-alerts-uid
+    receivers:
+      - discord:
+          type: discord
+          settings:
+            url: "${DISCORD_WEBHOOK_URL}"
+            message: |
+              {{ len .Alerts }} {{ if eq .Status "firing" }}alerts {{ else }}alert {{ end }}for {{ .GroupLabels.SortedLabels | join ", " }}:
+              {{ range .Alerts -}}
+              *{{ .Labels.alertname }}*: {{ .Annotations.description }}
+              {{ end }}

@@ -31,6 +31,9 @@ public interface ContactRepository extends JpaRepository<Contact, UUID> {
     @Modifying
     @Query("update Contact c set c.deleted = False where c.id = ?1 and c.deleted = true")
     void restore(UUID id);
+
+    // Find deleted contact by ID (bypasses @SQLRestriction)
+    Contact findByDeletedTrueAndId(UUID id);
 }
 
 

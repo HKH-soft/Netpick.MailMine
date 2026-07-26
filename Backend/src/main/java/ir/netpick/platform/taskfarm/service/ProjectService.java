@@ -58,6 +58,8 @@ public class ProjectService {
     }
 
     public void restore(UUID projectId) {
+        // Verify the project exists and is deleted before restoring
+        projectRepository.findByDeletedTrueAndId(projectId);
         projectRepository.restore(projectId);
     }
 

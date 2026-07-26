@@ -70,6 +70,8 @@ public class ProductService {
     }
 
     public void restore(UUID productId) {
+        // Verify the product exists and is deleted before restoring
+        productRepository.findByDeletedTrueAndId(productId);
         productRepository.restore(productId);
     }
 

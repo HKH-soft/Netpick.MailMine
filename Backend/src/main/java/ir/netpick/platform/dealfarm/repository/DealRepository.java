@@ -47,4 +47,7 @@ public interface DealRepository extends JpaRepository<Deal, UUID> {
     @Modifying
     @Query("update Deal d set d.deleted = false where d.id = ?1 and d.deleted = true")
     void restore(UUID id);
+
+    // Find soft-deleted by ID (bypasses @SQLRestriction)
+    Deal findByDeletedTrueAndId(UUID id);
 }
