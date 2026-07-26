@@ -185,6 +185,22 @@ gemini:
   timeout-seconds: 30
   max-prompt-length: 10000
 
+# OpenAI-compatible provider configuration (supports OpenAI, DeepSeek, Grok, etc.)
+openai:
+  api-key: ${OPENAI_API_KEY:}
+  base-url: ${OPENAI_BASE_URL:https://api.openai.com/v1}
+  model: ${OPENAI_MODEL:gpt-4o-mini}
+  timeout-seconds: 30
+  max-prompt-length: 10000
+  # Alternative providers:
+  # DeepSeek: https://api.deepseek.com/v1
+  # Grok: https://api.grok.com/v1
+  # Ollama: http://localhost:11434/v1
+
+# Active AI provider (gemini or openai)
+ai:
+  provider: ${AI_PROVIDER:gemini}
+
 v2ray:
   executable: ${XRAY_EXECUTABLE_PATH:}
   config-dir: ${java.io.tmpdir}/netpick/v2ray-configs

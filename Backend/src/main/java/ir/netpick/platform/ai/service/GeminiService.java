@@ -13,7 +13,7 @@ import java.net.UnknownHostException;
 
 @Slf4j
 @Service
-public class GeminiService {
+public class GeminiService implements AIProviderService {
 
     @Value("${gemini.api-key}")
     private String apiKey;
@@ -30,10 +30,12 @@ public class GeminiService {
     public GeminiService() {
     }
 
-    /**
-     * Generate text from a prompt using Gemini with retry logic
-     * Retries up to 3 times with exponential backoff on RuntimeException
-     */
+    @Override
+    public String getProviderName() {
+        return "gemini";
+    }
+
+    @Override
     @Retryable(
             retryFor = { RuntimeException.class },
             maxAttempts = 3,
@@ -53,7 +55,7 @@ public class GeminiService {
         try (Client client = Client.builder()
                 .apiKey(apiKey)
                 .build()) {
-            log.debug("Attempting to generate text with Gemini API, timeout: {}s", timeoutSeconds);
+            log.debug("Attempting to generate text with Gemini API, model: {}, timeout: {}s", model, timeoutSeconds);
             GenerateContentResponse response = client.models.generateContent(model, prompt, null);
             return response.text();
         } catch (Exception e) {
@@ -71,29 +73,25 @@ public class GeminiService {
         }
     }
 
-    /**
-     * Fallback method when all retry attempts fail
-     */
-    @Recover
-    public String recoverGenerateText(RuntimeException e, String prompt) {
-        log.error("All retry attempts exhausted for Gemini API call. Prompt: {}", 
-                prompt.substring(0, Math.min(100, prompt.length())));
-        throw new RuntimeException("Gemini API call failed after retries: " + e.getMessage(), e);
-    }
-
-    /**
-     * Generate text with a system instruction
-     */
+    @Override
     public String generateText(String systemInstruction, String userPrompt) {
         String fullPrompt = systemInstruction + "\n\nUser request: " + userPrompt;
         return generateText(fullPrompt);
     }
 
-    /**
-     * Generate a short response (few words)
-     */
+    @Override
     public String generateShortText(String prompt) {
         return generateText(prompt + "\n\nRespond in a few words only.");
+    }
+
+    /**
+     * Fallback method when all retry attempts fail
+     */
+    @Recover
+    protected String recoverGenerateText(RuntimeException e, String prompt) {
+        log.error("All retry attempts exhausted for Gemini API call. Prompt: {}", 
+                prompt.substring(0, Math.min(100, prompt.length())));
+        throw new RuntimeException("Gemini API call failed after retries: " + e.getMessage(), e);
     }
 
     private Throwable getRootCause(Throwable throwable) {

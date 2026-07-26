@@ -240,7 +240,7 @@ class UserServiceTest {
         @Test
         @DisplayName("Should throw when user already exists")
         void shouldThrowWhenUserExists() {
-            when(userRepository.existsUserByEmail(testEmail)).thenReturn(true);
+            when(userRepository.existsUserByDeletedFalseAndEmail(testEmail)).thenReturn(true);
             AuthenticationSignupRequest request = new AuthenticationSignupRequest(
                     testEmail, testPassword, testName);
 
@@ -251,7 +251,6 @@ class UserServiceTest {
         @Test
         @DisplayName("Should throw when email format invalid")
         void shouldThrowWhenEmailInvalid() {
-            when(userRepository.existsUserByEmail(anyString())).thenReturn(false);
             AuthenticationSignupRequest request = new AuthenticationSignupRequest(
                     "invalid-email", testPassword, testName);
 
@@ -310,7 +309,7 @@ class UserServiceTest {
         @Test
         @DisplayName("Should return user by email")
         void shouldReturnUserByEmail() {
-            when(userRepository.findIdByEmail(testEmail)).thenReturn(Optional.of(testUserId));
+            when(userRepository.findIdByDeletedFalseAndEmail(testEmail)).thenReturn(Optional.of(testUserId));
             when(userRepository.findById(testUserId)).thenReturn(Optional.of(testUser));
             UserDTO mockDto = new UserDTO(
                     testUserId, testEmail, testName, RoleEnum.USER,
@@ -410,7 +409,7 @@ class UserServiceTest {
             superAdminRole.setId(UUID.randomUUID());
             testUser.setRole(superAdminRole);
 
-            when(userRepository.findById(testUserId)).thenReturn(Optional.of(testUser));
+            when(userRepository.findByIdAndDeletedTrue(testUserId)).thenReturn(Optional.of(testUser));
 
             assertThrows(RequestValidationException.class, 
                     () -> userService.restoreUser(testUserId));
