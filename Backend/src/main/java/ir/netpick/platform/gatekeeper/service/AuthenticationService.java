@@ -1,4 +1,4 @@
-package ir.netpick.platform.gatekeeper.service;
+﻿package ir.netpick.platform.gatekeeper.service;
 
 import ir.netpick.platform.gatekeeper.dto.*;
 import ir.netpick.platform.gatekeeper.email.AuthEmailService;
@@ -313,7 +313,7 @@ public class AuthenticationService {
             }
 
             // Skip verification for SUPER_ADMIN users
-            if (user.getRole().getName().equals(RoleEnum.SUPER_ADMIN)) {
+            if (user.hasRole(RoleEnum.SUPER_ADMIN)) {
                 log.info("Skipping verification for SUPER_ADMIN user: {}", request.email());
                 if (!user.getIsVerified()) {
                     user.setIsVerified(true);
@@ -382,7 +382,7 @@ public class AuthenticationService {
             }
 
             // Skip verification for SUPER_ADMIN users
-            if (user.getRole().getName().equals(RoleEnum.SUPER_ADMIN)) {
+            if (user.hasRole(RoleEnum.SUPER_ADMIN)) {
                 log.info("Skipping verification resend for SUPER_ADMIN user: {}", email);
                 if (!user.getIsVerified()) {
                     user.setIsVerified(true);
@@ -437,7 +437,7 @@ public class AuthenticationService {
             User user = userService.getUserEntity(request.email());
 
             // Check if user exists and is not SUPER_ADMIN
-            if (user == null || user.getRole().getName().equals(RoleEnum.SUPER_ADMIN)) {
+            if (user == null || user.hasRole(RoleEnum.SUPER_ADMIN)) {
                 // Always record attempt to prevent enumeration
                 rateLimitingService.recordResendAttempt(request.email());
                 log.info("Password reset processed (user may not exist) for: {}", request.email());
@@ -479,7 +479,7 @@ public class AuthenticationService {
             User user = userService.getUserEntity(request.email());
 
             // Check if user exists and is not SUPER_ADMIN
-            if (user == null || user.getRole().getName().equals(RoleEnum.SUPER_ADMIN)) {
+            if (user == null || user.hasRole(RoleEnum.SUPER_ADMIN)) {
                 // Always record attempt and throw generic error to prevent enumeration
                 rateLimitingService.recordVerificationAttempt(request.email());
                 log.info("Password reset verification processed (user may not exist) for: {}", request.email());
@@ -524,28 +524,38 @@ public class AuthenticationService {
     public void confirmPasswordReset(PasswordResetConfirmRequest request) {
         log.info("Confirming password reset for email: {}", request.email());
 
-        User user = userService.getUserEntity(request.email());
+        try {
+            User user = userService.getUserEntity(request.email());
 
-        if (user == null || user.getRole().getName().equals(RoleEnum.SUPER_ADMIN)) {
-            log.info("Password reset confirmation processed (user may not exist) for: {}", request.email());
-            return;
+            if (user == null || user.hasRole(RoleEnum.SUPER_ADMIN)) {
+                log.info("Password reset confirmation processed (user may not exist) for: {}", request.email());
+                return;
+            }
+
+            if (user.getVerification() == null) {
+                log.info("No verification pending for password reset confirmation: {}", request.email());
+                return;
+            }
+
+            // Verify the code one more time
+            verificationService.verifyCode(user, request.code());
+
+            // Update password
+            userService.updatePassword(user, request.password());
+
+            // Clear verification
+            user.setVerification(null);
+            userRepository.save(user);
+
+            log.info("Password reset completed successfully for: {}", request.email());
+        } catch (Exception e) {
+            log.error("Password reset confirmation failed for email: {}", request.email(), e);
+            // Don't throw - return silently to prevent user enumeration
         }
-
-        if (user.getVerification() == null) {
-            log.info("No verification pending for password reset confirmation: {}", request.email());
-            return;
-        }
-
-        verificationService.verifyCode(user, request.code());
-
-        userService.updatePassword(user, request.password());
-
-        user.setVerification(null);
-        userRepository.save(user);
-
-        log.info("Password reset completed successfully for: {}", request.email());
     }
 }
+
+
 
 
 

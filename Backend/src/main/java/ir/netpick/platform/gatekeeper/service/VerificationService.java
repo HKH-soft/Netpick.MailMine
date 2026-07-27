@@ -1,4 +1,4 @@
-package ir.netpick.platform.gatekeeper.service;
+﻿package ir.netpick.platform.gatekeeper.service;
 
 import ir.netpick.platform.gatekeeper.exception.UserAlreadyVerifiedException;
 import ir.netpick.platform.gatekeeper.model.User;
@@ -123,7 +123,7 @@ public class VerificationService {
         }
 
         // Skip verification for SUPER_ADMIN users
-        if (user.getRole().getName().equals(RoleEnum.SUPER_ADMIN)) {
+        if (user.hasRole(RoleEnum.SUPER_ADMIN)) {
             log.info("Skipping verification for SUPER_ADMIN user: {}", user.getEmail());
             user.setIsVerified(true);
             userRepository.save(user);
@@ -182,6 +182,7 @@ public class VerificationService {
         return sb.toString();
     }
 }
+
 
 
 

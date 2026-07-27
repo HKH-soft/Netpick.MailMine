@@ -1,4 +1,4 @@
-package ir.netpick.platform.gatekeeper.service;
+﻿package ir.netpick.platform.gatekeeper.service;
 
 import com.nulabinc.zxcvbn.Strength;
 import com.nulabinc.zxcvbn.Zxcvbn;
@@ -537,7 +537,7 @@ public class UserService {
                                     "Please check the user ID or contact support if you believe this is an error.");
                 });
 
-        if (user.getRole().getName().equals(RoleEnum.SUPER_ADMIN)) {
+        if (user.hasRole(RoleEnum.SUPER_ADMIN)) {
             log.warn("Super Admin cannot be changed.");
             throw new RequestValidationException("Super Admin cannot be changed.");
         }
@@ -597,7 +597,7 @@ public class UserService {
                                     "Please check the user ID or contact support if you believe this is an error.");
                 });
 
-        if (user.getRole().getName().equals(RoleEnum.SUPER_ADMIN)) {
+        if (user.hasRole(RoleEnum.SUPER_ADMIN)) {
             log.warn("Super Admin cannot be changed.");
             throw new RequestValidationException("Super Admin cannot be changed.");
         }
@@ -623,7 +623,7 @@ public class UserService {
                             "No user account found with ID: " + userId + ".");
                 });
 
-        if (user.getRole().getName().equals(RoleEnum.SUPER_ADMIN)) {
+        if (user.hasRole(RoleEnum.SUPER_ADMIN)) {
             log.warn("Super Admin cannot be changed.");
             throw new RequestValidationException("Super Admin cannot be changed.");
         }
@@ -652,7 +652,7 @@ public class UserService {
                     return new ResourceNotFoundException("User not found");
                 });
 
-        if (user.getRole().getName().equals(RoleEnum.SUPER_ADMIN)) {
+        if (user.hasRole(RoleEnum.SUPER_ADMIN)) {
             log.warn("Super Admin cannot be changed.");
             throw new RequestValidationException("Super Admin cannot be changed.");
         }
@@ -692,7 +692,7 @@ public class UserService {
             throw new ResourceNotFoundException(
                     "No user account found with ID: " + userId + ".");
         });
-        if (user.getRole().getName().equals(RoleEnum.SUPER_ADMIN)) {
+        if (user.hasRole(RoleEnum.SUPER_ADMIN)) {
             log.warn("Super Admin cannot be deleted.");
             throw new RequestValidationException("Super Admin cannot be deleted.");
         }
@@ -701,6 +701,7 @@ public class UserService {
     }
 
 }
+
 
 
 

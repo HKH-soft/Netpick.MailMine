@@ -1,4 +1,4 @@
-package ir.netpick.platform.core.exception;
+﻿package ir.netpick.platform.core.exception;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -31,8 +31,16 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(AccessDeniedException.class)
     public ResponseEntity<Map<String, Object>> handleAccessDenied(AccessDeniedException ex) {
+        log.warn("Access denied: {}", ex.getMessage());
         return ResponseEntity.status(HttpStatus.FORBIDDEN)
-                .body(Map.of("error", "Access Denied", "message", ex.getMessage()));
+                .body(Map.of("error", "Access Denied", "message", "You do not have permission to access this resource"));
+    }
+
+    @ExceptionHandler(NullPointerException.class)
+    public ResponseEntity<Map<String, Object>> handleNullPointer(NullPointerException ex) {
+        log.error("Null pointer exception", ex);
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                .body(Map.of("error", "Internal Server Error", "message", "An unexpected error occurred"));
     }
 
     @ExceptionHandler(BadCredentialsException.class)

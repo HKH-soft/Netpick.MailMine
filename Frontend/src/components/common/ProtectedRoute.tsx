@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import React, { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
@@ -67,7 +67,7 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
           return;
         }
 
-        if (allowedRoles.includes(userRole) || userRole.toUpperCase().includes('ADMIN')) {
+        if (allowedRoles.includes(userRole)) {
           setIsAuthorized(true);
         } else {
           router.push("/");
@@ -84,7 +84,7 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
   }, [isAuthenticated, allowedRoles, hasCheckedAuth, router]);
 
   if (isLoading) {
-    return <div className="flex items-center justify-center h-screen">{t('common.loading', { defaultValue: 'Loading…' })}</div>;
+    return <div className="flex items-center justify-center h-screen">{t('common.loading', { defaultValue: 'Loadingâ€¦' })}</div>;
   }
 
   if (!isAuthorized) {
@@ -95,5 +95,6 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
 };
 
 export default ProtectedRoute;
+
 
 

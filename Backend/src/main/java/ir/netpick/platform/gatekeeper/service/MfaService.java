@@ -1,4 +1,4 @@
-package ir.netpick.platform.gatekeeper.service;
+﻿package ir.netpick.platform.gatekeeper.service;
 
 import ir.netpick.platform.gatekeeper.dto.MfaSetupResponse;
 import ir.netpick.platform.gatekeeper.dto.MfaStatusResponse;
@@ -233,18 +233,16 @@ public class MfaService {
 
     /**
      * Constant-time string comparison to prevent timing attacks on TOTP codes.
+     * TOTP codes are always fixed-length digits, so we verify length first
+     * (constant-time is still maintained by MessageDigest.isEqual on the bytes).
      */
     private boolean constantTimeEquals(String a, String b) {
-        byte[] aBytes = a.getBytes(java.nio.charset.StandardCharsets.US_ASCII);
-        byte[] bBytes = b.getBytes(java.nio.charset.StandardCharsets.US_ASCII);
-        int maxLen = Math.max(aBytes.length, bBytes.length);
-        byte[] aPadded = java.util.Arrays.copyOf(aBytes, maxLen);
-        byte[] bPadded = java.util.Arrays.copyOf(bBytes, maxLen);
-        try {
-            return MessageDigest.isEqual(aPadded, bPadded);
-        } catch (Exception e) {
+        if (a.length() != b.length()) {
             return false;
         }
+        byte[] aBytes = a.getBytes(java.nio.charset.StandardCharsets.US_ASCII);
+        byte[] bBytes = b.getBytes(java.nio.charset.StandardCharsets.US_ASCII);
+        return MessageDigest.isEqual(aBytes, bBytes);
     }
 
     private String generateTotp(byte[] secretBytes, long timeStep) {

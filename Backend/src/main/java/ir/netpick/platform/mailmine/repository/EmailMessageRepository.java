@@ -1,4 +1,4 @@
-package ir.netpick.platform.mailmine.repository;
+﻿package ir.netpick.platform.mailmine.repository;
 
 import ir.netpick.platform.mailmine.model.EmailMessage;
 import ir.netpick.platform.mailmine.model.EmailMessage.EmailStatus;
@@ -66,7 +66,21 @@ public interface EmailMessageRepository extends JpaRepository<EmailMessage, UUID
 
     @Query("SELECT e FROM EmailMessage e WHERE e.isAnswered = true AND e.lastReplyAt IS NOT NULL AND e.receivedAt >= :start AND e.receivedAt < :end")
     List<EmailMessage> findAnsweredBetween(@Param("start") LocalDateTime start, @Param("end") LocalDateTime end);
+
+    @Query(value = "SELECT DATE(received_at) AS day, " +
+           "COUNT(*) AS total, " +
+           "SUM(CASE WHEN is_answered = true THEN 1 ELSE 0 END) AS replied, " +
+           "SUM(CASE WHEN is_read = true THEN 1 ELSE 0 END) AS read_count " +
+           "FROM email_messages " +
+           "WHERE received_at >= :start AND received_at < :end " +
+           "GROUP BY DATE(received_at) " +
+           "ORDER BY DATE(received_at)",
+           nativeQuery = true)
+    List<Object[]> volumeTrendBetween(@Param("start") LocalDateTime start, @Param("end") LocalDateTime end);
 }
+
+
+
 
 
 

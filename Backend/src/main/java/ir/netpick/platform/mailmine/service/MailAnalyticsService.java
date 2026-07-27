@@ -1,4 +1,4 @@
-package ir.netpick.platform.mailmine.service;
+﻿package ir.netpick.platform.mailmine.service;
 
 import ir.netpick.platform.mailmine.model.EmailMessage;
 import ir.netpick.platform.mailmine.repository.EmailMessageRepository;
@@ -80,30 +80,54 @@ public class MailAnalyticsService {
         }
 
         List<Long> responseTimes = answered.stream()
-                .map(e -> ChronoUnit.HOURS.between(e.getReceivedAt(), e.getLastReplyAt()))
+                .map(e -> ChronoUnit.MINUTES.between(e.getReceivedAt(), e.getLastReplyAt()))
                 .sorted()
                 .toList();
 
-        double average = responseTimes.stream().mapToLong(l -> l).average().orElse(0);
-        long median = responseTimes.get(responseTimes.size() / 2);
+        double averageMinutes = responseTimes.stream().mapToLong(l -> l).average().orElse(0);
+        double average = averageMinutes / 60.0;
+        long medianMinutes = responseTimes.get(responseTimes.size() / 2);
         int p95Index = (int) Math.ceil(responseTimes.size() * 0.95) - 1;
-        long p95 = responseTimes.get(Math.max(0, p95Index));
+        long p95Minutes = responseTimes.get(Math.max(0, p95Index));
 
         return Map.of(
                 "averageHours", Math.round(average * 10.0) / 10.0,
-                "medianHours", median,
-                "p95Hours", p95,
+                "medianHours", Math.round(medianMinutes / 60.0 * 10.0) / 10.0,
+                "p95Hours", Math.round(p95Minutes / 60.0 * 10.0) / 10.0,
                 "sampleSize", responseTimes.size()
         );
     }
 
     public List<Map<String, Object>> getVolumeTrend() {
         LocalDate today = LocalDate.now();
-        List<Map<String, Object>> trend = new ArrayList<>();
+        LocalDateTime start = today.minusDays(29).atStartOfDay();
+        LocalDateTime end = today.atTime(LocalTime.MAX);
 
+        // Single batch query instead of 30 individual daily queries (N+1 fix)
+        List<Object[]> rows = emailMessageRepository.volumeTrendBetween(start, end);
+
+        // Build a map of date -> counts
+        Map<String, long[]> dateMap = new LinkedHashMap<>();
+        for (Object[] row : rows) {
+            LocalDate date = ((java.sql.Timestamp) row[0]).toLocalDateTime().toLocalDate();
+            long received = ((Number) row[1]).longValue();
+            long replied = ((Number) row[2]).longValue();
+            long readCount = ((Number) row[3]).longValue();
+            dateMap.put(date.toString(), new long[]{received, replied, readCount});
+        }
+
+        List<Map<String, Object>> trend = new ArrayList<>();
         for (int i = 29; i >= 0; i--) {
             LocalDate date = today.minusDays(i);
-            trend.add(getDailyStats(date));
+            String key = date.toString();
+            long[] counts = dateMap.getOrDefault(key, new long[]{0, 0, 0});
+            Map<String, Object> dayStats = new LinkedHashMap<>();
+            dayStats.put("date", key);
+            dayStats.put("emailsReceived", counts[0]);
+            dayStats.put("emailsReplied", counts[1]);
+            dayStats.put("emailsRead", counts[2]);
+            dayStats.put("averageResponseTimeHours", 0.0);
+            trend.add(dayStats);
         }
 
         return trend;
@@ -131,6 +155,7 @@ public class MailAnalyticsService {
         return Math.round((avgSeconds / 3600.0) * 10.0) / 10.0;
     }
 }
+
 
 
 

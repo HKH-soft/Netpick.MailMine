@@ -1,8 +1,9 @@
-package ir.netpick.platform.gatekeeper.model;
+﻿package ir.netpick.platform.gatekeeper.model;
 
 import io.hypersistence.utils.hibernate.type.json.JsonBinaryType;
 import ir.netpick.platform.gatekeeper.PreferencesEnum;
 import ir.netpick.platform.core.BaseEntity;
+import ir.netpick.platform.core.enums.RoleEnum;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
@@ -70,6 +71,13 @@ public class User extends BaseEntity implements UserDetails {
     @Column(name = "mfa_enabled", nullable = false)
     private Boolean mfaEnabled = false;
 
+    /**
+     * Null-safe role check.
+     */
+    public boolean hasRole(RoleEnum roleEnum) {
+        return role != null && role.getName() == roleEnum;
+    }
+
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         SimpleGrantedAuthority authority = new SimpleGrantedAuthority("ROLE_" + role.getName());
@@ -87,6 +95,7 @@ public class User extends BaseEntity implements UserDetails {
     }
 
 }
+
 
 
 

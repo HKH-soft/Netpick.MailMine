@@ -1,4 +1,4 @@
-package ir.netpick.platform.gatekeeper.service;
+﻿package ir.netpick.platform.gatekeeper.service;
 
 import ir.netpick.platform.gatekeeper.dto.AuthenticationSignupRequest;
 import ir.netpick.platform.gatekeeper.email.AuthEmailService;
@@ -40,7 +40,7 @@ public class AdminService {
      */
     public User createUserWithRole(AuthenticationSignupRequest request, RoleEnum role) {
         User user;
-        if (role.equals(RoleEnum.ADMIN)) {
+        if (RoleEnum.ADMIN.equals(role)) {
             // Admins are auto-verified, no need for verification
             user = userService.createAdministrator(request);
         } else {
@@ -63,6 +63,7 @@ public class AdminService {
         authEmailService.sendVerificationEmail(userEmail);
     }
 }
+
 
 
 
