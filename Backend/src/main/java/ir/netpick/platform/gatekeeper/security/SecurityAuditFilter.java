@@ -1,5 +1,6 @@
 package ir.netpick.platform.gatekeeper.security;
 
+import ir.netpick.platform.core.util.IpUtils;
 import ir.netpick.platform.gatekeeper.model.SecurityEvent;
 import ir.netpick.platform.gatekeeper.service.SecurityEventService;
 import jakarta.servlet.FilterChain;
@@ -35,7 +36,7 @@ public class SecurityAuditFilter extends OncePerRequestFilter {
         int status = response.getStatus();
 
         if (status == 401 || status == 403 || status == 429) {
-            String clientIp = extractClientIp(request);
+            String clientIp = IpUtils.getClientIp(request);
             String path = request.getRequestURI();
 
             SecurityEvent.EventType eventType = switch (status) {
@@ -70,13 +71,5 @@ public class SecurityAuditFilter extends OncePerRequestFilter {
         return path.startsWith("/actuator/") || path.equals("/actuator") ||
                path.startsWith("/swagger/") || path.equals("/swagger") ||
                path.startsWith("/v3/api-docs/");
-    }
-
-    private String extractClientIp(HttpServletRequest request) {
-        String xff = request.getHeader("X-Forwarded-For");
-        if (xff != null && !xff.isEmpty()) {
-            return xff.split(",")[0].trim();
-        }
-        return request.getRemoteAddr();
     }
 }

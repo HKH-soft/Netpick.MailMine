@@ -40,7 +40,7 @@ public class FinanceController {
     public ResponseEntity<Invoice> getInvoice(@PathVariable UUID id, @AuthenticationPrincipal User user) {
         Invoice invoice = invoiceService.getById(id);
         // Verify ownership
-        if (!invoice.getCreatedBy().equals(user.getId()) && user.getRole().getName() != RoleEnum.SUPER_ADMIN) {
+        if (!invoice.getCreatedBy().equals(user.getId()) && !user.getRole().getName().equals(RoleEnum.SUPER_ADMIN)) {
             throw new AccessDeniedException("Access denied to this invoice");
         }
         return ResponseEntity.ok(invoice);
@@ -61,7 +61,7 @@ public class FinanceController {
             @AuthenticationPrincipal User user) {
         Invoice existing = invoiceService.getById(id);
         // Verify ownership
-        if (!existing.getCreatedBy().equals(user.getId()) && user.getRole().getName() != RoleEnum.SUPER_ADMIN) {
+        if (!existing.getCreatedBy().equals(user.getId()) && !user.getRole().getName().equals(RoleEnum.SUPER_ADMIN)) {
             throw new AccessDeniedException("Access denied to this invoice");
         }
         return ResponseEntity.ok(invoiceService.update(id, invoice));
@@ -72,7 +72,7 @@ public class FinanceController {
     public ResponseEntity<Void> deleteInvoice(@PathVariable UUID id, @AuthenticationPrincipal User user) {
         Invoice invoice = invoiceService.getById(id);
         // Verify ownership
-        if (!invoice.getCreatedBy().equals(user.getId()) && user.getRole().getName() != RoleEnum.SUPER_ADMIN) {
+        if (!invoice.getCreatedBy().equals(user.getId()) && !user.getRole().getName().equals(RoleEnum.SUPER_ADMIN)) {
             throw new AccessDeniedException("Access denied to this invoice");
         }
         invoiceService.delete(id);
@@ -87,7 +87,7 @@ public class FinanceController {
             @AuthenticationPrincipal User user) {
         Invoice invoice = invoiceService.getById(id);
         // Verify ownership
-        if (!invoice.getCreatedBy().equals(user.getId()) && user.getRole().getName() != RoleEnum.SUPER_ADMIN) {
+        if (!invoice.getCreatedBy().equals(user.getId()) && !user.getRole().getName().equals(RoleEnum.SUPER_ADMIN)) {
             throw new AccessDeniedException("Access denied to this invoice");
         }
         return ResponseEntity.ok(invoiceService.updateStatus(id, status));

@@ -171,6 +171,7 @@ public class MfaService {
         return valid;
     }
 
+    @Transactional
     public boolean validateBackupCode(User user, String backupCode) {
         List<BackupCode> codes = backupCodeRepository.findByUserIdAndUsedFalse(user.getId());
 
@@ -234,13 +235,13 @@ public class MfaService {
      * Constant-time string comparison to prevent timing attacks on TOTP codes.
      */
     private boolean constantTimeEquals(String a, String b) {
-        if (a.length() != b.length()) {
-            return false;
-        }
         byte[] aBytes = a.getBytes(java.nio.charset.StandardCharsets.US_ASCII);
         byte[] bBytes = b.getBytes(java.nio.charset.StandardCharsets.US_ASCII);
+        int maxLen = Math.max(aBytes.length, bBytes.length);
+        byte[] aPadded = java.util.Arrays.copyOf(aBytes, maxLen);
+        byte[] bPadded = java.util.Arrays.copyOf(bBytes, maxLen);
         try {
-            return MessageDigest.isEqual(aBytes, bBytes);
+            return MessageDigest.isEqual(aPadded, bPadded);
         } catch (Exception e) {
             return false;
         }

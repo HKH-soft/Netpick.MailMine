@@ -60,9 +60,15 @@ public class ProductService {
 
     public Product update(UUID productId, Product product) {
         Product existing = getById(productId);
-        product.setId(productId);
-        product.setCreatedAt(existing.getCreatedAt());
-        return productRepository.save(product);
+        if (product.getProductName() != null) existing.setProductName(product.getProductName());
+        if (product.getSku() != null) existing.setSku(product.getSku());
+        if (product.getQuantity() != null) existing.setQuantity(product.getQuantity());
+        if (product.getMinQuantity() != null) existing.setMinQuantity(product.getMinQuantity());
+        if (product.getUnitPrice() != null) existing.setUnitPrice(product.getUnitPrice());
+        if (product.getCurrency() != null) existing.setCurrency(product.getCurrency());
+        if (product.getWarehouseId() != null) existing.setWarehouseId(product.getWarehouseId());
+        if (product.getCategoryId() != null) existing.setCategoryId(product.getCategoryId());
+        return productRepository.save(existing);
     }
 
     public void delete(UUID productId) {

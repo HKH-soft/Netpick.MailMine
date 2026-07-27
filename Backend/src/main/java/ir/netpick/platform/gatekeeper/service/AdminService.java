@@ -40,7 +40,7 @@ public class AdminService {
      */
     public User createUserWithRole(AuthenticationSignupRequest request, RoleEnum role) {
         User user;
-        if (role == RoleEnum.ADMIN) {
+        if (role.equals(RoleEnum.ADMIN)) {
             // Admins are auto-verified, no need for verification
             user = userService.createAdministrator(request);
         } else {

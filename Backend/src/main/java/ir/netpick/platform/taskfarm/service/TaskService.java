@@ -61,9 +61,16 @@ public class TaskService {
 
     public Task update(UUID taskId, Task task) {
         Task existing = getById(taskId);
-        task.setId(taskId);
-        task.setCreatedAt(existing.getCreatedAt());
-        return taskRepository.save(task);
+        if (task.getTitle() != null) existing.setTitle(task.getTitle());
+        if (task.getDescription() != null) existing.setDescription(task.getDescription());
+        if (task.getStatus() != null) existing.setStatus(task.getStatus());
+        if (task.getPriority() != null) existing.setPriority(task.getPriority());
+        if (task.getProjectId() != null) existing.setProjectId(task.getProjectId());
+        if (task.getAssigneeId() != null) existing.setAssigneeId(task.getAssigneeId());
+        if (task.getDueDate() != null) existing.setDueDate(task.getDueDate());
+        if (task.getCompletedAt() != null) existing.setCompletedAt(task.getCompletedAt());
+        if (task.getOrder() != null) existing.setOrder(task.getOrder());
+        return taskRepository.save(existing);
     }
 
     public void delete(UUID taskId) {

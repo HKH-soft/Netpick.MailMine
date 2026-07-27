@@ -7,6 +7,7 @@ const API_BASE_URL = '';
 const isDevMode = process.env.NEXT_PUBLIC_DEV_MODE === 'true';
 
 import { mockAuthResponse } from './mockData';
+import { decodeJwtPayload } from '@/utils/jwt';
 
 export interface SigninRequest {
   email: string;
@@ -60,20 +61,18 @@ class AuthService {
     }
   }
 
-  // Schedule a token refresh before it expires
   private scheduleRefresh(token: string): void {
     try {
-      // Clear any existing timeout
       if (this.refreshTimeoutId) {
         clearTimeout(this.refreshTimeoutId);
         this.refreshTimeoutId = null;
       }
 
-      const payload = JSON.parse(atob(token.split('.')[1]));
-      const expiresAt = payload.exp * 1000; // Convert to ms
+      const payload = decodeJwtPayload(token);
+      if (!payload?.exp) return;
+
+      const expiresAt = payload.exp * 1000;
       const now = Date.now();
-      
-      // Refresh 1 minute before expiration
       const refreshTime = expiresAt - now - (60 * 1000);
 
       if (refreshTime > 0) {
@@ -82,8 +81,6 @@ class AuthService {
           this.refreshAccessToken().catch(() => {});
         }, refreshTime);
       } else {
-        // If already expired or close to expiring, try to refresh immediately
-        // But only if we have a refresh token
         if (this.getRefreshToken()) {
            this.refreshAccessToken().catch(() => {});
         }
@@ -164,46 +161,30 @@ class AuthService {
     }
   }
 
-  // Check if the user is authenticated and validate token
   isAuthenticated(): boolean {
     const token = this.getToken();
     if (!token) return false;
     
-    // Check token expiration
-    try {
-      const payload = JSON.parse(atob(token.split('.')[1]));
-      const currentTime = Math.floor(Date.now() / 1000);
-      
-      // If token is expired, DO NOT remove it immediately.
-      // Let the API interceptor or scheduled refresh handle it.
-      // Just return false to indicate "not currently valid access token".
-      if (payload.exp <= currentTime) {
-        return false;
-      }
-      
-      return true;
-    } catch {
-      // If there's an error parsing the token, remove it from storage
+    const payload = decodeJwtPayload(token);
+    if (!payload) {
       this.removeToken();
       return false;
     }
+
+    const currentTime = Math.floor(Date.now() / 1000);
+    return (payload.exp ?? 0) > currentTime;
   }
 
   // Helper to handle response errors
   private async handleResponseError(response: Response): Promise<never> {
+    const text = await response.text();
     let errorData: unknown;
-    const contentType = response.headers.get('content-type');
-    if (contentType && contentType.includes('application/json')) {
-      try {
-        errorData = await response.json();
-      } catch {
-        errorData = await response.text();
-      }
-    } else {
-      errorData = await response.text();
+    try {
+      errorData = JSON.parse(text);
+    } catch {
+      errorData = text;
     }
 
-    // If errorData is an object, try to extract a message without using `any`
     const possibleMessage =
       typeof errorData === 'object' && errorData !== null && 'message' in (errorData as object)
         ? (errorData as { message?: string }).message
@@ -216,112 +197,92 @@ class AuthService {
 
   // Sign in user
   async signin(request: SigninRequest, rememberMe: boolean = false): Promise<AuthenticationResponse> {
-    // In dev mode, return mock auth response
     if (isDevMode) {
       console.debug('[DEV MODE] Returning mock auth response');
       this.setToken(mockAuthResponse.access_token, mockAuthResponse.refresh_token, rememberMe);
       return mockAuthResponse;
     }
 
-    try {
-      const response = await fetch(`${API_BASE_URL}/api/v1/gatekeeper/auth/sign-in`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(request),
-      });
+    const response = await fetch(`${API_BASE_URL}/api/v1/gatekeeper/auth/sign-in`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(request),
+    });
 
-      if (!response.ok) {
-        await this.handleResponseError(response);
-      }
-
-      const data: AuthenticationResponse = await response.json();
-      this.setToken(data.access_token, data.refresh_token, rememberMe);
-      return data;
-    } catch (error) {
-      throw error;
+    if (!response.ok) {
+      await this.handleResponseError(response);
     }
+
+    const data: AuthenticationResponse = await response.json();
+    this.setToken(data.access_token, data.refresh_token, rememberMe);
+    return data;
   }
 
   // Sign up user
   async signup(request: SignupRequest): Promise<MessageResponse> {
-    // In dev mode, return mock response
     if (isDevMode) {
       console.debug('[DEV MODE] Returning mock signup response');
       return { message: 'User registered successfully (dev mode)' };
     }
 
-    try {
-      const response = await fetch(`${API_BASE_URL}/api/v1/gatekeeper/auth/sign-up`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(request),
-      });
+    const response = await fetch(`${API_BASE_URL}/api/v1/gatekeeper/auth/sign-up`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(request),
+    });
 
-      if (!response.ok) {
-        await this.handleResponseError(response);
-      }
-
-      return await response.json();
-    } catch (error) {
-      throw error;
+    if (!response.ok) {
+      await this.handleResponseError(response);
     }
+
+    return await response.json();
   }
 
   // Verify email
   async verify(request: VerificationRequest): Promise<MessageResponse> {
-    // In dev mode, return mock response
     if (isDevMode) {
       console.debug('[DEV MODE] Returning mock verify response');
       return { message: 'Email verified successfully (dev mode)' };
     }
 
-    try {
-      const response = await fetch(`${API_BASE_URL}/api/v1/gatekeeper/auth/verify`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(request),
-      });
+    const response = await fetch(`${API_BASE_URL}/api/v1/gatekeeper/auth/verify`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(request),
+    });
 
-      if (!response.ok) {
-        await this.handleResponseError(response);
-      }
-
-      return await response.json();
-    } catch (error) {
-      throw error;
+    if (!response.ok) {
+      await this.handleResponseError(response);
     }
+
+    return await response.json();
   }
 
   // Resend verification email
   async resendVerification(email: string): Promise<MessageResponse> {
-    // In dev mode, return mock response
     if (isDevMode) {
       console.debug('[DEV MODE] Returning mock resend verification response');
       return { message: 'Verification email sent (dev mode)' };
     }
 
-    try {
-      const response = await fetch(`${API_BASE_URL}/api/v1/gatekeeper/auth/resend-verification?email=${encodeURIComponent(email)}`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-      });
+    const response = await fetch(`${API_BASE_URL}/api/v1/gatekeeper/auth/resend-verification?email=${encodeURIComponent(email)}`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    });
 
-      if (!response.ok) {
-        await this.handleResponseError(response);
-      }
-
-      return await response.json();
-    } catch (error) {
-      throw error;
+    if (!response.ok) {
+      await this.handleResponseError(response);
     }
+
+    return await response.json();
   }
 
   // Refresh access token
@@ -362,8 +323,6 @@ class AuthService {
         const rememberMe = localStorage.getItem(this.REMEMBER_KEY) === 'true';
         this.setToken(data.access_token, data.refresh_token, rememberMe);
         return data;
-      } catch (error) {
-        throw error;
       } finally {
         this.refreshPromise = null;
       }
@@ -395,31 +354,26 @@ class AuthService {
 
   // Logout from all devices
   async logoutAllDevices(): Promise<MessageResponse> {
-    // In dev mode, return mock response
     if (isDevMode) {
       console.debug('[DEV MODE] Returning mock logout all devices response');
       this.removeToken();
       return { message: 'Logged out from all devices (dev mode)' };
     }
 
-    try {
-      const response = await fetch(`${API_BASE_URL}/api/v1/gatekeeper/auth/logout-all`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${this.getToken()}`,
-        },
-      });
+    const response = await fetch(`${API_BASE_URL}/api/v1/gatekeeper/auth/logout-all`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${this.getToken()}`,
+      },
+    });
 
-      if (!response.ok) {
-        await this.handleResponseError(response);
-      }
-
-      this.removeToken();
-      return await response.json();
-    } catch (error) {
-      throw error;
+    if (!response.ok) {
+      await this.handleResponseError(response);
     }
+
+    this.removeToken();
+    return await response.json();
   }
 
   // Fetch auth-related configuration (e.g., resend cooldown)

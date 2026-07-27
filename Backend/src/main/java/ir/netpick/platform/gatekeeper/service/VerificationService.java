@@ -123,7 +123,7 @@ public class VerificationService {
         }
 
         // Skip verification for SUPER_ADMIN users
-        if (user.getRole().getName() == RoleEnum.SUPER_ADMIN) {
+        if (user.getRole().getName().equals(RoleEnum.SUPER_ADMIN)) {
             log.info("Skipping verification for SUPER_ADMIN user: {}", user.getEmail());
             user.setIsVerified(true);
             userRepository.save(user);

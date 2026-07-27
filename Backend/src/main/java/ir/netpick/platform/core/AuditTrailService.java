@@ -1,6 +1,7 @@
 package ir.netpick.platform.core;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import ir.netpick.platform.core.util.IpUtils;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -36,7 +37,7 @@ public class AuditTrailService {
             }
 
             if (request != null) {
-                entry.setIpAddress(getClientIp(request));
+                entry.setIpAddress(IpUtils.getClientIp(request));
                 entry.setUserAgent(request.getHeader("User-Agent"));
             }
 
@@ -48,14 +49,6 @@ public class AuditTrailService {
 
     public void log(String entityType, UUID entityId, String action, UUID userId, String userEmail) {
         log(entityType, entityId, action, userId, userEmail, null, null, null);
-    }
-
-    private String getClientIp(HttpServletRequest request) {
-        String xff = request.getHeader("X-Forwarded-For");
-        if (xff != null && !xff.isEmpty()) {
-            return xff.split(",")[0].trim();
-        }
-        return request.getRemoteAddr();
     }
 }
 

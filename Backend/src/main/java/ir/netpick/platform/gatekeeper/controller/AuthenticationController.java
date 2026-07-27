@@ -7,6 +7,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import ir.netpick.platform.core.util.IpUtils;
 import ir.netpick.platform.gatekeeper.dto.*;
 import ir.netpick.platform.gatekeeper.exception.MfaRequiredException;
 import ir.netpick.platform.gatekeeper.service.AuthenticationService;
@@ -87,7 +88,7 @@ public class AuthenticationController {
             @RequestBody AuthenticationSigninRequest request,
             HttpServletRequest httpRequest) {
         String deviceInfo = httpRequest.getHeader("User-Agent");
-        String ipAddress = getClientIpAddress(httpRequest);
+        String ipAddress = IpUtils.getClientIp(httpRequest);
 
         try {
             AuthenticationResponse response = authenticationService.signIn(
@@ -114,7 +115,7 @@ public class AuthenticationController {
             @Valid @RequestBody RefreshTokenRequest request,
             HttpServletRequest httpRequest) {
         String deviceInfo = httpRequest.getHeader("User-Agent");
-        String ipAddress = getClientIpAddress(httpRequest);
+        String ipAddress = IpUtils.getClientIp(httpRequest);
 
         AuthenticationResponse response = authenticationService.refreshAccessToken(
                 request.refreshToken(), deviceInfo, ipAddress);
@@ -141,22 +142,6 @@ public class AuthenticationController {
     public ResponseEntity<MessageResponse> logoutAllDevices(@AuthenticationPrincipal UserDetails userDetails) {
         authenticationService.logoutAllDevices(userDetails.getUsername());
         return ResponseEntity.ok(new MessageResponse("Logged out from all devices successfully"));
-    }
-
-    /**
-     * Extract client IP address from request, considering proxy headers.
-     */
-    private String getClientIpAddress(HttpServletRequest request) {
-        String xForwardedFor = request.getHeader("X-Forwarded-For");
-        if (xForwardedFor != null && !xForwardedFor.isEmpty()) {
-            // X-Forwarded-For may contain multiple IPs, get the first one
-            return xForwardedFor.split(",")[0].trim();
-        }
-        String xRealIp = request.getHeader("X-Real-IP");
-        if (xRealIp != null && !xRealIp.isEmpty()) {
-            return xRealIp;
-        }
-        return request.getRemoteAddr();
     }
 
     @Operation(summary = "Request password reset", description = "Send a password reset code to the user's email address")

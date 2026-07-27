@@ -1,5 +1,6 @@
 package ir.netpick.platform.gatekeeper.security;
 
+import ir.netpick.platform.core.util.IpUtils;
 import ir.netpick.platform.gatekeeper.service.IpPolicyService;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -26,7 +27,7 @@ public class IpPolicyFilter extends OncePerRequestFilter {
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response,
                                     FilterChain filterChain) throws ServletException, IOException {
-        String clientIp = extractClientIp(request);
+        String clientIp = IpUtils.getClientIp(request);
         IpPolicyService.IpAccessResult result = ipPolicyService.checkAccess(clientIp);
 
         if (!result.allowed()) {
@@ -47,17 +48,5 @@ public class IpPolicyFilter extends OncePerRequestFilter {
         return path.startsWith("/actuator/") || path.equals("/actuator") ||
                path.startsWith("/swagger/") || path.equals("/swagger") ||
                path.startsWith("/v3/api-docs/");
-    }
-
-    private String extractClientIp(HttpServletRequest request) {
-        String xff = request.getHeader("X-Forwarded-For");
-        if (xff != null && !xff.isEmpty()) {
-            return xff.split(",")[0].trim();
-        }
-        String xRealIp = request.getHeader("X-Real-IP");
-        if (xRealIp != null && !xRealIp.isEmpty()) {
-            return xRealIp;
-        }
-        return request.getRemoteAddr();
     }
 }

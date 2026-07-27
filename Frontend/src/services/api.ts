@@ -152,13 +152,13 @@ class ApiService {
   private baseUrl: string;
   private isRefreshing: boolean = false;
   private refreshPromise: Promise<boolean> | null = null;
+  private pendingRequests: Array<() => void> = [];
 
   constructor(baseUrl: string = API_BASE_URL) {
     this.baseUrl = baseUrl;
   }
 
   private async tryRefreshToken(): Promise<boolean> {
-    // If already refreshing, wait for that to complete
     if (this.isRefreshing && this.refreshPromise) {
       return this.refreshPromise;
     }
@@ -167,9 +167,12 @@ class ApiService {
     this.refreshPromise = (async () => {
       try {
         await AuthService.refreshAccessToken();
+        this.pendingRequests.forEach((resolve) => resolve());
+        this.pendingRequests = [];
         return true;
       } catch (error) {
         console.error('Token refresh failed:', error);
+        this.pendingRequests = [];
         return false;
       } finally {
         this.isRefreshing = false;
@@ -218,14 +221,18 @@ class ApiService {
       const response = await fetch(url, config);
       
       if (!response.ok) {
-        // If we get a 401, try to refresh the token (but only once)
         if (response.status === 401 && !isRetry) {
+          if (this.isRefreshing) {
+            await new Promise<boolean>((resolve) => {
+              this.pendingRequests.push(() => resolve(true));
+            });
+            return this.request<T>(endpoint, options, true);
+          }
+
           const refreshed = await this.tryRefreshToken();
           if (refreshed) {
-            // Retry the request with the new token
             return this.request<T>(endpoint, options, true);
           } else {
-            // Refresh failed, redirect to login
             AuthService.removeToken();
             if (typeof window !== 'undefined') {
               window.location.href = '/signin';
@@ -233,7 +240,6 @@ class ApiService {
           }
         }
         
-        // If we get a 403, remove the token and redirect to login
         if (response.status === 403) {
           AuthService.removeToken();
           if (typeof window !== 'undefined') {
@@ -242,15 +248,11 @@ class ApiService {
         }
 
         let errorData: unknown;
-        const contentType = response.headers.get('content-type');
-        if (contentType && contentType.includes('application/json')) {
-          try {
-            errorData = await response.json();
-          } catch {
-            errorData = await response.text();
-          }
-        } else {
-          errorData = await response.text();
+        const errorText = await response.text();
+        try {
+          errorData = JSON.parse(errorText);
+        } catch {
+          errorData = errorText;
         }
 
         throw new ApiError(

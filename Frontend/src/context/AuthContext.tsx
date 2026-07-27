@@ -1,7 +1,7 @@
 // AuthContext.tsx
 "use client";
 
-import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+import React, { createContext, useContext, useState, useEffect, useCallback, useMemo, ReactNode } from 'react';
 import AuthService from '@/services/authService';
 
 interface AuthContextType {
@@ -21,41 +21,35 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   const [isInitialized, setIsInitialized] = useState<boolean>(false);
 
   useEffect(() => {
-    // In dev mode, skip authentication check and auto-authenticate
     if (isDevMode) {
       setIsAuthenticated(true);
       setIsInitialized(true);
       return;
     }
 
-    // Check if user is authenticated on initial load and validate token
     setIsAuthenticated(AuthService.isAuthenticated());
     setIsInitialized(true);
   }, []);
 
-  const login = () => {
-    // Note: AuthService.setToken is already called in the signin method
+  const login = useCallback(() => {
     setIsAuthenticated(true);
-  };
+  }, []);
 
-  const logout = () => {
+  const logout = useCallback(() => {
     if (!isDevMode) {
       AuthService.removeToken();
     }
     setIsAuthenticated(false);
-  };
+  }, []);
 
-  // In dev mode, render children immediately without waiting for auth initialization
   if (!isInitialized && !isDevMode) {
     return null;
   }
 
-  const value = {
-    isAuthenticated,
-    login,
-    logout,
-    isInitialized
-  };
+  const value = useMemo(
+    () => ({ isAuthenticated, login, logout, isInitialized }),
+    [isAuthenticated, login, logout, isInitialized]
+  );
 
   return (
     <AuthContext.Provider value={value}>

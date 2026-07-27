@@ -41,6 +41,9 @@ public class V2RayClientService {
     @Value("${v2ray.base-port:20000}")
     private int basePort;
 
+    @Value("${v2ray.allow-insecure:false}")
+    private boolean allowInsecure;
+
     // Running processes: proxyId -> Process
     private Map<UUID, Process> runningProcesses;
 
@@ -432,7 +435,7 @@ public class V2RayClientService {
                 tlsSettings.put("alpn", List.of(proxy.getAlpn().split(",")));
             if (proxy.getFingerprint() != null)
                 tlsSettings.put("fingerprint", proxy.getFingerprint());
-            tlsSettings.put("allowInsecure", true); // Allow self-signed certs
+            tlsSettings.put("allowInsecure", allowInsecure);
             stream.put("tlsSettings", tlsSettings);
         } else if ("reality".equals(security)) {
             stream.put("security", "reality");

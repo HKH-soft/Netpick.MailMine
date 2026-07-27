@@ -48,6 +48,24 @@ public interface EmailMessageRepository extends JpaRepository<EmailMessage, UUID
     Page<EmailMessage> findUnrepliedEmailsOlderThan(@Param("threshold") LocalDateTime threshold, Pageable pageable);
 
     Page<EmailMessage> findByReceivedAtAfter(java.time.LocalDateTime date, Pageable pageable);
+
+    @Query("SELECT COUNT(e) FROM EmailMessage e WHERE e.isAnswered = :answered AND e.receivedAt >= :start AND e.receivedAt < :end")
+    long countByIsAnsweredAndReceivedAtBetween(@Param("answered") boolean answered, @Param("start") LocalDateTime start, @Param("end") LocalDateTime end);
+
+    @Query("SELECT COUNT(e) FROM EmailMessage e WHERE e.isRead = :isRead AND e.receivedAt >= :start AND e.receivedAt < :end")
+    long countByIsReadAndReceivedAtBetween(@Param("isRead") boolean isRead, @Param("start") LocalDateTime start, @Param("end") LocalDateTime end);
+
+    @Query("SELECT COUNT(e) FROM EmailMessage e WHERE e.isAnswered = false AND e.status = 'INBOX'")
+    long countUnanswered();
+
+    @Query("SELECT AVG(FUNCTION('EXTRACT', EPOCH FROM e.lastReplyAt) - FUNCTION('EXTRACT', EPOCH FROM e.receivedAt)) FROM EmailMessage e WHERE e.isAnswered = true AND e.lastReplyAt IS NOT NULL AND e.receivedAt >= :start AND e.receivedAt < :end")
+    Double averageResponseTimeSecondsBetween(@Param("start") LocalDateTime start, @Param("end") LocalDateTime end);
+
+    @Query("SELECT e.senderEmail, COUNT(e) FROM EmailMessage e WHERE e.receivedAt >= :start AND e.receivedAt < :end GROUP BY e.senderEmail ORDER BY COUNT(e) DESC")
+    List<Object[]> topSendersBetween(@Param("start") LocalDateTime start, @Param("end") LocalDateTime end, Pageable pageable);
+
+    @Query("SELECT e FROM EmailMessage e WHERE e.isAnswered = true AND e.lastReplyAt IS NOT NULL AND e.receivedAt >= :start AND e.receivedAt < :end")
+    List<EmailMessage> findAnsweredBetween(@Param("start") LocalDateTime start, @Param("end") LocalDateTime end);
 }
 
 

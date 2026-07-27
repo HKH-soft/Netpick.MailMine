@@ -40,7 +40,7 @@ public class TransactionController {
     public ResponseEntity<Transaction> getTransaction(@PathVariable UUID id, @AuthenticationPrincipal User user) {
         Transaction transaction = transactionService.getById(id);
         // Verify ownership
-        if (!transaction.getCreatedBy().equals(user.getId()) && user.getRole().getName() != RoleEnum.SUPER_ADMIN) {
+        if (!transaction.getCreatedBy().equals(user.getId()) && !user.getRole().getName().equals(RoleEnum.SUPER_ADMIN)) {
             throw new AccessDeniedException("Access denied to this transaction");
         }
         return ResponseEntity.ok(transaction);
@@ -63,7 +63,7 @@ public class TransactionController {
             @AuthenticationPrincipal User user) {
         Transaction existing = transactionService.getById(id);
         // Verify ownership
-        if (!existing.getCreatedBy().equals(user.getId()) && user.getRole().getName() != RoleEnum.SUPER_ADMIN) {
+        if (!existing.getCreatedBy().equals(user.getId()) && !user.getRole().getName().equals(RoleEnum.SUPER_ADMIN)) {
             throw new AccessDeniedException("Access denied to this transaction");
         }
         return ResponseEntity.ok(transactionService.update(id, transaction));
@@ -74,7 +74,7 @@ public class TransactionController {
     public ResponseEntity<Void> deleteTransaction(@PathVariable UUID id, @AuthenticationPrincipal User user) {
         Transaction transaction = transactionService.getById(id);
         // Verify ownership
-        if (!transaction.getCreatedBy().equals(user.getId()) && user.getRole().getName() != RoleEnum.SUPER_ADMIN) {
+        if (!transaction.getCreatedBy().equals(user.getId()) && !user.getRole().getName().equals(RoleEnum.SUPER_ADMIN)) {
             throw new AccessDeniedException("Access denied to this transaction");
         }
         transactionService.delete(id);

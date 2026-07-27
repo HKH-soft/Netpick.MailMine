@@ -57,9 +57,16 @@ public class DealService {
 
     public Deal update(UUID dealId, Deal deal) {
         Deal existing = getById(dealId);
-        deal.setId(dealId);
-        deal.setCreatedAt(existing.getCreatedAt());
-        return dealRepository.save(deal);
+        if (deal.getTitle() != null) existing.setTitle(deal.getTitle());
+        if (deal.getDescription() != null) existing.setDescription(deal.getDescription());
+        if (deal.getStage() != null) existing.setStage(deal.getStage());
+        if (deal.getValue() != null) existing.setValue(deal.getValue());
+        if (deal.getCurrency() != null) existing.setCurrency(deal.getCurrency());
+        if (deal.getContactId() != null) existing.setContactId(deal.getContactId());
+        if (deal.getOwnerId() != null) existing.setOwnerId(deal.getOwnerId());
+        if (deal.getProbability() != null) existing.setProbability(deal.getProbability());
+        if (deal.getExpectedCloseDate() != null) existing.setExpectedCloseDate(deal.getExpectedCloseDate());
+        return dealRepository.save(existing);
     }
 
     public void delete(UUID dealId) {

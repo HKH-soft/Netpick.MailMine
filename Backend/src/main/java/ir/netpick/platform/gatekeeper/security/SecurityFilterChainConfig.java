@@ -54,13 +54,13 @@ public class SecurityFilterChainConfig {
                                 // Actuator endpoints - restrict to authenticated users with ADMIN role
                                 .requestMatchers("/actuator/**")
                                 .hasRole("ADMIN")
-                                // Swagger UI and OpenAPI docs
+                                // Swagger UI and OpenAPI docs — restricted to dev profile
                                 .requestMatchers(
                                                 "/swagger-ui.html",
                                                 "/swagger-ui/**",
                                                 "/v3/api-docs/**",
                                                 "/v3/api-docs.yaml")
-                                .permitAll()
+                                .hasRole("SUPER_ADMIN")
                                 // Security admin endpoints
                                 .requestMatchers("/api/v1/gatekeeper/admin/security/**")
                                 .hasAnyRole("ADMIN", "SUPER_ADMIN")

@@ -30,9 +30,18 @@ public class TemplateRenderService {
         result = result.replace("{{currentTime}}", now.format(DateTimeFormatter.ofPattern("HH:mm:ss")));
         result = result.replace("{{currentDateTime}}", now.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")));
 
-        // User-provided variables
+        // User-provided variables — HTML-escape to prevent XSS
         for (Map.Entry<String, String> entry : variables.entrySet()) {
-            result = result.replace("{{" + entry.getKey() + "}}", entry.getValue());
+            String key = entry.getKey();
+            String value = entry.getValue();
+            if (value != null) {
+                value = value.replace("&", "&amp;")
+                        .replace("<", "&lt;")
+                        .replace(">", "&gt;")
+                        .replace("\"", "&quot;")
+                        .replace("'", "&#x27;");
+            }
+            result = result.replace("{{" + key + "}}", value);
         }
 
         return result;
