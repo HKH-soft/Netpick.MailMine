@@ -45,6 +45,14 @@ set "ROOT_DIR=%~dp0"
 set "BACKEND_DIR=%ROOT_DIR%Backend"
 set "FRONTEND_DIR=%ROOT_DIR%Frontend"
 
+REM ── Load .env file into environment ─────────────────────────────────────────
+if exist "%ROOT_DIR%.env" (
+    for /f "usebackq tokens=1,* delims==" %%A in ("%ROOT_DIR%.env") do (
+        set "%%A=%%B"
+    )
+    echo   Loaded .env variables
+)
+
 if "%START_BACKEND%"=="1" (
     if not exist "%BACKEND_DIR%\mvnw.cmd" (
         echo ERROR: Backend directory or mvnw.cmd not found at "%BACKEND_DIR%"
