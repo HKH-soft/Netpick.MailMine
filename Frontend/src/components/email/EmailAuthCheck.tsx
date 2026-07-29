@@ -31,7 +31,7 @@ export default function EmailAuthCheck() {
           value={domain}
           onChange={e => setDomain(e.target.value)}
           onKeyDown={e => e.key === 'Enter' && handleCheck()}
-          className="flex-1 border rounded px-3 py-2 dark:bg-form-input dark:border-form-strokedark"
+          className="flex-1 border rounded px-3 py-2 dark:bg-white dark:border-gray-700"
         />
         <button
           onClick={handleCheck}
@@ -45,7 +45,7 @@ export default function EmailAuthCheck() {
       {result && (
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           {/* SPF */}
-          <div className="bg-white dark:bg-boxdark p-4 rounded-lg border border-gray-200 dark:border-strokedark">
+          <div className="bg-white dark:bg-gray-900 p-4 rounded-lg border border-gray-200 dark:border-gray-700">
             <h3 className="font-semibold mb-2">SPF</h3>
             <div className="space-y-1">
               <div className="flex justify-between">
@@ -60,7 +60,7 @@ export default function EmailAuthCheck() {
                     <span className="text-sm">Policy</span>
                     <span className="text-sm">{result.spf.allMechanismType}</span>
                   </div>
-                  <div className="mt-2 p-2 bg-gray-50 dark:bg-meta-4 rounded text-xs break-all">
+                  <div className="mt-2 p-2 bg-gray-50 dark:bg-gray-500 rounded text-xs break-all">
                     {result.spf.record}
                   </div>
                 </>
@@ -72,7 +72,7 @@ export default function EmailAuthCheck() {
           </div>
 
           {/* DMARC */}
-          <div className="bg-white dark:bg-boxdark p-4 rounded-lg border border-gray-200 dark:border-strokedark">
+          <div className="bg-white dark:bg-gray-900 p-4 rounded-lg border border-gray-200 dark:border-gray-700">
             <h3 className="font-semibold mb-2">DMARC</h3>
             <div className="space-y-1">
               <div className="flex justify-between">
@@ -96,7 +96,7 @@ export default function EmailAuthCheck() {
                     <span className="text-sm">Percentage</span>
                     <span className="text-sm">{result.dmarc.pct}%</span>
                   </div>
-                  <div className="mt-2 p-2 bg-gray-50 dark:bg-meta-4 rounded text-xs break-all">
+                  <div className="mt-2 p-2 bg-gray-50 dark:bg-gray-500 rounded text-xs break-all">
                     {result.dmarc.record}
                   </div>
                 </>

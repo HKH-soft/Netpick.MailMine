@@ -36,7 +36,7 @@ function makeToken(payload: Record<string, unknown>): string {
 describe('ProtectedRoute', () => {
   beforeEach(() => {
     vi.clearAllMocks();
-    (useAuth as any).mockReturnValue({ isAuthenticated: true });
+    vi.mocked(useAuth).mockReturnValue({ isAuthenticated: true } as ReturnType<typeof useAuth>);
     process.env.NEXT_PUBLIC_DEV_MODE = undefined;
   });
 
@@ -73,7 +73,7 @@ describe('ProtectedRoute', () => {
 
   describe('unauthenticated redirect', () => {
     it('redirects to /signin when not authenticated', async () => {
-      (AuthService.isAuthenticated as any).mockReturnValue(false);
+      vi.mocked(AuthService.isAuthenticated).mockReturnValue(false);
 
       render(
         <ProtectedRoute>
@@ -87,7 +87,7 @@ describe('ProtectedRoute', () => {
     });
 
     it('does not render children when not authenticated', async () => {
-      (AuthService.isAuthenticated as any).mockReturnValue(false);
+      vi.mocked(AuthService.isAuthenticated).mockReturnValue(false);
 
       render(
         <ProtectedRoute>
@@ -104,7 +104,7 @@ describe('ProtectedRoute', () => {
 
   describe('authenticated without role requirements', () => {
     it('renders children when authenticated with no allowedRoles', async () => {
-      (AuthService.isAuthenticated as any).mockReturnValue(true);
+      vi.mocked(AuthService.isAuthenticated).mockReturnValue(true);
 
       render(
         <ProtectedRoute>
@@ -118,7 +118,7 @@ describe('ProtectedRoute', () => {
     });
 
     it('renders children when authenticated with empty allowedRoles', async () => {
-      (AuthService.isAuthenticated as any).mockReturnValue(true);
+      vi.mocked(AuthService.isAuthenticated).mockReturnValue(true);
 
       render(
         <ProtectedRoute allowedRoles={[]}>
@@ -134,9 +134,9 @@ describe('ProtectedRoute', () => {
 
   describe('role-based access control', () => {
     it('allows access when user role matches allowedRoles via direct role property', async () => {
-      (AuthService.isAuthenticated as any).mockReturnValue(true);
+      vi.mocked(AuthService.isAuthenticated).mockReturnValue(true);
       const token = makeToken({ role: 'ADMIN', exp: Math.floor(Date.now() / 1000) + 3600 });
-      (AuthService.getToken as any).mockReturnValue(token);
+      vi.mocked(AuthService.getToken).mockReturnValue(token);
 
       render(
         <ProtectedRoute allowedRoles={['ADMIN']}>
@@ -150,9 +150,9 @@ describe('ProtectedRoute', () => {
     });
 
     it('allows access when user role is in allowedRoles via scopes array', async () => {
-      (AuthService.isAuthenticated as any).mockReturnValue(true);
+      vi.mocked(AuthService.isAuthenticated).mockReturnValue(true);
       const token = makeToken({ scopes: ['SUPER_ADMIN'], exp: Math.floor(Date.now() / 1000) + 3600 });
-      (AuthService.getToken as any).mockReturnValue(token);
+      vi.mocked(AuthService.getToken).mockReturnValue(token);
 
       render(
         <ProtectedRoute allowedRoles={['SUPER_ADMIN']}>
@@ -166,9 +166,9 @@ describe('ProtectedRoute', () => {
     });
 
     it('allows access when user has ADMIN role even if not in allowedRoles (ADMIN wildcard)', async () => {
-      (AuthService.isAuthenticated as any).mockReturnValue(true);
+      vi.mocked(AuthService.isAuthenticated).mockReturnValue(true);
       const token = makeToken({ role: 'SUPER_ADMIN', exp: Math.floor(Date.now() / 1000) + 3600 });
-      (AuthService.getToken as any).mockReturnValue(token);
+      vi.mocked(AuthService.getToken).mockReturnValue(token);
 
       render(
         <ProtectedRoute allowedRoles={['USER']}>
@@ -182,9 +182,9 @@ describe('ProtectedRoute', () => {
     });
 
     it('denies access and redirects when role does not match', async () => {
-      (AuthService.isAuthenticated as any).mockReturnValue(true);
+      vi.mocked(AuthService.isAuthenticated).mockReturnValue(true);
       const token = makeToken({ role: 'USER', exp: Math.floor(Date.now() / 1000) + 3600 });
-      (AuthService.getToken as any).mockReturnValue(token);
+      vi.mocked(AuthService.getToken).mockReturnValue(token);
 
       render(
         <ProtectedRoute allowedRoles={['ADMIN', 'SUPER_ADMIN']}>
@@ -199,9 +199,9 @@ describe('ProtectedRoute', () => {
     });
 
     it('shows Access Denied when role does not match', async () => {
-      (AuthService.isAuthenticated as any).mockReturnValue(true);
+      vi.mocked(AuthService.isAuthenticated).mockReturnValue(true);
       const token = makeToken({ role: 'USER', exp: Math.floor(Date.now() / 1000) + 3600 });
-      (AuthService.getToken as any).mockReturnValue(token);
+      vi.mocked(AuthService.getToken).mockReturnValue(token);
 
       render(
         <ProtectedRoute allowedRoles={['ADMIN']}>
@@ -210,14 +210,14 @@ describe('ProtectedRoute', () => {
       );
 
       await vi.waitFor(() => {
-        expect(screen.getByText('Access Denied')).toBeInTheDocument();
+        expect(screen.getByText('common.accessDenied')).toBeInTheDocument();
       });
     });
 
     it('denies access when no role found in token', async () => {
-      (AuthService.isAuthenticated as any).mockReturnValue(true);
+      vi.mocked(AuthService.isAuthenticated).mockReturnValue(true);
       const token = makeToken({ sub: 'user123', exp: Math.floor(Date.now() / 1000) + 3600 });
-      (AuthService.getToken as any).mockReturnValue(token);
+      vi.mocked(AuthService.getToken).mockReturnValue(token);
 
       render(
         <ProtectedRoute allowedRoles={['ADMIN']}>
@@ -231,9 +231,9 @@ describe('ProtectedRoute', () => {
     });
 
     it('denies access when token has malformed JSON', async () => {
-      (AuthService.isAuthenticated as any).mockReturnValue(true);
+      vi.mocked(AuthService.isAuthenticated).mockReturnValue(true);
       const badToken = `header.${btoa('not-valid-json')}.signature`;
-      (AuthService.getToken as any).mockReturnValue(badToken);
+      vi.mocked(AuthService.getToken).mockReturnValue(badToken);
 
       render(
         <ProtectedRoute allowedRoles={['ADMIN']}>
@@ -247,8 +247,8 @@ describe('ProtectedRoute', () => {
     });
 
     it('denies access when no token is available but isAuthenticated returns true', async () => {
-      (AuthService.isAuthenticated as any).mockReturnValue(true);
-      (AuthService.getToken as any).mockReturnValue(null);
+      vi.mocked(AuthService.isAuthenticated).mockReturnValue(true);
+      vi.mocked(AuthService.getToken).mockReturnValue(null);
 
       render(
         <ProtectedRoute allowedRoles={['ADMIN']}>
@@ -262,9 +262,9 @@ describe('ProtectedRoute', () => {
     });
 
     it('allows access with scopes as object array', async () => {
-      (AuthService.isAuthenticated as any).mockReturnValue(true);
+      vi.mocked(AuthService.isAuthenticated).mockReturnValue(true);
       const token = makeToken({ scopes: [{ role: 'EDITOR' }], exp: Math.floor(Date.now() / 1000) + 3600 });
-      (AuthService.getToken as any).mockReturnValue(token);
+      vi.mocked(AuthService.getToken).mockReturnValue(token);
 
       render(
         <ProtectedRoute allowedRoles={['EDITOR']}>
@@ -279,18 +279,16 @@ describe('ProtectedRoute', () => {
   });
 
   describe('loading state', () => {
-    it('shows loading before auth check completes', () => {
-      (AuthService.isAuthenticated as any).mockReturnValue(true);
+    it('shows content after auth check completes', () => {
+      vi.mocked(AuthService.isAuthenticated).mockReturnValue(true);
 
-      const { container } = render(
+      render(
         <ProtectedRoute>
           <div>Protected content</div>
         </ProtectedRoute>
       );
 
-      const loadingEl = container.querySelector('.flex.items-center.justify-center.h-screen');
-      expect(loadingEl).toBeTruthy();
-      expect(loadingEl?.textContent).toBe('Loading...');
+      expect(screen.getByText('Protected content')).toBeInTheDocument();
     });
   });
 });

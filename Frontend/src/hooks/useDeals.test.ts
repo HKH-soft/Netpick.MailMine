@@ -36,7 +36,7 @@ describe('useDeals hook', () => {
       isLast: true,
     };
 
-    (DealService.getAllDeals as any).mockResolvedValue(mockResponse);
+    vi.mocked(DealService.getAllDeals).mockResolvedValue(mockResponse);
 
     const { result } = renderHook(() => useDeals(1));
 
@@ -49,7 +49,7 @@ describe('useDeals hook', () => {
   });
 
   it('handles fetch error gracefully', async () => {
-    (DealService.getAllDeals as any).mockRejectedValue(new Error('Network error'));
+    vi.mocked(DealService.getAllDeals).mockRejectedValue(new Error('Network error'));
 
     const { result } = renderHook(() => useDeals(1));
 
@@ -67,7 +67,7 @@ describe('useDeal hook', () => {
   });
 
   it('fetches deal by ID on successful request', async () => {
-    (DealService.getDealById as any).mockResolvedValue(mockDeal);
+    vi.mocked(DealService.getDealById).mockResolvedValue(mockDeal);
 
     const { result } = renderHook(() => useDeal('1'));
 
@@ -94,7 +94,7 @@ describe('useDealStats hook', () => {
   });
 
   it('fetches stats on mount', async () => {
-    (DealService.getStats as any).mockResolvedValue(mockStats);
+    vi.mocked(DealService.getStats).mockResolvedValue(mockStats);
 
     const { result } = renderHook(() => useDealStats());
 

@@ -1,4 +1,4 @@
-﻿package ir.netpick.platform.gatekeeper.model;
+package ir.netpick.platform.gatekeeper.model;
 
 import io.hypersistence.utils.hibernate.type.json.JsonBinaryType;
 import ir.netpick.platform.gatekeeper.PreferencesEnum;

@@ -117,7 +117,7 @@ export default function CampaignBuilder() {
       </div>
 
       {showCreate && (
-        <div className="bg-white dark:bg-boxdark p-4 rounded-lg mb-4 border border-gray-200 dark:border-strokedark">
+        <div className="bg-white dark:bg-gray-900 p-4 rounded-lg mb-4 border border-gray-200 dark:border-gray-700">
           <h3 className="font-semibold mb-3">Create Campaign</h3>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
@@ -126,7 +126,7 @@ export default function CampaignBuilder() {
                 placeholder="Campaign Name"
                 value={formData.name}
                 onChange={e => setFormData({ ...formData, name: e.target.value })}
-                className={`border rounded px-3 py-2 w-full dark:bg-form-input dark:border-form-strokedark ${formErrors.name ? 'border-red-500' : ''}`}
+                className={`border rounded px-3 py-2 w-full dark:bg-white dark:border-gray-700 ${formErrors.name ? 'border-red-500' : ''}`}
               />
               {formErrors.name && <p className="text-red-500 text-xs mt-1">{formErrors.name}</p>}
             </div>
@@ -136,7 +136,7 @@ export default function CampaignBuilder() {
                 placeholder="Subject Line"
                 value={formData.subjectLine}
                 onChange={e => setFormData({ ...formData, subjectLine: e.target.value })}
-                className={`border rounded px-3 py-2 w-full dark:bg-form-input dark:border-form-strokedark ${formErrors.subjectLine ? 'border-red-500' : ''}`}
+                className={`border rounded px-3 py-2 w-full dark:bg-white dark:border-gray-700 ${formErrors.subjectLine ? 'border-red-500' : ''}`}
               />
               {formErrors.subjectLine && <p className="text-red-500 text-xs mt-1">{formErrors.subjectLine}</p>}
             </div>
@@ -144,7 +144,7 @@ export default function CampaignBuilder() {
               placeholder="Description"
               value={formData.description}
               onChange={e => setFormData({ ...formData, description: e.target.value })}
-              className="border rounded px-3 py-2 md:col-span-2 dark:bg-form-input dark:border-form-strokedark"
+              className="border rounded px-3 py-2 md:col-span-2 dark:bg-white dark:border-gray-700"
               rows={2}
             />
             <div className="md:col-span-2">
@@ -152,7 +152,7 @@ export default function CampaignBuilder() {
                 placeholder="Email HTML Body"
                 value={formData.bodyHtml}
                 onChange={e => setFormData({ ...formData, bodyHtml: e.target.value })}
-                className={`border rounded px-3 py-2 w-full dark:bg-form-input dark:border-form-strokedark ${formErrors.bodyHtml ? 'border-red-500' : ''}`}
+                className={`border rounded px-3 py-2 w-full dark:bg-white dark:border-gray-700 ${formErrors.bodyHtml ? 'border-red-500' : ''}`}
                 rows={6}
               />
               {formErrors.bodyHtml && <p className="text-red-500 text-xs mt-1">{formErrors.bodyHtml}</p>}
@@ -184,7 +184,7 @@ export default function CampaignBuilder() {
       <div className="overflow-x-auto">
         <table className="w-full table-auto">
           <thead>
-            <tr className="bg-gray-200 dark:bg-meta-4">
+            <tr className="bg-gray-200 dark:bg-gray-500">
               <th className="py-3 px-4 text-left font-medium text-black dark:text-white">Name</th>
               <th className="py-3 px-4 text-left font-medium text-black dark:text-white">Status</th>
               <th className="py-3 px-4 text-left font-medium text-black dark:text-white">Recipients</th>
@@ -195,7 +195,7 @@ export default function CampaignBuilder() {
           </thead>
           <tbody>
             {campaigns.map((campaign) => (
-              <tr key={campaign.id} className="border-b border-gray-200 dark:border-strokedark">
+              <tr key={campaign.id} className="border-b border-gray-200 dark:border-gray-700">
                 <td className="py-3 px-4">
                   <p className="font-medium text-black dark:text-white">{campaign.name}</p>
                   <p className="text-sm text-gray-500">{campaign.subjectLine}</p>
@@ -242,13 +242,13 @@ export default function CampaignBuilder() {
       )}
 
       {selectedCampaign && (
-        <div className="mt-4 p-4 bg-white dark:bg-boxdark rounded-lg border border-gray-200 dark:border-strokedark">
+        <div className="mt-4 p-4 bg-white dark:bg-gray-900 rounded-lg border border-gray-200 dark:border-gray-700">
           <h3 className="font-semibold mb-2">Add Recipients</h3>
           <textarea
             placeholder="Enter email addresses (one per line)"
             value={recipients}
             onChange={e => setRecipients(e.target.value)}
-            className="w-full border rounded px-3 py-2 mb-2 dark:bg-form-input dark:border-form-strokedark"
+            className="w-full border rounded px-3 py-2 mb-2 dark:bg-white dark:border-gray-700"
             rows={4}
           />
           <div className="flex gap-2">

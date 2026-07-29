@@ -54,10 +54,6 @@ export const SidebarProvider: React.FC<{ children: React.ReactNode }> = ({
     };
   }, []);
 
-  if (!isInitialized) {
-    return null;
-  }
-
   const toggleSidebar = useCallback(() => {
     setIsExpanded((prev) => !prev);
   }, []);
@@ -86,6 +82,10 @@ export const SidebarProvider: React.FC<{ children: React.ReactNode }> = ({
     }),
     [isExpanded, isMobile, isMobileOpen, isHovered, activeItem, openSubmenu, toggleSidebar, toggleMobileSidebar, toggleSubmenu, isInitialized]
   );
+
+  if (!isInitialized) {
+    return null;
+  }
 
   return (
     <SidebarContext.Provider value={value}>

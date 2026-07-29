@@ -1,4 +1,4 @@
-﻿package ir.netpick.platform.mailmine.service;
+package ir.netpick.platform.mailmine.service;
 
 import ir.netpick.platform.mailmine.model.EmailMessage;
 import ir.netpick.platform.mailmine.repository.EmailMessageRepository;

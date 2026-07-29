@@ -1,4 +1,4 @@
-﻿package ir.netpick.platform.gatekeeper.service;
+package ir.netpick.platform.gatekeeper.service;
 
 import ir.netpick.platform.gatekeeper.dto.AuthenticationSignupRequest;
 import ir.netpick.platform.gatekeeper.email.AuthEmailService;

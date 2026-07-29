@@ -17,7 +17,7 @@ describe('SidebarContext', () => {
 
   it('throws error when used outside provider', () => {
     expect(() => {
-      const { result } = renderHook(() => useSidebar());
+      renderHook(() => useSidebar());
     }).toThrow('useSidebar must be used within a SidebarProvider');
   });
 

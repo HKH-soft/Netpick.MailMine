@@ -32,6 +32,7 @@ i18n
 
 // Expose i18n for debugging
 if (typeof window !== 'undefined') {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   (window as any).i18n = i18n;
 }
 

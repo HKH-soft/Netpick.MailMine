@@ -88,13 +88,13 @@ export default function AiAssistantPanel({ emailId, onClose }: AiAssistantPanelP
   ] as const;
 
   return (
-    <div className="bg-white dark:bg-boxdark border-l border-gray-200 dark:border-strokedark h-full overflow-y-auto">
-      <div className="flex justify-between items-center p-4 border-b border-gray-200 dark:border-strokedark">
+    <div className="bg-white dark:bg-gray-900 border-l border-gray-200 dark:border-gray-700 h-full overflow-y-auto">
+      <div className="flex justify-between items-center p-4 border-b border-gray-200 dark:border-gray-700">
         <h3 className="font-semibold text-black dark:text-white">AI Assistant</h3>
                 <button onClick={onClose} className="text-gray-500 hover:text-black dark:hover:text-white">✕</button>
       </div>
 
-      <div className="flex border-b border-gray-200 dark:border-strokedark">
+      <div className="flex border-b border-gray-200 dark:border-gray-700">
         {tabs.map((tab) => (
           <button
             key={tab.key}
@@ -121,7 +121,7 @@ export default function AiAssistantPanel({ emailId, onClose }: AiAssistantPanelP
               {loading ? 'Generating...' : 'Generate Summary'}
             </button>
             {summary && (
-              <div className="bg-gray-50 dark:bg-meta-4 p-3 rounded text-sm whitespace-pre-wrap">
+              <div className="bg-gray-50 dark:bg-gray-500 p-3 rounded text-sm whitespace-pre-wrap">
                 {summary}
               </div>
             )}
@@ -142,7 +142,7 @@ export default function AiAssistantPanel({ emailId, onClose }: AiAssistantPanelP
                 <textarea
                   value={draft}
                   onChange={e => setDraft(e.target.value)}
-                  className="w-full border rounded px-3 py-2 mb-2 dark:bg-form-input dark:border-form-strokedark"
+                  className="w-full border rounded px-3 py-2 mb-2 dark:bg-white dark:border-gray-700"
                   rows={8}
                 />
                 <div className="flex gap-2 mb-3">
@@ -151,7 +151,7 @@ export default function AiAssistantPanel({ emailId, onClose }: AiAssistantPanelP
                     placeholder="Improvement instructions..."
                     value={draftInstructions}
                     onChange={e => setDraftInstructions(e.target.value)}
-                    className="flex-1 border rounded px-3 py-2 dark:bg-form-input dark:border-form-strokedark"
+                    className="flex-1 border rounded px-3 py-2 dark:bg-white dark:border-gray-700"
                   />
                   <button
                     onClick={improveDraft}
@@ -183,7 +183,7 @@ export default function AiAssistantPanel({ emailId, onClose }: AiAssistantPanelP
             </button>
             {sentiment && (
               <div className="space-y-2">
-                <div className="flex justify-between items-center p-2 bg-gray-50 dark:bg-meta-4 rounded">
+                <div className="flex justify-between items-center p-2 bg-gray-50 dark:bg-gray-500 rounded">
                   <span className="text-sm">Sentiment</span>
                   <span className={`font-medium ${
                     sentiment.sentiment === 'positive' ? 'text-green-500' :
@@ -193,7 +193,7 @@ export default function AiAssistantPanel({ emailId, onClose }: AiAssistantPanelP
                     {sentiment.sentiment}
                   </span>
                 </div>
-                <div className="flex justify-between items-center p-2 bg-gray-50 dark:bg-meta-4 rounded">
+                <div className="flex justify-between items-center p-2 bg-gray-50 dark:bg-gray-500 rounded">
                   <span className="text-sm">Urgency</span>
                   <span className={`font-medium ${
                     sentiment.urgency === 'critical' ? 'text-red-700' :
@@ -203,11 +203,11 @@ export default function AiAssistantPanel({ emailId, onClose }: AiAssistantPanelP
                     {sentiment.urgency}
                   </span>
                 </div>
-                <div className="flex justify-between items-center p-2 bg-gray-50 dark:bg-meta-4 rounded">
+                <div className="flex justify-between items-center p-2 bg-gray-50 dark:bg-gray-500 rounded">
                   <span className="text-sm">Emotion</span>
                   <span className="font-medium text-black dark:text-white">{sentiment.emotion}</span>
                 </div>
-                <div className="flex justify-between items-center p-2 bg-gray-50 dark:bg-meta-4 rounded">
+                <div className="flex justify-between items-center p-2 bg-gray-50 dark:bg-gray-500 rounded">
                   <span className="text-sm">Confidence</span>
                   <span className="font-medium text-black dark:text-white">
                     {Math.round(sentiment.confidence * 100)}%
@@ -229,7 +229,7 @@ export default function AiAssistantPanel({ emailId, onClose }: AiAssistantPanelP
             </button>
             {spamResult && (
               <div className="space-y-2">
-                <div className="flex justify-between items-center p-2 bg-gray-50 dark:bg-meta-4 rounded">
+                <div className="flex justify-between items-center p-2 bg-gray-50 dark:bg-gray-500 rounded">
                   <span className="text-sm">Risk Level</span>
                   <span className={`font-medium px-2 py-1 rounded ${
                     spamResult.risk_level === 'critical' ? 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400' :
@@ -240,19 +240,19 @@ export default function AiAssistantPanel({ emailId, onClose }: AiAssistantPanelP
                     {spamResult.risk_level}
                   </span>
                 </div>
-                <div className="flex justify-between items-center p-2 bg-gray-50 dark:bg-meta-4 rounded">
+                <div className="flex justify-between items-center p-2 bg-gray-50 dark:bg-gray-500 rounded">
                   <span className="text-sm">Spam</span>
                   <span className={spamResult.is_spam ? 'text-red-500' : 'text-green-500'}>
                     {spamResult.is_spam ? 'Yes' : 'No'}
                   </span>
                 </div>
-                <div className="flex justify-between items-center p-2 bg-gray-50 dark:bg-meta-4 rounded">
+                <div className="flex justify-between items-center p-2 bg-gray-50 dark:bg-gray-500 rounded">
                   <span className="text-sm">Phishing</span>
                   <span className={spamResult.is_phishing ? 'text-red-500' : 'text-green-500'}>
                     {spamResult.is_phishing ? 'Yes' : 'No'}
                   </span>
                 </div>
-                <div className="flex justify-between items-center p-2 bg-gray-50 dark:bg-meta-4 rounded">
+                <div className="flex justify-between items-center p-2 bg-gray-50 dark:bg-gray-500 rounded">
                   <span className="text-sm">Scam</span>
                   <span className={spamResult.is_scam ? 'text-red-500' : 'text-green-500'}>
                     {spamResult.is_scam ? 'Yes' : 'No'}

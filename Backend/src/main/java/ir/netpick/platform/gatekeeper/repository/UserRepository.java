@@ -43,6 +43,11 @@ public interface UserRepository extends JpaRepository<User, UUID> {
 
     @Transactional
     @Modifying(clearAutomatically = true)
+    @Query("UPDATE User u SET u.passwordHash = :passwordHash WHERE u.email = :email")
+    int updatePasswordHashByEmail(@Param("passwordHash") String passwordHash, @Param("email") String email);
+
+    @Transactional
+    @Modifying(clearAutomatically = true)
     @Query("UPDATE User u SET u.lastLoginAt = :now WHERE u.email = :email")
     void updateLastLogin(@Param("now") LocalDateTime now, @Param("email") String email);
 

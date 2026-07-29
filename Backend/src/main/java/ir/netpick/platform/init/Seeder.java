@@ -3,12 +3,16 @@ package ir.netpick.platform.init;
 import java.util.*;
 import java.util.stream.Collectors;
 
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.PersistenceContext;
+import jakarta.persistence.Query;
 import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.context.ApplicationListener;
 import org.springframework.context.event.ContextRefreshedEvent;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 
 import ir.netpick.platform.gatekeeper.model.Role;
 import ir.netpick.platform.gatekeeper.model.User;
@@ -26,9 +30,13 @@ public class Seeder implements ApplicationListener<ContextRefreshedEvent> {
   private final UserRepository userRepository;
   private final PasswordEncoder passwordEncoder;
 
+  @PersistenceContext
+  private EntityManager entityManager;
+
   private boolean executed = false;
 
   @Override
+  @Transactional
   public void onApplicationEvent(@NotNull ContextRefreshedEvent event) {
     if (executed) {
       return;
@@ -63,7 +71,7 @@ public class Seeder implements ApplicationListener<ContextRefreshedEvent> {
 
   /**
    * Removes users whose role_id references a non-existent Role.
-   * Prevents JpaObjectRetrievalFailureException from eager FK loading.
+   * Uses native query to avoid JpaObjectRetrievalFailureException from eager FK loading.
    */
   private void recoverOrphanedUsers() {
     List<Role> validRoles = roleRepository.findAll();
@@ -75,19 +83,32 @@ public class Seeder implements ApplicationListener<ContextRefreshedEvent> {
         .map(Role::getId)
         .collect(Collectors.toSet());
 
-    List<User> orphanedUsers = userRepository.findAll().stream()
-        .filter(user -> user.getRole() == null || !validRoleIds.contains(user.getRole().getId()))
-        .toList();
+    // Use native query to find orphaned users without triggering eager FK loading
+    Query orphanedQuery = entityManager.createNativeQuery(
+        "SELECT id FROM users WHERE role_id IS NULL OR role_id NOT IN (" +
+        validRoleIds.stream().map(id -> "?").collect(Collectors.joining(",")) + ")"
+    );
+    int i = 1;
+    for (UUID id : validRoleIds) {
+      orphanedQuery.setParameter(i++, id);
+    }
 
-if (orphanedUsers.isEmpty()) {
-       return;
-     }
+    @SuppressWarnings("unchecked")
+    List<Object> orphanedUserIds = orphanedQuery.getResultList();
 
-     log.warn("Found {} user(s) with invalid role references (not deleting)", orphanedUsers.size());
-     for (User orphan : orphanedUsers) {
-       log.warn("Orphaned user: email={}", orphan.getEmail());
-     }
-   }
+    if (orphanedUserIds.isEmpty()) {
+      return;
+    }
+
+    log.warn("Found {} user(s) with invalid role references (soft-deleting)", orphanedUserIds.size());
+    // Use native UPDATE for soft-delete to avoid EntityNotFoundException:
+    // deleteById() loads the entity first, triggering EAGER fetch of the broken role FK
+    Query softDeleteQuery = entityManager.createNativeQuery(
+        "UPDATE users SET deleted = true WHERE id IN (" +
+        orphanedUserIds.stream().map(id -> "'" + id + "'").collect(Collectors.joining(",")) + ")"
+    );
+    softDeleteQuery.executeUpdate();
+  }
 
   private void createSuperAdmin() {
     String email = "super.admin@netpick.ir";
@@ -98,21 +119,41 @@ if (orphanedUsers.isEmpty()) {
       return;
     }
 
-    // existsUserByEmail avoids eager-loading the User entity (and its FK to Role).
-    if (userRepository.existsUserByEmail(email)) {
-      log.debug("Super admin user already exists — skipping creation");
-      return;
-    }
-
     String password = System.getenv("SUPER_ADMIN_PASSWORD");
     if (password == null || password.isBlank()) {
       password = java.util.UUID.randomUUID().toString();
-      log.warn("SUPER_ADMIN_PASSWORD not set — generated random password");
+      log.warn("SUPER_ADMIN_PASSWORD not set — generated random password — Password: " + password);
     }
-    User user = new User(email, passwordEncoder.encode(password), "superAdmin",
+
+    String encodedPassword = passwordEncoder.encode(password);
+
+    Optional<User> existingUser = userRepository.findByDeletedFalseAndEmail(email);
+    if (existingUser.isPresent()) {
+      User user = existingUser.get();
+      user.setPasswordHash(encodedPassword);
+      user.setRole(optionalRole.get());
+      user.setIsVerified(true);
+      userRepository.save(user);
+      log.info("Super admin user password updated");
+      return;
+    }
+
+    Optional<User> softDeletedUser = userRepository.findByDeletedTrueAndEmail(email);
+    if (softDeletedUser.isPresent()) {
+      User user = softDeletedUser.get();
+      user.setPasswordHash(encodedPassword);
+      user.setRole(optionalRole.get());
+      user.setIsVerified(true);
+      user.setDeleted(false);
+      userRepository.save(user);
+      log.info("Super admin user was recovered and password updated");
+      return;
+    }
+
+    User user = new User(email, encodedPassword, "superAdmin",
         optionalRole.get());
     user.setIsVerified(true);
     userRepository.save(user);
-    log.info("superuser was created");
+    log.info("Super admin user was created");
   }
 }

@@ -35,7 +35,7 @@ describe('usePipelines hook', () => {
       isLast: true,
     };
 
-    (PipelineService.getAllPipelines as any).mockResolvedValue(mockResponse);
+    vi.mocked(PipelineService.getAllPipelines).mockResolvedValue(mockResponse);
 
     const { result } = renderHook(() => usePipelines(1));
 
@@ -48,7 +48,7 @@ describe('usePipelines hook', () => {
   });
 
   it('handles fetch error gracefully', async () => {
-    (PipelineService.getAllPipelines as any).mockRejectedValue(new Error('Network error'));
+    vi.mocked(PipelineService.getAllPipelines).mockRejectedValue(new Error('Network error'));
 
     const { result } = renderHook(() => usePipelines(1));
 
@@ -66,7 +66,7 @@ describe('usePipeline hook', () => {
   });
 
   it('fetches pipeline by ID on successful request', async () => {
-    (PipelineService.getPipelineById as any).mockResolvedValue(mockPipeline);
+    vi.mocked(PipelineService.getPipelineById).mockResolvedValue(mockPipeline);
 
     const { result } = renderHook(() => usePipeline('1'));
 

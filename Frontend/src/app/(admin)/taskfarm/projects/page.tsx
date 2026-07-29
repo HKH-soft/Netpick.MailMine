@@ -3,8 +3,7 @@
 import React, { useState } from "react";
 import PageBreadcrumb from "@/components/common/PageBreadCrumb";
 import Button from "@/components/ui/button/Button";
-import { DndProvider } from "react-dnd";
-import { HTML5Backend } from "react-dnd-html5-backend";
+
 
 export default function ProjectsPage() {
   const [projects] = useState([

@@ -1,5 +1,5 @@
 "use client";
-import React, { useRef, useState } from "react";
+import React, { useRef } from "react";
 import { useDrag, useDrop } from "react-dnd";
 
 interface DashboardWidgetProps {
@@ -51,7 +51,6 @@ export default function DashboardWidget({
    onRemove, onMove, onResize, onCollapse, onPin, position = 0,
  }: DashboardWidgetProps) {
    const ref = useRef<HTMLDivElement>(null);
-   const [hovered, setHovered] = useState(false);
    const lastMovedPositionRef = useRef<number | null>(null);
 
    const [{ isDragging }, drag] = useDrag({
@@ -86,8 +85,6 @@ export default function DashboardWidget({
   return (
     <div
       ref={ref}
-      onMouseEnter={() => setHovered(true)}
-      onMouseLeave={() => setHovered(false)}
       className={`
         ${RESPONSIVE_SPAN[colSpan] || "col-span-12"}
         ${ROW_CLASSES[rowSpan] || "row-span-1"}

@@ -70,7 +70,7 @@ describe('Modal component', () => {
       </Modal>
     );
 
-    const backdrop = document.querySelector('.fixed.inset-0');
+    const backdrop = document.querySelector('.backdrop-blur-sm');
     if (backdrop) {
       fireEvent.click(backdrop);
     }

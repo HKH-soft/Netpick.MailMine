@@ -44,7 +44,10 @@ export const useUser = (userId: string | null) => {
   const [error, setError] = useState<string | null>(null);
 
   const fetchUser = useCallback(async () => {
-    if (!userId) return;
+    if (!userId) {
+      setLoading(false);
+      return;
+    }
 
     try {
       setLoading(true);

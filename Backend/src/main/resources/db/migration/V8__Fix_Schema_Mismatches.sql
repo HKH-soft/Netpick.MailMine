@@ -19,9 +19,11 @@ ALTER TABLE campaigns RENAME TO email_campaigns;
 
 -- 3. Create missing email_queue_recipients join table for EmailQueueItem @ElementCollection
 CREATE TABLE IF NOT EXISTS email_queue_recipients (
-    email_queue_item_id UUID NOT NULL REFERENCES email_queue_items(id) ON DELETE CASCADE,
+    email_queue_item_id TEXT NOT NULL REFERENCES email_queue_items(id) ON DELETE CASCADE,
     recipient_email VARCHAR(255)
 );
 
 -- 4. Add preferences column to users table
 ALTER TABLE users ADD COLUMN preferences TEXT;
+
+

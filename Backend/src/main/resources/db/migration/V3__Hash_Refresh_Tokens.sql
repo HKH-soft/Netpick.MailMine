@@ -4,3 +4,5 @@
 
 -- Check if column needs renaming (PostgreSQL compatibility)
 -- SQLite: This migration is a no-op since V2 creates token_hash directly
+
+

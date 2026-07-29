@@ -42,7 +42,10 @@ export const useContact = (id: string | null) => {
   const [error, setError] = useState<string | null>(null);
 
   const fetchContact = useCallback(async () => {
-    if (!id) return;
+    if (!id) {
+      setLoading(false);
+      return;
+    }
 
     try {
       setLoading(true);

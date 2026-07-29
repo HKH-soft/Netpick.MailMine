@@ -31,7 +31,7 @@ describe('ProxyService', () => {
       isLast: true,
     };
 
-    (api.get as any).mockResolvedValue(mockResponse);
+    vi.mocked(api.get).mockResolvedValue(mockResponse);
 
     const result = await ProxyService.getAllProxies(1);
 
@@ -41,7 +41,7 @@ describe('ProxyService', () => {
 
   it('calls getProxyById with correct endpoint', async () => {
     const mockProxy = { id: '123', host: 'proxy.example.com', port: 8080, protocol: 'HTTP' as const, status: 'ACTIVE' as const };
-    (api.get as any).mockResolvedValue(mockProxy);
+    vi.mocked(api.get).mockResolvedValue(mockProxy);
 
     const result = await ProxyService.getProxyById('123');
 
@@ -52,7 +52,7 @@ describe('ProxyService', () => {
   it('calls createProxy correctly', async () => {
     const proxyRequest = { host: 'newproxy.com', port: 8080 };
     const mockProxy = { id: '123', host: 'newproxy.com', port: 8080, protocol: 'HTTP' as const, status: 'UNTESTED' as const };
-    (api.post as any).mockResolvedValue(mockProxy);
+    vi.mocked(api.post).mockResolvedValue(mockProxy);
 
     const result = await ProxyService.createProxy(proxyRequest);
 
@@ -62,7 +62,7 @@ describe('ProxyService', () => {
 
   it('calls updateProxy correctly', async () => {
     const proxyRequest = { host: 'updatedproxy.com', port: 9090 };
-    (api.put as any).mockResolvedValue({});
+    vi.mocked(api.put).mockResolvedValue({});
 
     await ProxyService.updateProxy('123', proxyRequest);
 
@@ -70,7 +70,7 @@ describe('ProxyService', () => {
   });
 
   it('calls deleteProxy correctly', async () => {
-    (api.delete as any).mockResolvedValue(undefined);
+    vi.mocked(api.delete).mockResolvedValue(undefined);
 
     await ProxyService.deleteProxy('123');
 
@@ -78,7 +78,7 @@ describe('ProxyService', () => {
   });
 
   it('calls getStats with correct endpoint', async () => {
-    (api.get as any).mockResolvedValue({ total: 100, active: 80, inactive: 5, untested: 10, failed: 5 });
+    vi.mocked(api.get).mockResolvedValue({ total: 100, active: 80, inactive: 5, untested: 10, failed: 5 });
 
     const result = await ProxyService.getStats();
 
@@ -87,7 +87,7 @@ describe('ProxyService', () => {
   });
 
   it('calls testProxy correctly', async () => {
-    (api.post as any).mockResolvedValue({});
+    vi.mocked(api.post).mockResolvedValue({});
 
     await ProxyService.testProxy('123');
 

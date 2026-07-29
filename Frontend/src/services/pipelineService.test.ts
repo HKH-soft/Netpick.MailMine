@@ -29,7 +29,7 @@ describe('PipelineService', () => {
       isLast: true,
     };
 
-    (api.get as any).mockResolvedValue(mockResponse);
+    vi.mocked(api.get).mockResolvedValue(mockResponse);
 
     const result = await PipelineService.getAllPipelines(1);
 
@@ -39,7 +39,7 @@ describe('PipelineService', () => {
 
   it('calls getPipelineById with correct endpoint', async () => {
     const mockPipeline = { id: '123', stage: 'SCRAPING', state: 'ACTIVE' };
-    (api.get as any).mockResolvedValue(mockPipeline);
+    vi.mocked(api.get).mockResolvedValue(mockPipeline);
 
     const result = await PipelineService.getPipelineById('123');
 
@@ -48,7 +48,7 @@ describe('PipelineService', () => {
   });
 
   it('calls getStats with correct endpoint', async () => {
-    (api.get as any).mockResolvedValue({ total: 50, active: 20, completed: 10, failed: 5, totalContactsFound: 500 });
+    vi.mocked(api.get).mockResolvedValue({ total: 50, active: 20, completed: 10, failed: 5, totalContactsFound: 500 });
 
     const result = await PipelineService.getStats();
 
@@ -57,7 +57,7 @@ describe('PipelineService', () => {
   });
 
   it('calls deletePipeline correctly', async () => {
-    (api.delete as any).mockResolvedValue(undefined);
+    vi.mocked(api.delete).mockResolvedValue(undefined);
 
     await PipelineService.deletePipeline('123');
 
@@ -65,7 +65,7 @@ describe('PipelineService', () => {
   });
 
   it('calls restorePipeline correctly', async () => {
-    (api.put as any).mockResolvedValue(undefined);
+    vi.mocked(api.put).mockResolvedValue(undefined);
 
     await PipelineService.restorePipeline('123');
 

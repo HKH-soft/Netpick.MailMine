@@ -35,7 +35,7 @@ describe('useContacts hook', () => {
       isLast: true,
     };
 
-    (ContactService.getAllContacts as any).mockResolvedValue(mockResponse);
+    vi.mocked(ContactService.getAllContacts).mockResolvedValue(mockResponse);
 
     const { result } = renderHook(() => useContacts(1));
 
@@ -48,7 +48,7 @@ describe('useContacts hook', () => {
   });
 
   it('handles fetch error gracefully', async () => {
-    (ContactService.getAllContacts as any).mockRejectedValue(new Error('Network error'));
+    vi.mocked(ContactService.getAllContacts).mockRejectedValue(new Error('Network error'));
 
     const { result } = renderHook(() => useContacts(1));
 
@@ -67,7 +67,7 @@ describe('useContact hook', () => {
   });
 
   it('fetches contact by ID on successful request', async () => {
-    (ContactService.getContactById as any).mockResolvedValue(mockContact);
+    vi.mocked(ContactService.getContactById).mockResolvedValue(mockContact);
 
     const { result } = renderHook(() => useContact('1'));
 
@@ -86,7 +86,7 @@ describe('useContact hook', () => {
   });
 
   it('handles fetch error gracefully', async () => {
-    (ContactService.getContactById as any).mockRejectedValue(new Error('Not found'));
+    vi.mocked(ContactService.getContactById).mockRejectedValue(new Error('Not found'));
 
     const { result } = renderHook(() => useContact('999'));
 

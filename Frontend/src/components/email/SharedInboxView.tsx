@@ -65,28 +65,28 @@ export default function SharedInboxView() {
       </div>
 
       {showCreate && (
-        <div className="bg-white dark:bg-boxdark p-4 rounded-lg mb-4 border border-gray-200 dark:border-strokedark">
+        <div className="bg-white dark:bg-gray-900 p-4 rounded-lg mb-4 border border-gray-200 dark:border-gray-700">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <input
               type="text"
               placeholder="Inbox Name"
               value={formData.name}
               onChange={e => setFormData({ ...formData, name: e.target.value })}
-              className="border rounded px-3 py-2 dark:bg-form-input dark:border-form-strokedark"
+              className="border rounded px-3 py-2 dark:bg-white dark:border-gray-700"
             />
             <input
               type="email"
               placeholder="Email Address"
               value={formData.emailAddress}
               onChange={e => setFormData({ ...formData, emailAddress: e.target.value })}
-              className="border rounded px-3 py-2 dark:bg-form-input dark:border-form-strokedark"
+              className="border rounded px-3 py-2 dark:bg-white dark:border-gray-700"
             />
             <input
               type="text"
               placeholder="Description (optional)"
               value={formData.description}
               onChange={e => setFormData({ ...formData, description: e.target.value })}
-              className="border rounded px-3 py-2 dark:bg-form-input dark:border-form-strokedark"
+              className="border rounded px-3 py-2 dark:bg-white dark:border-gray-700"
             />
           </div>
           <button
@@ -102,8 +102,8 @@ export default function SharedInboxView() {
         {inboxes.map((inbox) => (
           <div
             key={inbox.id}
-            className={`bg-white dark:bg-boxdark p-4 rounded-lg border cursor-pointer transition-all ${
-              selectedInbox?.id === inbox.id ? 'border-primary' : 'border-gray-200 dark:border-strokedark hover:border-gray-300 dark:hover:border-gray-600'
+            className={`bg-white dark:bg-gray-900 p-4 rounded-lg border cursor-pointer transition-all ${
+              selectedInbox?.id === inbox.id ? 'border-primary' : 'border-gray-200 dark:border-gray-700 hover:border-gray-300 dark:hover:border-gray-600'
             }`}
             onClick={() => setSelectedInbox(inbox)}
           >
@@ -127,7 +127,7 @@ export default function SharedInboxView() {
       </div>
 
       {selectedInbox && (
-        <div className="mt-6 bg-white dark:bg-boxdark p-4 rounded-lg border border-gray-200 dark:border-strokedark">
+        <div className="mt-6 bg-white dark:bg-gray-900 p-4 rounded-lg border border-gray-200 dark:border-gray-700">
           <h3 className="font-semibold mb-3">Assign Email - {selectedInbox.name}</h3>
           <div className="flex gap-4">
             <input
@@ -135,14 +135,14 @@ export default function SharedInboxView() {
               placeholder="Email ID"
               value={assignEmailId}
               onChange={e => setAssignEmailId(e.target.value)}
-              className="flex-1 border rounded px-3 py-2 dark:bg-form-input dark:border-form-strokedark"
+              className="flex-1 border rounded px-3 py-2 dark:bg-white dark:border-gray-700"
             />
             <input
               type="text"
               placeholder="User ID"
               value={assignUserId}
               onChange={e => setAssignUserId(e.target.value)}
-              className="flex-1 border rounded px-3 py-2 dark:bg-form-input dark:border-form-strokedark"
+              className="flex-1 border rounded px-3 py-2 dark:bg-white dark:border-gray-700"
             />
             <button
               onClick={handleAssign}
@@ -155,7 +155,7 @@ export default function SharedInboxView() {
             <h4 className="text-sm font-medium mb-2">Members</h4>
             <div className="flex flex-wrap gap-2">
               {selectedInbox.members?.map((member) => (
-                <span key={member.id} className="bg-gray-100 dark:bg-meta-4 px-3 py-1 rounded-full text-sm">
+                <span key={member.id} className="bg-gray-100 dark:bg-gray-500 px-3 py-1 rounded-full text-sm">
                   {member.name || member.email}
                 </span>
               ))}

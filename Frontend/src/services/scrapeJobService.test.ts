@@ -29,7 +29,7 @@ describe('ScrapeJobService', () => {
       isLast: true,
     };
 
-    (api.get as any).mockResolvedValue(mockResponse);
+    vi.mocked(api.get).mockResolvedValue(mockResponse);
 
     const result = await ScrapeJobService.getAllScrapeJobs(1);
 
@@ -39,7 +39,7 @@ describe('ScrapeJobService', () => {
 
   it('calls getScrapeJobById with correct endpoint', async () => {
     const mockJob = { id: '123', link: 'https://test.com' };
-    (api.get as any).mockResolvedValue(mockJob);
+    vi.mocked(api.get).mockResolvedValue(mockJob);
 
     const result = await ScrapeJobService.getScrapeJobById('123');
 
@@ -48,7 +48,7 @@ describe('ScrapeJobService', () => {
   });
 
   it('calls getStats with correct endpoint', async () => {
-    (api.get as any).mockResolvedValue({ total: 100, completed: 50, failed: 10, pending: 40 });
+    vi.mocked(api.get).mockResolvedValue({ total: 100, completed: 50, failed: 10, pending: 40 });
 
     const result = await ScrapeJobService.getStats();
 
@@ -57,7 +57,7 @@ describe('ScrapeJobService', () => {
   });
 
   it('calls deleteScrapeJob correctly', async () => {
-    (api.delete as any).mockResolvedValue(undefined);
+    vi.mocked(api.delete).mockResolvedValue(undefined);
 
     await ScrapeJobService.deleteScrapeJob('123');
 
@@ -65,7 +65,7 @@ describe('ScrapeJobService', () => {
   });
 
   it('calls restoreScrapeJob correctly', async () => {
-    (api.put as any).mockResolvedValue(undefined);
+    vi.mocked(api.put).mockResolvedValue(undefined);
 
     await ScrapeJobService.restoreScrapeJob('123');
 

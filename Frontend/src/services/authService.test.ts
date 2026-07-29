@@ -91,7 +91,11 @@ describe('AuthService', () => {
         'signature',
       ].join('.');
       
-      localStorageMock.getItem.mockReturnValue(validToken);
+      localStorageMock.getItem.mockImplementation((key: string) => {
+        if (key === 'auth_remember') return 'true';
+        if (key === 'auth_token') return validToken;
+        return null;
+      });
       expect(AuthService.isAuthenticated()).toBe(true);
     });
   });

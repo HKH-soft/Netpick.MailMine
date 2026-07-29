@@ -1,4 +1,4 @@
-﻿package ir.netpick.platform.core.util;
+package ir.netpick.platform.core.util;
 
 import jakarta.servlet.http.HttpServletRequest;
 

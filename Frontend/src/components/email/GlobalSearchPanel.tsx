@@ -59,7 +59,7 @@ export default function GlobalSearchPanel() {
     return (
       <div
         key={`${item.type}-${item.id}`}
-        className="flex items-center gap-3 p-3 hover:bg-gray-50 dark:hover:bg-meta-4 cursor-pointer border-b border-[#eee] dark:border-strokedark"
+        className="flex items-center gap-3 p-3 hover:bg-gray-50 dark:hover:bg-gray-500 cursor-pointer border-b border-[#eee] dark:border-gray-700"
         onClick={() => {
           const route = getResultRoute(item);
           setIsOpen(false);
@@ -71,7 +71,7 @@ export default function GlobalSearchPanel() {
           <p className="font-medium text-black dark:text-white truncate">{item.title}</p>
           <p className="text-sm text-gray-500 truncate">{item.subtitle}</p>
         </div>
-        <span className="text-xs bg-gray-100 dark:bg-meta-4 px-2 py-1 rounded">{item.type}</span>
+        <span className="text-xs bg-gray-100 dark:bg-gray-500 px-2 py-1 rounded">{item.type}</span>
       </div>
     );
   };
@@ -85,7 +85,7 @@ export default function GlobalSearchPanel() {
           value={query}
           onChange={e => setQuery(e.target.value)}
           onKeyDown={e => e.key === 'Enter' && handleSearch()}
-          className="w-64 border rounded-lg px-3 py-2 text-sm dark:bg-form-input dark:border-form-strokedark"
+          className="w-64 border rounded-lg px-3 py-2 text-sm dark:bg-white dark:border-gray-700"
         />
         <button
           onClick={handleSearch}
@@ -97,8 +97,8 @@ export default function GlobalSearchPanel() {
       </div>
 
       {isOpen && results && (
-        <div className="absolute top-full left-0 right-0 mt-2 bg-white dark:bg-boxdark rounded-lg shadow-lg border border-gray-200 dark:border-strokedark z-50 max-h-96 overflow-y-auto">
-          <div className="p-2 border-b border-gray-200 dark:border-strokedark">
+        <div className="absolute top-full left-0 right-0 mt-2 bg-white dark:bg-gray-900 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 z-50 max-h-96 overflow-y-auto">
+          <div className="p-2 border-b border-gray-200 dark:border-gray-700">
             <div className="flex justify-between items-center">
               <span className="text-sm font-medium text-black dark:text-white">
                 {results.totalResults} result(s)

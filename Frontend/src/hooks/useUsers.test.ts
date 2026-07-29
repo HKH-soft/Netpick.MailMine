@@ -41,7 +41,7 @@ describe('useUsers hook', () => {
       isLast: true,
     };
 
-    (UserService.getAllUsers as any).mockResolvedValue(mockResponse);
+    vi.mocked(UserService.getAllUsers).mockResolvedValue(mockResponse);
 
     const { result } = renderHook(() => useUsers(1));
 
@@ -55,7 +55,7 @@ describe('useUsers hook', () => {
   });
 
   it('handles fetch error gracefully', async () => {
-    (UserService.getAllUsers as any).mockRejectedValue(new Error('Network error'));
+    vi.mocked(UserService.getAllUsers).mockRejectedValue(new Error('Network error'));
 
     const { result } = renderHook(() => useUsers(1));
 
@@ -66,14 +66,14 @@ describe('useUsers hook', () => {
 });
 
 describe('useUser hook', () => {
-  const mockUser = { id: '1', email: 'user@example.com', name: 'Test User', role: 'USER' };
+  const mockUser = { id: '1', email: 'user@example.com', name: 'Test User', role: 'USER', isVerified: true, created_at: '', updatedAt: '', lastLoginAt: '' };
 
   beforeEach(() => {
     vi.clearAllMocks();
   });
 
   it('fetches user by ID on successful request', async () => {
-    (UserService.getUserById as any).mockResolvedValue(mockUser);
+    vi.mocked(UserService.getUserById).mockResolvedValue(mockUser);
 
     const { result } = renderHook(() => useUser('1'));
 

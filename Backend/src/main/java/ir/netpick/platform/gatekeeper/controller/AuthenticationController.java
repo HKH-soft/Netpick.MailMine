@@ -70,7 +70,7 @@ public class AuthenticationController {
             @ApiResponse(responseCode = "409", description = "Email already registered")
     })
     @PostMapping("sign-up")
-    public ResponseEntity<MessageResponse> signUp(@RequestBody AuthenticationSignupRequest request) {
+    public ResponseEntity<MessageResponse> signUp(@Valid @RequestBody AuthenticationSignupRequest request) {
         authenticationService.signUp(request);
         return ResponseEntity
                 .ok(new MessageResponse("User registered successfully. Please check your email for verification."));

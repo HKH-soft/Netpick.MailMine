@@ -22,7 +22,7 @@ describe('UserService', () => {
 
   it('calls getCurrentUser with correct endpoint', async () => {
     const mockUser = { id: '1', email: 'test@example.com', name: 'Test', role: 'USER', isVerified: true, created_at: '', updatedAt: '', lastLoginAt: '' };
-    (api.get as any).mockResolvedValue(mockUser);
+    vi.mocked(api.get).mockResolvedValue(mockUser);
 
     const result = await UserService.getCurrentUser();
 
@@ -44,17 +44,17 @@ describe('UserService', () => {
       isLast: true,
     };
 
-    (api.get as any).mockResolvedValue(mockResponse);
+    vi.mocked(api.get).mockResolvedValue(mockResponse);
 
     const result = await UserService.getAllUsers(1);
 
-    expect(api.get).toHaveBeenCalledWith(expect.stringContaining('/users?'));
+    expect(api.get).toHaveBeenCalledWith('/api/v1/gatekeeper/users?page=1', expect.any(Object));
     expect(result).toEqual(mockResponse);
   });
 
   it('calls getUserById with correct endpoint', async () => {
     const mockUser = { id: '123', email: 'test@example.com', name: 'Test', role: 'USER', isVerified: true, created_at: '', updatedAt: '', lastLoginAt: '' };
-    (api.get as any).mockResolvedValue(mockUser);
+    vi.mocked(api.get).mockResolvedValue(mockUser);
 
     const result = await UserService.getUserById('123');
 
@@ -64,7 +64,7 @@ describe('UserService', () => {
 
   it('calls updateUser correctly', async () => {
     const mockUser = { id: '123', email: 'test@example.com', name: 'Updated', role: 'ADMIN', isVerified: true, created_at: '', updatedAt: '', lastLoginAt: '' };
-    (api.put as any).mockResolvedValue(mockUser);
+    vi.mocked(api.put).mockResolvedValue(mockUser);
 
     const result = await UserService.updateUser('123', { name: 'Updated' });
 
@@ -73,7 +73,7 @@ describe('UserService', () => {
   });
 
   it('calls deleteUser correctly', async () => {
-    (api.delete as any).mockResolvedValue(undefined);
+    vi.mocked(api.delete).mockResolvedValue(undefined);
 
     await UserService.deleteUser('123');
 

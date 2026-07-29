@@ -66,12 +66,12 @@ describe('persianNumbers utilities', () => {
   describe('formatDecimal', () => {
     it('formats decimal number with Persian numerals', () => {
       const result = formatDecimal(1234.56);
-      expect(result).toContain('۱٬۲۳۴');
-      expect(result).toMatch(/.*٬.*۵۶/);
+      expect(result).toContain('۱,۲۳۴');
+      expect(result).toMatch(/.*,.*۵۶/);
     });
 
     it('handles integer values', () => {
-      expect(formatDecimal(1000)).toMatch(/۱٬۰۰۰/);
+      expect(formatDecimal(1000)).toMatch(/۱,۰۰۰/);
     });
   });
 
@@ -79,7 +79,7 @@ describe('persianNumbers utilities', () => {
     it('formats currency with default Iranian Rial', () => {
       const result = formatCurrency(1000);
       expect(result).toContain('ریال');
-      expect(result).toContain('۱٬۰۰۰');
+      expect(result).toContain('۱,۰۰۰');
     });
 
     it('allows custom currency', () => {

@@ -40,7 +40,10 @@ export const usePipeline = (id: string | null) => {
   const [error, setError] = useState<string | null>(null);
 
   const fetchPipeline = useCallback(async () => {
-    if (!id) return;
+    if (!id) {
+      setLoading(false);
+      return;
+    }
 
     try {
       setLoading(true);

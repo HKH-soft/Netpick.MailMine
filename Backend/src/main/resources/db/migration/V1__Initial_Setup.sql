@@ -1,6 +1,6 @@
 -- Create roles table
 CREATE TABLE IF NOT EXISTS roles (
-    id UUID PRIMARY KEY DEFAULT (lower(hex(randomblob(16)))),
+    id TEXT PRIMARY KEY DEFAULT (lower(hex(randomblob(4))) || '-' || lower(hex(randomblob(2))) || '-' || lower(hex(randomblob(2))) || '-' || lower(hex(randomblob(2))) || '-' || lower(hex(randomblob(6)))),
     name VARCHAR(50) NOT NULL UNIQUE,
     description TEXT,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
@@ -10,12 +10,12 @@ CREATE TABLE IF NOT EXISTS roles (
 
 -- Create users table
 CREATE TABLE IF NOT EXISTS users (
-    id UUID PRIMARY KEY DEFAULT (lower(hex(randomblob(16)))),
+    id TEXT PRIMARY KEY DEFAULT (lower(hex(randomblob(4))) || '-' || lower(hex(randomblob(2))) || '-' || lower(hex(randomblob(2))) || '-' || lower(hex(randomblob(2))) || '-' || lower(hex(randomblob(6)))),
     email VARCHAR(255) NOT NULL UNIQUE,
     password_hash TEXT NOT NULL,
     name VARCHAR(255),
     profile_image_key VARCHAR(255),
-    role_id UUID NOT NULL REFERENCES roles(id),
+    role_id TEXT NOT NULL REFERENCES roles(id),
     is_verified BOOLEAN NOT NULL DEFAULT FALSE,
     last_login_at TIMESTAMP,
     verification_code VARCHAR(255),
@@ -34,7 +34,7 @@ CREATE INDEX IF NOT EXISTS idx_users_role_id ON users(role_id);
 
 -- Create scrape_jobs table
 CREATE TABLE IF NOT EXISTS scrape_job (
-    id UUID PRIMARY KEY DEFAULT (lower(hex(randomblob(16)))),
+    id TEXT PRIMARY KEY DEFAULT (lower(hex(randomblob(4))) || '-' || lower(hex(randomblob(2))) || '-' || lower(hex(randomblob(2))) || '-' || lower(hex(randomblob(2))) || '-' || lower(hex(randomblob(6)))),
     scrape_link TEXT NOT NULL UNIQUE,
     attempt_number INTEGER NOT NULL DEFAULT 0,
     been_scraped BOOLEAN DEFAULT FALSE,
@@ -49,10 +49,10 @@ CREATE INDEX IF NOT EXISTS idx_scrapejob_link ON scrape_job(scrape_link);
 
 -- Create scrape_data table
 CREATE TABLE IF NOT EXISTS scrape_data (
-    id UUID PRIMARY KEY DEFAULT (lower(hex(randomblob(16)))),
+    id TEXT PRIMARY KEY DEFAULT (lower(hex(randomblob(4))) || '-' || lower(hex(randomblob(2))) || '-' || lower(hex(randomblob(2))) || '-' || lower(hex(randomblob(2))) || '-' || lower(hex(randomblob(6)))),
     file_name VARCHAR(255) NOT NULL,
     attempt_number INTEGER NOT NULL,
-    job_id UUID NOT NULL REFERENCES scrape_job(id),
+    job_id TEXT NOT NULL REFERENCES scrape_job(id),
     parsed BOOLEAN DEFAULT FALSE,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
@@ -61,8 +61,8 @@ CREATE TABLE IF NOT EXISTS scrape_data (
 
 -- Create contacts table
 CREATE TABLE IF NOT EXISTS contacts (
-    id UUID PRIMARY KEY DEFAULT (lower(hex(randomblob(16)))),
-    scrape_data_id UUID NOT NULL REFERENCES scrape_data(id),
+    id TEXT PRIMARY KEY DEFAULT (lower(hex(randomblob(4))) || '-' || lower(hex(randomblob(2))) || '-' || lower(hex(randomblob(2))) || '-' || lower(hex(randomblob(2))) || '-' || lower(hex(randomblob(6)))),
+    scrape_data_id TEXT NOT NULL REFERENCES scrape_data(id),
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     deleted BOOLEAN NOT NULL DEFAULT FALSE
@@ -70,14 +70,14 @@ CREATE TABLE IF NOT EXISTS contacts (
 
 -- Create contact_emails table (for Contact entity emails collection)
 CREATE TABLE IF NOT EXISTS contact_emails (
-    contact_id UUID NOT NULL REFERENCES contacts(id),
+    contact_id TEXT NOT NULL REFERENCES contacts(id),
     email VARCHAR(255),
     PRIMARY KEY (contact_id, email)
 );
 
 -- Create proxies table
 CREATE TABLE IF NOT EXISTS proxies (
-    id UUID PRIMARY KEY DEFAULT (lower(hex(randomblob(16)))),
+    id TEXT PRIMARY KEY DEFAULT (lower(hex(randomblob(4))) || '-' || lower(hex(randomblob(2))) || '-' || lower(hex(randomblob(2))) || '-' || lower(hex(randomblob(2))) || '-' || lower(hex(randomblob(6)))),
     name VARCHAR(255),
     host VARCHAR(255),
     port INTEGER,
@@ -90,7 +90,7 @@ CREATE TABLE IF NOT EXISTS proxies (
     success_count INTEGER DEFAULT 0,
     failure_count INTEGER DEFAULT 0,
     avg_response_time_ms INTEGER,
-    uuid VARCHAR(255),
+    TEXT VARCHAR(255),
     encryption VARCHAR(50),
     transport VARCHAR(20),
     security VARCHAR(20),
@@ -114,7 +114,7 @@ CREATE TABLE IF NOT EXISTS proxies (
 
 -- Create api_keys table
 CREATE TABLE IF NOT EXISTS api_keys (
-    id UUID PRIMARY KEY DEFAULT (lower(hex(randomblob(16)))),
+    id TEXT PRIMARY KEY DEFAULT (lower(hex(randomblob(4))) || '-' || lower(hex(randomblob(2))) || '-' || lower(hex(randomblob(2))) || '-' || lower(hex(randomblob(2))) || '-' || lower(hex(randomblob(6)))),
     key VARCHAR(255) NOT NULL UNIQUE,
     point_left INTEGER,
     link_id VARCHAR(255) NOT NULL,
@@ -126,7 +126,7 @@ CREATE TABLE IF NOT EXISTS api_keys (
 
 -- Create search_queries table
 CREATE TABLE IF NOT EXISTS search_queries (
-    id UUID PRIMARY KEY DEFAULT (lower(hex(randomblob(16)))),
+    id TEXT PRIMARY KEY DEFAULT (lower(hex(randomblob(4))) || '-' || lower(hex(randomblob(2))) || '-' || lower(hex(randomblob(2))) || '-' || lower(hex(randomblob(2))) || '-' || lower(hex(randomblob(6)))),
     sentence VARCHAR(255) NOT NULL UNIQUE,
     link_count INTEGER NOT NULL DEFAULT 0,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
@@ -138,8 +138,8 @@ CREATE INDEX IF NOT EXISTS idx_searchquery_sentence ON search_queries(sentence);
 
 -- Create notifications table
 CREATE TABLE IF NOT EXISTS notifications (
-    id UUID PRIMARY KEY DEFAULT (lower(hex(randomblob(16)))),
-    user_id UUID NOT NULL REFERENCES users(id),
+    id TEXT PRIMARY KEY DEFAULT (lower(hex(randomblob(4))) || '-' || lower(hex(randomblob(2))) || '-' || lower(hex(randomblob(2))) || '-' || lower(hex(randomblob(2))) || '-' || lower(hex(randomblob(6)))),
+    user_id TEXT NOT NULL REFERENCES users(id),
     title VARCHAR(255) NOT NULL,
     message TEXT NOT NULL,
     type VARCHAR(50) NOT NULL,
@@ -152,7 +152,7 @@ CREATE TABLE IF NOT EXISTS notifications (
 
 -- Create pipeline table
 CREATE TABLE IF NOT EXISTS pipeline (
-    id UUID PRIMARY KEY DEFAULT (lower(hex(randomblob(16)))),
+    id TEXT PRIMARY KEY DEFAULT (lower(hex(randomblob(4))) || '-' || lower(hex(randomblob(2))) || '-' || lower(hex(randomblob(2))) || '-' || lower(hex(randomblob(2))) || '-' || lower(hex(randomblob(6)))),
     stage VARCHAR(50),
     state VARCHAR(50),
     start_time TIMESTAMP,
@@ -173,3 +173,5 @@ CREATE TABLE IF NOT EXISTS pipeline (
 INSERT OR IGNORE INTO roles (name, description) VALUES ('USER', 'Regular user');
 INSERT OR IGNORE INTO roles (name, description) VALUES ('ADMIN', 'Administrator');
 INSERT OR IGNORE INTO roles (name, description) VALUES ('SUPER_ADMIN', 'Super administrator');
+
+

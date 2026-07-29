@@ -2,13 +2,13 @@
 
 -- Create shared_inbox_members join table (missing from V4)
 CREATE TABLE IF NOT EXISTS shared_inbox_members (
-    shared_inbox_id UUID NOT NULL REFERENCES shared_inboxes(id) ON DELETE CASCADE,
-    user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    shared_inbox_id TEXT NOT NULL REFERENCES shared_inboxes(id) ON DELETE CASCADE,
+    user_id TEXT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
     PRIMARY KEY (shared_inbox_id, user_id)
 );
 
 CREATE TABLE IF NOT EXISTS campaigns (
-    id UUID PRIMARY KEY DEFAULT (lower(hex(randomblob(16)))),
+    id TEXT PRIMARY KEY DEFAULT (lower(hex(randomblob(4))) || '-' || lower(hex(randomblob(2))) || '-' || lower(hex(randomblob(2))) || '-' || lower(hex(randomblob(2))) || '-' || lower(hex(randomblob(6)))),
     name VARCHAR(255) NOT NULL,
     description TEXT,
     subject_line VARCHAR(500) NOT NULL,
@@ -30,7 +30,7 @@ CREATE TABLE IF NOT EXISTS campaigns (
     ab_sent_count INTEGER NOT NULL DEFAULT 0,
     ab_opened_count_a INTEGER NOT NULL DEFAULT 0,
     ab_opened_count_b INTEGER NOT NULL DEFAULT 0,
-    created_by_id UUID REFERENCES users(id),
+    created_by_id TEXT REFERENCES users(id),
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     deleted BOOLEAN NOT NULL DEFAULT FALSE
@@ -41,8 +41,8 @@ CREATE INDEX IF NOT EXISTS idx_campaigns_scheduled ON campaigns(scheduled_at);
 CREATE INDEX IF NOT EXISTS idx_campaigns_created_by ON campaigns(created_by_id);
 
 CREATE TABLE IF NOT EXISTS campaign_recipients (
-    id UUID PRIMARY KEY DEFAULT (lower(hex(randomblob(16)))),
-    campaign_id UUID NOT NULL REFERENCES campaigns(id) ON DELETE CASCADE,
+    id TEXT PRIMARY KEY DEFAULT (lower(hex(randomblob(4))) || '-' || lower(hex(randomblob(2))) || '-' || lower(hex(randomblob(2))) || '-' || lower(hex(randomblob(2))) || '-' || lower(hex(randomblob(6)))),
+    campaign_id TEXT NOT NULL REFERENCES campaigns(id) ON DELETE CASCADE,
     recipient_email VARCHAR(255) NOT NULL,
     recipient_name VARCHAR(255),
     status VARCHAR(50) NOT NULL DEFAULT 'PENDING',
@@ -61,3 +61,5 @@ CREATE TABLE IF NOT EXISTS campaign_recipients (
 CREATE INDEX IF NOT EXISTS idx_campaign_recipients_campaign ON campaign_recipients(campaign_id);
 CREATE INDEX IF NOT EXISTS idx_campaign_recipients_status ON campaign_recipients(status);
 CREATE INDEX IF NOT EXISTS idx_campaign_recipients_email ON campaign_recipients(recipient_email);
+
+

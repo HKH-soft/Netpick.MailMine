@@ -13,7 +13,7 @@ interface FolderItemProps {
 export default function FolderItem({ folder, onDelete, onClick }: FolderItemProps) {
   return (
     <div
-      className="flex flex-col items-center p-3 border border-gray-200 dark:border-strokedark rounded-lg hover:bg-gray-50 dark:hover:bg-white/5 group cursor-pointer"
+      className="flex flex-col items-center p-3 border border-gray-200 dark:border-gray-700 rounded-lg hover:bg-gray-50 dark:hover:bg-white/5 group cursor-pointer"
       onClick={() => onClick?.(folder.id)}
     >
       <FiFolder className="w-8 h-8 text-yellow-500 mb-2" />

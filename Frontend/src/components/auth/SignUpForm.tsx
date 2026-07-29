@@ -26,6 +26,19 @@ export default function SignUpForm() {
       .required(t('auth.signUp.emailRequired')),
     password: Yup.string()
       .min(12, t('auth.signUp.passwordMinLength'))
+      .matches(/[A-Z]/, t('auth.signUp.passwordUppercase'))
+      .matches(/[a-z]/, t('auth.signUp.passwordLowercase'))
+      .matches(/[0-9]/, t('auth.signUp.passwordNumber'))
+      .matches(/[^A-Za-z0-9]/, t('auth.signUp.passwordSpecial'))
+      .test('category-count', t('auth.signUp.passwordVariety'), (value) => {
+        if (!value) return false;
+        let categories = 0;
+        if (/[A-Z]/.test(value)) categories++;
+        if (/[a-z]/.test(value)) categories++;
+        if (/[0-9]/.test(value)) categories++;
+        if (/[^A-Za-z0-9]/.test(value)) categories++;
+        return categories >= 3;
+      })
       .required(t('auth.signUp.passwordRequired')),
   });
 
@@ -50,8 +63,9 @@ export default function SignUpForm() {
       await AuthService.signup(request);
       // Redirect to verification page with email as query param
       router.push(`/verify?email=${encodeURIComponent(values.email)}`);
-    } catch {
-      setError(t('auth.signUp.signupError'));
+    } catch (err) {
+      const message = err instanceof Error ? err.message : t('auth.signUp.signupError');
+      setError(message);
     } finally {
       setSubmitting(false);
     }

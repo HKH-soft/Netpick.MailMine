@@ -3,8 +3,8 @@
 
 -- 1. MFA Settings per user
 CREATE TABLE IF NOT EXISTS mfa_settings (
-    id UUID PRIMARY KEY DEFAULT (lower(hex(randomblob(16)))),
-    user_id UUID NOT NULL UNIQUE REFERENCES users(id) ON DELETE CASCADE,
+    id TEXT PRIMARY KEY DEFAULT (lower(hex(randomblob(4))) || '-' || lower(hex(randomblob(2))) || '-' || lower(hex(randomblob(2))) || '-' || lower(hex(randomblob(2))) || '-' || lower(hex(randomblob(6)))),
+    user_id TEXT NOT NULL UNIQUE REFERENCES users(id) ON DELETE CASCADE,
     mfa_enabled BOOLEAN NOT NULL DEFAULT FALSE,
     totp_secret VARCHAR(255),
     totp_verified BOOLEAN NOT NULL DEFAULT FALSE,
@@ -18,8 +18,8 @@ CREATE INDEX IF NOT EXISTS idx_mfa_settings_user_id ON mfa_settings(user_id);
 
 -- 2. MFA Backup Codes
 CREATE TABLE IF NOT EXISTS mfa_backup_codes (
-    id UUID PRIMARY KEY DEFAULT (lower(hex(randomblob(16)))),
-    user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    id TEXT PRIMARY KEY DEFAULT (lower(hex(randomblob(4))) || '-' || lower(hex(randomblob(2))) || '-' || lower(hex(randomblob(2))) || '-' || lower(hex(randomblob(2))) || '-' || lower(hex(randomblob(6)))),
+    user_id TEXT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
     code_hash VARCHAR(255) NOT NULL,
     used BOOLEAN NOT NULL DEFAULT FALSE,
     used_at TIMESTAMP,
@@ -31,9 +31,9 @@ CREATE INDEX IF NOT EXISTS idx_mfa_backup_codes_user_id ON mfa_backup_codes(user
 
 -- 3. Security Events (immutable audit log)
 CREATE TABLE IF NOT EXISTS security_events (
-    id UUID PRIMARY KEY DEFAULT (lower(hex(randomblob(16)))),
+    id TEXT PRIMARY KEY DEFAULT (lower(hex(randomblob(4))) || '-' || lower(hex(randomblob(2))) || '-' || lower(hex(randomblob(2))) || '-' || lower(hex(randomblob(2))) || '-' || lower(hex(randomblob(6)))),
     event_type VARCHAR(50) NOT NULL,
-    user_id UUID,
+    user_id TEXT,
     user_email VARCHAR(255),
     ip_address VARCHAR(45),
     user_agent TEXT,
@@ -53,9 +53,9 @@ CREATE INDEX IF NOT EXISTS idx_security_events_risk ON security_events(risk_scor
 
 -- 4. Device Sessions (active session tracking)
 CREATE TABLE IF NOT EXISTS device_sessions (
-    id UUID PRIMARY KEY DEFAULT (lower(hex(randomblob(16)))),
-    user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
-    refresh_token_id UUID REFERENCES refresh_tokens(id) ON DELETE SET NULL,
+    id TEXT PRIMARY KEY DEFAULT (lower(hex(randomblob(4))) || '-' || lower(hex(randomblob(2))) || '-' || lower(hex(randomblob(2))) || '-' || lower(hex(randomblob(2))) || '-' || lower(hex(randomblob(6)))),
+    user_id TEXT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    refresh_token_id TEXT REFERENCES refresh_tokens(id) ON DELETE SET NULL,
     device_fingerprint VARCHAR(255),
     device_info TEXT,
     ip_address VARCHAR(45),
@@ -74,7 +74,7 @@ CREATE INDEX IF NOT EXISTS idx_device_sessions_active ON device_sessions(user_id
 
 -- 5. IP Access Policies (allowlist/blocklist)
 CREATE TABLE IF NOT EXISTS ip_policies (
-    id UUID PRIMARY KEY DEFAULT (lower(hex(randomblob(16)))),
+    id TEXT PRIMARY KEY DEFAULT (lower(hex(randomblob(4))) || '-' || lower(hex(randomblob(2))) || '-' || lower(hex(randomblob(2))) || '-' || lower(hex(randomblob(2))) || '-' || lower(hex(randomblob(6)))),
     policy_name VARCHAR(100) NOT NULL,
     policy_type VARCHAR(20) NOT NULL CHECK (policy_type IN ('ALLOWLIST', 'BLOCKLIST')),
     ip_address VARCHAR(45),
@@ -84,7 +84,7 @@ CREATE TABLE IF NOT EXISTS ip_policies (
     description TEXT,
     is_active BOOLEAN NOT NULL DEFAULT TRUE,
     expires_at TIMESTAMP,
-    created_by_id UUID REFERENCES users(id),
+    created_by_id TEXT REFERENCES users(id),
     created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     deleted BOOLEAN NOT NULL DEFAULT FALSE
@@ -94,8 +94,8 @@ CREATE INDEX IF NOT EXISTS idx_ip_policies_type_active ON ip_policies(policy_typ
 
 -- 6. Password History (prevent reuse)
 CREATE TABLE IF NOT EXISTS password_history (
-    id UUID PRIMARY KEY DEFAULT (lower(hex(randomblob(16)))),
-    user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    id TEXT PRIMARY KEY DEFAULT (lower(hex(randomblob(4))) || '-' || lower(hex(randomblob(2))) || '-' || lower(hex(randomblob(2))) || '-' || lower(hex(randomblob(2))) || '-' || lower(hex(randomblob(6)))),
+    user_id TEXT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
     password_hash VARCHAR(255) NOT NULL,
     created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
@@ -107,3 +107,5 @@ ALTER TABLE users ADD COLUMN mfa_enabled BOOLEAN NOT NULL DEFAULT FALSE;
 
 -- 8. Add last_known_ip to users for anomaly detection
 ALTER TABLE users ADD COLUMN last_known_ip VARCHAR(45);
+
+

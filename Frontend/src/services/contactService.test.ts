@@ -29,7 +29,7 @@ describe('ContactService', () => {
       isLast: true,
     };
 
-    (api.get as any).mockResolvedValue(mockResponse);
+    vi.mocked(api.get).mockResolvedValue(mockResponse);
 
     const result = await contactService.getAllContacts();
 
@@ -39,7 +39,7 @@ describe('ContactService', () => {
 
   it('calls getContactById with correct endpoint', async () => {
     const mockContact = { id: '123', emails: ['test@example.com'], createdAt: '', updatedAt: '' };
-    (api.get as any).mockResolvedValue(mockContact);
+    vi.mocked(api.get).mockResolvedValue(mockContact);
 
     const result = await contactService.getContactById('123');
 
@@ -48,7 +48,7 @@ describe('ContactService', () => {
   });
 
   it('calls getStats with correct endpoint', async () => {
-    (api.get as any).mockResolvedValue({ total: 100 });
+    vi.mocked(api.get).mockResolvedValue({ total: 100 });
 
     const result = await contactService.getStats();
 
@@ -57,7 +57,7 @@ describe('ContactService', () => {
   });
 
   it('calls deleteContact correctly', async () => {
-    (api.delete as any).mockResolvedValue(undefined);
+    vi.mocked(api.delete).mockResolvedValue(undefined);
 
     await contactService.deleteContact('123');
 
@@ -65,7 +65,7 @@ describe('ContactService', () => {
   });
 
   it('calls restoreContact correctly', async () => {
-    (api.put as any).mockResolvedValue(undefined);
+    vi.mocked(api.put).mockResolvedValue(undefined);
 
     await contactService.restoreContact('123');
 

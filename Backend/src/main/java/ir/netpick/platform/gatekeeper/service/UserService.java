@@ -1,4 +1,4 @@
-﻿package ir.netpick.platform.gatekeeper.service;
+package ir.netpick.platform.gatekeeper.service;
 
 import com.nulabinc.zxcvbn.Strength;
 import com.nulabinc.zxcvbn.Zxcvbn;
@@ -20,6 +20,7 @@ import ir.netpick.platform.core.exception.DuplicateResourceException;
 import ir.netpick.platform.core.exception.RequestValidationException;
 import ir.netpick.platform.core.exception.ResourceNotFoundException;
 import ir.netpick.platform.core.exception.SystemConfigurationException;
+import org.springframework.dao.DataIntegrityViolationException;
 import ir.netpick.platform.core.utils.PageDTOMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -411,7 +412,7 @@ public class UserService {
 
     @SuppressWarnings("nullness")
     private User createUser(AuthenticationSignupRequest request, Optional<Role> optionalRole, boolean verified) {
-        log.info("Creating new unverified user with email: {}", request.email());
+        log.info("Creating new user with email: {}", request.email());
 
         if (isRegisterRequestInvalid(request)) {
             throw new RequestValidationException(
@@ -442,12 +443,20 @@ public class UserService {
                 request.name(),
                 optionalRole.get());
 
-        User savedUser = userRepository.save(user);
         if (verified) {
-            savedUser.setIsVerified(true);
+            user.setIsVerified(true);
         }
-        log.info("Successfully created user with ID: {} and email: {}", savedUser.getId(), savedUser.getEmail());
-        return savedUser;
+
+        try {
+            User savedUser = userRepository.save(user);
+            log.info("Successfully created user with ID: {} and email: {}", savedUser.getId(), savedUser.getEmail());
+            return savedUser;
+        } catch (DataIntegrityViolationException e) {
+            log.warn("Email already exists (possibly soft-deleted): {}", request.email());
+            throw new DuplicateResourceException(
+                    "An account with this email address already exists. " +
+                            "Please use a different email or sign in to your existing account.");
+        }
     }
 
     /**

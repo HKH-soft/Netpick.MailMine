@@ -1,16 +1,18 @@
 ﻿import { defineConfig } from 'vitest/config';
 import { resolve } from 'path';
+import react from '@vitejs/plugin-react';
 
 export default defineConfig({
+  plugins: [react()],
   test: {
     environment: 'jsdom',
     globals: true,
-    setupFiles: ['./src/__tests__/setupTests.ts'],
+    setupFiles: ['./src/__tests__/setupTests.tsx'],
     include: ['src/**/*.test.{ts,tsx}'],
-    exclude: ['node_modules', 'dist', '.next', 'tests/e2e'],
+    exclude: ['node_modules', 'dist', '.next', 'tests/e2e', 'playwright.config.ts'],
     css: {
       modules: {
-        classNameStrategy: 'generate',
+        classNameStrategy: 'non-scoped',
       },
     },
     coverage: {

@@ -61,7 +61,7 @@ describe('ApiService', () => {
 
     it('includes authorization header when token exists', async () => {
       const AuthService = await import('./authService');
-      (AuthService.default.getToken as any).mockReturnValue('test-jwt-token');
+      vi.mocked(AuthService.default.getToken).mockReturnValue('test-jwt-token');
 
       mockFetch.mockResolvedValue({
         ok: true,
@@ -235,6 +235,7 @@ describe('ApiService', () => {
         status: 500,
         headers: { get: () => 'application/json' },
         json: () => Promise.resolve({ message: 'Server error' }),
+        text: () => Promise.resolve(JSON.stringify({ message: 'Server error' })),
       });
 
       const { promise } = apiService.requestCancelable('/fail');
@@ -249,6 +250,7 @@ describe('ApiService', () => {
         status: 404,
         headers: { get: () => 'application/json' },
         json: () => Promise.resolve({ message: 'Not found' }),
+        text: () => Promise.resolve(JSON.stringify({ message: 'Not found' })),
       });
 
       await expect(apiService.get('/not-found')).rejects.toThrow('HTTP error! status: 404');
@@ -260,6 +262,7 @@ describe('ApiService', () => {
         status: 500,
         headers: { get: () => 'application/json' },
         json: () => Promise.resolve({ message: 'Server error' }),
+        text: () => Promise.resolve(JSON.stringify({ message: 'Server error' })),
       });
 
       await expect(apiService.get('/error')).rejects.toThrow('HTTP error! status: 500');
@@ -271,6 +274,7 @@ describe('ApiService', () => {
         status: 422,
         headers: { get: () => 'application/json' },
         json: () => Promise.resolve({ message: 'Validation failed', field: 'email' }),
+        text: () => Promise.resolve(JSON.stringify({ message: 'Validation failed', field: 'email' })),
       });
 
       try {
@@ -314,7 +318,7 @@ describe('ApiService', () => {
 
     it('retries on 401 and succeeds with refreshed token', async () => {
       const AuthService = await import('./authService');
-      (AuthService.default.refreshAccessToken as any).mockResolvedValue(true);
+      vi.mocked(AuthService.default.refreshAccessToken).mockResolvedValue(true);
 
       mockFetch
         .mockResolvedValueOnce({
@@ -322,6 +326,7 @@ describe('ApiService', () => {
           status: 401,
           headers: { get: () => 'application/json' },
           json: () => Promise.resolve({ message: 'Unauthorized' }),
+          text: () => Promise.resolve(JSON.stringify({ message: 'Unauthorized' })),
         })
         .mockResolvedValueOnce({
           ok: true,
@@ -336,13 +341,14 @@ describe('ApiService', () => {
 
     it('redirects to /signin on 401 when refresh fails', async () => {
       const AuthService = await import('./authService');
-      (AuthService.default.refreshAccessToken as any).mockResolvedValue(false);
+      vi.mocked(AuthService.default.refreshAccessToken).mockRejectedValue(new Error('Refresh failed'));
 
       mockFetch.mockResolvedValue({
         ok: false,
         status: 401,
         headers: { get: () => 'application/json' },
         json: () => Promise.resolve({ message: 'Unauthorized' }),
+        text: () => Promise.resolve(JSON.stringify({ message: 'Unauthorized' })),
       });
 
       await expect(apiService.get('/auth-required')).rejects.toThrow();
@@ -355,6 +361,7 @@ describe('ApiService', () => {
         status: 403,
         headers: { get: () => 'application/json' },
         json: () => Promise.resolve({ message: 'Forbidden' }),
+        text: () => Promise.resolve(JSON.stringify({ message: 'Forbidden' })),
       });
 
       await expect(apiService.get('/forbidden')).rejects.toThrow();

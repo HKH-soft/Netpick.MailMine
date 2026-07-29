@@ -170,7 +170,7 @@
   --z-index-999: 999;
   --z-index-9999: 9999;
   --z-index-99999: 99999;
---z-index-999999: 999999;
+  --z-index-999999: 999999;
 
   --color-accent:       #22c55e;
   --color-accent-light: #4ade80;
@@ -179,15 +179,6 @@
   --color-accent-glow:  rgba(34, 197, 94, 0.15);
 
   --color-cyan-glow: rgba(34, 197, 94, 0.08);
-
-  /* Legacy v3 color names — referenced by many components */
-  --color-boxdark: #1a1a2e;
-  --color-boxdark-2: #16162a;
-  --color-stroke: #e5e7eb;
-  --color-strokedark: #334155;
-  --color-meta-4: #64748b;
-  --color-form-input: #ffffff;
-  --color-form-strokedark: #334155;
 
   --color-border-sui-subtle:  rgba(255, 255, 255, 0.04);
   --color-border-sui-default: rgba(255, 255, 255, 0.06);

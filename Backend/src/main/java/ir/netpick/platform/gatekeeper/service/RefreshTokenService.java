@@ -33,7 +33,7 @@ public class RefreshTokenService {
     private final PasswordEncoder passwordEncoder;
 
     private static final SecureRandom secureRandom = new SecureRandom();
-    private static final int TOKEN_LENGTH = 64;
+    private static final int TOKEN_LENGTH = 48;
 
     @Value("${security.jwt.refresh-expiration-days:7}")
     private long refreshExpirationDays;

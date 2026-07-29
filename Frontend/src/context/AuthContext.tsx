@@ -42,14 +42,14 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     setIsAuthenticated(false);
   }, []);
 
-  if (!isInitialized && !isDevMode) {
-    return null;
-  }
-
   const value = useMemo(
     () => ({ isAuthenticated, login, logout, isInitialized }),
     [isAuthenticated, login, logout, isInitialized]
   );
+
+  if (!isInitialized && !isDevMode) {
+    return null;
+  }
 
   return (
     <AuthContext.Provider value={value}>

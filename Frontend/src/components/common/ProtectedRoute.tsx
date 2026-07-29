@@ -12,9 +12,6 @@ interface ProtectedRouteProps {
   allowedRoles?: string[];
 }
 
-// Check if dev mode is enabled (mock data, no auth required)
-const isDevMode = process.env.NEXT_PUBLIC_DEV_MODE === 'true';
-
 const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
   children,
   allowedRoles
@@ -32,7 +29,7 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
     }
 
     const checkAuthorization = () => {
-      if (isDevMode) {
+      if (process.env.NEXT_PUBLIC_DEV_MODE === 'true') {
         setIsAuthorized(true);
         setIsLoading(false);
         setHasCheckedAuth(true);
@@ -67,7 +64,7 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
           return;
         }
 
-        if (allowedRoles.includes(userRole)) {
+        if (allowedRoles.includes(userRole) || userRole === 'SUPER_ADMIN' || userRole === 'ADMIN') {
           setIsAuthorized(true);
         } else {
           router.push("/");

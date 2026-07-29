@@ -1,4 +1,4 @@
-﻿package ir.netpick.platform.gatekeeper.service;
+package ir.netpick.platform.gatekeeper.service;
 
 import ir.netpick.platform.gatekeeper.exception.UserAlreadyVerifiedException;
 import ir.netpick.platform.gatekeeper.model.User;

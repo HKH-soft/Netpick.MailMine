@@ -6,9 +6,9 @@ import { DropdownItem } from "../ui/dropdown/DropdownItem";
 import AuthService from "@/services/authService";
 import UserService from "@/services/userService";
 import { useAuth } from "@/context/AuthContext";
+import { useTranslation } from "react-i18next";
 import { ChevronDownSmIcon, UserProfileIcon, SettingsIcon, SupportIcon, SignoutIcon } from "@/icons";
 
-import { useTranslation } from "react-i18next";
 interface User {
   name: string;
   email: string;
@@ -16,6 +16,7 @@ interface User {
 }
 
 export default function UserDropdown() {
+  const { t } = useTranslation();
   const [isOpen, setIsOpen] = useState(false);
   const [user, setUser] = useState<User | null>(null);
   const { logout } = useAuth();

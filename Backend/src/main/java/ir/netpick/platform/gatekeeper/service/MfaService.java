@@ -1,4 +1,4 @@
-﻿package ir.netpick.platform.gatekeeper.service;
+package ir.netpick.platform.gatekeeper.service;
 
 import ir.netpick.platform.gatekeeper.dto.MfaSetupResponse;
 import ir.netpick.platform.gatekeeper.dto.MfaStatusResponse;

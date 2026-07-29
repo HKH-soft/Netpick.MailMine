@@ -1,7 +1,6 @@
 "use client";
 
 import React, { useState, useEffect } from 'react';
-import LoadingSpinner from '@/components/common/LoadingSpinner';
 import { useTheme } from '@/context/ThemeContext';
 
 interface ThemeProviderWrapperProps {
@@ -29,5 +28,3 @@ const ThemeProviderWrapper: React.FC<ThemeProviderWrapperProps> = ({
 };
 
 export default ThemeProviderWrapper;
-
-

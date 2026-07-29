@@ -1,4 +1,4 @@
-﻿package ir.netpick.platform.mailmine.repository;
+package ir.netpick.platform.mailmine.repository;
 
 import ir.netpick.platform.mailmine.model.EmailMessage;
 import ir.netpick.platform.mailmine.model.EmailMessage.EmailStatus;
@@ -58,7 +58,11 @@ public interface EmailMessageRepository extends JpaRepository<EmailMessage, UUID
     @Query("SELECT COUNT(e) FROM EmailMessage e WHERE e.isAnswered = false AND e.status = 'INBOX'")
     long countUnanswered();
 
-    @Query("SELECT AVG(FUNCTION('EXTRACT', EPOCH FROM e.lastReplyAt) - FUNCTION('EXTRACT', EPOCH FROM e.receivedAt)) FROM EmailMessage e WHERE e.isAnswered = true AND e.lastReplyAt IS NOT NULL AND e.receivedAt >= :start AND e.receivedAt < :end")
+    @Query(value = "SELECT AVG(strftime('%s', last_reply_at) - strftime('%s', received_at)) " +
+           "FROM email_messages " +
+           "WHERE is_answered = 1 AND last_reply_at IS NOT NULL " +
+           "AND received_at >= :start AND received_at < :end",
+           nativeQuery = true)
     Double averageResponseTimeSecondsBetween(@Param("start") LocalDateTime start, @Param("end") LocalDateTime end);
 
     @Query("SELECT e.senderEmail, COUNT(e) FROM EmailMessage e WHERE e.receivedAt >= :start AND e.receivedAt < :end GROUP BY e.senderEmail ORDER BY COUNT(e) DESC")
@@ -78,14 +82,3 @@ public interface EmailMessageRepository extends JpaRepository<EmailMessage, UUID
            nativeQuery = true)
     List<Object[]> volumeTrendBetween(@Param("start") LocalDateTime start, @Param("end") LocalDateTime end);
 }
-
-
-
-
-
-
-
-
-
-
-

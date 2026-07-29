@@ -32,26 +32,26 @@ export default function AnalyticsDashboard() {
 
       {/* Today's Stats */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
-        <div className="bg-white dark:bg-boxdark p-4 rounded-lg border border-gray-200 dark:border-strokedark">
+        <div className="bg-white dark:bg-gray-900 p-4 rounded-lg border border-gray-200 dark:border-gray-700">
           <p className="text-sm text-gray-500">Emails Today</p>
           <p className="text-2xl font-bold text-black dark:text-white">{data.today.emailsReceived}</p>
         </div>
-        <div className="bg-white dark:bg-boxdark p-4 rounded-lg border border-gray-200 dark:border-strokedark">
+        <div className="bg-white dark:bg-gray-900 p-4 rounded-lg border border-gray-200 dark:border-gray-700">
           <p className="text-sm text-gray-500">Replied</p>
           <p className="text-2xl font-bold text-green-500">{data.today.emailsReplied}</p>
         </div>
-        <div className="bg-white dark:bg-boxdark p-4 rounded-lg border border-gray-200 dark:border-strokedark">
+        <div className="bg-white dark:bg-gray-900 p-4 rounded-lg border border-gray-200 dark:border-gray-700">
           <p className="text-sm text-gray-500">Avg Response Time</p>
           <p className="text-2xl font-bold text-blue-500">{data.today.averageResponseTimeHours}h</p>
         </div>
-        <div className="bg-white dark:bg-boxdark p-4 rounded-lg border border-gray-200 dark:border-strokedark">
+        <div className="bg-white dark:bg-gray-900 p-4 rounded-lg border border-gray-200 dark:border-gray-700">
           <p className="text-sm text-gray-500">Unanswered</p>
           <p className="text-2xl font-bold text-red-500">{data.unansweredCount}</p>
         </div>
       </div>
 
       {/* Weekly Summary */}
-      <div className="bg-white dark:bg-boxdark p-4 rounded-lg border border-gray-200 dark:border-strokedark mb-6">
+      <div className="bg-white dark:bg-gray-900 p-4 rounded-lg border border-gray-200 dark:border-gray-700 mb-6">
         <h3 className="font-semibold mb-3">This Week</h3>
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
           <div>
@@ -78,7 +78,7 @@ export default function AnalyticsDashboard() {
       </div>
 
       {/* Response Time Metrics */}
-      <div className="bg-white dark:bg-boxdark p-4 rounded-lg border border-gray-200 dark:border-strokedark mb-6">
+      <div className="bg-white dark:bg-gray-900 p-4 rounded-lg border border-gray-200 dark:border-gray-700 mb-6">
         <h3 className="font-semibold mb-3">Response Time</h3>
         <div className="grid grid-cols-3 gap-4">
           <div>
@@ -97,7 +97,7 @@ export default function AnalyticsDashboard() {
       </div>
 
       {/* Top Senders */}
-      <div className="bg-white dark:bg-boxdark p-4 rounded-lg border border-gray-200 dark:border-strokedark">
+      <div className="bg-white dark:bg-gray-900 p-4 rounded-lg border border-gray-200 dark:border-gray-700">
         <h3 className="font-semibold mb-3">Top Senders (7 days)</h3>
         <div className="space-y-2">
           {data.topSenders.map((sender, index) => (

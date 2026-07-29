@@ -1,4 +1,4 @@
-﻿package ir.netpick.platform.gatekeeper.service;
+package ir.netpick.platform.gatekeeper.service;
 
 import ir.netpick.platform.gatekeeper.dto.*;
 import ir.netpick.platform.gatekeeper.email.AuthEmailService;
@@ -259,6 +259,7 @@ public class AuthenticationService {
      * @param request the sign-up request containing user details
      * @throws RequestValidationException if the registration request is invalid
      */
+    @Transactional
     public void signUp(AuthenticationSignupRequest request) {
         log.info("Attempting to register new user with email: {}", request.email());
 
